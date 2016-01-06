@@ -81,7 +81,7 @@ const int ** Img::getData(){
 */
 
 
-Img Img::operator+(Img & image){
+Img Img::operator+(Img& image){
 	int re_width=0;
 	int re_height=0;
 	int **re_data=NULL;
@@ -152,7 +152,6 @@ Img Img::operator*(int factor){
 	return Img(re_width,re_height,this->w_e_res, this->n_s_res,re_data);
 	
 }
-
 
 Img::~Img(){
 	if(data){

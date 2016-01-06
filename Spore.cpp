@@ -4,12 +4,15 @@ using namespace std;
 
 Sporulation::Sporulation(){
 	this->sp = NULL;
+	//seed = std::chrono::system_clock::now().time_since_epoch().count();
+	seed = 42;
+	generator.seed(seed);
 }
 
 void Sporulation::SporeGen(Img& I, double **weather, double rate){
 
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-  	std::default_random_engine generator(seed);
+	//unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+  	//std::default_random_engine generator(seed);
 
 	int height = I.getHeight();
 	int width = I.getWidth();
@@ -38,12 +41,12 @@ void Sporulation::SporeGen(Img& I, double **weather, double rate){
 	}
 }
 
-void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca, Img& I_oaks, Img& IMM, 
+void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca, Img& I_oaks, Img& lvtree_rast, 
 	Rtype rtype, double **weather, double scale1, int kappa, Direction wdir, 
 	double scale2,double gamma){
 
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-  	std::default_random_engine generator(seed);
+	//unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+  	//std::default_random_engine generator(seed);
   	std::cauchy_distribution<double> distribution_cauchy_one(0.0,scale1);
   	std::cauchy_distribution<double> distribution_cauchy_two(0.0,scale2);
   	std::bernoulli_distribution distribution_bern(gamma);
@@ -60,7 +63,7 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca, Img& I_
 
 	if(!sp){
 		cerr << "The spore matrix is empty!" << endl;
-		return;
+		return;	
 	}
 
 	for(int i=0;i<height;i++){
@@ -100,28 +103,20 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca, Img& I_
 
 					if(row == i && col == j){
 						if(S_umca.data[row][col] >0 || S_oaks.data[row][col] >0){
-							double prob = (double)(S_umca.data[row][col]+S_oaks.data[row][col]) / (
-								S_umca.data[row][col]+S_oaks.data[row][col] + I_umca.data[row][col]+I_oaks.data[row][col]+IMM.data[row][col]);
+							double prob = (double)(S_umca.data[row][col]+S_oaks.data[row][col]) / lvtree_rast.data[row][col];
 
 							double U = distribution_uniform(generator);
 							prob = prob*weather[row][col];
 
 							// if U < prob, then one host will become infected
 							if(U<prob){
-								//talk with Fransesco about whether S_umca will be negative
-								if(S_umca.data[row][col]>0 && I_umca.data[row][col]>0){
-									double prob_S_umca = (double)(S_umca.data[row][col]) / (
+								double prob_S_umca = (double)(S_umca.data[row][col]) / (
+										S_umca.data[row][col]+S_oaks.data[row][col]);
+								double prob_S_oaks = (double)(S_oaks.data[row][col]) / (
 										S_umca.data[row][col]+S_oaks.data[row][col]);
 
-									std::bernoulli_distribution distribution_bern_prob(prob_S_umca);
-									if(distribution_bern_prob(generator)){
-										I_umca.data[row][col] +=1;
-										S_umca.data[row][col] -=1;
-									}else{
-										I_oaks.data[row][col] +=1;
-										S_oaks.data[row][col] -=1;
-									}
-								}else if(S_umca.data[row][col]>0){
+								std::bernoulli_distribution distribution_bern_prob(prob_S_umca);
+								if(distribution_bern_prob(generator)){
 									I_umca.data[row][col] +=1;
 									S_umca.data[row][col] -=1;
 								}else{
@@ -132,8 +127,7 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca, Img& I_
 						}
 					}else{
 						if(S_umca.data[row][col]>0){
-							double prob_S_umca = (double)(S_umca.data[row][col]) / (
-								S_umca.data[row][col]+I_umca.data[row][col]+IMM.data[row][col]);
+							double prob_S_umca = (double)(S_umca.data[row][col]) / lvtree_rast.data[row][col];
 							double U = distribution_uniform(generator);
 							prob_S_umca *= weather[row][col];
 							if(U<prob_S_umca){
@@ -194,6 +188,46 @@ Sporulation::~Sporulation(){
 		if(sp[0])
 			delete [] sp[0];
 		delete [] sp;
+	}
+}
+
+bool Date::compareDate(Date& endtime){
+	if(year<endtime.year)
+		return true;
+	else if(year == endtime.year){
+		if(month<endtime.month)
+			return true;
+		else if(month == endtime.month){
+			if(day<=endtime.day)
+				return true;
+			else
+				return false;
+		}else
+			return false;
+	}else
+		return false;
+}
+
+void Date::increasedByWeek(){
+	day += 7;
+	if(year%4==0 && (year%100!=0||year%400==0)){
+		if(day>day_in_month[1][month]){
+			day = day - day_in_month[1][month];
+			month++;
+			if(month>12){
+				year++;
+				month = 1;
+			}
+		}
+	}else{
+		if(day>day_in_month[0][month]){
+			day = day - day_in_month[0][month];
+			month++;
+			if(month>12){
+				year++;
+				month = 1;
+			}
+		}
 	}
 }
 
