@@ -1,7 +1,7 @@
 #ifndef IMG_H
 #define IMG_H
 
-#include <gdal/gdal_priv.h>
+#include <gdal_priv.h>
 #include <iostream>
 #include <string>
 #include <cmath>

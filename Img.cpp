@@ -44,8 +44,8 @@ Img::Img(const char* fileName){
 			n_s_res = abs(adfGeoTransform[5]);
 		}
 
-		cout << width << "x" << height <<endl;
-		cout << w_e_res << "X" << n_s_res << endl;
+		//cout << width << "x" << height <<endl;
+		//cout << w_e_res << "X" << n_s_res << endl;
 
 		dataBand = dataset->GetRasterBand(1);
 		data = (int **)CPLMalloc(sizeof(int *) * height);
