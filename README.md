@@ -14,4 +14,6 @@ The main.cpp contains the main program to run.
 4.  sudo make(The library will take about 1 hour to install)
 5.  sudo make install
 5.  cd ..
-6.  
+6.  sudo apt-get install libnetcdf-dev
+7.  g++ -std=c++11 main.cpp Img.h Img.cpp Spore.h Spore.cpp -lgdal -lnetcdf_c++
+8.  ./a.out > result.txt
