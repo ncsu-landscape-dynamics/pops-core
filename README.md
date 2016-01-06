@@ -11,6 +11,7 @@ The main.cpp contains the main program to run.
 1.  Open an Linux shell and set the directory to the model folder.
 2.  cd gdal-2.0.1
 3.  sudo ./configure
-4.  make(The library will take about 1 hour to install)
+4.  sudo make(The library will take about 1 hour to install)
+5.  sudo make install
 5.  cd ..
 6.  
