@@ -30,9 +30,9 @@ private:
 	std::default_random_engine generator;
 public:
 	Sporulation();
-	void SporeGen(Img& I, double **weather, double rate);
+	void SporeGen(Img& I, double *weather, double rate);
 	void SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca, Img& I_oaks, Img& lvtree_rast,
-		Rtype rtype, double **weather, double scale1, int kappa=2, Direction wdir=NO, 
+		Rtype rtype, double *weather, double scale1, int kappa=2, Direction wdir=NO, 
 		double scale2 = 0.0,double gamma = 0.0);
 	~Sporulation();
 };

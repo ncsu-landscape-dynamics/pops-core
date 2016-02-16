@@ -19,7 +19,7 @@ Sporulation::Sporulation(){
 	generator.seed(seed);
 }
 
-void Sporulation::SporeGen(Img& I, double **weather, double rate){
+void Sporulation::SporeGen(Img& I, double *weather, double rate){
 
 	//unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   	//std::default_random_engine generator(seed);
@@ -39,7 +39,7 @@ void Sporulation::SporeGen(Img& I, double **weather, double rate){
 	for(int i=0;i<height;i++){
 		for(int j=0;j<width;j++){
 			if(I.data[i][j]>0){
-				double lambda = rate * weather[i][j];
+				double lambda = rate * weather[i*width+j];
 				int sum=0;
 				poisson_distribution<int> distribution(lambda);
 				for(int k=0;k<I.data[i][j];k++){
@@ -52,7 +52,7 @@ void Sporulation::SporeGen(Img& I, double **weather, double rate){
 }
 
 void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca, Img& I_oaks, Img& lvtree_rast, 
-	Rtype rtype, double **weather, double scale1, int kappa, Direction wdir, 
+	Rtype rtype, double *weather, double scale1, int kappa, Direction wdir, 
 	double scale2,double gamma){
 
 	//unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -116,7 +116,7 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca, Img& I_
 							double prob = (double)(S_umca.data[row][col]+S_oaks.data[row][col]) / lvtree_rast.data[row][col];
 
 							double U = distribution_uniform(generator);
-							prob = prob*weather[row][col];
+							prob = prob*weather[row*width+col];
 
 							// if U < prob, then one host will become infected
 							if(U<prob){
@@ -139,7 +139,7 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca, Img& I_
 						if(S_umca.data[row][col]>0){
 							double prob_S_umca = (double)(S_umca.data[row][col]) / lvtree_rast.data[row][col];
 							double U = distribution_uniform(generator);
-							prob_S_umca *= weather[row][col];
+							prob_S_umca *= weather[row*width+col];
 							if(U<prob_S_umca){
 								I_umca.data[row][col] +=1;
 								S_umca.data[row][col] -=1;
