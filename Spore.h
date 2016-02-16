@@ -1,3 +1,14 @@
+/*
+ *
+ *  SOD-model-cpp
+ *
+ *  Created on: Oct,2015 
+ *  Author: Zexi Chen(zchen22@ncsu.edu)
+ *
+ *
+ */
+
+
 #ifndef SPORE_H
 #define SPORE_H
 

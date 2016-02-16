@@ -1,3 +1,14 @@
+/*
+ *
+ *  SOD-model-cpp
+ *
+ *  Created on: Oct,2015 
+ *  Author: Zexi Chen(zchen22@ncsu.edu)
+ *
+ *
+ */
+
+
 #ifndef IMG_H
 #define IMG_H
 
@@ -7,6 +18,7 @@
 #include <cmath>
 #include <stdlib.h>
 #include <ctime>
+#include "cpl_string.h"
 
 enum Direction{
 	N=0,NE=45,E=90,SE=135,S=180,SW=225,W=270,NW=315,NO  // NO means that there is no wind
@@ -21,7 +33,6 @@ private:
 	// the north-south resolution of the pixel
 	int n_s_res;
 public:
-
 	int **data;
 	Img();
 	//Img(int width,int height);

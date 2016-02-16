@@ -1,3 +1,14 @@
+/*
+ *
+ *  SOD-model-cpp
+ *
+ *  Created on: Oct,2015 
+ *  Author: Zexi Chen(zchen22@ncsu.edu)
+ *
+ *
+ */
+
+
 #include "Img.h"
 
 using namespace std;
@@ -56,6 +67,7 @@ Img::Img(const char* fileName){
 		for(int i=0;i<height;i++){
 			data[i] = &stream[i*width];
 		}
+		GDALClose((GDALDatasetH) dataset);
 	}
 }
 
@@ -150,7 +162,6 @@ Img Img::operator*(int factor){
 		}
 	}
 	return Img(re_width,re_height,this->w_e_res, this->n_s_res,re_data);
-	
 }
 
 Img::~Img(){

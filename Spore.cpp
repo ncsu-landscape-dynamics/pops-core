@@ -1,3 +1,13 @@
+/*
+ *
+ *  SOD-model-cpp
+ *
+ *  Created on: Oct,2015 
+ *  Author: Zexi Chen(zchen22@ncsu.edu)
+ *
+ *
+ */
+
 #include "Spore.h"
 
 using namespace std;
@@ -154,8 +164,6 @@ double Sporulation::vonmisesvariate(double mu, double kappa){
 	*/
 
 	double a, b, c, f, r, theta, u1, u2, u3, z;
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-  	std::default_random_engine generator(seed);
   	std::uniform_real_distribution<double> distribution(0.0,1.0);
 	if(kappa<=1.e-06)
 		return 2*PI * distribution(generator);
