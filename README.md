@@ -7,16 +7,29 @@ The reference paper: Ross K. Meentemeyer, Nik J. Cunniffe, Alex R. Cook, Joao A.
 ## The files
 The main.cpp contains the main program to run.
 
-## To run the model(you can use Linux to run the model)
-1.  Open an Linux shell and set the directory to the model folder.
-2.  cd gdal-2.0.1
-3.  sudo ./configure
-4.  sudo make(The library will take about 1 hour to install)
-5.  sudo make install
-5.  cd ..
-6.  sudo apt-get install libnetcdf-dev
-7.  g++ -std=c++11 main.cpp Img.h Img.cpp Spore.h Spore.cpp -lgdal -lnetcdf_c++
-8.  ./a.out > result.txt
+## To run the model
+
+You can use Linux to run the model in the following way.
+
+Open an terminal and install dependencies:
+
+    sudo apt-get install libgdal-dev libnetcdf-dev
+
+Download the model code as ZIP or using Git:
+
+    git clone ...
+
+Change the current directory to the model directory:
+
+    cd ...
+
+Compile:
+
+    g++ -std=c++11 main.cpp Img.h Img.cpp Spore.h Spore.cpp -lgdal -lnetcdf_c++
+
+Run:
+
+  ./a.out > result.txt
 
 ## Authors
 
