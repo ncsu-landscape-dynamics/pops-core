@@ -26,7 +26,7 @@ Img::Img(){
 Img::Img(int width,int height){
 	this->width = width;
 	this->height = height;
-	data = (int *)CPLMalloc(sizeof(int)*width*height);
+	data = (int *)std::malloc(sizeof(int)*width*height);
 }
 */
 
@@ -59,8 +59,8 @@ Img::Img(const char* fileName){
 		//cout << w_e_res << "X" << n_s_res << endl;
 
 		dataBand = dataset->GetRasterBand(1);
-		data = (int **)CPLMalloc(sizeof(int *) * height);
-		int *stream = (int *)CPLMalloc(sizeof(int)*width*height);
+		data = (int **)std::malloc(sizeof(int *) * height);
+		int *stream = (int *)std::malloc(sizeof(int)*width*height);
 		dataBand->RasterIO(GF_Read,0,0,width,height,stream,
 			width,height,GDT_Int32,0,0);
 
@@ -103,8 +103,8 @@ Img Img::operator+(Img& image){
 	}else{
 		re_width = this->width;
 		re_height = this->height;
-		re_data = (int **)CPLMalloc(sizeof(int *) * re_height);
-		int *stream = (int *)CPLMalloc(sizeof(int)*re_width*re_height);
+		re_data = (int **)std::malloc(sizeof(int *) * re_height);
+		int *stream = (int *)std::malloc(sizeof(int)*re_width*re_height);
 
 		for(int i=0;i<re_height;i++){
 			re_data[i] = &stream[i*re_width];
@@ -129,8 +129,8 @@ Img Img::operator-(Img& image){
 	}else{
 		re_width = this->width;
 		re_height = this->height;
-		re_data = (int **)CPLMalloc(sizeof(int *) * re_height);
-		int *stream = (int *)CPLMalloc(sizeof(int)*re_width*re_height);
+		re_data = (int **)std::malloc(sizeof(int *) * re_height);
+		int *stream = (int *)std::malloc(sizeof(int)*re_width*re_height);
 
 		for(int i=0;i<re_height;i++){
 			re_data[i] = &stream[i*re_width];
@@ -149,8 +149,8 @@ Img Img::operator*(int factor){
 
 	int re_width = this->width;
 	int re_height = this->height;
-	int **re_data = (int **)CPLMalloc(sizeof(int *) * re_height);
-	int *stream = (int *)CPLMalloc(sizeof(int)*re_width*re_height);
+	int **re_data = (int **)std::malloc(sizeof(int *) * re_height);
+	int *stream = (int *)std::malloc(sizeof(int)*re_width*re_height);
 
 	for(int i=0;i<re_height;i++){
 		re_data[i] = &stream[i*re_width];

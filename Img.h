@@ -12,13 +12,13 @@
 #ifndef IMG_H
 #define IMG_H
 
-#include <gdal_priv.h>
+#include <gdal/gdal.h>
+#include <gdal/gdal_priv.h>
 #include <iostream>
 #include <string>
 #include <cmath>
 #include <stdlib.h>
 #include <ctime>
-#include "cpl_string.h"
 
 enum Direction{
 	N=0,NE=45,E=90,SE=135,S=180,SW=225,W=270,NW=315,NO  // NO means that there is no wind

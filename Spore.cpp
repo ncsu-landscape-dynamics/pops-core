@@ -27,8 +27,8 @@ void Sporulation::SporeGen(Img& I, double *weather, double rate){
 	int height = I.getHeight();
 	int width = I.getWidth();
 	if(!sp){
-		sp = (int **)CPLMalloc(sizeof(int *) * height);
-		int *stream = (int *)CPLMalloc(sizeof(int)*width*height);
+		sp = (int **)std::malloc(sizeof(int *) * height);
+		int *stream = (int *)std::malloc(sizeof(int)*width*height);
 
 
 		for(int i=0;i<height;i++){
