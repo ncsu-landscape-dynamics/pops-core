@@ -25,11 +25,11 @@ Change the current directory to the model directory:
 
 Compile:
 
-    g++ -std=c++11 main.cpp Img.h Img.cpp Spore.h Spore.cpp -lgdal -lnetcdf_c++
+    make
 
 Run:
 
-  ./a.out > result.txt
+    ./a.out > result.txt
 
 ## Authors
 
