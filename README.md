@@ -17,3 +17,13 @@ The main.cpp contains the main program to run.
 6.  sudo apt-get install libnetcdf-dev
 7.  g++ -std=c++11 main.cpp Img.h Img.cpp Spore.h Spore.cpp -lgdal -lnetcdf_c++
 8.  ./a.out > result.txt
+
+## Authors
+
+* Francesco Tonini (original R version)
+* Zexi Chen (C++ version)
+
+## License
+
+This program is free software under the GNU General Public License
+(>=v2). Read the file LICENSE for details.
