@@ -150,9 +150,8 @@ void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
                                         (S_umca.data[row][col] +
                                          S_oaks.data[row][col]);
 
-                                std::
-                                        bernoulli_distribution
-                                        distribution_bern_prob(prob_S_umca);
+                                std::bernoulli_distribution
+                                    distribution_bern_prob(prob_S_umca);
                                 if (distribution_bern_prob(generator)) {
                                     I_umca.data[row][col] += 1;
                                     S_umca.data[row][col] -= 1;
