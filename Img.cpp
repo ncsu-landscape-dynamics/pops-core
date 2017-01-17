@@ -227,3 +227,11 @@ Img::~Img()
         delete[]data;
     }
 }
+
+void Img::toGrassRaster(const char *name)
+{
+    int fd = Rast_open_new(name, CELL_TYPE);
+    for (int i = 0; i < height; i++)
+        Rast_put_c_row(fd, data[i]);
+    Rast_close(fd);
+}

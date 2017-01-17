@@ -50,6 +50,8 @@ public:
     Img operator*(int factor);
     ~Img();
 
+    void toGrassRaster(const char *name);
+
     static Img fromGrassRaster(const char *name);
 };
 
