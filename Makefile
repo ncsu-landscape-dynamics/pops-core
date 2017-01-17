@@ -8,7 +8,7 @@ DEPENDENCIES = $(RASTERDEP) $(GISDEP)
 EXTRA_LIBS = $(GDALLIBS) -lnetcdf_c++
 EXTRA_CFLAGS = $(GDALCFLAGS) -std=c++11 -Wall -Wextra -fpermissive
 
-#include $(MODULE_TOPDIR)/include/Make/Module.make
+include $(MODULE_TOPDIR)/include/Make/Module.make
 
 LINK = $(CXX)
 
