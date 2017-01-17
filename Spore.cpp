@@ -51,6 +51,9 @@ void Sporulation::SporeGen(Img & I, double *weather, double rate)
                 }
                 sp[i][j] = sum;
             }
+            else {
+                sp[i][j] = 0;
+            }
         }
     }
 }
