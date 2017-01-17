@@ -116,7 +116,7 @@ void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
                         exit(EXIT_FAILURE);
                     }
 
-                    if (wdir == NO) {
+                    if (wdir == NONE) {
                         kappa = 0;
                     }
 

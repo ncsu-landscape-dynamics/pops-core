@@ -22,7 +22,7 @@
 
 enum Direction
 {
-    N = 0, NE = 45, E = 90, SE = 135, S = 180, SW = 225, W = 270, NW = 315, NO  // NO means that there is no wind
+    N = 0, NE = 45, E = 90, SE = 135, S = 180, SW = 225, W = 270, NW = 315, NONE  // NO means that there is no wind
 };
 
 class Img
