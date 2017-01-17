@@ -49,6 +49,8 @@ public:
     Img operator-(Img & image);
     Img operator*(int factor);
     ~Img();
+
+    static Img fromGrassRaster(const char *name);
 };
 
 #endif

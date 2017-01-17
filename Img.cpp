@@ -11,6 +11,12 @@
 
 #include "Img.h"
 
+extern "C" {
+#include <grass/gis.h>
+#include <grass/glocale.h>
+#include <grass/raster.h>
+}
+
 using namespace std;
 
 
@@ -76,6 +82,34 @@ Img::Img(const char *fileName)
         }
         GDALClose((GDALDatasetH) dataset);
     }
+}
+
+
+// TODO: add move constuctor
+Img Img::fromGrassRaster(const char *name)
+{
+    int fd = Rast_open_old(name, "");
+
+    Img img;
+
+    img.width = Rast_window_cols();
+    img.height = Rast_window_rows();
+
+    Cell_head region;
+    Rast_get_window(&region);
+    img.w_e_res = region.ew_res;
+    img.n_s_res = region.ns_res;
+
+    img.data = (int **)std::malloc(sizeof(int *) * (size_t) img.height);
+
+    for (int row = 0; row < img.height; row++) {
+        CELL *buffer = Rast_allocate_c_buf();
+        Rast_get_c_row(fd, buffer, row);
+        img.data[row] = buffer;
+    }
+
+    Rast_close(fd);
+    return img;
 }
 
 int Img::getWidth()
