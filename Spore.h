@@ -59,15 +59,15 @@ public:
     }
     bool compareDate(Date & endtime);
     void increasedByWeek();
-    int getMonth()
+    int getMonth() const
     {
         return month;
     }
-    int getYear()
+    int getYear() const
     {
         return year;
     }
-    int getDay()
+    int getDay() const
     {
         return day;
     }
