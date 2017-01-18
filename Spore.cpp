@@ -20,7 +20,7 @@ Sporulation::Sporulation()
     generator.seed(seed);
 }
 
-void Sporulation::SporeGen(Img & I, double *weather, double rate)
+void Sporulation::SporeGen(Img & I, double *weather, double weather_value, double rate)
 {
 
     //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -39,10 +39,14 @@ void Sporulation::SporeGen(Img & I, double *weather, double rate)
         }
     }
 
+    double lambda = 0;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             if (I.data[i][j] > 0) {
-                double lambda = rate * weather[i * width + j];
+                if (weather)
+                    lambda = rate * weather[i * width + j];
+                else
+                    lambda = rate * weather_value;
                 int sum = 0;
                 poisson_distribution < int >distribution(lambda);
 
@@ -60,7 +64,8 @@ void Sporulation::SporeGen(Img & I, double *weather, double rate)
 
 void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
                                   Img & I_oaks, Img & lvtree_rast,
-                                  Rtype rtype, double *weather, double scale1,
+                                  Rtype rtype, double *weather,
+                                  double weather_value, double scale1,
                                   int kappa, Direction wdir, double scale2,
                                   double gamma)
 {
@@ -140,7 +145,10 @@ void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
 
                             double U = distribution_uniform(generator);
 
-                            prob = prob * weather[row * width + col];
+                            if (weather)
+                                prob = prob * weather[row * width + col];
+                            else
+                                prob = prob * weather_value;
 
                             // if U < prob, then one host will become infected
                             if (U < prob) {
@@ -173,7 +181,10 @@ void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
                                     lvtree_rast.data[row][col];
                             double U = distribution_uniform(generator);
 
-                            prob_S_umca *= weather[row * width + col];
+                            if (weather)
+                                prob_S_umca *= weather[row * width + col];
+                            else
+                                prob_S_umca *= weather_value;
                             if (U < prob_S_umca) {
                                 I_umca.data[row][col] += 1;
                                 S_umca.data[row][col] -= 1;
