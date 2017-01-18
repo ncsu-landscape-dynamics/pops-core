@@ -66,7 +66,7 @@ void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
                                   Img & I_oaks, Img & lvtree_rast,
                                   Rtype rtype, double *weather,
                                   double weather_value, double scale1,
-                                  int kappa, Direction wdir, double scale2,
+                                  double kappa, Direction wdir, double scale2,
                                   double gamma)
 {
 
