@@ -18,6 +18,7 @@ extern "C" {
 }
 
 using namespace std;
+using std::string;
 
 
 Img::Img()
@@ -74,8 +75,13 @@ Img::Img(const char *fileName)
         data = (int **)std::malloc(sizeof(int *) * height);
         int *stream = (int *)std::malloc(sizeof(int) * width * height);
 
-        dataBand->RasterIO(GF_Read, 0, 0, width, height, stream,
-                           width, height, GDT_Int32, 0, 0);
+        CPLErr error = dataBand->RasterIO(GF_Read, 0, 0, width, height,
+                                          stream, width, height,
+                                          GDT_Int32, 0, 0);
+        if (error == CE_Failure)
+            throw std::runtime_error(string("Writing raster failed"
+                                            " in GDAL RasterIO: ")
+                                     + CPLGetLastErrorMsg());
 
         for (int i = 0; i < height; i++) {
             data[i] = &stream[i * width];
