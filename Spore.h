@@ -18,8 +18,6 @@
 #include <random>
 
 
-#define PI 3.14159265358979323846
-
 enum Rtype
 {
     CAUCHY, CAUCHY_MIX          // NO means that there is no wind

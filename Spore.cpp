@@ -10,6 +10,16 @@
 
 #include "Spore.h"
 
+#include <cmath>
+
+// PI is used in the code and M_PI is not guaranteed
+// fix it, but prefer the system definition
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+#ifndef PI
+    #define PI M_PI
+#endif
 
 using std::cerr;
 using std::endl;
