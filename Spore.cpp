@@ -10,7 +10,10 @@
 
 #include "Spore.h"
 
-using namespace std;
+
+using std::cerr;
+using std::endl;
+
 
 Sporulation::Sporulation()
 {
@@ -48,7 +51,7 @@ void Sporulation::SporeGen(Img & I, double *weather, double weather_value, doubl
                 else
                     lambda = rate * weather_value;
                 int sum = 0;
-                poisson_distribution < int >distribution(lambda);
+                std::poisson_distribution<int> distribution(lambda);
 
                 for (int k = 0; k < I.data[i][j]; k++) {
                     sum += distribution(generator);

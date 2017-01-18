@@ -17,8 +17,10 @@ extern "C" {
 #include <grass/raster.h>
 }
 
-using namespace std;
+
 using std::string;
+using std::cerr;
+using std::endl;
 
 
 Img::Img()
