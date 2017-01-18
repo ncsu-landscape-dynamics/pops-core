@@ -12,13 +12,12 @@
 #ifndef IMG_H
 #define IMG_H
 
-#include <gdal/gdal.h>
-#include <gdal/gdal_priv.h>
 #include <iostream>
 #include <string>
 #include <cmath>
 #include <stdlib.h>
 #include <ctime>
+
 
 enum Direction
 {

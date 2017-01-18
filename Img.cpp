@@ -17,6 +17,8 @@ extern "C" {
 #include <grass/raster.h>
 }
 
+#include <gdal/gdal.h>
+#include <gdal/gdal_priv.h>
 
 using std::string;
 using std::cerr;

@@ -12,9 +12,11 @@
 #ifndef SPORE_H
 #define SPORE_H
 
+#include "Img.h"
+
 #include <chrono>
 #include <random>
-#include "Img.h"
+
 
 #define PI 3.14159265358979323846
 
