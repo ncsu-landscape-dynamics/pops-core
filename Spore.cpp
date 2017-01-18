@@ -25,12 +25,11 @@ using std::cerr;
 using std::endl;
 
 
-Sporulation::Sporulation()
+Sporulation::Sporulation(unsigned random_seed)
 {
     this->sp = NULL;
     //seed = std::chrono::system_clock::now().time_since_epoch().count();
-    seed = 42;
-    generator.seed(seed);
+    generator.seed(random_seed);
 }
 
 void Sporulation::SporeGen(Img & I, double *weather, double weather_value, double rate)

@@ -28,10 +28,9 @@ class Sporulation
 private:
     double vonmisesvariate(double mu, double kappa);
     int **sp;
-    unsigned seed;
     std::default_random_engine generator;
 public:
-    Sporulation();
+    Sporulation(unsigned random_seed);
     void SporeGen(Img& I, double *weather, double weather_value, double rate);
     void SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
                          Img& I_oaks, Img& lvtree_rast, Rtype rtype,
