@@ -33,8 +33,8 @@ private:
     int w_e_res;
     // the north-south resolution of the pixel
     int n_s_res;
-public:
     int **data;
+public:
     Img();
     //Img(int width,int height);
     Img(const char *fileName);
@@ -43,6 +43,16 @@ public:
     int getHeight();
     int getWEResolution();
     int getNSResolution();
+
+    const int& operator()(unsigned row, unsigned col) const
+    {
+        return data[row][col];
+    }
+
+    int& operator()(unsigned row, unsigned col)
+    {
+        return data[row][col];
+    }
 
     Img operator+(Img & image);
     Img operator-(Img & image);

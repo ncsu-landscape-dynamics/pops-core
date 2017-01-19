@@ -54,7 +54,7 @@ void Sporulation::SporeGen(Img & I, double *weather, double weather_value, doubl
     double lambda = 0;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            if (I.data[i][j] > 0) {
+            if (I(i, j) > 0) {
                 if (weather)
                     lambda = rate * weather[i * width + j];
                 else
@@ -62,7 +62,7 @@ void Sporulation::SporeGen(Img & I, double *weather, double weather_value, doubl
                 int sum = 0;
                 std::poisson_distribution<int> distribution(lambda);
 
-                for (int k = 0; k < I.data[i][j]; k++) {
+                for (int k = 0; k < I(i, j); k++) {
                     sum += distribution(generator);
                 }
                 sp[i][j] = sum;
@@ -148,12 +148,12 @@ void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
                         continue;
 
                     if (row == i && col == j) {
-                        if (S_umca.data[row][col] > 0 ||
-                                S_oaks.data[row][col] > 0) {
+                        if (S_umca(row, col) > 0 ||
+                                S_oaks(row, col) > 0) {
                             double prob =
-                                    (double)(S_umca.data[row][col] +
-                                             S_oaks.data[row][col]) /
-                                    lvtree_rast.data[row][col];
+                                    (double)(S_umca(row, col) +
+                                             S_oaks(row, col)) /
+                                    lvtree_rast(row, col);
 
                             double U = distribution_uniform(generator);
 
@@ -165,32 +165,32 @@ void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
                             // if U < prob, then one host will become infected
                             if (U < prob) {
                                 double prob_S_umca =
-                                        (double)(S_umca.data[row][col]) /
-                                        (S_umca.data[row][col] +
-                                         S_oaks.data[row][col]);
+                                        (double)(S_umca(row, col)) /
+                                        (S_umca(row, col) +
+                                         S_oaks(row, col));
                                 double prob_S_oaks =
-                                        (double)(S_oaks.data[row][col]) /
-                                        (S_umca.data[row][col] +
-                                         S_oaks.data[row][col]);
+                                        (double)(S_oaks(row, col)) /
+                                        (S_umca(row, col) +
+                                         S_oaks(row, col));
 
                                 std::bernoulli_distribution
                                     distribution_bern_prob(prob_S_umca);
                                 if (distribution_bern_prob(generator)) {
-                                    I_umca.data[row][col] += 1;
-                                    S_umca.data[row][col] -= 1;
+                                    I_umca(row, col) += 1;
+                                    S_umca(row, col) -= 1;
                                 }
                                 else {
-                                    I_oaks.data[row][col] += 1;
-                                    S_oaks.data[row][col] -= 1;
+                                    I_oaks(row, col) += 1;
+                                    S_oaks(row, col) -= 1;
                                 }
                             }
                         }
                     }
                     else {
-                        if (S_umca.data[row][col] > 0) {
+                        if (S_umca(row, col) > 0) {
                             double prob_S_umca =
-                                    (double)(S_umca.data[row][col]) /
-                                    lvtree_rast.data[row][col];
+                                    (double)(S_umca(row, col)) /
+                                    lvtree_rast(row, col);
                             double U = distribution_uniform(generator);
 
                             if (weather)
@@ -198,8 +198,8 @@ void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
                             else
                                 prob_S_umca *= weather_value;
                             if (U < prob_S_umca) {
-                                I_umca.data[row][col] += 1;
-                                S_umca.data[row][col] -= 1;
+                                I_umca(row, col) += 1;
+                                S_umca(row, col) -= 1;
                             }
                         }
                     }
