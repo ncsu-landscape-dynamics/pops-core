@@ -48,7 +48,11 @@ Img::Img(int width, int height, int w_e_res, int n_s_res, int **data)
     this->height = height;
     this->w_e_res = w_e_res;
     this->n_s_res = n_s_res;
-    this->data = data;
+    // TODO: remove this ctor and its usages
+    this->data = new int[width * height];
+    for (int i = 0; i < height; i++)
+        for (int j = 0; j < height; j++)
+            this->data[i * width + j] = data[i][j];
 }
 
 Img::Img(const char *fileName)
@@ -76,20 +80,15 @@ Img::Img(const char *fileName)
         //cout << w_e_res << "X" << n_s_res << endl;
 
         dataBand = dataset->GetRasterBand(1);
-        data = (int **)std::malloc(sizeof(int *) * height);
-        int *stream = (int *)std::malloc(sizeof(int) * width * height);
+        data = new int[width * height];
 
         CPLErr error = dataBand->RasterIO(GF_Read, 0, 0, width, height,
-                                          stream, width, height,
+                                          data, width, height,
                                           GDT_Int32, 0, 0);
         if (error == CE_Failure)
             throw std::runtime_error(string("Reading raster failed"
                                             " in GDAL RasterIO: ")
                                      + CPLGetLastErrorMsg());
-
-        for (int i = 0; i < height; i++) {
-            data[i] = &stream[i * width];
-        }
         GDALClose((GDALDatasetH) dataset);
     }
 }
@@ -110,12 +109,10 @@ Img Img::fromGrassRaster(const char *name)
     img.w_e_res = region.ew_res;
     img.n_s_res = region.ns_res;
 
-    img.data = (int **)std::malloc(sizeof(int *) * (size_t) img.height);
+    img.data = new int[img.height * img.width];
 
     for (int row = 0; row < img.height; row++) {
-        CELL *buffer = Rast_allocate_c_buf();
-        Rast_get_c_row(fd, buffer, row);
-        img.data[row] = buffer;
+        Rast_get_c_row(fd, img.data + (row * img.width), row);
     }
 
     Rast_close(fd);
@@ -171,7 +168,7 @@ Img Img::operator+(Img & image)
 
         for (int i = 0; i < re_height; i++) {
             for (int j = 0; j < re_width; j++) {
-                re_data[i][j] = this->data[i][j] + image.data[i][j];
+                re_data[i][j] = this->data[i * width + j] + image.data[i * width + j];
             }
         }
         return Img(re_width, re_height, this->w_e_res, this->n_s_res,
@@ -201,7 +198,7 @@ Img Img::operator-(Img & image)
 
         for (int i = 0; i < re_height; i++) {
             for (int j = 0; j < re_width; j++) {
-                re_data[i][j] = this->data[i][j] - image.data[i][j];
+                re_data[i][j] = this->data[i * width + j] - image.data[i * width + j];
             }
         }
         return Img(re_width, re_height, this->w_e_res, this->n_s_res,
@@ -223,7 +220,7 @@ Img Img::operator*(int factor)
 
     for (int i = 0; i < re_height; i++) {
         for (int j = 0; j < re_width; j++) {
-            re_data[i][j] = this->data[i][j] * factor;
+            re_data[i][j] = this->data[i * width + j] * factor;
         }
     }
     return Img(re_width, re_height, this->w_e_res, this->n_s_res, re_data);
@@ -232,9 +229,7 @@ Img Img::operator*(int factor)
 Img::~Img()
 {
     if (data) {
-        if (data[0])
-            delete[]data[0];
-        delete[]data;
+        delete[] data;
     }
 }
 
@@ -242,7 +237,7 @@ void Img::toGrassRaster(const char *name)
 {
     int fd = Rast_open_new(name, CELL_TYPE);
     for (int i = 0; i < height; i++)
-        Rast_put_c_row(fd, data[i]);
+        Rast_put_c_row(fd, data + (i * width));
     Rast_close(fd);
 }
 
@@ -267,7 +262,7 @@ void Img::toGdal(const char *name, const char *ref_name)
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            outstream[i * width + j] = data[i][j];
+            outstream[i * width + j] = data[i * width + j];
         }
     }
 

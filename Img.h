@@ -33,7 +33,7 @@ private:
     int w_e_res;
     // the north-south resolution of the pixel
     int n_s_res;
-    int **data;
+    int *data;
 public:
     Img();
     //Img(int width,int height);
@@ -46,12 +46,12 @@ public:
 
     const int& operator()(unsigned row, unsigned col) const
     {
-        return data[row][col];
+        return data[row * width + col];
     }
 
     int& operator()(unsigned row, unsigned col)
     {
-        return data[row][col];
+        return data[row * width + col];
     }
 
     Img operator+(Img & image);
