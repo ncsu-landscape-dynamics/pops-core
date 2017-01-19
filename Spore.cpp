@@ -25,9 +25,14 @@ using std::cerr;
 using std::endl;
 
 
-Sporulation::Sporulation(unsigned random_seed)
+Sporulation::Sporulation(unsigned random_seed, const Img& size)
+    :
+      width(size.getWidth()),
+      height(size.getHeight()),
+      w_e_res(size.getWEResolution()),
+      n_s_res(size.getNSResolution()),
+      sp(width, height, w_e_res, n_s_res)
 {
-    this->sp = NULL;
     //seed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(random_seed);
 }
@@ -37,19 +42,6 @@ void Sporulation::SporeGen(Img & I, double *weather, double weather_value, doubl
 
     //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     //std::default_random_engine generator(seed);
-
-    int height = I.getHeight();
-    int width = I.getWidth();
-
-    if (!sp) {
-        sp = (int **)std::malloc(sizeof(int *) * height);
-        int *stream = (int *)std::malloc(sizeof(int) * width * height);
-
-
-        for (int i = 0; i < height; i++) {
-            sp[i] = &stream[i * width];
-        }
-    }
 
     double lambda = 0;
     for (int i = 0; i < height; i++) {
@@ -65,10 +57,10 @@ void Sporulation::SporeGen(Img & I, double *weather, double weather_value, doubl
                 for (int k = 0; k < I(i, j); k++) {
                     sum += distribution(generator);
                 }
-                sp[i][j] = sum;
+                sp(i, j) = sum;
             }
             else {
-                sp[i][j] = 0;
+                sp(i, j) = 0;
             }
         }
     }
@@ -90,24 +82,13 @@ void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
     std::bernoulli_distribution distribution_bern(gamma);
     std::uniform_real_distribution < double >distribution_uniform(0.0, 1.0);
 
-
-    int height = S_umca.getHeight();
-    int width = S_umca.getWidth();
-    int w_e_res = S_umca.getWEResolution();
-    int n_s_res = S_umca.getNSResolution();
-
     double dist = 0;
     double theta = 0;
 
-    if (!sp) {
-        cerr << "The spore matrix is empty!" << endl;
-        return;
-    }
-
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            if (sp[i][j] > 0) {
-                for (int k = 0; k < sp[i][j]; k++) {
+            if (sp(i, j) > 0) {
+                for (int k = 0; k < sp(i, j); k++) {
 
                     // generate the distance from cauchy distribution or cauchy mixture distribution
                     if (rtype == CAUCHY) {
@@ -250,15 +231,6 @@ double Sporulation::vonmisesvariate(double mu, double kappa)
         theta = fmod(mu - acos(f), 2 * PI);
     }
     return theta;
-}
-
-Sporulation::~Sporulation()
-{
-    if (sp) {
-        if (sp[0])
-            delete[]sp[0];
-        delete[]sp;
-    }
 }
 
 bool Date::compareDate(Date & endtime)
