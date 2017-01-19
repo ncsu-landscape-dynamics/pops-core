@@ -44,10 +44,10 @@ public:
     Img& operator=(Img&& other);
     Img& operator=(const Img& other) = delete;
 
-    int getWidth();
-    int getHeight();
-    int getWEResolution();
-    int getNSResolution();
+    int getWidth() const;
+    int getHeight() const;
+    int getWEResolution() const;
+    int getNSResolution() const;
 
     const int& operator()(unsigned row, unsigned col) const
     {

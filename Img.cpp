@@ -117,22 +117,22 @@ Img Img::fromGrassRaster(const char *name)
     return img;
 }
 
-int Img::getWidth()
+int Img::getWidth() const
 {
     return this->width;
 }
 
-int Img::getHeight()
+int Img::getHeight() const
 {
     return this->height;
 }
 
-int Img::getWEResolution()
+int Img::getWEResolution() const
 {
     return this->w_e_res;
 }
 
-int Img::getNSResolution()
+int Img::getNSResolution() const
 {
     return this->n_s_res;
 }
