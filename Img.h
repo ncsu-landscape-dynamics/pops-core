@@ -36,9 +36,14 @@ private:
     int *data;
 public:
     Img();
+    Img(Img&& other);
+    Img(const Img& other) = delete;
     //Img(int width,int height);
     Img(const char *fileName);
     Img(int width, int height, int w_e_res, int n_s_res, int **data);
+    Img& operator=(Img&& other);
+    Img& operator=(const Img& other) = delete;
+
     int getWidth();
     int getHeight();
     int getWEResolution();

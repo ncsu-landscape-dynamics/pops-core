@@ -42,6 +42,16 @@ Img::Img()
    }
  */
 
+Img::Img(Img&& other)
+{
+    width = other.width;
+    height = other.height;
+    w_e_res = other.w_e_res;
+    n_s_res = other.n_s_res;
+    data = other.data;
+    other.data = nullptr;
+}
+
 Img::Img(int width, int height, int w_e_res, int n_s_res, int **data)
 {
     this->width = width;
@@ -145,6 +155,16 @@ int Img::getNSResolution()
    }
  */
 
+Img& Img::operator=(Img&& other)
+{
+    if (this != &other)
+    {
+        delete[] data;
+        data = other.data;
+        other.data = nullptr;
+    }
+    return *this;
+}
 
 Img Img::operator+(Img & image)
 {
