@@ -50,6 +50,7 @@ public:
     ~Img();
 
     void toGrassRaster(const char *name);
+    void toGdal(const char *name, const char *ref_name);
 
     static Img fromGrassRaster(const char *name);
 };

@@ -83,7 +83,7 @@ Img::Img(const char *fileName)
                                           stream, width, height,
                                           GDT_Int32, 0, 0);
         if (error == CE_Failure)
-            throw std::runtime_error(string("Writing raster failed"
+            throw std::runtime_error(string("Reading raster failed"
                                             " in GDAL RasterIO: ")
                                      + CPLGetLastErrorMsg());
 
@@ -244,4 +244,51 @@ void Img::toGrassRaster(const char *name)
     for (int i = 0; i < height; i++)
         Rast_put_c_row(fd, data[i]);
     Rast_close(fd);
+}
+
+// ref_name file is used to retrieve transformation and projection
+// information from the known (input) file
+void Img::toGdal(const char *name, const char *ref_name)
+{
+    const char *format = "GTiff";
+
+    GDALAllRegister();
+
+    // obtain information for output Geotiff images
+    GDALDataset *inputDataset = (GDALDataset *) GDALOpen(ref_name,
+                                                         GA_ReadOnly);
+    double inputAdfGeoTransform[6];
+    inputDataset->GetGeoTransform(inputAdfGeoTransform);
+
+    // setup driver
+    GDALDriver *gdalDriver = GetGDALDriverManager()->GetDriverByName(format);
+
+    int *outstream = (int *)std::malloc(sizeof(int) * width * height);
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            outstream[i * width + j] = data[i][j];
+        }
+    }
+
+    // set output Dataset and create output geotiff
+    char **papszOptions = NULL;
+    GDALDataset *outDataset = gdalDriver->Create(name, width, height, 1,
+                                                 GDT_Byte, papszOptions);
+    outDataset->SetGeoTransform(inputAdfGeoTransform);
+    outDataset->SetProjection(inputDataset->GetProjectionRef());
+    GDALRasterBand *outBand = outDataset->GetRasterBand(1);
+    CPLErr error = outBand->RasterIO(GF_Write, 0, 0, width, height,
+                                     outstream, width, height,
+                                     GDT_Int32, 0, 0);
+    if (error == CE_Failure)
+        throw std::runtime_error(string("Writing raster failed"
+                                        " in GDAL RasterIO: ")
+                                 + CPLGetLastErrorMsg());
+    GDALClose((GDALDatasetH) outDataset);
+    GDALClose((GDALDatasetH) inputDataset);
+    if (outstream) {
+        delete [] outstream;
+    }
+    CSLDestroy(papszOptions);
 }
