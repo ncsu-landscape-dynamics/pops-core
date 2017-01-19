@@ -240,14 +240,6 @@ void Img::toGdal(const char *name, const char *ref_name)
     // setup driver
     GDALDriver *gdalDriver = GetGDALDriverManager()->GetDriverByName(format);
 
-    int *outstream = (int *)std::malloc(sizeof(int) * width * height);
-
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            outstream[i * width + j] = data[i * width + j];
-        }
-    }
-
     // set output Dataset and create output geotiff
     char **papszOptions = NULL;
     GDALDataset *outDataset = gdalDriver->Create(name, width, height, 1,
@@ -256,7 +248,7 @@ void Img::toGdal(const char *name, const char *ref_name)
     outDataset->SetProjection(inputDataset->GetProjectionRef());
     GDALRasterBand *outBand = outDataset->GetRasterBand(1);
     CPLErr error = outBand->RasterIO(GF_Write, 0, 0, width, height,
-                                     outstream, width, height,
+                                     data, width, height,
                                      GDT_Int32, 0, 0);
     if (error == CE_Failure)
         throw std::runtime_error(string("Writing raster failed"
@@ -264,8 +256,5 @@ void Img::toGdal(const char *name, const char *ref_name)
                                  + CPLGetLastErrorMsg());
     GDALClose((GDALDatasetH) outDataset);
     GDALClose((GDALDatasetH) inputDataset);
-    if (outstream) {
-        delete [] outstream;
-    }
     CSLDestroy(papszOptions);
 }
