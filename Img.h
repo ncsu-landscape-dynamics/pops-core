@@ -40,7 +40,7 @@ public:
     Img(const Img& other) = delete;
     //Img(int width,int height);
     Img(const char *fileName);
-    Img(int width, int height, int w_e_res, int n_s_res, int **data);
+    Img(int width, int height, int w_e_res, int n_s_res);
     Img& operator=(Img&& other);
     Img& operator=(const Img& other) = delete;
 

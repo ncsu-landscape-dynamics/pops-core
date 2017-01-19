@@ -34,14 +34,6 @@ Img::Img()
     data = NULL;
 }
 
-/*
-   Img::Img(int width,int height){
-   this->width = width;
-   this->height = height;
-   data = (int *)std::malloc(sizeof(int)*width*height);
-   }
- */
-
 Img::Img(Img&& other)
 {
     width = other.width;
@@ -52,17 +44,13 @@ Img::Img(Img&& other)
     other.data = nullptr;
 }
 
-Img::Img(int width, int height, int w_e_res, int n_s_res, int **data)
+Img::Img(int width, int height, int w_e_res, int n_s_res)
 {
     this->width = width;
     this->height = height;
     this->w_e_res = w_e_res;
     this->n_s_res = n_s_res;
-    // TODO: remove this ctor and its usages
     this->data = new int[width * height];
-    for (int i = 0; i < height; i++)
-        for (int j = 0; j < height; j++)
-            this->data[i * width + j] = data[i][j];
 }
 
 Img::Img(const char *fileName)
@@ -168,82 +156,56 @@ Img& Img::operator=(Img&& other)
 
 Img Img::operator+(Img & image)
 {
-    int re_width = 0;
-    int re_height = 0;
-    int **re_data = NULL;
-
     if (this->width != image.getWidth() || this->height != image.getHeight()) {
         cerr << "The height or width of one image do not match with that of the other one!" << endl;
         return Img();
     }
     else {
-        re_width = this->width;
-        re_height = this->height;
-        re_data = (int **)std::malloc(sizeof(int *) * re_height);
-        int *stream = (int *)std::malloc(sizeof(int) * re_width * re_height);
-
-        for (int i = 0; i < re_height; i++) {
-            re_data[i] = &stream[i * re_width];
-        }
+        auto re_width = this->width;
+        auto re_height = this->height;
+        auto out = Img(re_width, re_height, this->w_e_res, this->n_s_res);
 
         for (int i = 0; i < re_height; i++) {
             for (int j = 0; j < re_width; j++) {
-                re_data[i][j] = this->data[i * width + j] + image.data[i * width + j];
+                out.data[i * width + j] = this->data[i * width + j] + image.data[i * width + j];
             }
         }
-        return Img(re_width, re_height, this->w_e_res, this->n_s_res,
-                   re_data);
+        return out;
     }
 }
 
 Img Img::operator-(Img & image)
 {
-    int re_width = 0;
-    int re_height = 0;
-    int **re_data = NULL;
-
     if (this->width != image.getWidth() || this->height != image.getHeight()) {
         cerr << "The height or width of one image do not match with that of the other one!" << endl;
         return Img();
     }
     else {
-        re_width = this->width;
-        re_height = this->height;
-        re_data = (int **)std::malloc(sizeof(int *) * re_height);
-        int *stream = (int *)std::malloc(sizeof(int) * re_width * re_height);
-
-        for (int i = 0; i < re_height; i++) {
-            re_data[i] = &stream[i * re_width];
-        }
+        auto re_width = this->width;
+        auto re_height = this->height;
+        auto out = Img(re_width, re_height, this->w_e_res, this->n_s_res);
 
         for (int i = 0; i < re_height; i++) {
             for (int j = 0; j < re_width; j++) {
-                re_data[i][j] = this->data[i * width + j] - image.data[i * width + j];
+                out.data[i * width + j] = this->data[i * width + j] - image.data[i * width + j];
             }
         }
-        return Img(re_width, re_height, this->w_e_res, this->n_s_res,
-                   re_data);
+        return out;
     }
 }
 
 Img Img::operator*(int factor)
 {
-
-    int re_width = this->width;
-    int re_height = this->height;
-    int **re_data = (int **)std::malloc(sizeof(int *) * re_height);
-    int *stream = (int *)std::malloc(sizeof(int) * re_width * re_height);
-
-    for (int i = 0; i < re_height; i++) {
-        re_data[i] = &stream[i * re_width];
-    }
+    auto re_width = this->width;
+    auto re_height = this->height;
+    auto out = Img(re_width, re_height, this->w_e_res, this->n_s_res);
 
     for (int i = 0; i < re_height; i++) {
         for (int j = 0; j < re_width; j++) {
-            re_data[i][j] = this->data[i * width + j] * factor;
+            out.data[i * width + j] = this->data[i * width + j] * factor;
         }
     }
-    return Img(re_width, re_height, this->w_e_res, this->n_s_res, re_data);
+    return out;
 }
 
 Img::~Img()
