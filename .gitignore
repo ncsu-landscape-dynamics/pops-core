@@ -1,2 +1,6 @@
 *.gch
 a.out
+*.config
+*.creator
+*.files
+*.includes
