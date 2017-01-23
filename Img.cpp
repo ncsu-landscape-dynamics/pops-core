@@ -147,7 +147,8 @@ Img& Img::operator=(Img&& other)
 {
     if (this != &other)
     {
-        delete[] data;
+        if (data)
+            delete[] data;
         data = other.data;
         other.data = nullptr;
     }
