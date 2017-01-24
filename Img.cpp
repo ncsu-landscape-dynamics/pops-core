@@ -177,6 +177,10 @@ Img& Img::operator=(Img&& other)
     {
         if (data)
             delete[] data;
+        width = other.width;
+        height = other.height;
+        w_e_res = other.w_e_res;
+        n_s_res = other.n_s_res;
         data = other.data;
         other.data = nullptr;
     }
