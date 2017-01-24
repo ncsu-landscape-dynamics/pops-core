@@ -29,6 +29,7 @@ public:
     void setMonth(int m){month = m;}
     void setYear(int y){year = y;}
     void setDay(int d){day = d;}
+    int weeksFromDate(Date start);
     friend std::ostream& operator<<(std::ostream& os, const Date &d);
     friend bool operator> (const Date &d1, const Date &d2);
     friend bool operator>= (const Date &d1, const Date &d2);
@@ -157,6 +158,16 @@ void Date::increasedByWeek()
             }
         }
     }
+}
+
+int Date::weeksFromDate(Date start) {
+
+    int week = 0;
+    while (start <= *this) {
+        week++;
+        start.increasedByWeek();
+    }
+    return week - 1;
 }
 
 #endif // DATE
