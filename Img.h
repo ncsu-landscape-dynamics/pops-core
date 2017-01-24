@@ -37,12 +37,12 @@ private:
 public:
     Img();
     Img(Img&& other);
-    Img(const Img& other) = delete;
+    Img(const Img& other);
     //Img(int width,int height);
     Img(const char *fileName);
     Img(int width, int height, int w_e_res, int n_s_res);
     Img& operator=(Img&& other);
-    Img& operator=(const Img& other) = delete;
+    Img& operator=(const Img& other);
 
     int getWidth() const;
     int getHeight() const;

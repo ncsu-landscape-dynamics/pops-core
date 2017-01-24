@@ -20,6 +20,8 @@ extern "C" {
 #include <gdal/gdal.h>
 #include <gdal/gdal_priv.h>
 
+#include <algorithm>
+
 using std::string;
 using std::cerr;
 using std::endl;
@@ -32,6 +34,16 @@ Img::Img()
     w_e_res = 0;
     n_s_res = 0;
     data = NULL;
+}
+
+Img::Img(const Img& other)
+{
+    width = other.width;
+    height = other.height;
+    w_e_res = other.w_e_res;
+    n_s_res = other.n_s_res;
+    data = new int[width * height];
+    std::copy(other.data, other.data + (width * height), data);
 }
 
 Img::Img(Img&& other)
@@ -142,6 +154,22 @@ int Img::getNSResolution() const
    return this->data;
    }
  */
+
+Img& Img::operator=(const Img& other)
+{
+    if (this != &other)
+    {
+        if (data)
+            delete[] data;
+        width = other.width;
+        height = other.height;
+        w_e_res = other.w_e_res;
+        n_s_res = other.n_s_res;
+        data = new int[width * height];
+        std::copy(other.data, other.data + (width * height), data);
+    }
+    return *this;
+}
 
 Img& Img::operator=(Img&& other)
 {
