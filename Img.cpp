@@ -26,6 +26,16 @@ using std::string;
 using std::cerr;
 using std::endl;
 
+/* Iterate over two ranges and apply a binary function which modifies
+ * the first parameter.
+ */
+template<class InputIt1, class InputIt2, class BinaryOperation>
+BinaryOperation for_each_zip(InputIt1 first1, InputIt1 last1, InputIt2 first2, BinaryOperation f) {
+    for (; first1 != last1; ++first1, ++first2) {
+        f(*first1, *first2);
+    }
+    return f;
+}
 
 Img::Img()
 {
@@ -187,7 +197,7 @@ Img& Img::operator=(Img&& other)
     return *this;
 }
 
-Img Img::operator+(Img & image)
+Img Img::operator+(const Img& image) const
 {
     if (this->width != image.getWidth() || this->height != image.getHeight()) {
         cerr << "The height or width of one image do not match with that of the other one!" << endl;
@@ -207,7 +217,7 @@ Img Img::operator+(Img & image)
     }
 }
 
-Img Img::operator-(Img & image)
+Img Img::operator-(const Img& image) const
 {
     if (this->width != image.getWidth() || this->height != image.getHeight()) {
         cerr << "The height or width of one image do not match with that of the other one!" << endl;
@@ -227,7 +237,7 @@ Img Img::operator-(Img & image)
     }
 }
 
-Img Img::operator*(int factor)
+Img Img::operator*(double factor) const
 {
     auto re_width = this->width;
     auto re_height = this->height;
@@ -239,6 +249,71 @@ Img Img::operator*(int factor)
         }
     }
     return out;
+}
+
+Img Img::operator/(double value) const
+{
+    auto out = Img(width, height, w_e_res, n_s_res);
+
+    std::transform(data, data + (width * height), out.data,
+                   [&value](const int& a) { return a / value; });
+    return out;
+}
+
+Img& Img::operator+=(int value)
+{
+    std::for_each(data, data + (width * height),
+                  [&value](int& a) { a += value; });
+    return *this;
+}
+
+Img& Img::operator-=(int value)
+{
+    std::for_each(data, data + (width * height),
+                  [&value](int& a) { a -= value; });
+    return *this;
+}
+
+Img& Img::operator*=(double value)
+{
+    std::for_each(data, data + (width * height),
+                  [&value](int& a) { a *= value; });
+    return *this;
+}
+
+Img& Img::operator/=(double value)
+{
+    std::for_each(data, data + (width * height),
+                  [&value](int& a) { a /= value; });
+    return *this;
+}
+
+Img& Img::operator+=(const Img& image)
+{
+    for_each_zip(data, data + (width * height), image.data,
+                 [](int& a, int& b) { a += b; });
+    return *this;
+}
+
+Img& Img::operator-=(const Img& image)
+{
+    for_each_zip(data, data + (width * height), image.data,
+                 [](int& a, int& b) { a -= b; });
+    return *this;
+}
+
+Img& Img::operator*=(const Img& image)
+{
+    for_each_zip(data, data + (width * height), image.data,
+                 [](int& a, int& b) { a *= b; });
+    return *this;
+}
+
+Img& Img::operator/=(const Img& image)
+{
+    for_each_zip(data, data + (width * height), image.data,
+                 [](int& a, int& b) { a /= b; });
+    return *this;
 }
 
 Img::~Img()

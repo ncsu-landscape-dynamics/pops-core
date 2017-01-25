@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <algorithm>
 #include <stdlib.h>
 #include <ctime>
 
@@ -49,6 +50,16 @@ public:
     int getWEResolution() const;
     int getNSResolution() const;
 
+    void fill(int value)
+    {
+        std::fill(data, data + (width * height), value);
+    }
+
+    void zero()
+    {
+        std::fill(data, data + (width * height), 0);
+    }
+
     const int& operator()(unsigned row, unsigned col) const
     {
         return data[row * width + col];
@@ -59,9 +70,18 @@ public:
         return data[row * width + col];
     }
 
-    Img operator+(Img & image);
-    Img operator-(Img & image);
-    Img operator*(int factor);
+    Img operator+(const Img& image) const;
+    Img operator-(const Img& image) const;
+    Img operator*(double factor) const;
+    Img operator/(double value) const;
+    Img& operator+=(int value);
+    Img& operator-=(int value);
+    Img& operator*=(double value);
+    Img& operator/=(double value);
+    Img& operator+=(const Img& image);
+    Img& operator-=(const Img& image);
+    Img& operator*=(const Img& image);
+    Img& operator/=(const Img& image);
     ~Img();
 
     void toGrassRaster(const char *name);
