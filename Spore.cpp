@@ -37,7 +37,8 @@ Sporulation::Sporulation(unsigned random_seed, const Img& size)
     generator.seed(random_seed);
 }
 
-void Sporulation::SporeGen(Img & I, double *weather, double weather_value, double rate)
+void Sporulation::SporeGen(const Img& I, const double *weather,
+                           double weather_value, double rate)
 {
 
     //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -66,9 +67,9 @@ void Sporulation::SporeGen(Img & I, double *weather, double weather_value, doubl
     }
 }
 
-void Sporulation::SporeSpreadDisp(Img & S_umca, Img & S_oaks, Img & I_umca,
-                                  Img & I_oaks, Img & lvtree_rast,
-                                  Rtype rtype, double *weather,
+void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
+                                  Img& I_oaks, const Img& lvtree_rast,
+                                  Rtype rtype, const double *weather,
                                   double weather_value, double scale1,
                                   double kappa, Direction wdir, double scale2,
                                   double gamma)

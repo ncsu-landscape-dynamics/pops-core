@@ -37,10 +37,11 @@ private:
     std::default_random_engine generator;
 public:
     Sporulation(unsigned random_seed, const Img &size);
-    void SporeGen(Img& I, double *weather, double weather_value, double rate);
+    void SporeGen(const Img& I, const double *weather,
+                  double weather_value, double rate);
     void SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
-                         Img& I_oaks, Img& lvtree_rast, Rtype rtype,
-                         double *weather, double weather_value,
+                         Img& I_oaks, const Img& lvtree_rast, Rtype rtype,
+                         const double *weather, double weather_value,
                          double scale1, double kappa = 2,
                          Direction wdir = NONE, double scale2 = 0.0,
                          double gamma = 0.0);
