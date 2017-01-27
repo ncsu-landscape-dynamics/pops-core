@@ -17,7 +17,6 @@
 #include <cmath>
 #include <algorithm>
 #include <stdlib.h>
-#include <ctime>
 
 
 enum Direction
