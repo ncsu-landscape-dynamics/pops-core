@@ -18,7 +18,6 @@ public:
     Date(const Date &d): year(d.year), month(d.month), day(d.day){}
     Date(int y, int m, int d): year(y), month(m), day(d){}
     Date(): year(2000), month(1), day(1){}
-    bool compareDate(Date& endtime);
     void increasedByWeek();
     Date getYearEnd();
     Date getNextYearEnd();
@@ -108,31 +107,6 @@ bool operator< (const Date &d1, const Date &d2)
 bool operator>= (const Date &d1, const Date &d2)
 {
     return !(d1 < d2);
-}
-
-
-bool Date::compareDate(Date & endtime)
-{
-    if (year < endtime.year) {
-        return true;
-    }
-    else if (year == endtime.year) {
-        if (month < endtime.month) {
-            return true;
-        }
-        else if (month == endtime.month) {
-            if (day <= endtime.day)
-                return true;
-            else
-                return false;
-        }
-        else {
-            return false;
-        }
-    }
-    else {
-        return false;
-    }
 }
 
 void Date::increasedByWeek()
