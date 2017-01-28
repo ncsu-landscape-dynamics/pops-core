@@ -59,6 +59,12 @@ public:
         std::fill(data, data + (width * height), 0);
     }
 
+    template<class UnaryOperation>
+    void for_each(UnaryOperation op)
+    {
+        std::for_each(data, data + (width * height), op);
+    }
+
     const int& operator()(unsigned row, unsigned col) const
     {
         return data[row * width + col];
