@@ -41,6 +41,7 @@ public:
     //Img(int width,int height);
     Img(const char *fileName);
     Img(int width, int height, int w_e_res, int n_s_res);
+    Img(int width, int height, int w_e_res, int n_s_res, int value);
     Img& operator=(Img&& other);
     Img& operator=(const Img& other);
 

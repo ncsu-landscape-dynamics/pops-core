@@ -75,6 +75,15 @@ Img::Img(int width, int height, int w_e_res, int n_s_res)
     this->data = new int[width * height];
 }
 
+Img::Img(int width, int height, int w_e_res, int n_s_res, int value)
+{
+    this->width = width;
+    this->height = height;
+    this->w_e_res = w_e_res;
+    this->n_s_res = n_s_res;
+    this->data = new int[width * height]{value};
+}
+
 Img::Img(const char *fileName)
 {
     GDALDataset *dataset;
