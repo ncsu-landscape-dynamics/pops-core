@@ -148,26 +148,6 @@ Img Img::fromGrassRaster(const char *name)
     return img;
 }
 
-int Img::getWidth() const
-{
-    return this->width;
-}
-
-int Img::getHeight() const
-{
-    return this->height;
-}
-
-int Img::getWEResolution() const
-{
-    return this->w_e_res;
-}
-
-int Img::getNSResolution() const
-{
-    return this->n_s_res;
-}
-
 /*
    const int ** Img::getData(){
    return this->data;

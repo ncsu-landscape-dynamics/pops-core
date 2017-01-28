@@ -45,10 +45,25 @@ public:
     Img& operator=(Img&& other);
     Img& operator=(const Img& other);
 
-    int getWidth() const;
-    int getHeight() const;
-    int getWEResolution() const;
-    int getNSResolution() const;
+    int getWidth() const
+    {
+        return width;
+    }
+
+    int getHeight() const
+    {
+        return height;
+    }
+
+    int getWEResolution() const
+    {
+        return w_e_res;
+    }
+
+    int getNSResolution() const
+    {
+        return n_s_res;
+    }
 
     void fill(int value)
     {
