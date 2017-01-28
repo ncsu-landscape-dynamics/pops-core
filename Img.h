@@ -71,6 +71,8 @@ public:
 
     Img operator+(const Img& image) const;
     Img operator-(const Img& image) const;
+    Img operator*(const Img& image) const;
+    Img operator/(const Img& image) const;
     Img operator*(double factor) const;
     Img operator/(double value) const;
     Img& operator+=(int value);

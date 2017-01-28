@@ -237,6 +237,32 @@ Img Img::operator-(const Img& image) const
     }
 }
 
+Img Img::operator*(const Img& image) const
+{
+    if (width != image.getWidth() || height != image.getHeight()) {
+        throw std::runtime_error("The height or width of one image do"
+                                 " not match with that of the other one.");
+    }
+    auto out = Img(width, height, w_e_res, n_s_res);
+
+    std::transform(data, data + (width * height), image.data, out.data,
+                   [](const int& a, const int& b) { return a * b; });
+    return out;
+}
+
+Img Img::operator/(const Img& image) const
+{
+    if (width != image.getWidth() || height != image.getHeight()) {
+        throw std::runtime_error("The height or width of one image do"
+                                 " not match with that of the other one.");
+    }
+    auto out = Img(width, height, w_e_res, n_s_res);
+
+    std::transform(data, data + (width * height), image.data, out.data,
+                   [](const int& a, const int& b) { return a / b; });
+    return out;
+}
+
 Img Img::operator*(double factor) const
 {
     auto re_width = this->width;
