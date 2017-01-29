@@ -14,7 +14,6 @@
 
 #include "Img.h"
 
-#include <chrono>
 #include <random>
 
 

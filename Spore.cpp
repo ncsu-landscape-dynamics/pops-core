@@ -33,17 +33,12 @@ Sporulation::Sporulation(unsigned random_seed, const Img& size)
       n_s_res(size.getNSResolution()),
       sp(width, height, w_e_res, n_s_res)
 {
-    //seed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed(random_seed);
 }
 
 void Sporulation::SporeGen(const Img& I, const double *weather,
                            double weather_value, double rate)
 {
-
-    //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    //std::default_random_engine generator(seed);
-
     double lambda = 0;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -74,9 +69,6 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
                                   double kappa, Direction wdir, double scale2,
                                   double gamma)
 {
-
-    //unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    //std::default_random_engine generator(seed);
     std::cauchy_distribution < double >distribution_cauchy_one(0.0, scale1);
     std::cauchy_distribution < double >distribution_cauchy_two(0.0, scale2);
 
