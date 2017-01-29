@@ -25,7 +25,6 @@ enum Rtype
 class Sporulation
 {
 private:
-    double vonmisesvariate(double mu, double kappa);
     int width;
     int height;
     // the west-east resolution of the pixel

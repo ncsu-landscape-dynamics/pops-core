@@ -24,6 +24,56 @@
 using std::cerr;
 using std::endl;
 
+/*
+Von Mises Distribution(Circular data distribution)
+
+mu is the mean angle, expressed in radians between 0 and 2*pi,
+and kappa is the concentration parameter, which must be greater
+than or equal to zero. If kappa is equal to zero, this distribution
+reduces to a uniform random angle over the range 0 to 2*pi
+*/
+class von_mises_distribution
+{
+public:
+    von_mises_distribution(double mu, double kappa)
+        : mu(mu), kappa(kappa), distribution(0.0, 1.0)
+    {}
+    template<class Generator>
+    double operator ()(Generator& generator)
+    {
+        double a, b, c, f, r, theta, u1, u2, u3, z;
+
+        if (kappa <= 1.e-06)
+            return 2 * PI * distribution(generator);
+
+        a = 1.0 + sqrt(1.0 + 4.0 * kappa * kappa);
+        b = (a - sqrt(2.0 * a)) / (2.0 * kappa);
+        r = (1.0 + b * b) / (2.0 * b);
+
+        while (true) {
+            u1 = distribution(generator);
+            z = cos(PI * u1);
+            f = (1.0 + r * z) / (r + z);
+            c = kappa * (r - f);
+            u2 = distribution(generator);
+            if (u2 <= c * (2.0 - c) || u2 < c * exp(1.0 - c))
+                break;
+        }
+
+        u3 = distribution(generator);
+        if (u3 > 0.5) {
+            theta = fmod(mu + acos(f), 2 * PI);
+        }
+        else {
+            theta = fmod(mu - acos(f), 2 * PI);
+        }
+        return theta;
+    }
+private:
+    double mu;
+    double kappa;
+    std::uniform_real_distribution<double> distribution;
+};
 
 Sporulation::Sporulation(unsigned random_seed, const Img& size)
     :
@@ -75,6 +125,10 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
     std::bernoulli_distribution distribution_bern(gamma);
     std::uniform_real_distribution < double >distribution_uniform(0.0, 1.0);
 
+    if (wdir == NONE)
+        kappa = 0;
+    von_mises_distribution vonmisesvariate(wdir * PI / 180, kappa);
+
     double dist = 0;
     double theta = 0;
 
@@ -107,11 +161,7 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
                         exit(EXIT_FAILURE);
                     }
 
-                    if (wdir == NONE) {
-                        kappa = 0;
-                    }
-
-                    theta = vonmisesvariate(wdir * PI / 180, kappa);
+                    theta = vonmisesvariate(generator);
 
                     int row = i - round(dist * cos(theta) / n_s_res);
                     int col = j + round(dist * sin(theta) / w_e_res);
@@ -181,47 +231,4 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
             }
         }
     }
-}
-
-double Sporulation::vonmisesvariate(double mu, double kappa)
-{
-
-    /**
-    Von Mises Distribution(Circular data distribution)
-
-    mu is the mean angle, expressed in radians between 0 and 2*pi,
-    and kappa is the concentration parameter, which must be greater
-    than or equal to zero. If kappa is equal to zero, this distribution
-    reduces to a uniform random angle over the range 0 to 2*pi
-
-    */
-
-    double a, b, c, f, r, theta, u1, u2, u3, z;
-    std::uniform_real_distribution < double >distribution(0.0, 1.0);
-
-    if (kappa <= 1.e-06)
-        return 2 * PI * distribution(generator);
-
-    a = 1.0 + sqrt(1.0 + 4.0 * kappa * kappa);
-    b = (a - sqrt(2.0 * a)) / (2.0 * kappa);
-    r = (1.0 + b * b) / (2.0 * b);
-
-    while (true) {
-        u1 = distribution(generator);
-        z = cos(PI * u1);
-        f = (1.0 + r * z) / (r + z);
-        c = kappa * (r - f);
-        u2 = distribution(generator);
-        if (u2 <= c * (2.0 - c) || u2 < c * exp(1.0 - c))
-            break;
-    }
-
-    u3 = distribution(generator);
-    if (u3 > 0.5) {
-        theta = fmod(mu + acos(f), 2 * PI);
-    }
-    else {
-        theta = fmod(mu - acos(f), 2 * PI);
-    }
-    return theta;
 }
