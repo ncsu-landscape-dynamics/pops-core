@@ -44,7 +44,7 @@ public:
     void SporeGen(const Img& I, const double *weather,
                   double weather_value, double rate);
     void SporeSpreadDisp_singleSpecies(Img& S, Img& I,
-                                       const Img& lvtree_rast, Rtype rtype,
+                                       const Img& lvtree_rast, std::vector<std::tuple<int, int> > &outside_spores, Rtype rtype,
                                        const double *weather, double weather_value,
                                        double scale1, double kappa = 2,
                                        Direction wdir = NONE, double scale2 = 0.0,

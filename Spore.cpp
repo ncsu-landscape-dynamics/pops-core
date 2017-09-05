@@ -18,6 +18,7 @@
 #include "Spore.h"
 
 #include <cmath>
+#include <tuple>
 
 // PI is used in the code and M_PI is not guaranteed
 // fix it, but prefer the system definition
@@ -121,6 +122,7 @@ void Sporulation::SporeGen(const Img& I, const double *weather,
 
 void Sporulation::SporeSpreadDisp_singleSpecies(Img& S, Img& I,
                                                 const Img& lvtree_rast,
+                                                std::vector<std::tuple<int, int> >& outside_spores,
                                                 Rtype rtype, const double *weather,
                                                 double weather_value, double scale1,
                                                 double kappa, Direction wdir, double scale2,
@@ -167,10 +169,10 @@ void Sporulation::SporeSpreadDisp_singleSpecies(Img& S, Img& I,
                     int row = i - round(dist * cos(theta) / n_s_res);
                     int col = j + round(dist * sin(theta) / w_e_res);
 
-                    if (row < 0 || row >= height)
+                    if (row < 0 || row >= height || col < 0 || col >= width) {
+                        outside_spores.emplace_back(std::make_tuple(row, col));
                         continue;
-                    if (col < 0 || col >= width)
-                        continue;
+                    }
                     if (S(row, col) > 0) {
                         double prob_S =
                                 (double)(S(row, col)) /
