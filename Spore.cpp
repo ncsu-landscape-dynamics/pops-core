@@ -119,6 +119,80 @@ void Sporulation::SporeGen(const Img& I, const double *weather,
     }
 }
 
+void Sporulation::SporeSpreadDisp_singleSpecies(Img& S, Img& I,
+                                                const Img& lvtree_rast,
+                                                Rtype rtype, const double *weather,
+                                                double weather_value, double scale1,
+                                                double kappa, Direction wdir, double scale2,
+                                                double gamma)
+{
+    std::cauchy_distribution < double >distribution_cauchy_one(0.0, scale1);
+    std::cauchy_distribution < double >distribution_cauchy_two(0.0, scale2);
+
+    std::bernoulli_distribution distribution_bern(gamma);
+    std::uniform_real_distribution < double >distribution_uniform(0.0, 1.0);
+
+    if (wdir == NONE)
+        kappa = 0;
+    von_mises_distribution vonmisesvariate(wdir * PI / 180, kappa);
+
+    double dist = 0;
+    double theta = 0;
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            if (sp(i, j) > 0) {
+                for (int k = 0; k < sp(i, j); k++) {
+
+                    // generate the distance from cauchy distribution or cauchy mixture distribution
+                    if (rtype == CAUCHY) {
+                        dist = abs(distribution_cauchy_one(generator));
+                    }
+                    else if (rtype == CAUCHY_MIX) {
+                        // use bernoulli distribution to act as the sampling with prob(gamma,1-gamma)
+                        if (distribution_bern(generator))
+                            dist = abs(distribution_cauchy_one(generator));
+                        else
+                            dist = abs(distribution_cauchy_two(generator));
+                    }
+                    else {
+                        cerr <<
+                                "The paramter Rtype muse be set as either CAUCHY OR CAUCHY_MIX"
+                             << endl;
+                        exit(EXIT_FAILURE);
+                    }
+
+                    theta = vonmisesvariate(generator);
+
+                    int row = i - round(dist * cos(theta) / n_s_res);
+                    int col = j + round(dist * sin(theta) / w_e_res);
+
+                    if (row < 0 || row >= height)
+                        continue;
+                    if (col < 0 || col >= width)
+                        continue;
+                    if (S(row, col) > 0) {
+                        double prob_S =
+                                (double)(S(row, col)) /
+                                lvtree_rast(row, col);
+                        double U = distribution_uniform(generator);
+
+                        if (weather)
+                            prob_S *= weather[row * width + col];
+                        else
+                            prob_S *= weather_value;
+                        if (U < prob_S) {
+                            I(row, col) += 1;
+                            S(row, col) -= 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
                                   Img& I_oaks, const Img& lvtree_rast,
                                   Rtype rtype, const double *weather,
@@ -149,12 +223,6 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
                         dist = abs(distribution_cauchy_one(generator));
                     }
                     else if (rtype == CAUCHY_MIX) {
-                        if (gamma >= 1 || gamma <= 0) {
-                            cerr <<
-                                    "The parameter gamma must be in the range (0~1)"
-                                 << endl;
-                            return;
-                        }
                         // use bernoulli distribution to act as the sampling with prob(gamma,1-gamma)
                         if (distribution_bern(generator))
                             dist = abs(distribution_cauchy_one(generator));

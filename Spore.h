@@ -43,6 +43,12 @@ public:
     Sporulation(unsigned random_seed, const Img &size);
     void SporeGen(const Img& I, const double *weather,
                   double weather_value, double rate);
+    void SporeSpreadDisp_singleSpecies(Img& S, Img& I,
+                                       const Img& lvtree_rast, Rtype rtype,
+                                       const double *weather, double weather_value,
+                                       double scale1, double kappa = 2,
+                                       Direction wdir = NONE, double scale2 = 0.0,
+                                       double gamma = 0.0);
     void SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
                          Img& I_oaks, const Img& lvtree_rast, Rtype rtype,
                          const double *weather, double weather_value,
