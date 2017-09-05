@@ -140,6 +140,7 @@ void Sporulation::SporeSpreadDisp_singleSpecies(Img& S, Img& I,
 
     double dist = 0;
     double theta = 0;
+    bool scale2_used = false;
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -152,10 +153,14 @@ void Sporulation::SporeSpreadDisp_singleSpecies(Img& S, Img& I,
                     }
                     else if (rtype == CAUCHY_MIX) {
                         // use bernoulli distribution to act as the sampling with prob(gamma,1-gamma)
-                        if (distribution_bern(generator))
+                        if (distribution_bern(generator)) {
                             dist = abs(distribution_cauchy_one(generator));
-                        else
+                            scale2_used = false;
+                        }
+                        else {
                             dist = abs(distribution_cauchy_two(generator));
+                            scale2_used = true;
+                        }
                     }
                     else {
                         cerr <<
@@ -170,7 +175,9 @@ void Sporulation::SporeSpreadDisp_singleSpecies(Img& S, Img& I,
                     int col = j + round(dist * sin(theta) / w_e_res);
 
                     if (row < 0 || row >= height || col < 0 || col >= width) {
-                        outside_spores.emplace_back(std::make_tuple(row, col));
+                        // export only spores coming from long-range dispersal kernel outside of modeled area
+                        if (scale2_used)
+                            outside_spores.emplace_back(std::make_tuple(row, col));
                         continue;
                     }
                     if (S(row, col) > 0) {
