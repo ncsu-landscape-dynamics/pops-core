@@ -5,6 +5,7 @@
  *
  * Authors: Zexi Chen (zchen22 ncsu edu)
  *          Vaclav Petras (wenzeslaus gmail com)
+ *          Anna Petrasova (kratochanna gmail com)
  *
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
