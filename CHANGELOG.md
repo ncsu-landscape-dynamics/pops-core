@@ -4,18 +4,29 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## 2017-09-05 - September 2017 single species update
+## 2017-09-05 - September 2017 update
 
 ### Added
 
 - Long-range dispersal kernel (Anna Petrasova)
  - Events are recorded.
  - The affected points are exported as a vector map.
+- Weather coefficients as GRASS GIS raster maps (Vaclav Petras)
+ - Input weather coefficients are obtained from a file with list of map
+   names (ordering and naming is resolved separately, e.g. same raster
+   can be used multiple times, i.e. temporal oversampling is possible).
+ - Weather rasters are now automatically resampled on the fly to the
+   raster grid based the computational region.
 
 ### Changed
 
 - Spread of SOD based on a single species (Anna Petrasova)
  - Spread for UMCA and oak replaced by single species, assumed tanoak.
+
+### Fixed
+
+- Interface now checks if only one way of providing weather coefficients
+  was used. (Vaclav Petras)
 
 ## 2017-01-28 - January 2017 status
 
