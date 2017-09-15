@@ -4,6 +4,19 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2017-09-05 - September 2017 single species update
+
+### Added
+
+- Long-range dispersal kernel (Anna Petrasova)
+ - Events are recorded.
+ - The affected points are exported as a vector map.
+
+### Changed
+
+- Spread of SOD based on a single species (Anna Petrasova)
+ - Spread for UMCA and oak replaced by single species, assumed tanoak.
+
 ## 2017-01-28 - January 2017 status
 
 ### Added
