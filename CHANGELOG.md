@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
    can be used multiple times, i.e. temporal oversampling is possible).
  - Weather rasters are now automatically resampled on the fly to the
    raster grid based the computational region.
+- Probability of cell being infected (Vaclav Petras)
 
 ### Changed
 
