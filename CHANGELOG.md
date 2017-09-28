@@ -17,12 +17,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
    can be used multiple times, i.e. temporal oversampling is possible).
  - Weather rasters are now automatically resampled on the fly to the
    raster grid based the computational region.
-- Probability of cell being infected (Vaclav Petras)
+- Output probability of cell being infected (Vaclav Petras)
+- Optionally output one run for series instead of an average (Vaclav Petras)
 
 ### Changed
 
 - Spread of SOD based on a single species (Anna Petrasova)
  - Spread for UMCA and oak replaced by single species, assumed tanoak.
+- Final infected trees output is now optional (Vaclav Petras)
 
 ### Fixed
 
