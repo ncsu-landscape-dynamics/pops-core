@@ -15,6 +15,10 @@
  */
 
 
+// define to support NetCDF format directly
+// (requires linking to netcdf_c++)
+// #define SOD_GDAL_SUPPORT
+
 #include "Img.h"
 
 extern "C" {
@@ -23,8 +27,10 @@ extern "C" {
 #include <grass/raster.h>
 }
 
+#ifdef SOD_GDAL_SUPPORT
 #include <gdal/gdal.h>
 #include <gdal/gdal_priv.h>
+#endif
 
 #include <algorithm>
 #include <stdexcept>
@@ -93,6 +99,7 @@ Img::Img(int width, int height, int w_e_res, int n_s_res, int value)
 
 Img::Img(const char *fileName)
 {
+#ifdef SOD_GDAL_SUPPORT
     GDALDataset *dataset;
     GDALRasterBand *dataBand;
 
@@ -127,6 +134,9 @@ Img::Img(const char *fileName)
                                      + CPLGetLastErrorMsg());
         GDALClose((GDALDatasetH) dataset);
     }
+#else
+    throw std::runtime_error("GDAL support not available");
+#endif
 }
 
 
@@ -357,6 +367,7 @@ void Img::toGrassRaster(const char *name)
 // information from the known (input) file
 void Img::toGdal(const char *name, const char *ref_name)
 {
+#ifdef SOD_GDAL_SUPPORT
     const char *format = "GTiff";
 
     GDALAllRegister();
@@ -387,4 +398,7 @@ void Img::toGdal(const char *name, const char *ref_name)
     GDALClose((GDALDatasetH) outDataset);
     GDALClose((GDALDatasetH) inputDataset);
     CSLDestroy(papszOptions);
+#else
+    throw std::runtime_error("GDAL support not available");
+#endif
 }
