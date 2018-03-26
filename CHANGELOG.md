@@ -4,6 +4,15 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2017-09-05 - March 2018 update
+
+### Changed
+
+- Changes for automatic compilation in GRASS GIS Addons (Vaclav Petras)
+ - GDAL support optional using ifdef
+ - NetCDF support optional using ifdef
+ - Explicitly include necessary standard C++ headers
+
 ## 2017-09-05 - September 2017 update
 
 ### Added
