@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
  - GDAL support optional using ifdef
  - NetCDF support optional using ifdef
  - Explicitly include necessary standard C++ headers
+ - Add formalities: basic documentation and a proper GRASS module name
 
 ## 2017-09-05 - September 2017 update
 
