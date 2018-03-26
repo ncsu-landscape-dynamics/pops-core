@@ -27,6 +27,7 @@ extern "C" {
 #include <gdal/gdal_priv.h>
 
 #include <algorithm>
+#include <stdexcept>
 
 using std::string;
 using std::cerr;
