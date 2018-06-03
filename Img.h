@@ -103,7 +103,7 @@ public:
     Img operator-(const Img& image) const;
     Img operator*(const Img& image) const;
     Img operator/(const Img& image) const;
-    Img operator*(double factor) const;
+    Img operator*(double value) const;
     Img operator/(double value) const;
     Img& operator+=(int value);
     Img& operator-=(int value);
@@ -113,6 +113,9 @@ public:
     Img& operator-=(const Img& image);
     Img& operator*=(const Img& image);
     Img& operator/=(const Img& image);
+
+    friend Img operator*(double factor, const Img& image);
+
     ~Img();
 
     void toGrassRaster(const char *name);
