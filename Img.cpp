@@ -69,6 +69,15 @@ Img::Img(const Img& other)
     std::copy(other.data, other.data + (width * height), data);
 }
 
+Img::Img(const Img& other, int value)
+{
+    width = other.width;
+    height = other.height;
+    w_e_res = other.w_e_res;
+    n_s_res = other.n_s_res;
+    data = new int[width * height]{value};
+}
+
 Img::Img(Img&& other)
 {
     width = other.width;
