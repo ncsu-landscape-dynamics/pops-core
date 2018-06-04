@@ -4,7 +4,7 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## 2017-09-05 - March 2018 update
+## 2018-03-26 - March 2018 update
 
 ### Changed
 
