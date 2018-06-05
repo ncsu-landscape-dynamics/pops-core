@@ -4,6 +4,17 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2018-03-26 - mortality update
+
+### Added
+
+- Mortality (Vaclav Petras)
+ - Enabled by a flag, mandatory mortality rate, optional start time
+ - Optional output series of accumulated dead tree counts per cell
+- Image class constructor taking another image using its dimensions
+  and a provided value (Vaclav Petras)
+- Multiply for image class is commutative (Vaclav Petras)
+
 ## 2018-03-26 - March 2018 update
 
 ### Changed
