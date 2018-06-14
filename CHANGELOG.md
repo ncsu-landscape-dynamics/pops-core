@@ -4,7 +4,33 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## 2018-03-26 - mortality update
+## 2018-06-13 - Spotted Lanternfly
+
+### Added
+
+- The date class now supports also month increments. (Vaclav Petras)
+- A new step option allows user to choose between weekly and monthly
+  increments in simulation. (Vaclav Petras)
+- A custom season can now be selected by the user. (Vaclav Petras)
+- A new test executable for the date class added and available in an
+  alternative Makefile. (Vaclav Petras)
+
+### Changed
+
+- The season option is no longer yes or no but a range of months.
+  (Vaclav Petras)
+
+### Fixed
+
+- Avoid segmentation fault by using the weather coefficients only when
+  available. (Vaclav Petras)
+- Make the NetCDF time-series input option always present regardless
+  compilation settings which avoids use of uninitialized variable later
+  (and thus undefined behavior). Modules now produces error with
+  explanation when option is used but it was compiled without NetCDF
+  support. (Vaclav Petras)
+
+## 2018-06-04 - Mortality Addition
 
 ### Added
 
