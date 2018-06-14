@@ -41,7 +41,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
   and a provided value (Vaclav Petras)
 - Multiply for image class is commutative (Vaclav Petras)
 
-## 2018-03-26 - March 2018 update
+## 2018-03-26 - March 2018 Update
 
 ### Changed
 
@@ -51,7 +51,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
  - Explicitly include necessary standard C++ headers
  - Add formalities: basic documentation and a proper GRASS module name
 
-## 2017-09-05 - September 2017 update
+## 2017-09-05 - September 2017 Update
 
 ### Added
 
@@ -78,7 +78,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - Interface now checks if only one way of providing weather coefficients
   was used. (Vaclav Petras)
 
-## 2017-01-28 - January 2017 status
+## 2017-01-28 - January 2017 Status
 
 ### Added
 
