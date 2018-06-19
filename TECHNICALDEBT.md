@@ -6,15 +6,25 @@ file.
 The goal is to declare the technical debt as described by
 [Easterbrook 2014](http://doi.org/10.1038/ngeo2283) or Wikipedia
 contributors in
-(https://en.wikipedia.org/wiki/Technical_debt)[Technical debt].
+[Technical debt](https://en.wikipedia.org/wiki/Technical_debt).
 
-The sections are based on sections in CHANGELOG. Entries should be
-removed when resolved. Issue from tracker can be optionally linked
-in an entry.
+The sections are based on sections in CHANGELOG. The version refers to
+when the problem first occurred or was encountered. Entries are divided,
+similarly to CHANGELOG, into what is missing and needs to be added (Add),
+what requires a changes of the current code (Change) and what is an
+issue which needs to be fixed (Fix).
+
+Entries should be removed when resolved. Issue from tracker can be
+optionally linked in an entry.
 
 ## 2018-06-13 - Spotted Lanternfly
 
-### Design
+### Add
+
+- Add to documentation.
+- Update README.
+
+### Change
 
 - The decision if to increase by week or month is done with conditional
   (ternary) operator on one long line. Maybe enum and universal
@@ -23,14 +33,21 @@ in an entry.
   range (or a range class) would make shorter code without the access to
   first and second members and two queries for month.
 
-### Documentation
+## 2018-06-04 - Mortality Addition
+
+### Add
 
 - Add to documentation.
 - Update README.
 
-## 2018-06-04 - Mortality Addition
+### Change
 
-### Efficiency
+- Several new lines of mortality model added to already long main
+  function.
+- Mortality cohorts may require better name since the individual can be
+  potentially also a cohort or stand.
+
+### Fix
 
 - Mortality-related objects are always created (and take memory).
 - Mortality-related infection cohort always updated in spore spread and
@@ -38,55 +55,34 @@ in an entry.
   previous line (perhaps some container optionally wrapping two images
   would be useful).
 
-### Design/Layout
-
-- Several new lines of mortality model added to already long main
-  function.
-
-### Naming/User Interface
-
-- Mortality cohorts may require better name since the individual can be
-  potentially also a cohort or stand.
-
-### Documentation
-
-- Add to documentation.
-- Update README.
-
 ## 2018-03-26 - March 2018 Update
 
-### Style
+### Fix
 
 - Some of the code in NetCDF ifdefs has bad structure (additional empty
   blocks).
 
 ## 2017-09-05 - September 2017 Update
 
-### Dead Code
+### Fix
 
 - Dead code for the specific multiple host species.
-
-### Design/Layout
-
 - Several new lines of non-trivial saving of escaping spores added to
   already long main function.
 
 ## 2017-01-28 - January 2017 Status
 
-### Functionality
+### Add
 
 - Image class is only for integers but the weather is floating point,
   so it needs a different treatment in code than other data.
 - The date class needs abstraction for the leap years and days in month.
-- Formatting of text and parameters for the date class (leading zeros).
 - Tests needed for the image class.
 
-### Layout
+### Change
 
+- Formatting of text and parameters for the date class (leading zeros).
 - Create dedicated file for the direction enum and helper functions.
-
-### Style
-
 - Some of the Date class methods have still misleading names (e.g.,
   increased versus increase).
 - Methods and functions should use underscores not camel case (using
