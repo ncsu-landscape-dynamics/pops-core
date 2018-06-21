@@ -8,10 +8,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- Time-series of temperature raster maps specified as a text file.
-- Temperature rasters are used at a specified month to check against
-  a provided critical temperature and if the condition is met,
-  infected trees become susceptible again.
+- Critical temperature as the lowest temperature spores can survive
+  in a provided month (Vaclav Petras)
+ - Time-series of temperature raster maps specified as a text file.
+ - Temperature rasters are used at a specified month to check against
+   a provided critical temperature and if the condition is met,
+   infected trees become susceptible again.
 
 ### Changed
 

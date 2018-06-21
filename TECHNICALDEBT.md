@@ -19,6 +19,12 @@ optionally linked in an entry.
 
 ## 2018-06-20 - Critical Temperature
 
+### Add
+
+- Add (rigorous) tests for the Raster class.
+- Add more tests for the Date class.
+- Documentation of the C++ functions and classes (use Doxygen).
+
 ### Change
 
 - Naming and descriptions of parameters related to weather
@@ -29,12 +35,17 @@ optionally linked in an entry.
 
 - Temperature raster for critical temperature is represented as integer,
   not double or float.
+- Even after the upgrade to Raster class, there are still some legacy
+  method names and integers instead of doubles (but does not influence
+  computations).
+- Numerous sign-compare warnings.
+- Spelling in the code and comments.
 
 ## 2018-06-13 - Spotted Lanternfly
 
 ### Add
 
-- Add to documentation.
+- Add SLF parameters to documentation.
 - Update README.
 
 ### Change
@@ -55,7 +66,7 @@ optionally linked in an entry.
 
 ### Add
 
-- Add to documentation.
+- Add mortality to documentation.
 - Update README.
 
 ### Change
