@@ -42,6 +42,8 @@ private:
     std::default_random_engine generator;
 public:
     Sporulation(unsigned random_seed, const Img &size);
+    void SporeRemove(Img& I, Img &S, const Img temperature,  // TODO: use double
+                     double critical_temperature);
     void SporeGen(const Img& I, const double *weather,
                   double weather_value, double rate);
     void SporeSpreadDisp_singleSpecies(Img& S, Img& I, Img& I2,

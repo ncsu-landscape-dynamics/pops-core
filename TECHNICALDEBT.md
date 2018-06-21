@@ -17,6 +17,19 @@ issue which needs to be fixed (Fix).
 Entries should be removed when resolved. Issue from tracker can be
 optionally linked in an entry.
 
+## 2018-06-20 - Critical Temperature
+
+### Change
+
+- Naming and descriptions of parameters related to weather
+  (coefficients versus the actual values)
+- Naming of critical temperature in interface and in code
+
+### Fix
+
+- Temperature raster for critical temperature is represented as integer,
+  not double or float.
+
 ## 2018-06-13 - Spotted Lanternfly
 
 ### Add
@@ -32,6 +45,11 @@ optionally linked in an entry.
 - Season is just a std::pair, but a function to test if month is in
   range (or a range class) would make shorter code without the access to
   first and second members and two queries for month.
+
+### Fix
+
+- Compilation with and without the test module (now the test Makefile
+  needs to be used always)
 
 ## 2018-06-04 - Mortality Addition
 
