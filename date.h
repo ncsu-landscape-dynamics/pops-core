@@ -35,24 +35,24 @@ public:
     Date(const Date &d): year(d.year), month(d.month), day(d.day){}
     Date(int y, int m, int d): year(y), month(m), day(d){}
     Date(): year(2000), month(1), day(1){}
-    void increasedByWeek();
-    void increasedByMonth();
-    Date getYearEnd();
-    Date getNextYearEnd();
-    bool isYearEnd();
-    bool isLastMonthOfYear();
+    inline void increasedByWeek();
+    inline void increasedByMonth();
+    inline Date getYearEnd();
+    inline Date getNextYearEnd();
+    inline bool isYearEnd();
+    inline bool isLastMonthOfYear();
     int getMonth() const {return month;}
     int getYear() const { return year;}
     int getDay() const {return day;}
     void setMonth(int m){month = m;}
     void setYear(int y){year = y;}
     void setDay(int d){day = d;}
-    int weeksFromDate(Date start);
-    friend std::ostream& operator<<(std::ostream& os, const Date &d);
-    friend bool operator> (const Date &d1, const Date &d2);
-    friend bool operator>= (const Date &d1, const Date &d2);
-    friend bool operator< (const Date &d1, const Date &d2);
-    friend bool operator<= (const Date &d1, const Date &d2);
+    inline int weeksFromDate(Date start);
+    inline friend std::ostream& operator<<(std::ostream& os, const Date &d);
+    inline friend bool operator> (const Date &d1, const Date &d2);
+    inline friend bool operator>= (const Date &d1, const Date &d2);
+    inline friend bool operator< (const Date &d1, const Date &d2);
+    inline friend bool operator<= (const Date &d1, const Date &d2);
 };
 
 std::ostream& operator<<(std::ostream& os, const Date &d)
