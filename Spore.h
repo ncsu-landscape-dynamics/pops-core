@@ -19,7 +19,7 @@
 #ifndef SPORE_H
 #define SPORE_H
 
-#include "Img.h"
+#include "raster.h"
 
 #include <random>
 
@@ -27,6 +27,12 @@
 enum Rtype
 {
     CAUCHY, CAUCHY_MIX          // NO means that there is no wind
+};
+
+// NONE means that there is no wind
+enum Direction
+{
+    N = 0, NE = 45, E = 90, SE = 135, S = 180, SW = 225, W = 270, NW = 315, NONE
 };
 
 class Sporulation

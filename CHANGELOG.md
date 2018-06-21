@@ -4,6 +4,13 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2018-06-21 - Critical Temperature
+
+### Changed
+
+- Img was replaced by a generalized Raster template class which can
+  handle both integers and floating point numbers. (Vaclav Petras)
+
 ## 2018-06-13 - Spotted Lanternfly
 
 ### Added
