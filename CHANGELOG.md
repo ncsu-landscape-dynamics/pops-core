@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## 2018-06-21 - Critical Temperature
 
+### Added
+
+- Time-series of temperature raster maps specified as a text file.
+- Temperature rasters are used at a specified month to check against
+  a provided critical temperature and if the condition is met,
+  infected trees become susceptible again.
+
 ### Changed
 
 - Img was replaced by a generalized Raster template class which can
