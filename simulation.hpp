@@ -18,7 +18,7 @@
 #ifndef SPORE_H
 #define SPORE_H
 
-#include "raster.h"
+#include "raster.hpp"
 
 #include <cmath>
 #include <tuple>
