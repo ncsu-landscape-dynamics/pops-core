@@ -1,4 +1,7 @@
-# SOD-modeling-cpp
+# PoPSS
+
+PoPSS library
+
 recoding the model to create a c++ version of the SOD-model base on https://github.com/f-tonini/SOD-modeling.
 This repository contains the c++ version scripts used to develop a stochastic landscape spread model of forest pathogen *P. ramorum*.
 
