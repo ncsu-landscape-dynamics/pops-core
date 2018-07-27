@@ -1,6 +1,17 @@
+# compilation intermediate files
+
 *.gch
+*.o
+
+# generated executables
+
 a.out
+test_date
+
+# Qt Creator files
+
 *.config
 *.creator
 *.files
 *.includes
+*.user
