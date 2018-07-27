@@ -377,4 +377,4 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
     }
 }
 
-#endif SPORE_H
+#endif // SPORE_H
