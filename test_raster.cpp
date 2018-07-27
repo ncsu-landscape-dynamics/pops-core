@@ -1,7 +1,7 @@
 #ifdef POPSS_TEST
 
 /*
- * Simple compilation test for the PoPSS Simulation class.
+ * Simple compilation test for the PoPSS Raster class.
  *
  * Copyright (C) 2018 by the authors.
  *
@@ -43,7 +43,8 @@ using std::endl;
 int main(int argc, char *argv[])
 {
     Raster<int> a(10, 10, 1, 1);
-    Simulation<Raster<int>, Raster<double>> simulation(42, a);
+    Raster<float> b(10, 10, 1, 1);
+    Raster<double> c(10, 10, 1, 1);
 
     return 0;
 }
