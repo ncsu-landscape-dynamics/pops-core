@@ -123,6 +123,8 @@ public:
         generator.seed(random_seed);
     }
 
+    Simulation() = delete;
+
     void SporeRemove(IntegerRaster& I, IntegerRaster& S,
                      const FloatRaster& temperature,
                      double critical_temperature)
