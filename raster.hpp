@@ -19,9 +19,12 @@
  */
 
 #include <iostream>
+#include <ostream>
 #include <string>
 #include <cmath>
 #include <algorithm>
+#include <stdexcept>
+#include <initializer_list>
 #include <stdlib.h>
 
 #ifdef POPSS_RASTER_WITH_GRASS_GIS
@@ -33,9 +36,6 @@ extern "C" {
 }
 
 #endif // POPSS_RASTER_WITH_GRASS_GIS
-
-#include <algorithm>
-#include <stdexcept>
 
 using std::string;
 using std::cerr;
@@ -120,6 +120,33 @@ public:
         this->w_e_res = w_e_res;
         this->n_s_res = n_s_res;
         this->data = new Number[width * height]{value};
+    }
+
+    // TODO: here we ignore res, not really used anywhere
+    // maybe remove from the class, or make it optional together with
+    // a reference
+    Raster(std::initializer_list<std::initializer_list<Number>> l)
+        : Raster(l.begin()->size(), l.size(), 1, 1)
+    {
+         unsigned i = 0;
+         unsigned j = 0;
+         for (const auto& subl : l)
+         {
+            for (const auto& value : subl)
+            {
+               data[width * i + j] = value;
+               ++j;
+            }
+            j = 0;
+            ++i;
+         }
+    }
+
+    ~Raster()
+    {
+        if (data) {
+            delete[] data;
+        }
     }
 
     int getWidth() const
@@ -340,6 +367,30 @@ public:
         return *this;
     }
 
+    bool operator==(const Raster& other) const
+    {
+        // TODO: assumes same sizes
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < width; j++) {
+                if (this->data[i * width + j] != other.data[i * width + j])
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator!=(const Raster& other) const
+    {
+        // TODO: assumes same sizes
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < width; j++) {
+                if (this->data[i * width + j] != other.data[i * width + j])
+                    return true;
+            }
+        }
+        return false;
+    }
+
     friend inline Raster operator*(double factor, const Raster& image)
     {
         return image * factor;
@@ -354,12 +405,19 @@ public:
         return image;
     }
 
-
-    ~Raster()
-    {
-        if (data) {
-            delete[] data;
+    friend inline std::ostream& operator<<(std::ostream& stream, const Raster& image) {
+        stream << "[[";
+        for (unsigned i = 0; i < image.height; i++) {
+            if (i != 0)
+                stream << "],\n [";
+            for (unsigned j = 0; j < image.width; j++) {
+                if (j != 0)
+                    stream << ", ";
+                stream << image.data[i * image.width + j];
+            }
         }
+        stream << "]]\n";
+        return stream;
     }
 
     #ifdef POPSS_RASTER_WITH_GRASS_GIS
