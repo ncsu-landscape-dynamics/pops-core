@@ -98,7 +98,8 @@ enum Direction
     N = 0, NE = 45, E = 90, SE = 135, S = 180, SW = 225, W = 270, NW = 315, NONE
 };
 
-class Sporulation
+template<typename IntegerRaster, typename FloatRaster>
+class Simulation
 {
 private:
     int width;
@@ -107,267 +108,249 @@ private:
     int w_e_res;
     // the north-south resolution of the pixel
     int n_s_res;
-    Img sp;
+    IntegerRaster sp;
     std::default_random_engine generator;
 public:
-    Sporulation(unsigned random_seed, const Img &size);
-    void SporeRemove(Img& I, Img& S, const DImg& temperature,
-                     double critical_temperature);
-    void SporeGen(const Img& I, const double *weather,
-                  double weather_value, double rate);
-    void SporeSpreadDisp_singleSpecies(Img& S, Img& I, Img& I2,
-                                       const Img& lvtree_rast, std::vector<std::tuple<int, int> > &outside_spores, Rtype rtype,
+
+    Simulation(unsigned random_seed, const IntegerRaster &size)
+        :
+          width(size.getWidth()),
+          height(size.getHeight()),
+          w_e_res(size.getWEResolution()),
+          n_s_res(size.getNSResolution()),
+          sp(width, height, w_e_res, n_s_res)
+    {
+        generator.seed(random_seed);
+    }
+
+    void SporeRemove(IntegerRaster& I, IntegerRaster& S,
+                     const FloatRaster& temperature,
+                     double critical_temperature)
+    {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (temperature(i, j) < critical_temperature) {
+                    S(i, j) += I(i, j);  // move back to suseptable pool
+                    I(i, j) = 0;  // remove all infection
+                }
+            }
+        }
+    }
+
+    void SporeGen(const IntegerRaster& I, const double *weather,
+                  double weather_value, double rate)
+    {
+        double lambda = 0;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (I(i, j) > 0) {
+                    if (weather)
+                        lambda = rate * weather[i * width + j];
+                    else
+                        lambda = rate * weather_value;
+                    int sum = 0;
+                    std::poisson_distribution<int> distribution(lambda);
+
+                    for (int k = 0; k < I(i, j); k++) {
+                        sum += distribution(generator);
+                    }
+                    sp(i, j) = sum;
+                }
+                else {
+                    sp(i, j) = 0;
+                }
+            }
+        }
+    }
+
+    void SporeSpreadDisp_singleSpecies(IntegerRaster& S, IntegerRaster& I, IntegerRaster& I2,
+                                       const IntegerRaster& lvtree_rast, std::vector<std::tuple<int, int> > &outside_spores, Rtype rtype,
                                        const double *weather, double weather_value,
                                        double scale1, double kappa = 2,
                                        Direction wdir = NONE, double scale2 = 0.0,
-                                       double gamma = 0.0);
-    void SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
-                         Img& I_oaks, const Img& lvtree_rast, Rtype rtype,
+                                       double gamma = 0.0)
+    {
+        std::cauchy_distribution < double >distribution_cauchy_one(0.0, scale1);
+        std::cauchy_distribution < double >distribution_cauchy_two(0.0, scale2);
+
+        std::bernoulli_distribution distribution_bern(gamma);
+        std::uniform_real_distribution < double >distribution_uniform(0.0, 1.0);
+
+        if (wdir == NONE)
+            kappa = 0;
+        von_mises_distribution vonmisesvariate(wdir * PI / 180, kappa);
+
+        double dist = 0;
+        double theta = 0;
+        bool scale2_used = false;
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (sp(i, j) > 0) {
+                    for (int k = 0; k < sp(i, j); k++) {
+
+                        // generate the distance from cauchy distribution or cauchy mixture distribution
+                        if (rtype == CAUCHY) {
+                            dist = abs(distribution_cauchy_one(generator));
+                        }
+                        else if (rtype == CAUCHY_MIX) {
+                            // use bernoulli distribution to act as the sampling with prob(gamma,1-gamma)
+                            if (distribution_bern(generator)) {
+                                dist = abs(distribution_cauchy_one(generator));
+                                scale2_used = false;
+                            }
+                            else {
+                                dist = abs(distribution_cauchy_two(generator));
+                                scale2_used = true;
+                            }
+                        }
+                        else {
+                            cerr <<
+                                    "The paramter Rtype muse be set as either CAUCHY OR CAUCHY_MIX"
+                                 << endl;
+                            exit(EXIT_FAILURE);
+                        }
+
+                        theta = vonmisesvariate(generator);
+
+                        int row = i - round(dist * cos(theta) / n_s_res);
+                        int col = j + round(dist * sin(theta) / w_e_res);
+
+                        if (row < 0 || row >= height || col < 0 || col >= width) {
+                            // export only spores coming from long-range dispersal kernel outside of modeled area
+                            if (scale2_used)
+                                outside_spores.emplace_back(std::make_tuple(row, col));
+                            continue;
+                        }
+                        if (S(row, col) > 0) {
+                            double prob_S =
+                                    (double)(S(row, col)) /
+                                    lvtree_rast(row, col);
+                            double U = distribution_uniform(generator);
+
+                            if (weather)
+                                prob_S *= weather[row * width + col];
+                            else
+                                prob_S *= weather_value;
+                            if (U < prob_S) {
+                                I(row, col) += 1;
+                                I2(row, col) += 1;
+                                S(row, col) -= 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void SporeSpreadDisp(IntegerRaster& S_umca, IntegerRaster& S_oaks, IntegerRaster& I_umca,
+                         IntegerRaster& I_oaks, const IntegerRaster& lvtree_rast, Rtype rtype,
                          const double *weather, double weather_value,
                          double scale1, double kappa = 2,
                          Direction wdir = NONE, double scale2 = 0.0,
-                         double gamma = 0.0);
-};
+                         double gamma = 0.0)
+    {
+        std::cauchy_distribution < double >distribution_cauchy_one(0.0, scale1);
+        std::cauchy_distribution < double >distribution_cauchy_two(0.0, scale2);
 
-Sporulation::Sporulation(unsigned random_seed, const Img& size)
-    :
-      width(size.getWidth()),
-      height(size.getHeight()),
-      w_e_res(size.getWEResolution()),
-      n_s_res(size.getNSResolution()),
-      sp(width, height, w_e_res, n_s_res)
-{
-    generator.seed(random_seed);
-}
+        std::bernoulli_distribution distribution_bern(gamma);
+        std::uniform_real_distribution < double >distribution_uniform(0.0, 1.0);
 
-void Sporulation::SporeRemove(Img& I, Img& S, const DImg& temperature,
-                              double critical_temperature)
-{
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            if (temperature(i, j) < critical_temperature) {
-                S(i, j) += I(i, j);  // move back to suseptable pool
-                I(i, j) = 0;  // remove all infection
-            }
-        }
-    }
-}
+        if (wdir == NONE)
+            kappa = 0;
+        von_mises_distribution vonmisesvariate(wdir * PI / 180, kappa);
 
-void Sporulation::SporeGen(const Img& I, const double *weather,
-                           double weather_value, double rate)
-{
-    double lambda = 0;
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            if (I(i, j) > 0) {
-                if (weather)
-                    lambda = rate * weather[i * width + j];
-                else
-                    lambda = rate * weather_value;
-                int sum = 0;
-                std::poisson_distribution<int> distribution(lambda);
+        double dist = 0;
+        double theta = 0;
 
-                for (int k = 0; k < I(i, j); k++) {
-                    sum += distribution(generator);
-                }
-                sp(i, j) = sum;
-            }
-            else {
-                sp(i, j) = 0;
-            }
-        }
-    }
-}
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (sp(i, j) > 0) {
+                    for (int k = 0; k < sp(i, j); k++) {
 
-void Sporulation::SporeSpreadDisp_singleSpecies(Img& S, Img& I, Img& I2,
-                                                const Img& lvtree_rast,
-                                                std::vector<std::tuple<int, int> >& outside_spores,
-                                                Rtype rtype, const double *weather,
-                                                double weather_value, double scale1,
-                                                double kappa, Direction wdir, double scale2,
-                                                double gamma)
-{
-    std::cauchy_distribution < double >distribution_cauchy_one(0.0, scale1);
-    std::cauchy_distribution < double >distribution_cauchy_two(0.0, scale2);
-
-    std::bernoulli_distribution distribution_bern(gamma);
-    std::uniform_real_distribution < double >distribution_uniform(0.0, 1.0);
-
-    if (wdir == NONE)
-        kappa = 0;
-    von_mises_distribution vonmisesvariate(wdir * PI / 180, kappa);
-
-    double dist = 0;
-    double theta = 0;
-    bool scale2_used = false;
-
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            if (sp(i, j) > 0) {
-                for (int k = 0; k < sp(i, j); k++) {
-
-                    // generate the distance from cauchy distribution or cauchy mixture distribution
-                    if (rtype == CAUCHY) {
-                        dist = abs(distribution_cauchy_one(generator));
-                    }
-                    else if (rtype == CAUCHY_MIX) {
-                        // use bernoulli distribution to act as the sampling with prob(gamma,1-gamma)
-                        if (distribution_bern(generator)) {
+                        // generate the distance from cauchy distribution or cauchy mixture distribution
+                        if (rtype == CAUCHY) {
                             dist = abs(distribution_cauchy_one(generator));
-                            scale2_used = false;
+                        }
+                        else if (rtype == CAUCHY_MIX) {
+                            // use bernoulli distribution to act as the sampling with prob(gamma,1-gamma)
+                            if (distribution_bern(generator))
+                                dist = abs(distribution_cauchy_one(generator));
+                            else
+                                dist = abs(distribution_cauchy_two(generator));
                         }
                         else {
-                            dist = abs(distribution_cauchy_two(generator));
-                            scale2_used = true;
+                            cerr <<
+                                    "The paramter Rtype muse be set as either CAUCHY OR CAUCHY_MIX"
+                                 << endl;
+                            exit(EXIT_FAILURE);
                         }
-                    }
-                    else {
-                        cerr <<
-                                "The paramter Rtype muse be set as either CAUCHY OR CAUCHY_MIX"
-                             << endl;
-                        exit(EXIT_FAILURE);
-                    }
 
-                    theta = vonmisesvariate(generator);
+                        theta = vonmisesvariate(generator);
 
-                    int row = i - round(dist * cos(theta) / n_s_res);
-                    int col = j + round(dist * sin(theta) / w_e_res);
+                        int row = i - round(dist * cos(theta) / n_s_res);
+                        int col = j + round(dist * sin(theta) / w_e_res);
 
-                    if (row < 0 || row >= height || col < 0 || col >= width) {
-                        // export only spores coming from long-range dispersal kernel outside of modeled area
-                        if (scale2_used)
-                            outside_spores.emplace_back(std::make_tuple(row, col));
-                        continue;
-                    }
-                    if (S(row, col) > 0) {
-                        double prob_S =
-                                (double)(S(row, col)) /
-                                lvtree_rast(row, col);
-                        double U = distribution_uniform(generator);
+                        if (row < 0 || row >= height)
+                            continue;
+                        if (col < 0 || col >= width)
+                            continue;
 
-                        if (weather)
-                            prob_S *= weather[row * width + col];
-                        else
-                            prob_S *= weather_value;
-                        if (U < prob_S) {
-                            I(row, col) += 1;
-                            I2(row, col) += 1;
-                            S(row, col) -= 1;
+                        if (row == i && col == j) {
+                            if (S_umca(row, col) > 0 ||
+                                    S_oaks(row, col) > 0) {
+                                double prob =
+                                        (double)(S_umca(row, col) +
+                                                 S_oaks(row, col)) /
+                                        lvtree_rast(row, col);
+
+                                double U = distribution_uniform(generator);
+
+                                if (weather)
+                                    prob = prob * weather[row * width + col];
+                                else
+                                    prob = prob * weather_value;
+
+                                // if U < prob, then one host will become infected
+                                if (U < prob) {
+                                    double prob_S_umca =
+                                            (double)(S_umca(row, col)) /
+                                            (S_umca(row, col) +
+                                             S_oaks(row, col));
+                                    double prob_S_oaks =
+                                            (double)(S_oaks(row, col)) /
+                                            (S_umca(row, col) +
+                                             S_oaks(row, col));
+
+                                    std::bernoulli_distribution
+                                        distribution_bern_prob(prob_S_umca);
+                                    if (distribution_bern_prob(generator)) {
+                                        I_umca(row, col) += 1;
+                                        S_umca(row, col) -= 1;
+                                    }
+                                    else {
+                                        I_oaks(row, col) += 1;
+                                        S_oaks(row, col) -= 1;
+                                    }
+                                }
+                            }
                         }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
-                                  Img& I_oaks, const Img& lvtree_rast,
-                                  Rtype rtype, const double *weather,
-                                  double weather_value, double scale1,
-                                  double kappa, Direction wdir, double scale2,
-                                  double gamma)
-{
-    std::cauchy_distribution < double >distribution_cauchy_one(0.0, scale1);
-    std::cauchy_distribution < double >distribution_cauchy_two(0.0, scale2);
-
-    std::bernoulli_distribution distribution_bern(gamma);
-    std::uniform_real_distribution < double >distribution_uniform(0.0, 1.0);
-
-    if (wdir == NONE)
-        kappa = 0;
-    von_mises_distribution vonmisesvariate(wdir * PI / 180, kappa);
-
-    double dist = 0;
-    double theta = 0;
-
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            if (sp(i, j) > 0) {
-                for (int k = 0; k < sp(i, j); k++) {
-
-                    // generate the distance from cauchy distribution or cauchy mixture distribution
-                    if (rtype == CAUCHY) {
-                        dist = abs(distribution_cauchy_one(generator));
-                    }
-                    else if (rtype == CAUCHY_MIX) {
-                        // use bernoulli distribution to act as the sampling with prob(gamma,1-gamma)
-                        if (distribution_bern(generator))
-                            dist = abs(distribution_cauchy_one(generator));
-                        else
-                            dist = abs(distribution_cauchy_two(generator));
-                    }
-                    else {
-                        cerr <<
-                                "The paramter Rtype muse be set as either CAUCHY OR CAUCHY_MIX"
-                             << endl;
-                        exit(EXIT_FAILURE);
-                    }
-
-                    theta = vonmisesvariate(generator);
-
-                    int row = i - round(dist * cos(theta) / n_s_res);
-                    int col = j + round(dist * sin(theta) / w_e_res);
-
-                    if (row < 0 || row >= height)
-                        continue;
-                    if (col < 0 || col >= width)
-                        continue;
-
-                    if (row == i && col == j) {
-                        if (S_umca(row, col) > 0 ||
-                                S_oaks(row, col) > 0) {
-                            double prob =
-                                    (double)(S_umca(row, col) +
-                                             S_oaks(row, col)) /
-                                    lvtree_rast(row, col);
-
-                            double U = distribution_uniform(generator);
-
-                            if (weather)
-                                prob = prob * weather[row * width + col];
-                            else
-                                prob = prob * weather_value;
-
-                            // if U < prob, then one host will become infected
-                            if (U < prob) {
+                        else {
+                            if (S_umca(row, col) > 0) {
                                 double prob_S_umca =
                                         (double)(S_umca(row, col)) /
-                                        (S_umca(row, col) +
-                                         S_oaks(row, col));
-                                double prob_S_oaks =
-                                        (double)(S_oaks(row, col)) /
-                                        (S_umca(row, col) +
-                                         S_oaks(row, col));
+                                        lvtree_rast(row, col);
+                                double U = distribution_uniform(generator);
 
-                                std::bernoulli_distribution
-                                    distribution_bern_prob(prob_S_umca);
-                                if (distribution_bern_prob(generator)) {
+                                if (weather)
+                                    prob_S_umca *= weather[row * width + col];
+                                else
+                                    prob_S_umca *= weather_value;
+                                if (U < prob_S_umca) {
                                     I_umca(row, col) += 1;
                                     S_umca(row, col) -= 1;
                                 }
-                                else {
-                                    I_oaks(row, col) += 1;
-                                    S_oaks(row, col) -= 1;
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        if (S_umca(row, col) > 0) {
-                            double prob_S_umca =
-                                    (double)(S_umca(row, col)) /
-                                    lvtree_rast(row, col);
-                            double U = distribution_uniform(generator);
-
-                            if (weather)
-                                prob_S_umca *= weather[row * width + col];
-                            else
-                                prob_S_umca *= weather_value;
-                            if (U < prob_S_umca) {
-                                I_umca(row, col) += 1;
-                                S_umca(row, col) -= 1;
                             }
                         }
                     }
@@ -375,6 +358,10 @@ void Sporulation::SporeSpreadDisp(Img& S_umca, Img& S_oaks, Img& I_umca,
             }
         }
     }
-}
+
+};
+
+// for backwards compatibility
+typedef Simulation<Img, DImg> Sporulation;
 
 #endif // SPORE_H
