@@ -24,11 +24,15 @@
 #include <algorithm>
 #include <stdlib.h>
 
+#ifdef POPSS_RASTER_WITH_GRASS_GIS
+
 extern "C" {
 #include <grass/gis.h>
 #include <grass/glocale.h>
 #include <grass/raster.h>
 }
+
+#endif // POPSS_RASTER_WITH_GRASS_GIS
 
 #include <algorithm>
 #include <stdexcept>
@@ -358,6 +362,8 @@ public:
         }
     }
 
+    #ifdef POPSS_RASTER_WITH_GRASS_GIS
+
     static inline Raster fromGrassRaster(const char *name)
     {
         int fd = Rast_open_old(name, "");
@@ -390,7 +396,10 @@ public:
         Rast_close(fd);
     }
 
+    #endif // POPSS_RASTER_WITH_GRASS_GIS
 };
+
+#ifdef POPSS_RASTER_WITH_GRASS_GIS
 
 template <>
 inline Raster<int> Raster<int>::fromGrassRaster(const char *name)
@@ -425,6 +434,8 @@ inline void Raster<int>::toGrassRaster(const char *name)
         Rast_put_c_row(fd, data + (i * width));
     Rast_close(fd);
 }
+
+#endif // POPSS_RASTER_WITH_GRASS_GIS
 
 // convenient definitions, names for backwards compatibility
 typedef Raster<int> Img;
