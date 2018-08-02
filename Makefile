@@ -12,6 +12,11 @@ test_raster: test_raster.cpp *.hpp
 test_simulation: test_simulation.cpp *.hpp
 	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_simulation.cpp -o test_simulation
 
+test:
+	./test_date
+	./test_raster
+	./test_simulation
+
 clean:
 	rm -f test_date
 	rm -f test_raster
