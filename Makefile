@@ -17,6 +17,9 @@ test:
 	./test_raster
 	./test_simulation
 
+doc:
+	doxygen
+
 clean:
 	rm -f test_date
 	rm -f test_raster

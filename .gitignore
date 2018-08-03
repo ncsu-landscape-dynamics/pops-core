@@ -10,6 +10,10 @@ test_date
 test_raster
 test_simulation
 
+# generated documentation
+
+html
+
 # Qt Creator files
 
 *.config

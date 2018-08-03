@@ -81,9 +81,24 @@ Then compile the code:
 
     make
 
-And finally run the tests:
+The library itself does not need compilation since it is header only
+(it is compiled later with your project), but this compiles several
+test programs.
+
+Finally, run the tests:
 
     make test
+
+This will generate some test output, to see if all was right, you will
+need to examine the source code. The tests are not fully automatic
+and currently cover only the bare minimum.
+
+Additionally, if you have Doxygen, to generate documentation run:
+
+    make doc
+
+The HTML documentation will appear in the `html` directory. Open the
+file called `index.html` to access it in a web browser.
 
 ## Authors
 

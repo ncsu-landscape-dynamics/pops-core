@@ -41,8 +41,8 @@ using std::string;
 using std::cerr;
 using std::endl;
 
-/* Iterate over two ranges and apply a binary function which modifies
- * the first parameter.
+/*! Iterate over two ranges and apply a binary function which modifies
+ *  the first parameter.
  */
 template<class InputIt1, class InputIt2, class BinaryOperation>
 BinaryOperation for_each_zip(InputIt1 first1, InputIt1 last1, InputIt2 first2, BinaryOperation f) {
@@ -52,6 +52,30 @@ BinaryOperation for_each_zip(InputIt1 first1, InputIt1 last1, InputIt2 first2, B
     return f;
 }
 
+/*! Representation of a raster image.
+ *
+ * The object support raster algebra operations:
+ *
+ * ```
+ * Raster<int> a = {{1, 2}, {3, 4}};
+ * auto b = 2 * (a + 1);
+ * ```
+ *
+ * The raster algebra operations sometimes overlap with matrix
+ * operations, e.g. for plus operator or multiplication by scalar.
+ * However, in some cases, the behavior is different, e.g.,
+ * multiplication of the rasters results in a new raster with cell
+ * values which are result of multiplying cell values in the relevant
+ * positions of the two raster.
+ *
+ * ```
+ * Raster<int> a = {{1, 2}, {3, 4}};
+ * auto b = 2 * (a + 1);
+ * ```
+ *
+ * The template parameter Number is the numerical type of the raster,
+ * typically int, float, or double.
+ */
 template<typename Number>
 class Raster
 {
@@ -422,6 +446,8 @@ public:
 
     #ifdef POPSS_RASTER_WITH_GRASS_GIS
 
+    /** Read a GRASS GIS raster map to the Raster.
+     */
     static inline Raster fromGrassRaster(const char *name)
     {
         int fd = Rast_open_old(name, "");
@@ -446,6 +472,8 @@ public:
         return img;
     }
 
+    /** Write the Raster to a GRASS GIS raster map.
+     */
     void inline toGrassRaster(const char *name)
     {
         int fd = Rast_open_new(name, DCELL_TYPE);
@@ -459,6 +487,10 @@ public:
 
 #ifdef POPSS_RASTER_WITH_GRASS_GIS
 
+/** Read a GRASS GIS raster map to the Raster.
+ *
+ * This is a specialization for reading using int.
+ */
 template <>
 inline Raster<int> Raster<int>::fromGrassRaster(const char *name)
 {
@@ -484,6 +516,10 @@ inline Raster<int> Raster<int>::fromGrassRaster(const char *name)
     return img;
 }
 
+/** Write the Raster to a GRASS GIS raster map.
+ *
+ * This is a specialization for reading using int.
+ */
 template <>
 inline void Raster<int>::toGrassRaster(const char *name)
 {

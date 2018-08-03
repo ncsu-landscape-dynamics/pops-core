@@ -36,13 +36,12 @@
 using std::cerr;
 using std::endl;
 
-/*
-Von Mises Distribution(Circular data distribution)
+/*! Von Mises Distribution (Circular data distribution)
 
-mu is the mean angle, expressed in radians between 0 and 2*pi,
-and kappa is the concentration parameter, which must be greater
-than or equal to zero. If kappa is equal to zero, this distribution
-reduces to a uniform random angle over the range 0 to 2*pi
+    mu is the mean angle, expressed in radians between 0 and 2*pi,
+    and kappa is the concentration parameter, which must be greater
+    than or equal to zero. If kappa is equal to zero, this distribution
+    reduces to a uniform random angle over the range 0 to 2*pi.
 */
 class von_mises_distribution
 {
@@ -98,6 +97,22 @@ enum Direction
     N = 0, NE = 45, E = 90, SE = 135, S = 180, SW = 225, W = 270, NW = 315, NONE
 };
 
+/*! The main class to control the spread simulation.
+ *
+ * The template parameters IntegerRaster and FloatRaster are raster
+ * image or matrix types. Any 2D numerical array should work as long as
+ * it uses function call operator to access the values, i.e. it provides
+ * indexing for reading and writing values using `()`. In other words,
+ * the two following operations should be possible:
+ *
+ * ```
+ * a(i, j) = 1;
+ * a(i, j) == 1;
+ * ```
+ *
+ * The PoPSS library offers a Raster template class to fill this role,
+ * but other classes can be used as well.
+ */
 template<typename IntegerRaster, typename FloatRaster>
 class Simulation
 {
