@@ -1,5 +1,5 @@
 CXXFLAGS := $(CXXFLAGS) -std=c++11 -pedantic -Wall -Wextra
-COMMON_DEFINES := -D POPSS_TEST
+COMMON_DEFINES := -D POPS_TEST
 
 all: test_date test_raster test_simulation
 

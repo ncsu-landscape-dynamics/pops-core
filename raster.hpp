@@ -27,7 +27,7 @@
 #include <initializer_list>
 #include <stdlib.h>
 
-#ifdef POPSS_RASTER_WITH_GRASS_GIS
+#ifdef POPS_RASTER_WITH_GRASS_GIS
 
 extern "C" {
 #include <grass/gis.h>
@@ -35,7 +35,7 @@ extern "C" {
 #include <grass/raster.h>
 }
 
-#endif // POPSS_RASTER_WITH_GRASS_GIS
+#endif // POPS_RASTER_WITH_GRASS_GIS
 
 using std::string;
 using std::cerr;
@@ -444,7 +444,7 @@ public:
         return stream;
     }
 
-    #ifdef POPSS_RASTER_WITH_GRASS_GIS
+    #ifdef POPS_RASTER_WITH_GRASS_GIS
 
     /** Read a GRASS GIS raster map to the Raster.
      */
@@ -482,10 +482,10 @@ public:
         Rast_close(fd);
     }
 
-    #endif // POPSS_RASTER_WITH_GRASS_GIS
+    #endif // POPS_RASTER_WITH_GRASS_GIS
 };
 
-#ifdef POPSS_RASTER_WITH_GRASS_GIS
+#ifdef POPS_RASTER_WITH_GRASS_GIS
 
 /** Read a GRASS GIS raster map to the Raster.
  *
@@ -529,7 +529,7 @@ inline void Raster<int>::toGrassRaster(const char *name)
     Rast_close(fd);
 }
 
-#endif // POPSS_RASTER_WITH_GRASS_GIS
+#endif // POPS_RASTER_WITH_GRASS_GIS
 
 // convenient definitions, names for backwards compatibility
 typedef Raster<int> Img;

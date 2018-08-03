@@ -24,7 +24,7 @@
 /*! Representation and manipulation of a date for the simulation.
  *
  * This class represents and manipulates dates in way which is most
- * useful for the PoPSS simulation, i.e. by weeks and months.
+ * useful for the PoPS simulation, i.e. by weeks and months.
  */
 class Date{
 

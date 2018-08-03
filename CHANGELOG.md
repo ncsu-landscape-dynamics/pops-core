@@ -4,12 +4,12 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## 2018-08-02 - PoPSS Separation
+## 2018-08-02 - PoPS Model Separation
 
 ### Changed
 
 - The general part of the simulation is now a separate library called
-  PoPSS. GRASS GIS module code was removed together with some parts of
+  PoPS. GRASS GIS module code was removed together with some parts of
   this file completely unrelated to the library. (Vaclav Petras)
 - All files which were not supposed to be part of the repository
   were removed and purged from the history. However, all the relevant

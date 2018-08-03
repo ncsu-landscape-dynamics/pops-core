@@ -17,7 +17,7 @@ issue which needs to be fixed (Fix).
 Entries should be removed when resolved. Issue from tracker can be
 optionally linked in an entry.
 
-## 2018-08-02 - PoPSS Separation
+## 2018-08-02 - PoPS Model Separation
 
 ### Add
 

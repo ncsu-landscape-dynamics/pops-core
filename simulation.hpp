@@ -110,7 +110,7 @@ enum Direction
  * a(i, j) == 1;
  * ```
  *
- * The PoPSS library offers a Raster template class to fill this role,
+ * The PoPS library offers a Raster template class to fill this role,
  * but other classes can be used as well.
  */
 template<typename IntegerRaster, typename FloatRaster>
