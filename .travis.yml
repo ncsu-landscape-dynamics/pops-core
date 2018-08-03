@@ -21,3 +21,4 @@ deploy:
   target-branch: website
   on:
     branch: master
+  local-dir: html
