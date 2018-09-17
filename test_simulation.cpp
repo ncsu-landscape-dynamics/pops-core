@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
     Raster<int> susceptible = {{5, 6}, {14, 15}};
     Raster<int> total_plants = {{10, 6}, {14, 15}};
     Raster<double> temperature = {{5, 0}, {0, 0}};
+    Raster<double> weather = {{0.6, 0.8}, {0.2, 0.8}};
     std::vector<std::tuple<int, int>> outside_dispersers;
     Dispersal_kernel dispersal_kernel = CAUCHY;
     double lethal_temperature = -4.5;
@@ -55,11 +56,11 @@ int main(int argc, char *argv[])
     Simulation<Raster<int>, Raster<double>> simulation(42, infected);
     simulation.remove(infected, susceptible,
                       temperature, lethal_temperature);
-    simulation.generate(infected, 0, reproductive_rate);
+    simulation.generate(infected, weather, reproductive_rate);
     simulation.disperse(susceptible, infected,
-                        infected_cohort, total_plants,
-                        outside_dispersers, dispersal_kernel, 0,
-                        short_distance_scale);
+                        mortality_tracker, total_plants,
+                        outside_dispersers, weather,
+                        dispersal_kernel, short_distance_scale);
   cout << infected;
   cout << outside_dispersers.size() << endl;
     return 0;

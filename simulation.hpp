@@ -182,8 +182,8 @@ public:
     void disperse(IntegerRaster& susceptible, IntegerRaster& infected, IntegerRaster& mortality_tracker,
                   const IntegerRaster& total_plants, std::vector<std::tuple<int, int> > &outside_dispersers, 
                   const FloatRaster& weather, Dispersal_kernel dispersal_kernel,
-                  double percent_short_distance_dispersal = 0.0,
-                  double short_distance_scale, double long_distance_scale = 0.0,
+                  double short_distance_scale, 
+                  double percent_short_distance_dispersal = 0.0, double long_distance_scale = 0.0,
                   Direction wind_direction = NONE, double kappa = 2)
     {
         std::cauchy_distribution < double >distribution_cauchy_one(0.0, short_distance_scale);
