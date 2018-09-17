@@ -148,14 +148,14 @@ public:
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (temperature(i, j) < lethal_temperature) {
-                    susceptible(i, j) += infected(i, j) + exposed(i,j) + diseased(i,j);  // move back to suseptible pool
+                    susceptible(i, j) += infected(i, j);  // move back to suseptible pool
                     infected(i, j) = 0;  // remove all infestation/infection in the infected class
                 }
             }
         }
     }
 
-    void generate(const IntegerRaster& infected, const FloatRaster& weather,
+    void generate(const IntegerRaster& infected, bool weather, const FloatRaster& weather_coefficient,
                   double reproductive_rate)
     {
         double lambda = reproductive_rate;
@@ -163,7 +163,7 @@ public:
             for (int j = 0; j < width; j++) {
                 if (infected(i, j) > 0) {
                     if (weather)
-                        lambda = reproductive_rate * weather(i, j); // calculate 
+                        lambda = reproductive_rate * weather_coefficient(i, j); // calculate 
                     int dispersers_from_cell = 0;
                     std::poisson_distribution<int> distribution(lambda);
                     
@@ -181,15 +181,15 @@ public:
 
     void disperse(IntegerRaster& susceptible, IntegerRaster& infected, IntegerRaster& mortality_tracker,
                   const IntegerRaster& total_plants, std::vector<std::tuple<int, int> > &outside_dispersers, 
-                  const FloatRaster& weather, Dispersal_kernel dispersal_kernel,
-                  double short_distance_scale, 
+                  const FloatRaster& weather_coefficient, bool weather,
+                  Dispersal_kernel dispersal_kernel, double short_distance_scale, 
                   double percent_short_distance_dispersal = 0.0, double long_distance_scale = 0.0,
                   Direction wind_direction = NONE, double kappa = 2)
     {
         std::cauchy_distribution < double >distribution_cauchy_one(0.0, short_distance_scale);
         std::cauchy_distribution < double >distribution_cauchy_two(0.0, long_distance_scale);
     
-        std::bernoulli_distribution distribution_bern(gamma);
+        std::bernoulli_distribution distribution_bern(percent_short_distance_dispersal);
         std::uniform_real_distribution < double >distribution_uniform(0.0, 1.0);
 
         if (wind_direction == NONE)
@@ -231,7 +231,7 @@ public:
 
                         if (row < 0 || row >= height || col < 0 || col >= width) {
                             // export dispersers dispersed outside of modeled area
-                            outside_spores.emplace_back(std::make_tuple(row, col));
+                            outside_dispersers.emplace_back(std::make_tuple(row, col));
                             continue;
                         }
                         if (susceptible(row, col) > 0) {
@@ -241,7 +241,7 @@ public:
                             double establishment_tester = distribution_uniform(generator);
 
                             if (weather)
-                                probability_of_establishment *= weather(i, j);
+                                probability_of_establishment *= weather_coefficient(i, j);
                             if (establishment_tester < probability_of_establishment) {
                                 infected(row, col) += 1;
                                 mortality_tracker(row, col) += 1;
