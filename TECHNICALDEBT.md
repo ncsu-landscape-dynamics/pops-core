@@ -17,6 +17,15 @@ issue which needs to be fixed (Fix).
 Entries should be removed when resolved. Issue from tracker can be
 optionally linked in an entry.
 
+
+## 2018-09-14 - SEID and multiple host handling
+
+### Add
+
+- Exposed and Diseased classes should be added (need to think about how to handle in disperse).
+- 3-D array for Susceptible, Exposed, Infected, Diseased classes to handle multiple species up to N.
+- Host-compentency score for handling multiple hosts.
+
 ## 2018-08-02 - PoPS Model Separation
 
 ### Add

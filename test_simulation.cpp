@@ -43,26 +43,25 @@ using std::endl;
 int main(int argc, char *argv[])
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
-    Raster<int> infected_cohort = {{0, 0}, {0, 0}};
+    Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
     Raster<int> susceptible = {{5, 6}, {14, 15}};
-    Raster<int> all = {{5, 0}, {0, 0}};
+    Raster<int> total_plants = {{10, 6}, {14, 15}};
     Raster<double> temperature = {{5, 0}, {0, 0}};
-    std::vector<std::tuple<int, int>> escaping;
-    Rtype rtype = CAUCHY;
+    std::vector<std::tuple<int, int>> outside_dispersers;
+    Dispersal_kernel dispersal_kernel = CAUCHY;
     double lethal_temperature = -4.5;
-    double weather_coef_value = 5.8;
-    double spore_rate = 4.5;
-    double scale1 = 18.7;
+    double reproductive_rate = 4.5;
+    double short_distance_scale = 18.7;
     Simulation<Raster<int>, Raster<double>> simulation(42, infected);
-    simulation.SporeRemove(infected, susceptible,
-                           temperature, lethal_temperature);
-    simulation.SporeGen(infected, 0, weather_coef_value, spore_rate);
-    simulation.SporeSpreadDisp_singleSpecies(susceptible, infected,
-                                             infected_cohort, all,
-                                             escaping, rtype, 0,
-                                             weather_coef_value, scale1);
-    cout << infected;
-    cout << escaping.size() << endl;
+    simulation.remove(infected, susceptible,
+                      temperature, lethal_temperature);
+    simulation.generate(infected, 0, reproductive_rate);
+    simulation.disperse(susceptible, infected,
+                        infected_cohort, total_plants,
+                        outside_dispersers, dispersal_kernel, 0,
+                        short_distance_scale);
+  cout << infected;
+  cout << outside_dispersers.size() << endl;
     return 0;
 }
 

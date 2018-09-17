@@ -4,6 +4,13 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2018-09-14 - Variable Rename
+
+### Changed
+
+- Renamed many variables to make the model more clear and easy to 
+  understand.
+
 ## 2018-08-02 - PoPS Model Separation
 
 ### Changed
