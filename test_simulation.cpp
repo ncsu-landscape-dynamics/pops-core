@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     Raster<int> susceptible = {{10, 6}, {14, 15}};
     Raster<int> total_plants = {{15, 6}, {14, 15}};
     Raster<double> temperature = {{5, 0}, {0, 0}};
-    Raster<double> weather = {{0.6, 0.8}, {0.2, 0.8}};
+    Raster<double> weather_coefficient = {{0.6, 0.8}, {0.2, 0.8}};
     std::vector<std::tuple<int, int>> outside_dispersers;
     DispersalKernel dispersal_kernel = CAUCHY;
     bool weather = true;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
                         mortality_tracker, total_plants,
                         outside_dispersers, weather_coefficient, weather,
                         dispersal_kernel, short_distance_scale);
-  cout << outside_dispersers.size() << endl;
+    cout << outside_dispersers.size() << endl;
     return 0;
 }
 
