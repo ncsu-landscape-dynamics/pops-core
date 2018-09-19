@@ -15,8 +15,8 @@
  */
 
 
-#ifndef DATE
-#define DATE
+#ifndef POPS_DATE_HPP
+#define POPS_DATE_HPP
 
 #include <iostream>
 
@@ -197,4 +197,4 @@ int Date::weeksFromDate(Date start) {
 
 } // namespace pops
 
-#endif // DATE
+#endif // POPS_DATE_HPP

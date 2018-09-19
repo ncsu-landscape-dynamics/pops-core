@@ -1,5 +1,5 @@
-#ifndef RASTER_H
-#define RASTER_H
+#ifndef POPS_RASTER_HPP
+#define POPS_RASTER_HPP
 
 /*
  * SOD model - raster manipulation
@@ -539,4 +539,4 @@ typedef Raster<double> DImg;
 
 } // namespace pops
 
-#endif
+#endif // POPS_RASTER_HPP

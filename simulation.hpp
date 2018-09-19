@@ -16,8 +16,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef SPORE_H
-#define SPORE_H
+#ifndef POPS_SIMULATION_HPP
+#define POPS_SIMULATION_HPP
 
 #include "raster.hpp"
 
@@ -267,4 +267,4 @@ typedef Simulation<Img, DImg> Sporulation;
 
 } // namespace pops
 
-#endif // SPORE_H
+#endif // POPS_SIMULATION_HPP
