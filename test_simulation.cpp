@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather = {{0.6, 0.8}, {0.2, 0.8}};
     std::vector<std::tuple<int, int>> outside_dispersers;
-    Dispersal_kernel dispersal_kernel = CAUCHY;
+    DispersalKernel dispersal_kernel = CAUCHY;
     bool weather = true;
     double lethal_temperature = -4.5;
     double reproductive_rate = 4.5;

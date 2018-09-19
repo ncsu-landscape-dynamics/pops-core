@@ -87,7 +87,7 @@ private:
     std::uniform_real_distribution<double> distribution;
 };
 
-enum Dispersal_kernel
+enum DispersalKernel
 {
     CAUCHY, CAUCHY_DOUBLE_SCALE
 };
@@ -182,7 +182,7 @@ public:
     void disperse(IntegerRaster& susceptible, IntegerRaster& infected, IntegerRaster& mortality_tracker,
                   const IntegerRaster& total_plants, std::vector<std::tuple<int, int> > &outside_dispersers, 
                   const FloatRaster& weather_coefficient, bool weather,
-                  Dispersal_kernel dispersal_kernel, double short_distance_scale, 
+                  DispersalKernel dispersal_kernel, double short_distance_scale,
                   double percent_short_distance_dispersal = 0.0, double long_distance_scale = 0.0,
                   Direction wind_direction = NONE, double kappa = 2)
     {
