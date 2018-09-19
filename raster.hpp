@@ -533,10 +533,6 @@ inline void Raster<int>::toGrassRaster(const char *name)
 
 #endif // POPS_RASTER_WITH_GRASS_GIS
 
-// convenient definitions, names for backwards compatibility
-typedef Raster<int> Img;
-typedef Raster<double> DImg;
-
 } // namespace pops
 
 #endif // POPS_RASTER_HPP

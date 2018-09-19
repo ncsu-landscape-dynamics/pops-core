@@ -262,9 +262,6 @@ public:
 
 };
 
-// for backwards compatibility
-typedef Simulation<Img, DImg> Sporulation;
-
 } // namespace pops
 
 #endif // POPS_SIMULATION_HPP
