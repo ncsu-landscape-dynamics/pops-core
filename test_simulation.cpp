@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     simulation.generate(infected, weather, weather_coefficient, reproductive_rate);
     simulation.disperse(susceptible, infected,
                         mortality_tracker, total_plants,
-                        outside_dispersers, weather_coefficient, weather,
+                        outside_dispersers, weather, weather_coefficient,
                         dispersal_kernel, short_distance_scale);
     cout << outside_dispersers.size() << endl;
     return 0;

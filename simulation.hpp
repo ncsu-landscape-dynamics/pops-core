@@ -155,7 +155,8 @@ public:
         }
     }
 
-    void generate(const IntegerRaster& infected, bool weather, const FloatRaster& weather_coefficient,
+    void generate(const IntegerRaster& infected,
+                  bool weather, const FloatRaster& weather_coefficient,
                   double reproductive_rate)
     {
         double lambda = reproductive_rate;
@@ -179,11 +180,14 @@ public:
         }
     }
 
-    void disperse(IntegerRaster& susceptible, IntegerRaster& infected, IntegerRaster& mortality_tracker,
-                  const IntegerRaster& total_plants, std::vector<std::tuple<int, int> > &outside_dispersers, 
-                  const FloatRaster& weather_coefficient, bool weather,
+    void disperse(IntegerRaster& susceptible, IntegerRaster& infected,
+                  IntegerRaster& mortality_tracker,
+                  const IntegerRaster& total_plants,
+                  std::vector<std::tuple<int, int>>& outside_dispersers,
+                  bool weather, const FloatRaster& weather_coefficient,
                   DispersalKernel dispersal_kernel, double short_distance_scale,
-                  double percent_short_distance_dispersal = 0.0, double long_distance_scale = 0.0,
+                  double percent_short_distance_dispersal = 0.0,
+                  double long_distance_scale = 0.0,
                   Direction wind_direction = NONE, double kappa = 2)
     {
         std::cauchy_distribution < double >distribution_cauchy_one(0.0, short_distance_scale);
