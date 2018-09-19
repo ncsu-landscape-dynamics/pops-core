@@ -39,6 +39,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+using namespace pops;
 
 int main(int argc, char *argv[])
 {

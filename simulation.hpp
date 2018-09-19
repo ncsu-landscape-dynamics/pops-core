@@ -37,6 +37,8 @@
 using std::cerr;
 using std::endl;
 
+namespace pops {
+
 /*! Von Mises Distribution (Circular data distribution)
 
     mu is the mean angle, expressed in radians between 0 and 2*pi,
@@ -262,5 +264,7 @@ public:
 
 // for backwards compatibility
 typedef Simulation<Img, DImg> Sporulation;
+
+} // namespace pops
 
 #endif // SPORE_H

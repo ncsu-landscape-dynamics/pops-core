@@ -41,6 +41,8 @@ using std::string;
 using std::cerr;
 using std::endl;
 
+namespace pops {
+
 /*! Iterate over two ranges and apply a binary function which modifies
  *  the first parameter.
  */
@@ -534,5 +536,7 @@ inline void Raster<int>::toGrassRaster(const char *name)
 // convenient definitions, names for backwards compatibility
 typedef Raster<int> Img;
 typedef Raster<double> DImg;
+
+} // namespace pops
 
 #endif

@@ -39,6 +39,8 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+using pops::Raster;
+
 void test_constructor_by_type()
 {
     Raster<int> a(10, 10, 1, 1);

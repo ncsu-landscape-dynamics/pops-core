@@ -38,6 +38,8 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+using pops::Date;
+
 void test_years_by_month()
 {
     Date start(2018, 1, 1);

@@ -20,6 +20,7 @@
 
 #include <iostream>
 
+namespace pops {
 
 /*! Representation and manipulation of a date for the simulation.
  *
@@ -193,5 +194,7 @@ int Date::weeksFromDate(Date start) {
     }
     return week - 1;
 }
+
+} // namespace pops
 
 #endif // DATE
