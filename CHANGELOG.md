@@ -4,12 +4,20 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## 2018-09-14 - Variable Rename
+## 2018-09-20 - Variable Rename
+
+### Added
+
+- Created a style guide in a CONTRIBUTING file. (Vaclav Petras)
 
 ### Changed
 
-- Renamed many variables to make the model more clear and easy to 
-  understand.
+- Renamed variables and functions to make the model more clear and easy
+  to understand. (Chris Jones)
+- Renaming and partial unification of styles across all files. (Vaclav Petras)
+ - All is now in namespace called pops.
+ - Private variables use trailing underscore if needed.
+- Removed unused and legacy functions and types. (Vaclav Petras)
 
 ## 2018-08-02 - PoPS Model Separation
 
