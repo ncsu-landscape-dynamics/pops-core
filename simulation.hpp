@@ -132,11 +132,11 @@ public:
 
     Simulation(unsigned random_seed, const IntegerRaster &size)
         :
-          width(size.getWidth()),
-          height(size.getHeight()),
-          west_east_resolution(size.getWEResolution()),
-          north_south_resolution(size.getNSResolution()),
-          dispersers(width, height, west_east_resolution, north_south_resolution)
+          width(size.cols()),
+          height(size.rows()),
+          west_east_resolution(size.ew_res()),
+          north_south_resolution(size.ns_res()),
+          dispersers(size, 0)
     {
         generator.seed(random_seed);
     }

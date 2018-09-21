@@ -92,17 +92,17 @@ private:
     unsigned width;
     unsigned height;
     // the west-east resolution of the pixel
-    double w_e_res;
+    double ew_res_;
     // the north-south resolution of the pixel
-    double n_s_res;
+    double ns_res_;
     Number *data;
 public:
     Raster()
     {
         width = 0;
         height = 0;
-        w_e_res = 0;
-        n_s_res = 0;
+        ew_res_ = 0;
+        ns_res_ = 0;
         data = NULL;
     }
 
@@ -110,18 +110,22 @@ public:
     {
         width = other.width;
         height = other.height;
-        w_e_res = other.w_e_res;
-        n_s_res = other.n_s_res;
+        ew_res_ = other.ew_res_;
+        ns_res_ = other.ns_res_;
         data = new Number[width * height];
         std::copy(other.data, other.data + (width * height), data);
     }
 
+    /*! Initialize size using another raster, but use given value
+     *
+     * The values in the other raster are not used.
+     */
     Raster(const Raster& other, Number value)
     {
         width = other.width;
         height = other.height;
-        w_e_res = other.w_e_res;
-        n_s_res = other.n_s_res;
+        ew_res_ = other.ew_res_;
+        ns_res_ = other.ns_res_;
         data = new Number[width * height]{value};
     }
 
@@ -129,33 +133,33 @@ public:
     {
         width = other.width;
         height = other.height;
-        w_e_res = other.w_e_res;
-        n_s_res = other.n_s_res;
+        ew_res_ = other.ew_res_;
+        ns_res_ = other.ns_res_;
         data = other.data;
         other.data = nullptr;
     }
 
-    Raster(int width, int height, int w_e_res, int n_s_res)
+    Raster(int cols, int rows, int ew_res, int ns_res)
     {
-        this->width = width;
-        this->height = height;
-        this->w_e_res = w_e_res;
-        this->n_s_res = n_s_res;
+        this->width = cols;
+        this->height = rows;
+        this->ew_res_ = ew_res;
+        this->ns_res_ = ns_res;
         this->data = new Number[width * height];
     }
 
     // TODO: res are doubles
     // TODO: size is unsigned?
-    Raster(int width, int height, int w_e_res, int n_s_res, int value)
+    Raster(int cols, int rows, int ew_res, int ns_res, Number value)
     {
-        this->width = width;
-        this->height = height;
-        this->w_e_res = w_e_res;
-        this->n_s_res = n_s_res;
+        this->width = cols;
+        this->height = rows;
+        this->ew_res_ = ew_res;
+        this->ns_res_ = ns_res;
         this->data = new Number[width * height]{value};
     }
 
-    // TODO: here we ignore res, not really used anywhere
+    // TODO: here we ignore res
     // maybe remove from the class, or make it optional together with
     // a reference
     Raster(std::initializer_list<std::initializer_list<Number>> l)
@@ -182,24 +186,26 @@ public:
         }
     }
 
-    int getWidth() const
+    int cols() const
     {
         return width;
     }
 
-    int getHeight() const
+    int rows() const
     {
         return height;
     }
 
-    int getWEResolution() const
+    /*! Gets east-west direction resolution of the raster */
+    double ew_res() const
     {
-        return w_e_res;
+        return ew_res_;
     }
 
-    int getNSResolution() const
+    /*! Gets north-south direction resolution of the raster */
+    int ns_res() const
     {
-        return n_s_res;
+        return ns_res_;
     }
 
     void fill(Number value)
@@ -236,8 +242,8 @@ public:
                 delete[] data;
             width = other.width;
             height = other.height;
-            w_e_res = other.w_e_res;
-            n_s_res = other.n_s_res;
+            ew_res_ = other.ew_res_;
+            ns_res_ = other.ns_res_;
             data = new Number[width * height];
             std::copy(other.data, other.data + (width * height), data);
         }
@@ -252,8 +258,8 @@ public:
                 delete[] data;
             width = other.width;
             height = other.height;
-            w_e_res = other.w_e_res;
-            n_s_res = other.n_s_res;
+            ew_res_ = other.ew_res_;
+            ns_res_ = other.ns_res_;
             data = other.data;
             other.data = nullptr;
         }
@@ -262,14 +268,14 @@ public:
 
     Raster operator+(const Raster& image) const
     {
-        if (this->width != image.getWidth() || this->height != image.getHeight()) {
+        if (this->width != image.cols() || this->height != image.rows()) {
             cerr << "The height or width of one image do not match with that of the other one!" << endl;
             return Raster();
         }
         else {
             auto re_width = this->width;
             auto re_height = this->height;
-            auto out = Raster(re_width, re_height, this->w_e_res, this->n_s_res);
+            auto out = Raster(re_width, re_height, this->ew_res_, this->ns_res_);
 
             for (int i = 0; i < re_height; i++) {
                 for (int j = 0; j < re_width; j++) {
@@ -282,14 +288,14 @@ public:
 
     Raster operator-(const Raster& image) const
     {
-        if (this->width != image.getWidth() || this->height != image.getHeight()) {
+        if (this->width != image.cols() || this->height != image.rows()) {
             cerr << "The height or width of one image do not match with that of the other one!" << endl;
             return Raster();
         }
         else {
             auto re_width = this->width;
             auto re_height = this->height;
-            auto out = Raster(re_width, re_height, this->w_e_res, this->n_s_res);
+            auto out = Raster(re_width, re_height, this->ew_res_, this->ns_res_);
 
             for (int i = 0; i < re_height; i++) {
                 for (int j = 0; j < re_width; j++) {
@@ -302,11 +308,11 @@ public:
 
     Raster operator*(const Raster& image) const
     {
-        if (width != image.getWidth() || height != image.getHeight()) {
+        if (width != image.cols() || height != image.rows()) {
             throw std::runtime_error("The height or width of one image do"
                                      " not match with that of the other one.");
         }
-        auto out = Raster(width, height, w_e_res, n_s_res);
+        auto out = Raster(width, height, ew_res_, ns_res_);
 
         std::transform(data, data + (width * height), image.data, out.data,
                        [](const Number& a, const Number& b) { return a * b; });
@@ -315,11 +321,11 @@ public:
 
     Raster operator/(const Raster& image) const
     {
-        if (width != image.getWidth() || height != image.getHeight()) {
+        if (width != image.cols() || height != image.rows()) {
             throw std::runtime_error("The height or width of one image do"
                                      " not match with that of the other one.");
         }
-        auto out = Raster(width, height, w_e_res, n_s_res);
+        auto out = Raster(width, height, ew_res_, ns_res_);
 
         std::transform(data, data + (width * height), image.data, out.data,
                        [](const Number& a, const Number& b) { return a / b; });
@@ -328,7 +334,7 @@ public:
 
     Raster operator*(double value) const
     {
-        auto out = Raster(width, height, w_e_res, n_s_res);
+        auto out = Raster(width, height, ew_res_, ns_res_);
 
         std::transform(data, data + (width * height), out.data,
                        [&value](const Number& a) { return a * value; });
@@ -337,7 +343,7 @@ public:
 
     Raster operator/(double value) const
     {
-        auto out = Raster(width, height, w_e_res, n_s_res);
+        auto out = Raster(width, height, ew_res_, ns_res_);
 
         std::transform(data, data + (width * height), out.data,
                        [&value](const Number& a) { return a / value; });
@@ -457,7 +463,7 @@ public:
 
     /** Read a GRASS GIS raster map to the Raster.
      */
-    static inline Raster fromGrassRaster(const char *name)
+    static inline Raster from_grass_raster(const char *name)
     {
         int fd = Rast_open_old(name, "");
 
@@ -468,8 +474,8 @@ public:
 
         Cell_head region;
         Rast_get_window(&region);
-        img.w_e_res = region.ew_res;
-        img.n_s_res = region.ns_res;
+        img.ew_res_ = region.ew_res;
+        img.ns_res_ = region.ns_res;
 
         img.data = new Number[img.height * img.width];
 
@@ -483,7 +489,7 @@ public:
 
     /** Write the Raster to a GRASS GIS raster map.
      */
-    void inline toGrassRaster(const char *name)
+    void inline to_grass_raster(const char *name)
     {
         int fd = Rast_open_new(name, DCELL_TYPE);
         for (int i = 0; i < height; i++)
@@ -501,7 +507,7 @@ public:
  * This is a specialization for reading using int.
  */
 template <>
-inline Raster<int> Raster<int>::fromGrassRaster(const char *name)
+inline Raster<int> Raster<int>::from_grass_raster(const char *name)
 {
     int fd = Rast_open_old(name, "");
 
@@ -512,8 +518,8 @@ inline Raster<int> Raster<int>::fromGrassRaster(const char *name)
 
     Cell_head region;
     Rast_get_window(&region);
-    img.w_e_res = region.ew_res;
-    img.n_s_res = region.ns_res;
+    img.ew_res_ = region.ew_res;
+    img.ns_res_ = region.ns_res;
 
     img.data = new int[img.height * img.width];
 
@@ -530,7 +536,7 @@ inline Raster<int> Raster<int>::fromGrassRaster(const char *name)
  * This is a specialization for reading using int.
  */
 template <>
-inline void Raster<int>::toGrassRaster(const char *name)
+inline void Raster<int>::to_grass_raster(const char *name)
 {
     int fd = Rast_open_new(name, CELL_TYPE);
     for (int i = 0; i < height; i++)
