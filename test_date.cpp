@@ -47,10 +47,10 @@ void test_years_by_month()
 
     while (start < end) {
         cout << start << endl;
-        if (start.isLastMonthOfYear()) {
+        if (start.is_last_month_of_year()) {
             cout << "End of year" << endl;
         }
-        start.increasedByMonth();
+        start.increased_by_month();
     }
 }
 
