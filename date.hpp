@@ -27,34 +27,31 @@ namespace pops {
  * This class represents and manipulates dates in way which is most
  * useful for the PoPS simulation, i.e. by weeks and months.
  */
-class Date{
+class Date
+{
 
 private:
-    int year;
-    int month;
-    int day;
+    int year_;
+    int month_;
+    int day_;
     int day_in_month[2][13] = {
         {0,31,28,31,30,31,30,31,31,30,31,30,31},
         {0,31,29,31,30,31,30,31,31,30,31,30,31}
     };
 
 public:
-    Date(const Date &d): year(d.year), month(d.month), day(d.day){}
-    Date(int y, int m, int d): year(y), month(m), day(d){}
-    Date(): year(2000), month(1), day(1){}
-    inline void increasedByWeek();
-    inline void increasedByMonth();
-    inline Date getYearEnd();
-    inline Date getNextYearEnd();
-    inline bool isYearEnd();
-    inline bool isLastMonthOfYear();
-    int getMonth() const {return month;}
-    int getYear() const { return year;}
-    int getDay() const {return day;}
-    void setMonth(int m){month = m;}
-    void setYear(int y){year = y;}
-    void setDay(int d){day = d;}
-    inline int weeksFromDate(Date start);
+    Date(const Date& d): year_(d.year_), month_(d.month_), day_(d.day_) {}
+    Date(int y, int m, int d): year_(y), month_(m), day_(d) {}
+    inline void increased_by_week();
+    inline void increased_by_month();
+    inline Date get_year_end();
+    inline Date get_next_year_end();
+    inline bool is_last_week_of_year();
+    inline bool is_last_month_of_year();
+    int month() const { return month_; }
+    int year() const { return year_; }
+    int day() const { return day_; }
+    inline int weeks_from_date(Date start);
     inline friend std::ostream& operator<<(std::ostream& os, const Date &d);
     inline friend bool operator> (const Date &d1, const Date &d2);
     inline friend bool operator>= (const Date &d1, const Date &d2);
@@ -64,46 +61,50 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const Date &d)
 {
-    os << d.year << '-' << d.month << '-' << d.day;
+    os << d.year_ << '-' << d.month_ << '-' << d.day_;
     return os;
 }
 
-Date Date::getYearEnd() {
-    return Date(year, 12, 31);
+Date Date::get_year_end()
+{
+    return Date(year_, 12, 31);
 }
 
-bool Date::isYearEnd(){
-    if (month == 12 && (day + 7) > 31)
+bool Date::is_last_week_of_year()
+{
+    if (month_ == 12 && (day_ + 7) > 31)
         return true;
     return false;
 }
 
-bool Date::isLastMonthOfYear(){
-    if (month == 12)
+bool Date::is_last_month_of_year()
+{
+    if (month_ == 12)
         return true;
     return false;
 }
 
-Date Date::getNextYearEnd(){
-    if (month == 1)
-        return Date(year, 12, 31);
+Date Date::get_next_year_end()
+{
+    if (month_ == 1)
+        return Date(year_, 12, 31);
     else
-        return Date(year + 1, 12, 31);
+        return Date(year_ + 1, 12, 31);
 }
 
 bool operator> (const Date &d1, const Date &d2)
 {
-    if(d1.year < d2.year)
+    if(d1.year_ < d2.year_)
         return false;
-    else if (d1.year > d2.year)
+    else if (d1.year_ > d2.year_)
         return true;
     else {
-        if (d1.month < d2.month)
+        if (d1.month_ < d2.month_)
             return false;
-        else if (d1.month > d2.month)
+        else if (d1.month_ > d2.month_)
             return true;
         else {
-            if (d1.day <= d2.day)
+            if (d1.day_ <= d2.day_)
                 return false;
             else
                 return true;
@@ -118,17 +119,17 @@ bool operator<= (const Date &d1, const Date &d2)
 
 bool operator< (const Date &d1, const Date &d2)
 {
-    if(d1.year > d2.year)
+    if(d1.year_ > d2.year_)
         return false;
-    else if (d1.year < d2.year)
+    else if (d1.year_ < d2.year_)
         return true;
     else {
-        if (d1.month > d2.month)
+        if (d1.month_ > d2.month_)
             return false;
-        else if (d1.month < d2.month)
+        else if (d1.month_ < d2.month_)
             return true;
         else {
-            if (d1.day >= d2.day)
+            if (d1.day_ >= d2.day_)
                 return false;
             else
                 return true;
@@ -141,56 +142,65 @@ bool operator>= (const Date &d1, const Date &d2)
     return !(d1 < d2);
 }
 
-void Date::increasedByWeek()
+void Date::increased_by_week()
 {
-    day += 7;
-    if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
-        if (day > day_in_month[1][month]) {
-            day = day - day_in_month[1][month];
-            month++;
-            if (month > 12) {
-                year++;
-                month = 1;
+    day_ += 7;
+    if (year_ % 4 == 0 && (year_ % 100 != 0 || year_ % 400 == 0)) {
+        if (day_ > day_in_month[1][month_]) {
+            day_ = day_ - day_in_month[1][month_];
+            month_++;
+            if (month_ > 12) {
+                year_++;
+                month_ = 1;
             }
         }
     }
     else {
-        if (day > day_in_month[0][month]) {
-            day = day - day_in_month[0][month];
-            month++;
-            if (month > 12) {
-                year++;
-                month = 1;
+        if (day_ > day_in_month[0][month_]) {
+            day_ = day_ - day_in_month[0][month_];
+            month_++;
+            if (month_ > 12) {
+                year_++;
+                month_ = 1;
             }
         }
     }
 }
 
-void Date::increasedByMonth()
+void Date::increased_by_month()
 {
-    month += 1;
-    if (month > 12) {
-        year++;
-        month = 1;
+    month_ += 1;
+    if (month_ > 12) {
+        year_++;
+        month_ = 1;
     }
-    if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
-        if (day > day_in_month[1][month]) {
-            day = day_in_month[1][month];
+    if (year_ % 4 == 0 && (year_ % 100 != 0 || year_ % 400 == 0)) {
+        if (day_ > day_in_month[1][month_]) {
+            day_ = day_in_month[1][month_];
         }
     }
     else {
-        if (day > day_in_month[0][month]) {
-            day = day_in_month[0][month];
+        if (day_ > day_in_month[0][month_]) {
+            day_ = day_in_month[0][month_];
         }
     }
 }
 
-int Date::weeksFromDate(Date start) {
+/*!
+ * Gets number of weeks between start date and this date.
+ *
+ * The parameter is copied and untouched.
+ *
+ * \param start date to start from
+ * \return Number of weeks
+ */
+int Date::weeks_from_date(Date start)
+{
 
     int week = 0;
     while (start <= *this) {
         week++;
-        start.increasedByWeek();
+        start.increased_by_week();
     }
     return week - 1;
 }
