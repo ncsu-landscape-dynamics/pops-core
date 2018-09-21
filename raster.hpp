@@ -77,6 +77,13 @@ BinaryOperation for_each_zip(InputIt1 first1, InputIt1 last1, InputIt2 first2, B
  *
  * The template parameter Number is the numerical type of the raster,
  * typically int, float, or double.
+ *
+ * The direct support for reading and writing GRASS GIS rasters can be
+ * enabled by `POPS_RASTER_WITH_GRASS_GIS` macro:
+ *
+ * ```
+ * #define POPS_RASTER_WITH_GRASS_GIS
+ * ```
  */
 template<typename Number>
 class Raster
