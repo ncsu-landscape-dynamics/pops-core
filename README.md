@@ -1,5 +1,7 @@
 # PoPS
 
+[![Build Status](https://travis-ci.org/ncsu-landscape-dynamics/PoPS.svg?branch=rename)](https://travis-ci.org/ncsu-landscape-dynamics/PoPS)
+
 PoPS library
 
 A general C++ version of the model that was orignially created for the forest pathogen *P. ramorum*  https://github.com/f-tonini/SOD-modeling.
