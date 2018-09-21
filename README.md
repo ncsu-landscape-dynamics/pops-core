@@ -1,6 +1,6 @@
 # PoPS
 
-[![Build Status](https://travis-ci.org/ncsu-landscape-dynamics/PoPS.svg?branch=rename)](https://travis-ci.org/ncsu-landscape-dynamics/PoPS)
+[![Build Status](https://travis-ci.org/ncsu-landscape-dynamics/PoPS.svg?branch=master)](https://travis-ci.org/ncsu-landscape-dynamics/PoPS)
 
 PoPS library
 
