@@ -10,6 +10,14 @@ PoPS is a header-only C++ library. It is using templates to be
 universal and it makes use of C++11 features, so C++11 is the minimal
 required version.
 
+## Main Functions
+
+simulation.remove : removes the pest or pathogen from the infested hosts based on some environmental threshold (currently only temperature is accounted for).
+
+simulation.generate : generates dispersing indivduls from all infested cells based as a function of local infected hosts and weather.
+
+simulation.disperse : creates dispersal locations for the dispersing individuals from the generate function.
+
 ## Using the model
 
 The PoPS library can be used directly in a C++ program or through other
