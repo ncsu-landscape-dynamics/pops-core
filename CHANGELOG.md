@@ -4,6 +4,19 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2018-10-19 - Infect function
+
+### Added
+
+- infect function to move between classes  (Chris Jones)
+- total_infected to main simulation class to sum all the infected trees in the 3 types of infected class (infected, exposed, and diseased) (Chris Jones)
+
+### Changed
+
+- Adapted remove function to account for new model types SEID, SID, in addition to the previous model type SI (Chris Jones)
+- Adapted disperse function to account for new model types SEID, SID, in addition to the previous model type SI (Chris Jones)
+- Adapted generate function to account for new model types SEID, SID, in addition to the previous model type SI (Chris Jones)
+
 ## 2018-09-20 - Variable Rename
 
 ### Added

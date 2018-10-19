@@ -18,6 +18,8 @@ simulation.generate : generates dispersing indivduls from all infested cells bas
 
 simulation.disperse : creates dispersal locations for the dispersing individuals from the generate function.
 
+simulation.infect : progresses disease along the specified epidemiological trajectory (e.g. if SEID model from exposed to infected and from infected to exposed)
+
 ## Using the model
 
 The PoPS library can be used directly in a C++ program or through other
