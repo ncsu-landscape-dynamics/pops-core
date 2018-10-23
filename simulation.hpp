@@ -131,14 +131,15 @@ private:
     std::default_random_engine generator;
 public:
 
-    Simulation(unsigned random_seed, const IntegerRaster &size)
+    Simulation(unsigned random_seed, const IntegerRaster &size, double ew_res, double ns_res)
         :
           width(size.cols()),
           height(size.rows()),
-          west_east_resolution(size.ew_res()),
-          north_south_resolution(size.ns_res()),
-          dispersers(size, 0),
-          total_infected(size, 0)
+          west_east_resolution(ew_res),
+          north_south_resolution(ns_res),
+          dispersers(height, width),
+          total_infected(height, width)
+
     {
         generator.seed(random_seed);
     }
