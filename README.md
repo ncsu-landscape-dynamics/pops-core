@@ -17,7 +17,9 @@ simulation.generate : generates dispersing indivduls from all infested cells bas
 
 simulation.disperse : creates dispersal locations for the dispersing individuals from the generate function.
 
-The custom data class is used to easily manage different time steps within the model and account for differences in the way frequently used weather data sets treat leap years (DAYMET drops December 31st from leap years, PRISM keeps all days even for leap years)
+simulation.infect : progresses disease along the specified epidemiological trajectory (e.g. if SEID model from exposed to infected and from infected to exposed)
+
+The custom date class is used to easily manage different time steps within the model and account for differences in the way frequently used weather data sets treat leap years (DAYMET drops December 31st from leap years, PRISM keeps all days even for leap years)
 
 ## Using the model
 
