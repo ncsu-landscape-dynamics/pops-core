@@ -169,12 +169,12 @@ public:
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if(infected(i,j) > 0 && (model_type == "SID" || model_type == "SEID")) {
-                  diseased(i,j) += nearbyint(infected(i,j)*infected_to_diseased_rate)
-                  infected(i,j) -= nearbyint(infected(i,j)*infected_to_diseased_rate)
+                  diseased(i,j) += nearbyint(infected(i,j)*infected_to_diseased_rate);
+                  infected(i,j) -= nearbyint(infected(i,j)*infected_to_diseased_rate);
                 }
                 if(exposed(i,j) > 0 && model_type == "SEID") {
-                  infected(i,j) += nearbyint(exposed(i,j)*exposed_to_infected_rate)
-                  exposed(i,j) -= nearbyint(exposed(i,j)*exposed_to_infected_rate)
+                  infected(i,j) += nearbyint(exposed(i,j)*exposed_to_infected_rate);
+                  exposed(i,j) -= nearbyint(exposed(i,j)*exposed_to_infected_rate);
                 }
             }
         }
