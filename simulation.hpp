@@ -103,7 +103,7 @@ enum Direction
 enum ModelType
 {
   SI, SID, SEID
-}
+};
 
 
 /*! The main class to control the spread simulation.
