@@ -203,6 +203,8 @@ public:
                 } 
                 else if (model_type == SI) {
                   total_infected(i,j) = diseased(i,j);
+                } else {
+                  total_infected(i,j) = 0;
                 }
               
                 if (total_infected(i, j) > 0) {
@@ -211,7 +213,7 @@ public:
                     int dispersers_from_cell = 0;
                     std::poisson_distribution<int> distribution(lambda);
                     
-                    for (int k = 0; k < infected(i, j); k++) {
+                    for (int k = 0; k < total_infected(i, j); k++) {
                         dispersers_from_cell += distribution(generator);
                     }
                     dispersers(i, j) = dispersers_from_cell;
