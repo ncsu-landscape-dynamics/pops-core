@@ -6,9 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## 2018-10-31 - Minor Refactoring
 
+### Added
+
+- Added Season class to manage seasonality
+
 ### Changed
 
-- Remove resolution from the Raster class
+- Removed resolution from the Raster class
 
 ## 2018-10-19 - Infect function
 
