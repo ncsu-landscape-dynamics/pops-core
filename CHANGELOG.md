@@ -4,6 +4,12 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2018-10-31 - Minor Refactoring
+
+### Changed
+
+- Remove resolution from the Raster class
+
 ## 2018-10-19 - Infect function
 
 ### Added
