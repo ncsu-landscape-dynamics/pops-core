@@ -1,6 +1,8 @@
 # select language
 language: cpp
 
+group: travis_latest
+
 # install dependencies
 addons:
   apt:
