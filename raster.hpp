@@ -142,11 +142,10 @@ public:
         this->data = new Number[width * height]{value};
     }
 
-    // TODO: here we ignore res
     // maybe remove from the class, or make it optional together with
     // a reference
     Raster(std::initializer_list<std::initializer_list<Number>> l)
-        : Raster(l.begin()->size(), l.size(), 1, 1)
+        : Raster(l.begin()->size(), l.size())
     {
          unsigned i = 0;
          unsigned j = 0;
@@ -242,7 +241,7 @@ public:
         else {
             auto re_width = this->width;
             auto re_height = this->height;
-            auto out = Raster(re_width, re_height, this->ew_res_, this->ns_res_);
+            auto out = Raster(re_width, re_height);
 
             for (int i = 0; i < re_height; i++) {
                 for (int j = 0; j < re_width; j++) {
