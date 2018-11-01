@@ -127,7 +127,6 @@ private:
     // the north-south resolution of the pixel
     int north_south_resolution;
     IntegerRaster dispersers;
-    IntegerRaster total_infected;
     std::default_random_engine generator;
 public:
 
@@ -137,9 +136,7 @@ public:
           height(size.rows()),
           west_east_resolution(ew_res),
           north_south_resolution(ns_res),
-          dispersers(height, width),
-          total_infected(height, width)
-
+          dispersers(height, width)
     {
         generator.seed(random_seed);
     }
@@ -147,59 +144,27 @@ public:
     Simulation() = delete;
 
     void remove(IntegerRaster& infected, IntegerRaster& susceptible,
-                IntegerRaster& exposed, IntegerRaster& diseased,
                 const FloatRaster& temperature,
                 double lethal_temperature)
     {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (temperature(i, j) < lethal_temperature) {
-                    susceptible(i, j) += infected(i, j) + exposed(i, j) + diseased(i, j);  // move all stages of infested/infected host back to suseptible pool
+                    susceptible(i, j) += infected(i, j);  // move infested/infected host back to suseptible pool
                     infected(i, j) = 0;  // remove all infestation/infection in the infected class
-                    exposed(i, j) = 0; // remove all infestation/infection in the exposed class
-                    diseased(i, j) = 0; // remove all infestation/infection in the diseased class
                 }
             }
         }
     }
-
-    void infect(IntegerRaster& infected, IntegerRaster& exposed,
-              IntegerRaster& diseased, double exposed_to_infected_rate, 
-              double infected_to_diseased_rate, string model_type)
-  {
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if(infected(i,j) > 0 && (model_type == "SID" || model_type == "SEID")) {
-                  diseased(i,j) += nearbyint(infected(i,j) * infected_to_diseased_rate);
-                  infected(i,j) -= nearbyint(infected(i,j) * infected_to_diseased_rate);
-                }
-                if(exposed(i,j) > 0 && model_type == "SEID") {
-                  infected(i,j) += nearbyint(exposed(i,j) * exposed_to_infected_rate);
-                  exposed(i,j) -= nearbyint(exposed(i,j) * exposed_to_infected_rate);
-                }
-            }
-        }
-  }
     
     void generate(const IntegerRaster& infected,
-                  const IntegerRaster& exposed, const IntegerRaster& diseased,
                   bool weather, const FloatRaster& weather_coefficient,
-                  double reproductive_rate, string model_type)
+                  double reproductive_rate)
     {
         double lambda = reproductive_rate;
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                if (model_type == "SEID") {
-                  total_infected(i,j) = infected(i,j) + exposed(i,j) + diseased(i,j);
-                }
-                else if (model_type == "SID") {
-                  total_infected(i,j) = infected(i,j) + diseased(i,j);
-                } 
-                else if (model_type == "SI") {
-                  total_infected(i,j) = diseased(i,j);
-                }
-              
-                if (total_infected(i, j) > 0) {
+                if (infected(i, j) > 0) {
                     if (weather)
                         lambda = reproductive_rate * weather_coefficient(i, j); // calculate 
                     int dispersers_from_cell = 0;
@@ -218,12 +183,10 @@ public:
     }
 
     void disperse(IntegerRaster& susceptible, IntegerRaster& infected,
-                  IntegerRaster& exposed, IntegerRaster& diseased,
                   IntegerRaster& mortality_tracker,
                   const IntegerRaster& total_plants,
                   std::vector<std::tuple<int, int>>& outside_dispersers,
                   bool weather, const FloatRaster& weather_coefficient,
-                  string model_type,
                   DispersalKernel dispersal_kernel, double short_distance_scale,
                   double percent_short_distance_dispersal = 0.0,
                   double long_distance_scale = 0.0,
@@ -286,28 +249,9 @@ public:
                             if (weather)
                                 probability_of_establishment *= weather_coefficient(i, j);
                             if (establishment_tester < probability_of_establishment) {
-                              // based on model type add new "infection to the correct type of infected pool (diseased for SI model, infected for SID model, and exposed for SEID model)
-                              if (model_type == "SI") {
-                                diseased(row, col) += 1;
-                                mortality_tracker(row, col) += 1;
-                                susceptible(row, col) -= 1;
-                              } 
-                              else if (model_type == "SID") {
                                 infected(row, col) += 1;
                                 mortality_tracker(row, col) += 1;
                                 susceptible(row, col) -= 1;
-                              } 
-                              else if (model_type == "SEID") {
-                                exposed(row, col) += 1;
-                                mortality_tracker(row, col) += 1;
-                                susceptible(row, col) -= 1;
-                              } 
-                              else {
-                                cerr <<
-                                        "The paramter model_type muse be set to one of SI, SID, SEID"
-                                     << endl;
-                                exit(EXIT_FAILURE);
-                              }
                             }
                         }
                     }

@@ -22,7 +22,7 @@ optionally linked in an entry.
 
 ### Add
 
-- ~~Exposed and Diseased classes should be added (need to think about how to handle in disperse).~~ updated 2018-10-19
+- Exposed and Diseased classes should be added (need to think about how to handle in disperse).
 - 3-D array for Susceptible, Exposed, Infected, Diseased classes to handle multiple species up to N.
 - Host-compentency score for handling multiple hosts.
 
