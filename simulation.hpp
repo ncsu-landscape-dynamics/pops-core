@@ -170,7 +170,7 @@ public:
                     int dispersers_from_cell = 0;
                     std::poisson_distribution<int> distribution(lambda);
                     
-                    for (int k = 0; k < total_infected(i, j); k++) {
+                    for (int k = 0; k < infected(i, j); k++) {
                         dispersers_from_cell += distribution(generator);
                     }
                     dispersers(i, j) = dispersers_from_cell;
