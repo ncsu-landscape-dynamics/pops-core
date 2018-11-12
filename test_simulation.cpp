@@ -43,7 +43,9 @@ using namespace pops;
 
 int main(int argc, char *argv[])
 {
-    Raster<int> infected = {{5, 0}, {0, 0}};
+    Raster<int> infected = {{1, 0}, {0, 0}};
+    Raster<int> exposed = {{0, 1}, {0, 0}};
+    Raster<int> diseased = {{5, 0}, {0, 0}};
     Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
     Raster<int> susceptible = {{10, 6}, {14, 15}};
     Raster<int> total_plants = {{15, 6}, {14, 15}};
@@ -51,6 +53,7 @@ int main(int argc, char *argv[])
     Raster<double> weather_coefficient = {{0.6, 0.8}, {0.2, 0.8}};
     std::vector<std::tuple<int, int>> outside_dispersers;
     DispersalKernel dispersal_kernel = CAUCHY;
+    ModelType model_type = SEID;
     bool weather = true;
     double lethal_temperature = -4.5;
     double reproductive_rate = 4.5;
@@ -59,12 +62,17 @@ int main(int argc, char *argv[])
     int ns_res = 30;
     Simulation<Raster<int>, Raster<double>> simulation(42, infected, ew_res, ns_res);
     simulation.remove(infected, susceptible,
+    double exposed_to_infected_rate = 0.1;
+    double infected_to_diseased_rate = 0.2;
+    Simulation<Raster<int>, Raster<double>> simulation(42, infected, ew_res, ns_res);
+    simulation.remove(infected, susceptible, exposed, diseased,
                       temperature, lethal_temperature);
-    simulation.generate(infected, weather, weather_coefficient, reproductive_rate);
-    simulation.disperse(susceptible, infected,
+    simulation.generate(infected, exposed, diseased, weather, weather_coefficient, reproductive_rate, model_type);
+    simulation.disperse(susceptible, infected, exposed, diseased,
                         mortality_tracker, total_plants,
-                        outside_dispersers, weather, weather_coefficient,
+                        outside_dispersers, weather, weather_coefficient, model_type,
                         dispersal_kernel, short_distance_scale);
+    simulation.infect(infected, exposed, diseased, exposed_to_infected_rate, infected_to_diseased_rate, model_type);
     cout << outside_dispersers.size() << endl;
     return 0;
 }
