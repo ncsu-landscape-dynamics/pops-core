@@ -6,6 +6,7 @@ a.out
 test_date
 test_raster
 test_simulation
+test_treatments
 # generated documentation
 html
 # Qt Creator files
