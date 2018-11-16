@@ -43,9 +43,9 @@ using pops::Raster;
 
 void test_constructor_by_type()
 {
-    Raster<int> a(10, 10, 1, 1);
-    Raster<float> b(10, 10, 1, 1);
-    Raster<double> c(10, 10, 1, 1);
+    Raster<int> a(10, 10);
+    Raster<float> b(10, 10);
+    Raster<double> c(10, 10);
 }
 
 void test_initializer_and_output()

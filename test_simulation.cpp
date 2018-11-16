@@ -55,9 +55,10 @@ int main(int argc, char *argv[])
     double lethal_temperature = -4.5;
     double reproductive_rate = 4.5;
     double short_distance_scale = 0.0;
-    Simulation<Raster<int>, Raster<double>> simulation(42, infected);
-    simulation.remove(infected, susceptible,
-                      temperature, lethal_temperature);
+    int ew_res = 30;
+    int ns_res = 30;
+    Simulation<Raster<int>, Raster<double>> simulation(42, infected, ew_res, ns_res);
+    simulation.remove(infected, susceptible, temperature, lethal_temperature);
     simulation.generate(infected, weather, weather_coefficient, reproductive_rate);
     simulation.disperse(susceptible, infected,
                         mortality_tracker, total_plants,

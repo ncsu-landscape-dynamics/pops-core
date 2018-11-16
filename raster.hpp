@@ -91,18 +91,12 @@ class Raster
 private:
     unsigned width;
     unsigned height;
-    // the west-east resolution of the pixel
-    double ew_res_;
-    // the north-south resolution of the pixel
-    double ns_res_;
     Number *data;
 public:
     Raster()
     {
         width = 0;
         height = 0;
-        ew_res_ = 0;
-        ns_res_ = 0;
         data = NULL;
     }
 
@@ -110,8 +104,6 @@ public:
     {
         width = other.width;
         height = other.height;
-        ew_res_ = other.ew_res_;
-        ns_res_ = other.ns_res_;
         data = new Number[width * height];
         std::copy(other.data, other.data + (width * height), data);
     }
@@ -124,8 +116,6 @@ public:
     {
         width = other.width;
         height = other.height;
-        ew_res_ = other.ew_res_;
-        ns_res_ = other.ns_res_;
         data = new Number[width * height]{value};
     }
 
@@ -133,37 +123,29 @@ public:
     {
         width = other.width;
         height = other.height;
-        ew_res_ = other.ew_res_;
-        ns_res_ = other.ns_res_;
         data = other.data;
         other.data = nullptr;
     }
 
-    Raster(int cols, int rows, int ew_res, int ns_res)
+    Raster(int cols, int rows)
     {
         this->width = cols;
         this->height = rows;
-        this->ew_res_ = ew_res;
-        this->ns_res_ = ns_res;
         this->data = new Number[width * height];
     }
 
-    // TODO: res are doubles
     // TODO: size is unsigned?
-    Raster(int cols, int rows, int ew_res, int ns_res, Number value)
+    Raster(int cols, int rows, Number value)
     {
         this->width = cols;
         this->height = rows;
-        this->ew_res_ = ew_res;
-        this->ns_res_ = ns_res;
         this->data = new Number[width * height]{value};
     }
 
-    // TODO: here we ignore res
     // maybe remove from the class, or make it optional together with
     // a reference
     Raster(std::initializer_list<std::initializer_list<Number>> l)
-        : Raster(l.begin()->size(), l.size(), 1, 1)
+        : Raster(l.begin()->size(), l.size())
     {
          unsigned i = 0;
          unsigned j = 0;
@@ -194,18 +176,6 @@ public:
     int rows() const
     {
         return height;
-    }
-
-    /*! Gets east-west direction resolution of the raster */
-    double ew_res() const
-    {
-        return ew_res_;
-    }
-
-    /*! Gets north-south direction resolution of the raster */
-    int ns_res() const
-    {
-        return ns_res_;
     }
 
     void fill(Number value)
@@ -242,8 +212,6 @@ public:
                 delete[] data;
             width = other.width;
             height = other.height;
-            ew_res_ = other.ew_res_;
-            ns_res_ = other.ns_res_;
             data = new Number[width * height];
             std::copy(other.data, other.data + (width * height), data);
         }
@@ -258,8 +226,6 @@ public:
                 delete[] data;
             width = other.width;
             height = other.height;
-            ew_res_ = other.ew_res_;
-            ns_res_ = other.ns_res_;
             data = other.data;
             other.data = nullptr;
         }
@@ -275,7 +241,7 @@ public:
         else {
             auto re_width = this->width;
             auto re_height = this->height;
-            auto out = Raster(re_width, re_height, this->ew_res_, this->ns_res_);
+            auto out = Raster(re_width, re_height);
 
             for (int i = 0; i < re_height; i++) {
                 for (int j = 0; j < re_width; j++) {
@@ -295,7 +261,7 @@ public:
         else {
             auto re_width = this->width;
             auto re_height = this->height;
-            auto out = Raster(re_width, re_height, this->ew_res_, this->ns_res_);
+            auto out = Raster(re_width, re_height);
 
             for (int i = 0; i < re_height; i++) {
                 for (int j = 0; j < re_width; j++) {
@@ -312,7 +278,7 @@ public:
             throw std::runtime_error("The height or width of one image do"
                                      " not match with that of the other one.");
         }
-        auto out = Raster(width, height, ew_res_, ns_res_);
+        auto out = Raster(width, height);
 
         std::transform(data, data + (width * height), image.data, out.data,
                        [](const Number& a, const Number& b) { return a * b; });
@@ -325,7 +291,7 @@ public:
             throw std::runtime_error("The height or width of one image do"
                                      " not match with that of the other one.");
         }
-        auto out = Raster(width, height, ew_res_, ns_res_);
+        auto out = Raster(width, height);
 
         std::transform(data, data + (width * height), image.data, out.data,
                        [](const Number& a, const Number& b) { return a / b; });
@@ -334,7 +300,7 @@ public:
 
     Raster operator*(double value) const
     {
-        auto out = Raster(width, height, ew_res_, ns_res_);
+        auto out = Raster(width, height);
 
         std::transform(data, data + (width * height), out.data,
                        [&value](const Number& a) { return a * value; });
@@ -343,7 +309,7 @@ public:
 
     Raster operator/(double value) const
     {
-        auto out = Raster(width, height, ew_res_, ns_res_);
+        auto out = Raster(width, height);
 
         std::transform(data, data + (width * height), out.data,
                        [&value](const Number& a) { return a / value; });
@@ -472,11 +438,6 @@ public:
         img.width = Rast_window_cols();
         img.height = Rast_window_rows();
 
-        Cell_head region;
-        Rast_get_window(&region);
-        img.ew_res_ = region.ew_res;
-        img.ns_res_ = region.ns_res;
-
         img.data = new Number[img.height * img.width];
 
         for (int row = 0; row < img.height; row++) {
@@ -518,8 +479,6 @@ inline Raster<int> Raster<int>::from_grass_raster(const char *name)
 
     Cell_head region;
     Rast_get_window(&region);
-    img.ew_res_ = region.ew_res;
-    img.ns_res_ = region.ns_res;
 
     img.data = new int[img.height * img.width];
 

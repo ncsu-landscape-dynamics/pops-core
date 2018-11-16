@@ -205,6 +205,29 @@ int Date::weeks_from_date(Date start)
     return week - 1;
 }
 
+/*!
+ * Holds begining and end of a season and decides what is in season
+ */
+class Season
+{
+public:
+    Season(int start, int end)
+        : start_month_(start), end_month_(end)
+    {}
+    /*!
+     * \brief Decides if a month is in season or not
+     * \param month A month in year (1-12)
+     * \return true if in season, false otherwise
+     */
+    inline bool month_in_season(int month)
+    {
+        return month >= start_month_ && month <= end_month_;
+    }
+private:
+    int start_month_;
+    int end_month_;
+};
+
 } // namespace pops
 
 #endif // POPS_DATE_HPP

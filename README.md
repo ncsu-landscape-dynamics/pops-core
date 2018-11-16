@@ -1,25 +1,35 @@
-# PoPS
+# PoPS (Pest or Pathogen Spread) Model
 
 [![Build Status](https://travis-ci.org/ncsu-landscape-dynamics/PoPS.svg?branch=master)](https://travis-ci.org/ncsu-landscape-dynamics/PoPS)
 
 PoPS library
 
-A general C++ version of the model that was orignially created for the forest pathogen *P. ramorum*  https://github.com/f-tonini/SOD-modeling.
-This repository contains the c++ version scripts used to develop a stochastic landscape spread model for forest pests and pathogens
+PoPS (Pest or Pathogen Spread) is a C++ library for a stochastic spread model of pests and pathogens in forest and agricultural landscapes. It has been generalized and new features added but was originally developed for *Phytophthora ramorum* and the original version of the model was based on this reference paper: Ross K. Meentemeyer, Nik J. Cunniffe, Alex R. Cook, Joao A. N. Filipe, Richard D. Hunter, David M. Rizzo, and Christopher A. Gilligan 2011. Epidemiological modeling of invasion in heterogeneous landscapes: spread of sudden oak death in California (1990–2030). *Ecosphere* 2:art17. [http://dx.doi.org/10.1890/ES10-00192.1] (http://www.esajournals.org/doi/abs/10.1890/ES10-00192.1) 
 
-The original version of the model was based around this reference paper: Ross K. Meentemeyer, Nik J. Cunniffe, Alex R. Cook, Joao A. N. Filipe, Richard D. Hunter, David M. Rizzo, and Christopher A. Gilligan 2011. Epidemiological modeling of invasion in heterogeneous landscapes: spread of sudden oak death in California (1990–2030). *Ecosphere* 2:art17. [http://dx.doi.org/10.1890/ES10-00192.1] (http://www.esajournals.org/doi/abs/10.1890/ES10-00192.1) 
-
-PoPS is a header-only C++ library. It is using templates to be
-universal and it makes use of C++11 features, so C++11 is the minimal
+PoPS is a header-only C++ library. It is using templates to be universal and it makes use of C++11 features, so C++11 is the minimal
 required version.
+
+## Main Functions
+
+simulation.remove : removes the pest or pathogen from the infested hosts based on some environmental threshold (currently only temperature is accounted for).
+
+simulation.generate : generates dispersing indivduls from all infested cells based as a function of local infected hosts and weather.
+
+simulation.disperse : creates dispersal locations for the dispersing individuals from the generate function.
+
+The custom date class is used to easily manage different time steps within the model and account for differences in the way frequently used weather data sets treat leap years (DAYMET drops December 31st from leap years, PRISM keeps all days even for leap years)
 
 ## Using the model
 
 The PoPS library can be used directly in a C++ program or through other
 programs. It is used in an experimental version of a GRASS GIS module
-called r.spread.sod.
+called r.spread.pest.
 
 * https://github.com/ncsu-landscape-dynamics/r.spread.pest
+
+It is also used in the pops_model function in R.
+
+* https://github.com/ncsu-landscape-dynamics/rpops
 
 ## Integrating the library into your own project
 
@@ -113,11 +123,14 @@ file called `index.html` to access it in a web browser.
 
 ## Authors
 
-* Francesco Tonini (original R version)
-* Zexi Chen (initial C++ version)
 * Vaclav Petras (raster handling, critical temperature, library, ...)
 * Anna Petrasova (single species simulation)
 * Chris Jones (rename, SEID, ...)
+
+## Previous Contributors
+
+* Francesco Tonini (original R version)
+* Zexi Chen (initial C++ version)
 
 ## License
 

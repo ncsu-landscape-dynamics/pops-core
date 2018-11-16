@@ -130,13 +130,13 @@ private:
     std::default_random_engine generator;
 public:
 
-    Simulation(unsigned random_seed, const IntegerRaster &size)
+    Simulation(unsigned random_seed, const IntegerRaster &size, double ew_res, double ns_res)
         :
           width(size.cols()),
           height(size.rows()),
-          west_east_resolution(size.ew_res()),
-          north_south_resolution(size.ns_res()),
-          dispersers(size, 0)
+          west_east_resolution(ew_res),
+          north_south_resolution(ns_res),
+          dispersers(height, width)
     {
         generator.seed(random_seed);
     }
@@ -150,13 +150,13 @@ public:
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (temperature(i, j) < lethal_temperature) {
-                    susceptible(i, j) += infected(i, j);  // move back to suseptible pool
+                    susceptible(i, j) += infected(i, j);  // move infested/infected host back to suseptible pool
                     infected(i, j) = 0;  // remove all infestation/infection in the infected class
                 }
             }
         }
     }
-
+    
     void generate(const IntegerRaster& infected,
                   bool weather, const FloatRaster& weather_coefficient,
                   double reproductive_rate)
