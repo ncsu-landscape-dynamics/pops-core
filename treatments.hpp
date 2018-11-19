@@ -22,13 +22,13 @@
 
 namespace pops {
 
-template<typename IntegerRaster>
+template<typename IntegerRaster, typename FloatRaster>
 class Treatments
 {
 private:
-    std::map<int, IntegerRaster> treatments;
+    std::map<int, FloatRaster> treatments;
 public:
-    void add_treatment(int year, const IntegerRaster &map)
+    void add_treatment(int year, const FloatRaster &map)
     {
         treatments[year] = map;
     }

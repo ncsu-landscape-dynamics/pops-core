@@ -31,11 +31,11 @@ using namespace pops;
 
 int main(int argc, char *argv[])
 {
-    Treatments<Raster<int>> treatments;
+    Treatments<Raster<int>, Raster<double>> treatments;
     treatments.clear_all();
-    Raster<int> tr1 = {{1, 0}, {0, 0}};
-    Raster<int> tr2 = {{0, 1}, {0, 0}};
-    Raster<int> tr3 = {{0, 0}, {1, 0}};
+    Raster<double> tr1 = {{1, 0}, {0, 0}};
+    Raster<double> tr2 = {{0, 1}, {0, 0}};
+    Raster<double> tr3 = {{0, 0}, {1, 0}};
     Raster<int> susceptible = {{10, 6}, {14, 15}};
     treatments.add_treatment(2000, tr1);
     treatments.add_treatment(2001, tr2);
