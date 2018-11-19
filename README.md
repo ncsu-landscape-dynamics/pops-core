@@ -17,6 +17,8 @@ simulation.generate : generates dispersing indivduls from all infested cells bas
 
 simulation.disperse : creates dispersal locations for the dispersing individuals from the generate function.
 
+simulation.mortality : causes mortality in infested/infected hosts based on mortality rate
+
 The custom date class is used to easily manage different time steps within the model and account for differences in the way frequently used weather data sets treat leap years (DAYMET drops December 31st from leap years, PRISM keeps all days even for leap years)
 
 ## Using the model
