@@ -50,7 +50,11 @@ public:
     void apply_treatment(int year, IntegerRaster &host)
     {
         if (treatments.find(year) != treatments.end()) {
-            host = host - (host * treatments[year]);
+            // this expression fails in rcpp
+            // host = host - (host * treatments[year]);
+            for(int i = 0; i < host.rows(); i++)
+                for(int j = 0; j < host.cols(); j++)
+                    host(i, j) = host(i, j) - (host(i, j) * treatments[year](i, j));
         }
         // otherwise no treatment for that year
     }
