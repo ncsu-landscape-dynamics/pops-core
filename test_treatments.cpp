@@ -37,13 +37,16 @@ int main(int argc, char *argv[])
     Raster<double> tr2 = {{0, 1}, {0, 0}};
     Raster<double> tr3 = {{0, 0}, {1, 0}};
     Raster<int> susceptible = {{10, 6}, {14, 15}};
+    Raster<int> infected = {{1, 2}, {1, 1}};
     treatments.add_treatment(2000, tr1);
     treatments.add_treatment(2001, tr2);
     treatments.add_treatment(2002, tr3);
-    treatments.apply_treatment(2000, susceptible);
+    treatments.apply_treatment_host(2000, infected, susceptible);
+    treatments.apply_treatment_infected(2001, infected);
 
     Raster<int> treated = {{0, 6}, {14, 15}};
-    if (susceptible == treated)
+    Raster<int> inf_treated = {{0, 0}, {1, 1}};
+    if (susceptible == treated && infected == inf_treated)
         std::cout << "Treatment works" << std::endl;
     else
         std::cout << "Treatment does not work" << std::endl;
