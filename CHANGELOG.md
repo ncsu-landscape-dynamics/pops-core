@@ -4,6 +4,10 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2018-11-17
+
+- Added mortality function to simulation class
+
 ## 2018-10-31 - Minor Refactoring
 
 ### Added
