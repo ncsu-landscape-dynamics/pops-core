@@ -9,6 +9,31 @@ PoPS (Pest or Pathogen Spread) is a C++ library for a stochastic spread model of
 PoPS is a header-only C++ library. It is using templates to be universal and it makes use of C++11 features, so C++11 is the minimal
 required version.
 
+## Contributing
+
+This section is designed to clarify the branch structure of this repository and where new features and bug fixes should go.
+
+### Branch Structure
+
+1. **master** is the stable version of the model that is used for official releases. 
+2. **development** is where new changes are tested along with the latest bug fixes that have occurred.
+3. **feature/new_feature** is where new features are developed before they are merged into Development. For example, infect and vector are currently being developed and will be merged into Development for testing prior to being released into Master via a merge with Development.
+
+### Bug Fixes
+
+Most bugs/issues will be found in the **master** branch as it is the branch being used in the R package and Grass Module. Thus bug fixes should be merged into **master** once tested. Bug fixes should be released as minor versions (e.g. if major release is 1.0 then the first bug fix would be released as version 1.1).
+
+### New Features
+
+When creating new features create a branch from **development** using the following syntax **feature/new_feature**. For example, we want to add a transportation network model for human assisted dispersal, the branch created would be named feature/transportation_network_model (or similar). New features will be merged into **development** and tested based on the priorities of our stakeholders first. Once new features are tested in Development with the latest bug fixes and any other new features being included in the next major release we will merge them into **master** and create an official major release version (e.g. update from version 1.1 to version 2.0). 
+
+If you are interested in contributing to PoPS development and are not a core developer on the model, please take a look at following
+documents to make the process as seamless as possible.
+
+1. [Contributor Code of Conduct](contributing_docs/CODE_OF_CONDUCT.md)
+1. [PoPS Style Guide](contributing_docs/STYLE_GUIDE.md)
+1. [Contributor Guide](contributing_docs/CONTRIBUTING.md)
+
 ## Main Functions
 
 simulation.remove : removes the pest or pathogen from the infested hosts based on some environmental threshold (currently only temperature is accounted for).
