@@ -48,12 +48,33 @@ void test_constructor_by_type()
     Raster<double> c(10, 10);
 }
 
+void test_constructor_dimensions()
+{
+    int x = 5;
+    int y = 3;
+    // new based on dimensions, with zeros, one value in the corner
+    Raster<int> a(x, y);
+    a.zero();
+    a(x - 1, y - 1) = 2;
+    std::cout << x << "x" << y << ":" << std::endl << a;
+    // same as above, but with the dimensions swapped
+    Raster<int> b(y, x);
+    b.zero();
+    b(y - 1, x - 1) = 2;
+    std::cout << y << "x" << x << ":" << std::endl << b;
+}
+
 void test_initializer_and_output()
 {
     Raster<int> a = {{1, 2},
                      {3, 4},
                      {5, 6}};
-    std::cout << a;
+    std::cout << "3x2:" << std::endl << a;
+
+    Raster<int> b = {{0, 0, 0, 5, 5},
+                     {0, 0, 0, 5, 5},
+                     {0, 0, 0, 10, 0}};
+    std::cout << "3x5:" << std::endl << b;
 }
 
 void test_equal_operator()
@@ -99,6 +120,7 @@ void test_sqrt()
 int main(int argc, char *argv[])
 {
     test_constructor_by_type();
+    test_constructor_dimensions();
     test_initializer_and_output();
     test_equal_operator();
     test_not_equal_operator();
