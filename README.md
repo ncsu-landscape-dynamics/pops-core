@@ -52,7 +52,7 @@ The PoPS library can be used directly in a C++ program or through other
 programs. It is used in an experimental version of a GRASS GIS module
 called r.spread.pest.
 
-* https://github.com/ncsu-landscape-dynamics/r.spread.pest
+* https://github.com/ncsu-landscape-dynamics/r.pops.spread
 
 It is also used in the pops_model function in R.
 
