@@ -168,12 +168,12 @@ public:
         }
     }
 
-    int cols() const
+    unsigned cols() const
     {
         return width;
     }
 
-    int rows() const
+    unsigned rows() const
     {
         return height;
     }
@@ -243,8 +243,8 @@ public:
             auto re_height = this->height;
             auto out = Raster(re_height, re_width);
 
-            for (int i = 0; i < re_height; i++) {
-                for (int j = 0; j < re_width; j++) {
+            for (unsigned i = 0; i < re_height; i++) {
+                for (unsigned j = 0; j < re_width; j++) {
                     out.data[i * width + j] = this->data[i * width + j] + image.data[i * width + j];
                 }
             }
@@ -375,8 +375,8 @@ public:
     bool operator==(const Raster& other) const
     {
         // TODO: assumes same sizes
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < width; j++) {
+        for (unsigned i = 0; i < width; i++) {
+            for (unsigned j = 0; j < width; j++) {
                 if (this->data[i * width + j] != other.data[i * width + j])
                     return false;
             }
@@ -387,8 +387,8 @@ public:
     bool operator!=(const Raster& other) const
     {
         // TODO: assumes same sizes
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < width; j++) {
+        for (unsigned i = 0; i < width; i++) {
+            for (unsigned j = 0; j < width; j++) {
                 if (this->data[i * width + j] != other.data[i * width + j])
                     return true;
             }

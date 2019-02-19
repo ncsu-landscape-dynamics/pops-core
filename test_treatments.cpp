@@ -29,7 +29,7 @@
 
 using namespace pops;
 
-int main(int argc, char *argv[])
+int main()
 {
     Treatments<Raster<int>, Raster<double>> treatments;
     treatments.clear_all();

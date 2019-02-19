@@ -54,7 +54,7 @@ void test_years_by_month()
     }
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     // Test of date computations for SOD model
     test_years_by_month();

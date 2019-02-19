@@ -117,7 +117,7 @@ void test_sqrt()
         std::cout << "\n" << a << "!=\n" << b << std::endl;
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     test_constructor_by_type();
     test_constructor_dimensions();

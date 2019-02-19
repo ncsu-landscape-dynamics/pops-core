@@ -41,7 +41,7 @@ using std::endl;
 
 using namespace pops;
 
-int main(int argc, char *argv[])
+int main()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
     Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
