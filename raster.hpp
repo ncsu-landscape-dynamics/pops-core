@@ -263,8 +263,8 @@ public:
             auto re_height = this->height;
             auto out = Raster(re_height, re_width);
 
-            for (int i = 0; i < re_height; i++) {
-                for (int j = 0; j < re_width; j++) {
+            for (unsigned i = 0; i < re_height; i++) {
+                for (unsigned j = 0; j < re_width; j++) {
                     out.data[i * width + j] = this->data[i * width + j] - image.data[i * width + j];
                 }
             }
@@ -440,7 +440,7 @@ public:
 
         img.data = new Number[img.height * img.width];
 
-        for (int row = 0; row < img.height; row++) {
+        for (unsigned row = 0; row < img.height; row++) {
             Rast_get_d_row(fd, img.data + (row * img.width), row);
         }
 
@@ -453,7 +453,7 @@ public:
     void inline to_grass_raster(const char *name)
     {
         int fd = Rast_open_new(name, DCELL_TYPE);
-        for (int i = 0; i < height; i++)
+        for (unsigned i = 0; i < height; i++)
             Rast_put_d_row(fd, data + (i * width));
         Rast_close(fd);
     }
@@ -482,7 +482,7 @@ inline Raster<int> Raster<int>::from_grass_raster(const char *name)
 
     img.data = new int[img.height * img.width];
 
-    for (int row = 0; row < img.height; row++) {
+    for (unsigned row = 0; row < img.height; row++) {
         Rast_get_c_row(fd, img.data + (row * img.width), row);
     }
 
@@ -498,7 +498,7 @@ template <>
 inline void Raster<int>::to_grass_raster(const char *name)
 {
     int fd = Rast_open_new(name, CELL_TYPE);
-    for (int i = 0; i < height; i++)
+    for (unsigned i = 0; i < height; i++)
         Rast_put_c_row(fd, data + (i * width));
     Rast_close(fd);
 }
