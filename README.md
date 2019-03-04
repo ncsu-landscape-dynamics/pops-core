@@ -17,7 +17,7 @@ This section is designed to clarify the branch structure of this repository and 
 
 1. **master** is the stable version of the model that is used for official releases. 
 2. **bugfix/thingnotworking** are branched off of master then merged back once bug is fixed.
-3. **feature/new_feature** is where new features are developed before they are merged into Development. For example, infect and vector are currently being developed and will be merged into Development for testing prior to being released into Master via a merge with Development.
+3. **feature/new_feature** is where new features are developed before they are merged into Development. For example, infect and vector are currently being developed and will be merged together prior to being merged to master for an official major version release.
 
 ### Bug Fixes
 
