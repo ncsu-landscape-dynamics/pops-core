@@ -17,6 +17,11 @@ issue which needs to be fixed (Fix).
 Entries should be removed when resolved. Issue from tracker can be
 optionally linked in an entry.
 
+## 2019-06-14
+
+### Add
+
+- Documentation to previously implemented treatments is missing
 
 ## 2018-09-14 - SEID and multiple host handling
 

@@ -4,6 +4,15 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2019-06-14
+
+### Added
+
+- Added types of treatment application. Removing a portion for both
+  susceptible and infected, like in SLF case, and a portion from
+  susceptible all all infected in given cells, like in SOD case.
+  (Vaclav Petras)
+
 ## 2018-11-17
 
 - Added mortality function to simulation class
