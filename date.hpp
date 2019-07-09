@@ -42,6 +42,8 @@ private:
 public:
     Date(const Date& d): year_(d.year_), month_(d.month_), day_(d.day_) {}
     Date(int y, int m, int d): year_(y), month_(m), day_(d) {}
+    int num_days;
+    inline void increased_by_days(int num_days);
     inline void increased_by_week();
     inline void increased_by_month();
     inline Date get_year_end();
@@ -140,6 +142,41 @@ bool operator< (const Date &d1, const Date &d2)
 bool operator>= (const Date &d1, const Date &d2)
 {
     return !(d1 < d2);
+}
+
+void Date::increased_by_days(int num_days)
+{
+  day_ += num_days;
+  if (year_ % 4 == 0 && (year_ % 100 != 0 || year_ % 400 == 0)) {
+    if (month_ == 12 && day_ > (31 - (num_days + 1))) {
+      year_++;
+      month_ = 1;
+      day_ = 1;
+    }
+    if (day_ > day_in_month[1][month_]) {
+      day_ = day_ - day_in_month[1][month_];
+      month_++;
+      if (month_ > 12) {
+        year_++;
+        month_ = 1;
+      }
+    }
+  }
+  else {
+    if (month_ == 12 && day_ > (31 - num_days)) {
+      year_++;
+      month_ = 1;
+      day_ = 1;
+    }
+    if (day_ > day_in_month[0][month_]) {
+      day_ = day_ - day_in_month[0][month_];
+      month_++;
+      if (month_ > 12) {
+        year_++;
+        month_ = 1;
+      }
+    }
+  }
 }
 
 void Date::increased_by_week()
