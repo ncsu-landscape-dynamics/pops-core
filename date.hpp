@@ -5,6 +5,7 @@
  *
  * Authors: Zexi Chen (zchen22 ncsu edu)
  *          Anna Petrasova
+ *          Chris Jones
  *
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
@@ -42,7 +43,6 @@ private:
 public:
     Date(const Date& d): year_(d.year_), month_(d.month_), day_(d.day_) {}
     Date(int y, int m, int d): year_(y), month_(m), day_(d) {}
-    int num_days;
     inline void increased_by_days(int num_days);
     inline void increased_by_week();
     inline void increased_by_month();
@@ -144,6 +144,15 @@ bool operator>= (const Date &d1, const Date &d2)
     return !(d1 < d2);
 }
 
+/*!
+ * Increases the date by the num_days (specified by the user) except on
+ * the last timestep of the year, which is increased by num_days 
+ * plus the number of  days left in the year that are less
+ * than num_days (e.g. if the num_days = 28 the last time step is 29
+ * or 30 (if leap year), if num_days = 23 that last time step is 43
+ * or 44 (if leap year) days). This ensures that each year of the 
+ * forecast starts on January 1st. 
+ */
 void Date::increased_by_days(int num_days)
 {
   day_ += num_days;
@@ -179,6 +188,11 @@ void Date::increased_by_days(int num_days)
   }
 }
 
+/*!
+ * Increases the date by one week (7 days) except on the last week
+ * of the year, which is increased by 8 or 9 days if a leap year.
+ * This ensures that each year of the forecast starts on January 1st. 
+ */
 void Date::increased_by_week()
 {
     day_ += 7;

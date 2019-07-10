@@ -8,7 +8,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Added ability to set number of days for the timestep instead of
   day, week, or month. This is useful if the pest has multiple generations
-  in a year (Chris Jones)
+  in a year. (Chris Jones)
+  
+### Changed
+  
+- Made extension of the 52 week to be 8 or 9 (leap years) days instead of 
+  7 to ensure that the next year starts on Jan 1st. This makes forecasting
+  into the future more streamlined. (Chris Jones)
 
 ## 2019-06-14
 
