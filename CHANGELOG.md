@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## 2019-07-09
 
+### Added
+
 - Added ability to set number of days for the timestep instead of
   day, week, or month. This is useful if the pest has multiple generations
   in a year. (Chris Jones)
