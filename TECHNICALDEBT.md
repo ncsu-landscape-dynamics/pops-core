@@ -17,6 +17,10 @@ issue which needs to be fixed (Fix).
 Entries should be removed when resolved. Issue from tracker can be
 optionally linked in an entry.
 
+## 2019-07-09
+
+- Tests need to be written for weekly, daily, and multi-day timesteps for Date functionality.
+
 ## 2019-06-14
 
 ### Add
