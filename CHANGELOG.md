@@ -4,6 +4,33 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2019-07-11
+
+### Added
+
+- The Raster class has a new function data() which provides access to
+  the underlying array. This follows the example of similar addition to
+  std::vector in C++11. The Raster class is now handling the memory
+  and provides raster algebra semantics, but its users have
+  direct access to the underlying data. (Vaclav Petras)
+
+### Changed
+
+- The optional support for GRASS GIS reading and writing GRASS GIS
+  rasters was removed from the Raster class. This needs to be now
+  handled in the GRASS GIS module. (Vaclav Petras)
+- Formerly private variables in Raster class are now only protected
+  so that derived classes can have direct access to them, e.g., in the
+  constructor. (Vaclav Petras)
+- Private/protected variables in Raster class are now using the rows and
+  columns terminology and trailing underscores. (Vaclav Petras)
+
+### Fixed
+
+- In some cases (depending on compiler and use of GRASS GIS), sqrt was
+  not accessible in the simulation code leading to compilation error.
+  Now std::sqrt is used. (Vaclav Petras)
+
 ## 2019-07-09
 
 ### Added
