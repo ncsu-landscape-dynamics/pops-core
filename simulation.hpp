@@ -19,8 +19,6 @@
 #ifndef POPS_SIMULATION_HPP
 #define POPS_SIMULATION_HPP
 
-#include "raster.hpp"
-
 #include <cmath>
 #include <tuple>
 #include <random>
@@ -38,6 +36,10 @@ using std::cerr;
 using std::endl;
 
 namespace pops {
+
+// we need to bring sqrt to the namespace
+// otherwise only candidates are raster-related
+using std::sqrt;
 
 /*! Von Mises Distribution (Circular data distribution)
 
