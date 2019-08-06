@@ -1,7 +1,7 @@
 CXXFLAGS := $(CXXFLAGS) -std=c++11 -pedantic -Wall -Wextra
 COMMON_DEFINES := -D POPS_TEST
 
-all: test_date test_raster test_simulation test_treatments
+all: test_date test_raster test_simulation test_treatments test_postprocessing
 
 test_date: test_date.cpp date.hpp
 	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_date.cpp -o test_date
@@ -14,11 +14,16 @@ test_simulation: test_simulation.cpp *.hpp
 
 test_treatments: test_treatments.cpp *.hpp
 	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_treatments.cpp -o test_treatments
+
+test_postprocessing: test_postprocessing.cpp *.hpp
+	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_postprocessing.cpp -o test_postprocessing
+
 test:
 	./test_date
 	./test_raster
 	./test_simulation
 	./test_treatments
+	./test_postprocessing
 
 doc:
 	doxygen
@@ -28,3 +33,4 @@ clean:
 	rm -f test_raster
 	rm -f test_simulation
 	rm -f test_treatments
+	rm -f test_postprocessing

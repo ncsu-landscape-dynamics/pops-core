@@ -7,6 +7,7 @@ test_date
 test_raster
 test_simulation
 test_treatments
+test_postprocessing
 # generated documentation
 html
 # Qt Creator files
