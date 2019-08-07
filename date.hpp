@@ -48,8 +48,11 @@ public:
     inline void increased_by_month();
     inline Date get_year_end();
     inline Date get_next_year_end();
+    inline Date get_last_day_of_week();
+    inline Date get_last_day_of_month();
     inline bool is_last_week_of_year();
     inline bool is_last_month_of_year();
+    inline bool is_leap_year();
     int month() const { return month_; }
     int year() const { return year_; }
     int day() const { return day_; }
@@ -59,6 +62,8 @@ public:
     inline friend bool operator>= (const Date &d1, const Date &d2);
     inline friend bool operator< (const Date &d1, const Date &d2);
     inline friend bool operator<= (const Date &d1, const Date &d2);
+    inline friend bool operator== (const Date &d1, const Date &d2);
+    inline friend bool operator!= (const Date &d1, const Date &d2);
 };
 
 std::ostream& operator<<(std::ostream& os, const Date &d)
@@ -70,6 +75,37 @@ std::ostream& operator<<(std::ostream& os, const Date &d)
 Date Date::get_year_end()
 {
     return Date(year_, 12, 31);
+}
+/*!
+ * Assumes we call it on the first day of a week.
+ * Weeks always start 1/1.
+ * Advances date by week and subtracts 1 day to work
+ * correctly at the end of the year.
+ */
+Date Date::get_last_day_of_week()
+{
+    Date d = Date(*this);
+    d.increased_by_week();
+    d.day_--;
+    if (d.day_ == 0) {
+        d.month_--;
+        if (d.month_ == 0) {
+            d.year_--;
+            d.month_ = 12;
+        }
+        d.day_ = day_in_month[is_leap_year()][d.month_];
+    }
+    return d;
+}
+
+/*!
+ * Compute the last day of a month.
+ */
+Date Date::get_last_day_of_month()
+{
+    if (year_ % 4 == 0 && (year_ % 100 != 0 || year_ % 400 == 0))
+        return Date(year_, month_, day_in_month[1][month_]);
+    return Date(year_, month_, day_in_month[0][month_]);
 }
 
 bool Date::is_last_week_of_year()
@@ -92,6 +128,13 @@ Date Date::get_next_year_end()
         return Date(year_, 12, 31);
     else
         return Date(year_ + 1, 12, 31);
+}
+
+bool Date::is_leap_year()
+{
+    if (year_ % 4 == 0 && (year_ % 100 != 0 || year_ % 400 == 0))
+        return true;
+    return false;
 }
 
 bool operator> (const Date &d1, const Date &d2)
@@ -144,6 +187,19 @@ bool operator>= (const Date &d1, const Date &d2)
     return !(d1 < d2);
 }
 
+bool operator== (const Date &d1, const Date &d2)
+{
+    if (d1.year_ == d2.year_ && d1.month_ == d2.month_ && d1.day_ == d2.day_)
+        return true;
+    return false;
+}
+
+bool operator!= (const Date &d1, const Date &d2)
+{
+    if (d1 == d2)
+        return false;
+    return true;
+}
 /*!
  * Increases the date by the num_days (specified by the user) except on
  * the last timestep of the year, which is increased by num_days 
@@ -156,7 +212,7 @@ bool operator>= (const Date &d1, const Date &d2)
 void Date::increased_by_days(int num_days)
 {
   day_ += num_days;
-  if (year_ % 4 == 0 && (year_ % 100 != 0 || year_ % 400 == 0)) {
+  if (this->is_leap_year()) {
     if (month_ == 12 && day_ > (31 - (num_days + 1))) {
       year_++;
       month_ = 1;
@@ -196,7 +252,7 @@ void Date::increased_by_days(int num_days)
 void Date::increased_by_week()
 {
     day_ += 7;
-    if (year_ % 4 == 0 && (year_ % 100 != 0 || year_ % 400 == 0)) {
+    if (this->is_leap_year()) {
         if (month_ == 12 && day_ > 23) {
             year_++;
             month_ = 1;
@@ -235,7 +291,7 @@ void Date::increased_by_month()
         year_++;
         month_ = 1;
     }
-    if (year_ % 4 == 0 && (year_ % 100 != 0 || year_ % 400 == 0)) {
+    if (this->is_leap_year()) {
         if (day_ > day_in_month[1][month_]) {
             day_ = day_in_month[1][month_];
         }
