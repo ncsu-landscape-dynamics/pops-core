@@ -7,7 +7,7 @@ test_date
 test_raster
 test_simulation
 test_treatments
-test_postprocessing
+test_spread_rate
 # generated documentation
 html
 # Qt Creator files
