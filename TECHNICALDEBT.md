@@ -17,7 +17,27 @@ issue which needs to be fixed (Fix).
 Entries should be removed when resolved. Issue from tracker can be
 optionally linked in an entry.
 
+## 2019-08-11 - Dispersal kernel rewrite
+
+### Add
+
+- Tests for kernel classes
+- Documentation on how to use the kernel classes
+- Support more spelling options for the types and wind directions.
+- Better documentation for the short-long kernel.
+- Better documentation or code related to reset() function of
+  distributions.
+- Add script for automatic code indentation.
+
+### Change
+
+- Indices and sizes should be template parameters as some matrix or
+  raster libraries may use different types, e.g., Rcpp uses int as
+  indices while Armadillo uses typedef for an unsigned integer.
+
 ## 2019-07-09
+
+### Add
 
 - Tests need to be written for weekly, daily, and multi-day timesteps for Date functionality.
 
