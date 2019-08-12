@@ -103,7 +103,7 @@ Date Date::get_last_day_of_week()
  */
 Date Date::get_last_day_of_month()
 {
-    if (year_ % 4 == 0 && (year_ % 100 != 0 || year_ % 400 == 0))
+    if (this->is_leap_year())
         return Date(year_, month_, day_in_month[1][month_]);
     return Date(year_, month_, day_in_month[0][month_]);
 }
