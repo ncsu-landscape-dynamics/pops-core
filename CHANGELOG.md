@@ -4,6 +4,38 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2019-08-11 - Dispersal kernel rewrite
+
+### Added
+
+- Radial exponential kernel and a uniform kernel (Vaclav Petras)
+  * Any combination of kernels is now possible on the library level.
+- Functions to convert from strings to kernel-related enums.
+
+### Changed
+
+- Dispersal kernel are organized as classes (functors). (Vaclav Petras)
+  * The disperse function is now a function template in the Simulation.
+  * Dispersal kernel is a function (functor) called from the Simulation.
+  * The Simulation class does not have any kernel-related parameters
+    or members.
+- Usage of std::cout related to kernels was replaced by exceptions
+  in the new code. (Vaclav Petras)
+- Kernel-related enums are not strongly typed using enum class
+  (Vaclav Petras)
+
+### Fixed
+
+- A call to abs function on the distance used for spread caused
+  conversion to int. Now std::abs is used so double is used throughout.
+  This changes simulation results. (Vaclav Petras)
+- Resolution is now double instead of int. This changes results in cases
+  when the resolution is not a integer number (even when it is
+  so close to the closest higher integer that it is printed out without
+  any decimal places by software considering it, possibly correctly,
+  close enough from user perspective). This was also reported in the
+  issue #26. (Vaclav Petras)
+
 ## 2019-07-11
 
 ### Added
