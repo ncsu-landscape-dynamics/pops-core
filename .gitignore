@@ -8,6 +8,7 @@ test_raster
 test_simulation
 test_treatments
 test_spread_rate
+test_statistics
 # generated documentation
 html
 # Qt Creator files
