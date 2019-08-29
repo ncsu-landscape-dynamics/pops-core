@@ -18,8 +18,12 @@
 
 namespace pops {
 
+/**
+ * Computes sum of infected hosts
+ * from all cells of a raster.
+ */
 template<typename IntegerRaster>
-unsigned sum_of_infected(IntegerRaster& infected)
+unsigned sum_of_infected(const IntegerRaster& infected)
 {
     unsigned sum = 0;
     for (unsigned j = 0; j < infected.rows(); j++) {
@@ -29,9 +33,12 @@ unsigned sum_of_infected(IntegerRaster& infected)
     }
     return sum;
 }
-
+/**
+ * Computes infected area as number
+ * of cell > 0 times cell size.
+ */
 template<typename IntegerRaster>
-double area_of_infected(IntegerRaster& infected, double ew_res, double ns_res)
+double area_of_infected(const IntegerRaster& infected, double ew_res, double ns_res)
 {
     unsigned cells = 0;
     for (unsigned j = 0; j < infected.rows(); j++) {
