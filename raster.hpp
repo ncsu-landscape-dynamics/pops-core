@@ -19,17 +19,11 @@
  */
 
 #include <iostream>
-#include <ostream>
-#include <string>
 #include <cmath>
 #include <algorithm>
 #include <stdexcept>
 #include <initializer_list>
-#include <stdlib.h>
-
-using std::string;
-using std::cerr;
-using std::endl;
+#include <type_traits>
 
 namespace pops {
 
@@ -246,73 +240,7 @@ public:
         return *this;
     }
 
-    Raster operator+(const Raster& image) const
-    {
-        if (this->cols_ != image.cols() || this->rows_ != image.rows()) {
-            cerr << "The height or width of one image do not match with that of the other one!" << endl;
-            return Raster();
-        }
-        else {
-            auto re_width = this->cols_;
-            auto re_height = this->rows_;
-            auto out = Raster(re_height, re_width);
-
-            for (unsigned i = 0; i < re_height; i++) {
-                for (unsigned j = 0; j < re_width; j++) {
-                    out.data_[i * cols_ + j] = this->data_[i * cols_ + j] + image.data_[i * cols_ + j];
-                }
-            }
-            return out;
-        }
-    }
-
-    Raster operator-(const Raster& image) const
-    {
-        if (this->cols_ != image.cols() || this->rows_ != image.rows()) {
-            cerr << "The height or width of one image do not match with that of the other one!" << endl;
-            return Raster();
-        }
-        else {
-            auto re_width = this->cols_;
-            auto re_height = this->rows_;
-            auto out = Raster(re_height, re_width);
-
-            for (unsigned i = 0; i < re_height; i++) {
-                for (unsigned j = 0; j < re_width; j++) {
-                    out.data_[i * cols_ + j] = this->data_[i * cols_ + j] - image.data_[i * cols_ + j];
-                }
-            }
-            return out;
-        }
-    }
-
-    Raster operator*(const Raster& image) const
-    {
-        if (cols_ != image.cols() || rows_ != image.rows()) {
-            throw std::runtime_error("The height or width of one image do"
-                                     " not match with that of the other one.");
-        }
-        auto out = Raster(rows_, cols_);
-
-        std::transform(data_, data_ + (cols_ * rows_), image.data_, out.data_,
-                       [](const Number& a, const Number& b) { return a * b; });
-        return out;
-    }
-
-    Raster operator/(const Raster& image) const
-    {
-        if (cols_ != image.cols() || rows_ != image.rows()) {
-            throw std::runtime_error("The height or width of one image do"
-                                     " not match with that of the other one.");
-        }
-        auto out = Raster(rows_, cols_);
-
-        std::transform(data_, data_ + (cols_ * rows_), image.data_, out.data_,
-                       [](const Number& a, const Number& b) { return a / b; });
-        return out;
-    }
-
-    Raster operator*(double value) const
+    Raster operator+(Number value) const
     {
         auto out = Raster(rows_, cols_);
 
@@ -321,7 +249,25 @@ public:
         return out;
     }
 
-    Raster operator/(double value) const
+    Raster operator-(Number value) const
+    {
+        auto out = Raster(rows_, cols_);
+
+        std::transform(data_, data_ + (cols_ * rows_), out.data_,
+                       [&value](const Number& a) { return a / value; });
+        return out;
+    }
+
+    Raster operator*(Number value) const
+    {
+        auto out = Raster(rows_, cols_);
+
+        std::transform(data_, data_ + (cols_ * rows_), out.data_,
+                       [&value](const Number& a) { return a * value; });
+        return out;
+    }
+
+    Raster operator/(Number value) const
     {
         auto out = Raster(rows_, cols_);
 
@@ -344,45 +290,61 @@ public:
         return *this;
     }
 
-    Raster& operator*=(double value)
+    Raster& operator*=(Number value)
     {
         std::for_each(data_, data_ + (cols_ * rows_),
                       [&value](Number& a) { a *= value; });
         return *this;
     }
 
-    Raster& operator/=(double value)
+    Raster& operator/=(Number value)
     {
         std::for_each(data_, data_ + (cols_ * rows_),
                       [&value](Number& a) { a /= value; });
         return *this;
     }
 
-    Raster& operator+=(const Raster& image)
+    template<typename OtherNumber>
+    typename std::enable_if<
+        std::is_floating_point<Number>::value || std::is_same<Number, OtherNumber>::value,
+        Raster&>::type
+    operator+=(const Raster<OtherNumber>& image)
     {
-        for_each_zip(data_, data_ + (cols_ * rows_), image.data_,
-                     [](Number& a, Number& b) { a += b; });
+        for_each_zip(data_, data_ + (cols_ * rows_), image.data(),
+                     [](Number& a, const OtherNumber& b) { a += b; });
         return *this;
     }
 
-    Raster& operator-=(const Raster& image)
+    template<typename OtherNumber>
+    typename std::enable_if<
+        std::is_floating_point<Number>::value || std::is_same<Number, OtherNumber>::value,
+        Raster&>::type
+    operator-=(const Raster<OtherNumber>& image)
     {
-        for_each_zip(data_, data_ + (cols_ * rows_), image.data_,
-                     [](Number& a, Number& b) { a -= b; });
+        for_each_zip(data_, data_ + (cols_ * rows_), image.data(),
+                     [](Number& a, const OtherNumber& b) { a -= b; });
         return *this;
     }
 
-    Raster& operator*=(const Raster& image)
+    template<typename OtherNumber>
+    typename std::enable_if<
+        std::is_floating_point<Number>::value || std::is_same<Number, OtherNumber>::value,
+        Raster&>::type
+    operator*=(const Raster<OtherNumber>& image)
     {
-        for_each_zip(data_, data_ + (cols_ * rows_), image.data_,
-                     [](Number& a, Number& b) { a *= b; });
+        for_each_zip(data_, data_ + (cols_ * rows_), image.data(),
+                     [](Number& a, const OtherNumber& b) { a *= b; });
         return *this;
     }
 
-    Raster& operator/=(const Raster& image)
+    template<typename OtherNumber>
+    typename std::enable_if<
+        std::is_floating_point<Number>::value || std::is_same<Number, OtherNumber>::value,
+        Raster&>::type
+    operator/=(const Raster<OtherNumber>& image)
     {
-        for_each_zip(data_, data_ + (cols_ * rows_), image.data_,
-                     [](Number& a, Number& b) { a /= b; });
+        for_each_zip(data_, data_ + (cols_ * rows_), image.data(),
+                     [](Number& a, const OtherNumber& b) { a /= b; });
         return *this;
     }
 
@@ -410,9 +372,24 @@ public:
         return false;
     }
 
-    friend inline Raster operator*(double factor, const Raster& image)
+    friend inline Raster operator+(Number value, const Raster& image)
     {
-        return image * factor;
+        return image + value;
+    }
+
+    friend inline Raster operator-(Number value, const Raster& image)
+    {
+        return image - value;
+    }
+
+    friend inline Raster operator*(Number value, const Raster& image)
+    {
+        return image * value;
+    }
+
+    friend inline Raster operator/(Number value, const Raster& image)
+    {
+        return image / value;
     }
 
     friend inline Raster pow(Raster image, double value) {
@@ -439,6 +416,74 @@ public:
         return stream;
     }
 };
+
+template<typename LeftNumber,
+         typename RightNumber,
+         typename ResultNumber=typename std::common_type<LeftNumber, RightNumber>::type>
+Raster<ResultNumber>
+operator+(const Raster<LeftNumber>& lhs, const Raster<RightNumber>& rhs)
+{
+    if (lhs.cols() != rhs.cols() || lhs.rows() != rhs.rows()) {
+        throw std::invalid_argument("Raster::operator+: The number of rows or columns does not match");
+    }
+    auto out = Raster<ResultNumber>(lhs.rows(), lhs.cols());
+
+    std::transform(lhs.data(), lhs.data() + (lhs.cols() * lhs.rows()),
+                   rhs.data(), out.data(),
+                   [](const LeftNumber& a, const RightNumber& b) { return a + b; });
+    return out;
+}
+
+template<typename LeftNumber,
+         typename RightNumber,
+         typename ResultNumber=typename std::common_type<LeftNumber, RightNumber>::type>
+Raster<ResultNumber>
+operator-(const Raster<LeftNumber>& lhs, const Raster<RightNumber>& rhs)
+{
+    if (lhs.cols() != rhs.cols() || lhs.rows() != rhs.rows()) {
+        throw std::invalid_argument("Raster::operator-: The number of rows or columns does not match");
+    }
+    auto out = Raster<ResultNumber>(lhs.rows(), lhs.cols());
+
+    std::transform(lhs.data(), lhs.data() + (lhs.cols() * lhs.rows()),
+                   rhs.data(), out.data(),
+                   [](const LeftNumber& a, const RightNumber& b) { return a - b; });
+    return out;
+}
+
+template<typename LeftNumber,
+         typename RightNumber,
+         typename ResultNumber=typename std::common_type<LeftNumber, RightNumber>::type>
+Raster<ResultNumber>
+operator*(const Raster<LeftNumber>& lhs, const Raster<RightNumber>& rhs)
+{
+    if (lhs.cols() != rhs.cols() || lhs.rows() != rhs.rows()) {
+        throw std::invalid_argument("Raster::operator*: The number of rows or columns does not match");
+    }
+    auto out = Raster<ResultNumber>(lhs.rows(), lhs.cols());
+
+    std::transform(lhs.data(), lhs.data() + (lhs.cols() * lhs.rows()),
+                   rhs.data(), out.data(),
+                   [](const LeftNumber& a, const RightNumber& b) { return a * b; });
+    return out;
+}
+
+template<typename LeftNumber,
+         typename RightNumber,
+         typename ResultNumber=typename std::common_type<LeftNumber, RightNumber>::type>
+Raster<ResultNumber>
+operator/(const Raster<LeftNumber>& lhs, const Raster<RightNumber>& rhs)
+{
+    if (lhs.cols() != rhs.cols() || lhs.rows() != rhs.rows()) {
+        throw std::invalid_argument("Raster::operator/: The number of rows or columns does not match");
+    }
+    auto out = Raster<ResultNumber>(lhs.rows(), lhs.cols());
+
+    std::transform(lhs.data(), lhs.data() + (lhs.cols() * lhs.rows()),
+                   rhs.data(), out.data(),
+                   [](const LeftNumber& a, const RightNumber& b) { return a / b; });
+    return out;
+}
 
 } // namespace pops
 

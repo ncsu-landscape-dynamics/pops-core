@@ -4,6 +4,19 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2019-09-05 - Dispersal kernel rewrite
+
+### Added
+
+- More complete list of operators supported by Raster. (Vaclav Petras)
+- Rasters with different numerical types can be used in a single
+  expression (Vaclav Petras)
+
+### Changed
+
+- Binary operators for rasters are now function templates
+  instead of member functions (Vaclav Petras)
+
 ## 2019-08-11 - Dispersal kernel rewrite
 
 ### Added
