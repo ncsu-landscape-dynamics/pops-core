@@ -73,6 +73,19 @@ BinaryOperation for_each_zip(InputIt1 first1, InputIt1 last1, InputIt2 first2, B
  * ```
  * row * total_number_of_columns + column
  * ```
+ *
+ * Operations involving raster and scalar preserve the type of the
+ * raster and don't produce a new type of raster based on the scalar
+ * type, i.e., `a * 0.5` where `a` is an integral raster type results
+ * in the same integral raster type, not floating point raster type.
+ * This makes perations such as `*` and `*=` behave the same for
+ * scalars.
+ *
+ * On the other hand, operations involving two rasters of different type
+ * resolve to their common type, specifically the common type of their
+ * scalars using `std::common_type`, i.e. `a * b` where `a` is an
+ * integral raster type and `b` is a floating raster type produce
+ * a floating raster type.
  */
 template<typename Number>
 class Raster
@@ -240,7 +253,8 @@ public:
         return *this;
     }
 
-    Raster operator+(Number value) const
+    template<typename OtherNumber>
+    Raster operator+(OtherNumber value) const
     {
         auto out = Raster(rows_, cols_);
 
@@ -249,7 +263,8 @@ public:
         return out;
     }
 
-    Raster operator-(Number value) const
+    template<typename OtherNumber>
+    Raster operator-(OtherNumber value) const
     {
         auto out = Raster(rows_, cols_);
 
@@ -258,7 +273,8 @@ public:
         return out;
     }
 
-    Raster operator*(Number value) const
+    template<typename OtherNumber>
+    Raster operator*(OtherNumber value) const
     {
         auto out = Raster(rows_, cols_);
 
@@ -267,7 +283,8 @@ public:
         return out;
     }
 
-    Raster operator/(Number value) const
+    template<typename OtherNumber>
+    Raster operator/(OtherNumber value) const
     {
         auto out = Raster(rows_, cols_);
 
@@ -276,28 +293,32 @@ public:
         return out;
     }
 
-    Raster& operator+=(Number value)
+    template<typename OtherNumber>
+    Raster& operator+=(OtherNumber value)
     {
         std::for_each(data_, data_ + (cols_ * rows_),
                       [&value](Number& a) { a += value; });
         return *this;
     }
 
-    Raster& operator-=(Number value)
+    template<typename OtherNumber>
+    Raster& operator-=(OtherNumber value)
     {
         std::for_each(data_, data_ + (cols_ * rows_),
                       [&value](Number& a) { a -= value; });
         return *this;
     }
 
-    Raster& operator*=(Number value)
+    template<typename OtherNumber>
+    Raster& operator*=(OtherNumber value)
     {
         std::for_each(data_, data_ + (cols_ * rows_),
                       [&value](Number& a) { a *= value; });
         return *this;
     }
 
-    Raster& operator/=(Number value)
+    template<typename OtherNumber>
+    Raster& operator/=(OtherNumber value)
     {
         std::for_each(data_, data_ + (cols_ * rows_),
                       [&value](Number& a) { a /= value; });
