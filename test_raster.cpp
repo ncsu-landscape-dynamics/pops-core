@@ -210,6 +210,31 @@ void test_op_order()
     2.1 / a;
 }
 
+template<typename T>
+static
+int test_times_scalar()
+{
+    int errors = 0;
+    Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
+    auto b = a * 0.4;
+    T sum = 0;
+    b.for_each([&sum](T& v){sum += v;});
+    if (sum == 0) {
+        ++errors;
+        std::cout << "Operator 'raster * scalar' does not work" << std::endl;
+    }
+    a *= 0.4;
+    sum = 0;
+    a.for_each([&sum](T& v){sum += v;});
+    if (sum == 0) {
+        ++errors;
+        std::cout << "Operator 'raster *= scalar' does not work" << std::endl;
+    }
+    if (!errors)
+        std::cout << "Operators time for scalars OK" << std::endl;
+    return errors;
+}
+
 int main()
 {
     test_constructor_by_type();
@@ -251,6 +276,9 @@ int main()
 
     test_op_order<double>();
     test_op_order<int>();
+
+    test_times_scalar<int>();
+    test_times_scalar<double>();
 
     return 0;
 }
