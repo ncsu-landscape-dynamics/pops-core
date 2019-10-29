@@ -4,6 +4,25 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2019-10-29 - More raster generalizations
+
+### Added
+
+- Raster can now hold data from some other object as long as the types
+  and layout match. (Vaclav Petras)
+- Raster Index and Number types exposed using typedefs.
+
+### Changed
+
+- Raster now has optional template parameter for the type of index used
+  in the class. (Vaclav Petras)
+
+### Fixed
+
+- Signed and unsigned types are no longer arbitrarily mixed in the
+  interface, e.g., `(int, int)` constructor is now `(Index, Index)`
+  being consistent with `cols()` and `rows()` functions. (Vaclav Petras)
+
 ## 2019-09-05 - Dispersal kernel rewrite
 
 ### Added

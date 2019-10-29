@@ -235,6 +235,76 @@ int test_times_scalar()
     return errors;
 }
 
+template<typename T, typename I>
+static
+int test_index()
+{
+    int errors = 0;
+    Raster<T, I> a = {{11, 12, 13, 14},
+                      {21, 22, 23, 24},
+                      {31, 32, 33, 34}};
+    I row = 0;
+    I col = 3;
+    if (a(row, col) != 14) {
+        std::cout << "Not reading the right value, but: " << a(row, col) << std::endl;
+        return ++errors;
+    }
+    T value = 20;
+    a(row, col) = value;
+    if (a(row, col) != value) {
+        std::cout << "Not reading the right value after assignment, but: " << a(row, col) << std::endl;
+        return ++errors;
+    }
+    if (!errors)
+        std::cout << "Index with custom template parameter value works" << std::endl;
+    return errors;
+}
+
+template<typename T, typename I>
+static
+int test_non_owner()
+{
+    int errors = 0;
+    const I rows = 3;
+    const I cols = 4;
+    T x[rows * cols] = {11, 12, 13, 14,
+                        21, 22, 23, 24,
+                        31, 32, 33, 34};
+    Raster<T> a(x, rows, cols);
+    I row = 2;
+    I col = 3;
+    if (a(row, col) != 34) {
+        std::cout << "Not reading from raster the value in array, but: " << a(row, col) << std::endl;
+        return ++errors;
+    }
+    T value = 40;
+    a(row, col) = value;
+    if (a(row, col) != value) {
+        std::cout << "Not reading from raster what was written, but: " << a(row, col) << std::endl;
+        return ++errors;
+    }
+    value = 50;
+    x[row * cols + col] = value;
+    if (a(row, col) != value) {
+        std::cout << "Not reading from array what was written, but: " << a(row, col) << std::endl;
+        return ++errors;
+    }
+    // no delete should be called here
+    a = {{100, 200}, {300, 400}};
+    a(1, 0) = 1000;
+    if (a(1, 0) != 1000) {
+        std::cout << "Not reading correctly after assignment, but: " << a(1, 0) << std::endl;
+        return ++errors;
+    }
+    if (x[cols] != 21) {
+        std::cout << "Array is broken, reading: " << x[cols] << std::endl;
+        return ++errors;
+    }
+    if (!errors)
+        std::cout << "Raster non-owning the data works" << std::endl;
+    return errors;
+}
+
 int main()
 {
     test_constructor_by_type();
@@ -279,6 +349,12 @@ int main()
 
     test_times_scalar<int>();
     test_times_scalar<double>();
+
+    test_index<int, int>();
+    test_index<int, unsigned>();
+    test_index<int, size_t>();
+
+    test_non_owner<int, size_t>();
 
     return 0;
 }
