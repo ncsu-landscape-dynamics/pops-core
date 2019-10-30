@@ -87,15 +87,21 @@ BinaryOperation for_each_zip(InputIt1 first1, InputIt1 last1, InputIt2 first2, B
  * integral raster type and `b` is a floating raster type produce
  * a floating raster type.
  */
-template<typename Number>
+template<typename Number, typename Index = unsigned>
 class Raster
 {
 protected:
-    unsigned cols_;
-    unsigned rows_;
+    Index rows_;
+    Index cols_;
     Number *data_;
+    // owning is true for any state which is not using someone's data
+    bool owns_;
 public:
+    typedef Number NumberType;
+    typedef Index IndexType;
+
     Raster()
+        : owns_(true)
     {
         cols_ = 0;
         rows_ = 0;
@@ -103,6 +109,7 @@ public:
     }
 
     Raster(const Raster& other)
+        : owns_(true)
     {
         cols_ = other.cols_;
         rows_ = other.rows_;
@@ -115,6 +122,7 @@ public:
      * The values in the other raster are not used.
      */
     Raster(const Raster& other, Number value)
+        : owns_(true)
     {
         cols_ = other.cols_;
         rows_ = other.rows_;
@@ -122,6 +130,7 @@ public:
     }
 
     Raster(Raster&& other)
+        : owns_(true)
     {
         cols_ = other.cols_;
         rows_ = other.rows_;
@@ -129,19 +138,36 @@ public:
         other.data_ = nullptr;
     }
 
-    Raster(int rows, int cols)
+    Raster(Index rows, Index cols)
+        : owns_(true)
     {
         this->cols_ = cols;
         this->rows_ = rows;
         this->data_ = new Number[cols_ * rows_];
     }
 
-    // TODO: size is unsigned?
-    Raster(int rows, int cols, Number value)
+    Raster(Index rows, Index cols, Number value)
+        : owns_(true)
     {
         this->cols_ = cols;
         this->rows_ = rows;
         this->data_ = new Number[cols_ * rows_]{value};
+    }
+
+    /*! Use existing data storage
+     *
+     * Uses existing data and storage as is. No memory allocation is
+     * performed. The Raster object does not take ownership of the
+     * memory, so it can and must be managed in an appropriate way
+     * by the caller.
+     */
+    Raster(Number* data, Index rows, Index cols)
+        :
+          rows_(rows),
+          cols_(cols),
+          data_(data),
+          owns_(false)
+    {
     }
 
     // maybe remove from the class, or make it optional together with
@@ -149,8 +175,8 @@ public:
     Raster(std::initializer_list<std::initializer_list<Number>> l)
         : Raster(l.size(), l.begin()->size())
     {
-         unsigned i = 0;
-         unsigned j = 0;
+         Index i = 0;
+         Index j = 0;
          for (const auto& subl : l)
          {
             for (const auto& value : subl)
@@ -165,17 +191,17 @@ public:
 
     ~Raster()
     {
-        if (data_) {
+        if (data_ && owns_) {
             delete[] data_;
         }
     }
 
-    unsigned cols() const
+    Index cols() const
     {
         return cols_;
     }
 
-    unsigned rows() const
+    Index rows() const
     {
         return rows_;
     }
@@ -215,12 +241,12 @@ public:
         std::for_each(data_, data_ + (cols_ * rows_), op);
     }
 
-    const Number& operator()(unsigned row, unsigned col) const
+    const Number& operator()(Index row, Index col) const
     {
         return data_[row * cols_ + col];
     }
 
-    Number& operator()(unsigned row, unsigned col)
+    Number& operator()(Index row, Index col)
     {
         return data_[row * cols_ + col];
     }
@@ -229,7 +255,7 @@ public:
     {
         if (this != &other)
         {
-            if (data_)
+            if (data_ && owns_)
                 delete[] data_;
             cols_ = other.cols_;
             rows_ = other.rows_;
@@ -243,11 +269,12 @@ public:
     {
         if (this != &other)
         {
-            if (data_)
+            if (data_ && owns_)
                 delete[] data_;
             cols_ = other.cols_;
             rows_ = other.rows_;
             data_ = other.data_;
+            owns_ = other.owns_;
             other.data_ = nullptr;
         }
         return *this;
@@ -372,8 +399,8 @@ public:
     bool operator==(const Raster& other) const
     {
         // TODO: assumes same sizes
-        for (unsigned i = 0; i < cols_; i++) {
-            for (unsigned j = 0; j < cols_; j++) {
+        for (Index i = 0; i < cols_; i++) {
+            for (Index j = 0; j < cols_; j++) {
                 if (this->data_[i * cols_ + j] != other.data_[i * cols_ + j])
                     return false;
             }
@@ -384,8 +411,8 @@ public:
     bool operator!=(const Raster& other) const
     {
         // TODO: assumes same sizes
-        for (unsigned i = 0; i < cols_; i++) {
-            for (unsigned j = 0; j < cols_; j++) {
+        for (Index i = 0; i < cols_; i++) {
+            for (Index j = 0; j < cols_; j++) {
                 if (this->data_[i * cols_ + j] != other.data_[i * cols_ + j])
                     return true;
             }
@@ -424,10 +451,10 @@ public:
 
     friend inline std::ostream& operator<<(std::ostream& stream, const Raster& image) {
         stream << "[[";
-        for (unsigned i = 0; i < image.rows_; i++) {
+        for (Index i = 0; i < image.rows_; i++) {
             if (i != 0)
                 stream << "],\n [";
-            for (unsigned j = 0; j < image.cols_; j++) {
+            for (Index j = 0; j < image.cols_; j++) {
                 if (j != 0)
                     stream << ", ";
                 stream << image.data_[i * image.cols_ + j];

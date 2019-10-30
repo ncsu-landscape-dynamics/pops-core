@@ -17,6 +17,26 @@ issue which needs to be fixed (Fix).
 Entries should be removed when resolved. Issue from tracker can be
 optionally linked in an entry.
 
+## 2019-10-29 - More raster generalizations
+
+### Add
+
+- We use the same type for index and size in Raster. We need to
+  add size type parameter to allow for use of size_t and ssize_t
+  together which is needed to fully map other types to Raster.
+- Add container functions such `begin()` and `end()`.
+
+### Change
+
+- Use member initialization for all variables in all Raster constructors.
+- Binary operators of raster should be functions.
+  * Both scalar * raster and raster * scaler should be functions.
+
+### Fix
+
+- Add return code to raster class template test.
+- Resolve the `-Wsign-compare` warnings.
+
 ## 2019-08-11 - Dispersal kernel rewrite
 
 ### Add
