@@ -20,6 +20,8 @@
 #define POPS_DATE_HPP
 
 #include <iostream>
+#include <string>
+#include <vector>
 
 namespace pops {
 
@@ -43,6 +45,7 @@ private:
 public:
     Date(const Date& d): year_(d.year_), month_(d.month_), day_(d.day_) {}
     Date(int y, int m, int d): year_(y), month_(m), day_(d) {}
+    Date(std::string date);
     inline void increased_by_days(int num_days);
     inline void increased_by_week();
     inline void increased_by_month();
@@ -65,6 +68,19 @@ public:
     inline friend bool operator== (const Date &d1, const Date &d2);
     inline friend bool operator!= (const Date &d1, const Date &d2);
 };
+
+Date::Date(std::string date)
+{
+    size_t pos = 0;
+    std::vector<int> vec;
+    while ((pos = date.find("-")) != std::string::npos) {
+        vec.push_back(std::stoi(date.substr(0, pos)));
+        date.erase(0, pos + 1);
+    }
+    year_ = vec.at(0);
+    month_ = vec.at(1);
+    day_ = std::stoi(date);
+}
 
 std::ostream& operator<<(std::ostream& os, const Date &d)
 {

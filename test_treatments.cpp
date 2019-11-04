@@ -26,6 +26,7 @@
 
 #include "raster.hpp"
 #include "treatments.hpp"
+#include "date.hpp"
 
 
 using namespace pops;
@@ -39,7 +40,8 @@ int test_application_ratio()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
-    treatments.add_treatment(tr1, Date(2020, 1, 1), 0, TreatmentApplication::Ratio);
+    std::function<void (Date&)> increase_by_step = &Date::increased_by_week;
+    treatments.add_treatment(tr1, Date(2020, 1, 1), 0, TreatmentApplication::Ratio, increase_by_step);
     treatments.manage(Date(2020, 1, 1), infected, susceptible, resistant);
 
     Raster<int> treated = {{0, 3}, {5, 42}};
@@ -60,7 +62,8 @@ int test_application_all_inf()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
-    treatments.add_treatment(tr1, Date(2020, 1, 1), 0, TreatmentApplication::AllInfectedInCell);
+    std::function<void (Date&)> increase_by_step = &Date::increased_by_week;
+    treatments.add_treatment(tr1, Date(2020, 1, 1), 0, TreatmentApplication::AllInfectedInCell, increase_by_step);
     treatments.manage(Date(2020, 1, 1), infected, susceptible, resistant);
 
     Raster<int> treated = {{0, 3}, {5, 42}};
@@ -81,7 +84,8 @@ int test_application_ratio_pesticide()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
-    treatments.add_treatment(tr1, Date(2020, 5, 1), 7, TreatmentApplication::Ratio);
+    std::function<void (Date&)> increase_by_step = &Date::increased_by_week;
+    treatments.add_treatment(tr1, Date(2020, 5, 1), 7, TreatmentApplication::Ratio, increase_by_step);
     treatments.manage(Date(2020, 1, 1), infected, susceptible, resistant);
 
     Raster<int> treated = {{10, 6}, {20, 42}};
@@ -123,7 +127,8 @@ int test_application_all_inf_pesticide()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
-    treatments.add_treatment(tr1, Date(2020, 5, 1), 7, TreatmentApplication::AllInfectedInCell);
+    std::function<void (Date&)> increase_by_step = &Date::increased_by_week;
+    treatments.add_treatment(tr1, Date(2020, 5, 1), 7, TreatmentApplication::AllInfectedInCell, increase_by_step);
     treatments.manage(Date(2020, 1, 1), infected, susceptible, resistant);
 
     Raster<int> treated = {{10, 6}, {20, 42}};
@@ -167,8 +172,9 @@ int test_combination()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
-    treatments.add_treatment(tr1, Date(2020, 5, 1), 0, TreatmentApplication::Ratio);
-    treatments.add_treatment(tr2, Date(2020, 6, 1), 7, TreatmentApplication::Ratio);
+    std::function<void (Date&)> increase_by_step = &Date::increased_by_week;
+    treatments.add_treatment(tr1, Date(2020, 5, 1), 0, TreatmentApplication::Ratio, increase_by_step);
+    treatments.add_treatment(tr2, Date(2020, 6, 1), 7, TreatmentApplication::Ratio, increase_by_step);
     treatments.manage(Date(2020, 1, 1), infected, susceptible, resistant);
 
     Raster<int> treated = {{10, 6}, {20, 42}};
@@ -222,21 +228,21 @@ int test_steering()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
-    treatments.add_treatment(tr1, Date(2020, 5, 1), 0, TreatmentApplication::Ratio);
-    treatments.add_treatment(tr2, Date(2020, 6, 1), 7, TreatmentApplication::Ratio);
+    std::function<void (Date&)> increase_by_step = &Date::increased_by_week;
+    treatments.add_treatment(tr1, Date(2020, 5, 1), 0, TreatmentApplication::Ratio, increase_by_step);
+    treatments.add_treatment(tr2, Date(2020, 6, 1), 7, TreatmentApplication::Ratio, increase_by_step);
     treatments.manage(Date(2020, 1, 1), infected, susceptible, resistant);
     treatments.manage(Date(2020, 5, 3), infected, susceptible, resistant);
     treatments.manage(Date(2020, 5, 12), infected, susceptible, resistant);
     treatments.manage(Date(2020, 6, 1), infected, susceptible, resistant);
-    treatments.manage(Date(2020, 6, 3), infected, susceptible, resistant);
     treatments.manage(Date(2020, 6, 8), infected, susceptible, resistant);
-    treatments.manage(Date(2020, 6, 10), infected, susceptible, resistant);
+    treatments.manage(Date(2020, 6, 15), infected, susceptible, resistant);
 
     Raster<int> treated = {{0, 5}, {9, 82}};
     Raster<int> inf_treated = {{0, 0}, {0, 0}};
     Raster<int> resist = {{0, 0}, {0, 0}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Combination of treatments does not work" << std::endl;
+        std::cout << "Steering with treatments does not work" << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
@@ -244,20 +250,18 @@ int test_steering()
     susceptible = {{10, 6}, {20, 42}};
     resistant = {{0, 0}, {0, 0}};
     infected = {{1, 4}, {16, 40}};
-    treatments.reset(Date(2020, 1, 1));
     treatments.manage(Date(2020, 1, 1), infected, susceptible, resistant);
     treatments.manage(Date(2020, 5, 3), infected, susceptible, resistant);
     treatments.manage(Date(2020, 5, 12), infected, susceptible, resistant);
     treatments.manage(Date(2020, 6, 1), infected, susceptible, resistant);
-    treatments.manage(Date(2020, 6, 3), infected, susceptible, resistant);
     treatments.manage(Date(2020, 6, 8), infected, susceptible, resistant);
-    treatments.manage(Date(2020, 6, 10), infected, susceptible, resistant);
+    treatments.manage(Date(2020, 6, 15), infected, susceptible, resistant);
 
     treated = {{0, 5}, {9, 82}};
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{0, 0}, {0, 0}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Combination of treatments does not work" << std::endl;
+        std::cout << "Steering with treatments does not work" << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
@@ -277,17 +281,17 @@ int test_clear()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
-    treatments.add_treatment(tr1, Date(2020, 5, 1), 0, TreatmentApplication::Ratio);
-    treatments.add_treatment(tr2, Date(2020, 6, 1), 7, TreatmentApplication::Ratio);
-    treatments.add_treatment(tr2, Date(2020, 6, 8), 7, TreatmentApplication::Ratio);
+    std::function<void (Date&)> increase_by_step = &Date::increased_by_week;
+    treatments.add_treatment(tr1, Date(2020, 5, 1), 0, TreatmentApplication::Ratio, increase_by_step);
+    treatments.add_treatment(tr2, Date(2020, 6, 1), 7, TreatmentApplication::Ratio, increase_by_step);
+    treatments.add_treatment(tr3, Date(2020, 6, 8), 7, TreatmentApplication::Ratio, increase_by_step);
     treatments.clear_after_date(Date(2020, 6, 1));
     num_actions += treatments.manage(Date(2020, 1, 1), infected, susceptible, resistant);
     num_actions += treatments.manage(Date(2020, 5, 3), infected, susceptible, resistant);
     num_actions += treatments.manage(Date(2020, 5, 12), infected, susceptible, resistant);
     num_actions += treatments.manage(Date(2020, 6, 1), infected, susceptible, resistant);
-    num_actions += treatments.manage(Date(2020, 6, 3), infected, susceptible, resistant);
     num_actions += treatments.manage(Date(2020, 6, 8), infected, susceptible, resistant);
-    num_actions += treatments.manage(Date(2020, 6, 10), infected, susceptible, resistant);
+    num_actions += treatments.manage(Date(2020, 6, 15), infected, susceptible, resistant);
 
     Raster<int> treated = {{0, 5}, {9, 82}};
     Raster<int> inf_treated = {{0, 0}, {0, 0}};
