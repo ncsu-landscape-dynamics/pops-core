@@ -35,7 +35,9 @@ enum class TreatmentApplication {
     AllInfectedInCell  ///< All infected individuals are removed, rest by ratio
 };
 
-
+/*!
+ * Abstract interface for treatment classes
+ */
 template<typename IntegerRaster, typename FloatRaster>
 class AbstractTreatment
 {
@@ -50,7 +52,10 @@ public:
     virtual ~AbstractTreatment() {}
 };
 
-
+/*!
+ * Base treatment class.
+ * Holds functions common between all treatment classes.
+ */
 template<typename IntegerRaster, typename FloatRaster>
 class BaseTreatment : public AbstractTreatment<IntegerRaster, FloatRaster>
 {
@@ -83,7 +88,11 @@ public:
     }
 };
 
-
+/*!
+ * Simple treatment class.
+ * Removes percentage (given by treatment efficiency)
+ * of infected and susceptible host (e.g. cut down trees).
+ */
 template<typename IntegerRaster, typename FloatRaster>
 class SimpleTreatment : public BaseTreatment<IntegerRaster, FloatRaster>
 {
@@ -124,7 +133,12 @@ public:
     }
 };
 
-
+/*!
+ * Pesticide treatment class.
+ * Removes percentage (given by treatment efficiency)
+ * of infected and susceptible to resistant pool
+ * and after certain number of days back to susceptible.
+ */
 template<typename IntegerRaster, typename FloatRaster>
 class PesticideTreatment : public BaseTreatment<IntegerRaster, FloatRaster>
 {
@@ -182,7 +196,15 @@ public:
     }
 };
 
-
+/*!
+ * Treatments class manages all treatments.
+ * Treatments can be simple (host removal)
+ * and using pesticide (temporarily removed).
+ * Each treatment can have unique date, type (simple, pesticide),
+ * length (in case of pesticide), and treatment application.
+ * Pesticide treatments should not overlap spatially AND temporally
+ * because of single resistance raster.
+ */
 template<typename IntegerRaster, typename FloatRaster>
 class Treatments
 {
@@ -196,6 +218,16 @@ public:
             delete item;
         }
     }
+    /*!
+     * \brief Add treatment, based on parameters it is distinguished
+     * which treatment it will be.
+     *
+     * \param map treatment raster
+     * \param start_date date when treatment is applied
+     * \param num_days for simple treatments should be 0, otherwise number of days host is resistant
+     * \param treatment_application if efficiency < 100% how should it be applied to infected/susceptible
+     * \param increase_by_step function to increase simulation step
+     */
     void add_treatment(const FloatRaster& map, const Date& start_date, int num_days, TreatmentApplication treatment_application,
                        std::function<void (Date&)> increase_by_step)
     {
@@ -204,6 +236,18 @@ public:
         else
             treatments.push_back(new PesticideTreatment<IntegerRaster, FloatRaster>(map, start_date, num_days, treatment_application, increase_by_step));
     }
+    /*!
+     * \brief Do management if needed.
+     * Should be called before every simulation step.
+     * Decides internally whether any treatment needs to be
+     * activated/deactivated.
+     *
+     * \param current simulation date
+     * \param infected raster of infected host
+     * \param susceptible raster of susceptible host
+     * \param resistant raster of resistant host
+     * \return true if any management action was necessary
+     */
     bool manage(const Date& current, IntegerRaster& infected,
                 IntegerRaster& susceptible, IntegerRaster& resistant)
     {
@@ -220,6 +264,12 @@ public:
         }
         return applied;
     }
+    /*!
+     * \brief Separately manage mortality infected cohorts
+     * \param current simulation date
+     * \param infected raster of infected host
+     * \return true if any management action was necessary
+     */
     bool manage_mortality(const Date& current, IntegerRaster& infected)
     {
         bool applied = false;
@@ -230,7 +280,11 @@ public:
             }
         return applied;
     }
-    /* for computational steering */
+    /*!
+     * \brief Used to remove treatments after certain date.
+     * Needed for computational steering.
+     * \param date simulation date
+     */
     void clear_after_date(const Date& date)
     {
         for(auto& treatment : treatments)

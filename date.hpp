@@ -69,17 +69,25 @@ public:
     inline friend bool operator!= (const Date &d1, const Date &d2);
 };
 
+/*!
+ * \brief Construct date from string
+ *
+ * Checks if months and days are in proper range
+ * (ignores Feb leap year), throws invalid_argument exception
+ *
+ * \param date in the format YYYY-MM-DD (or Y-M-D)
+ */
 Date::Date(std::string date)
 {
-    size_t pos = 0;
-    std::vector<int> vec;
-    while ((pos = date.find("-")) != std::string::npos) {
-        vec.push_back(std::stoi(date.substr(0, pos)));
-        date.erase(0, pos + 1);
-    }
-    year_ = vec.at(0);
-    month_ = vec.at(1);
+    size_t pos = date.find("-");
+    year_ = std::stoi(date.substr(0, pos));
+    date.erase(0, pos + 1);
+    pos = date.find("-");
+    month_ = std::stoi(date.substr(0, pos));
+    date.erase(0, pos + 1);
     day_ = std::stoi(date);
+    if (month_ <= 0 || month_ > 12 || day_> day_in_month[1][month_])
+        throw std::invalid_argument("Invalid date specified");
 }
 
 std::ostream& operator<<(std::ostream& os, const Date &d)
@@ -218,12 +226,12 @@ bool operator!= (const Date &d1, const Date &d2)
 }
 /*!
  * Increases the date by the num_days (specified by the user) except on
- * the last timestep of the year, which is increased by num_days 
+ * the last timestep of the year, which is increased by num_days
  * plus the number of  days left in the year that are less
  * than num_days (e.g. if the num_days = 28 the last time step is 29
  * or 30 (if leap year), if num_days = 23 that last time step is 43
- * or 44 (if leap year) days). This ensures that each year of the 
- * forecast starts on January 1st. 
+ * or 44 (if leap year) days). This ensures that each year of the
+ * forecast starts on January 1st.
  */
 void Date::increased_by_days(int num_days)
 {
@@ -263,7 +271,7 @@ void Date::increased_by_days(int num_days)
 /*!
  * Increases the date by one week (7 days) except on the last week
  * of the year, which is increased by 8 or 9 days if a leap year.
- * This ensures that each year of the forecast starts on January 1st. 
+ * This ensures that each year of the forecast starts on January 1st.
  */
 void Date::increased_by_week()
 {

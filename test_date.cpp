@@ -91,12 +91,37 @@ int test_last_day_of_step()
     }
     return num_errors;
 }
+
+int test_from_string()
+{
+    int num_errors = 0;
+    Date d = Date("2020-02-01");
+    if (d.year() != 2020 && d.month() != 2 && d.day() != 1) {
+        num_errors++;
+        cout << d << endl;
+    }
+    try {
+        d = Date("2015-31-01");
+    }
+    catch (std::invalid_argument) {}
+    try {
+        d = Date("2016-04-31");
+    }
+    catch (std::invalid_argument) {}
+    if (d.year() != 2020 && d.month() != 2 && d.day() != 1) {
+        num_errors++;
+        cout << d << endl;
+    }
+    return num_errors;
+}
+
 int main()
 {
     int num_errors = 0;
     // Test of date computations for SOD model
     test_years_by_month();
     num_errors += test_last_day_of_step();
+    num_errors += test_from_string();
     cout << "Test Date class: number of errors: " << num_errors << endl;
 
     return 0;
