@@ -37,6 +37,15 @@ enum class TreatmentApplication {
 
 /*!
  * Abstract interface for treatment classes
+ *
+ * The class is meant for better internal code
+ * layout and, at this point, it is not meant
+ * as a universal matured interface for treatments.
+ * Functions apply_treatment and end_treatment
+ * are examples where we account for the current
+ * concrete classes and will introduce more
+ * general set of parameters only when
+ * needed for additional classes.
  */
 template<typename IntegerRaster, typename FloatRaster>
 class AbstractTreatment
@@ -222,6 +231,9 @@ public:
      * \brief Add treatment, based on parameters it is distinguished
      * which treatment it will be.
      *
+     * This works internally like a factory function
+     * separating the user from all treatment classes.
+     *
      * \param map treatment raster
      * \param start_date date when treatment is applied
      * \param num_days for simple treatments should be 0, otherwise number of days host is resistant
@@ -251,18 +263,18 @@ public:
     bool manage(const Date& current, IntegerRaster& infected,
                 IntegerRaster& susceptible, IntegerRaster& resistant)
     {
-        bool applied = false;
+        bool changed = false;
         for (unsigned i = 0; i < treatments.size(); i++) {
             if (treatments[i]->should_start(current)) {
                 treatments[i]->apply_treatment(infected, susceptible, resistant);
-                applied = true;
+                changed = true;
             }
             else if (treatments[i]->should_end(current)) {
                 treatments[i]->end_treatment(susceptible, resistant);
-                applied = true;
+                changed = true;
             }
         }
-        return applied;
+        return changed;
     }
     /*!
      * \brief Separately manage mortality infected cohorts
