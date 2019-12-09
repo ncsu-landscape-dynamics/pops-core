@@ -210,6 +210,128 @@ void test_op_order()
     2.1 / a;
 }
 
+template<typename T, typename U>
+static
+int test_op_plus(U value)
+{
+    int errors = 0;
+    Raster<T> a = {{1, 2},
+                   {3, 4},
+                   {5, 6}};
+    Raster<T> b = {{1 + value, 2 + value},
+                   {3 + value, 4 + value},
+                   {5 + value, 6 + value}};
+    if (a + value != b) {
+        std::cout << "Operator raster + scalar broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    if (value + a != b) {
+        std::cout << "Operator scalar + raster broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    a += value;
+    if (a != b) {
+        std::cout << "Operator raster += scalar broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    if (!errors)
+        std::cout << "Operator raster and scalar + OK for raster " << typeid(T).name() << " and scalar " << typeid(U).name() << std::endl;
+    return errors;
+}
+
+template<typename T, typename U>
+static
+int test_op_times(U value)
+{
+    int errors = 0;
+    Raster<T> a = {{1, 2},
+                   {3, 4},
+                   {5, 6}};
+    Raster<T> b = {{1 * value, 2 * value},
+                   {3 * value, 4 * value},
+                   {5 * value, 6 * value}};
+    if (a * value != b) {
+        std::cout << "Operator raster * scalar broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    if (value * a != b) {
+        std::cout << "Operator scalar * raster broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    a *= value;
+    if (a != b) {
+        std::cout << "Operator raster *= scalar broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    if (!errors)
+        std::cout << "Operator raster and scalar * OK for raster " << typeid(T).name() << " and scalar " << typeid(U).name() << std::endl;
+    return errors;
+}
+
+template<typename T, typename U>
+static
+int test_op_minus(U value)
+{
+    int errors = 0;
+    Raster<T> a = {{1, 2},
+                   {3, 4},
+                   {5, 6}};
+    Raster<T> b = {{1 - value, 2 - value},
+                   {3 - value, 4 - value},
+                   {5 - value, 6 - value}};
+    Raster<T> c = {{value - 1, value - 2},
+                   {value - 3, value - 4},
+                   {value - 5, value - 6}};
+    if (a - value != b) {
+        std::cout << "Operator raster - scalar broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    if (value - a != c) {
+        std::cout << "Operator scalar - raster broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    a -= value;
+    if (a != b) {
+        std::cout << "Operator raster -= scalar broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    if (!errors)
+        std::cout << "Operator raster and scalar - OK for raster " << typeid(T).name() << " and scalar " << typeid(U).name() << std::endl;
+    return errors;
+}
+
+template<typename T, typename U>
+static
+int test_op_divide(U value)
+{
+    int errors = 0;
+    Raster<T> a = {{1, 2},
+                   {3, 4},
+                   {5, 6}};
+    Raster<T> b = {{1 / value, 2 / value},
+                   {3 / value, 4 / value},
+                   {5 / value, 6 / value}};
+    Raster<T> c = {{value / 1, value / 2},
+                   {value / 3, value / 4},
+                   {value / 5, value / 6}};
+    if (a / value != b) {
+        std::cout << "Operator raster / scalar broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    if (value / a != c) {
+        std::cout << "Operator scalar / raster broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    a /= value;
+    if (a != b) {
+        std::cout << "Operator raster /= scalar broken:\n" << a << b << std::endl;
+        ++errors;
+    }
+    if (!errors)
+        std::cout << "Operator raster and scalar / OK for raster " << typeid(T).name() << " and scalar " << typeid(U).name() << std::endl;
+    return errors;
+}
+
 template<typename T>
 static
 int test_times_scalar()
@@ -346,6 +468,15 @@ int main()
 
     test_op_order<double>();
     test_op_order<int>();
+
+    test_op_plus<int>(5);
+    test_op_plus<double>(5.5);
+    test_op_minus<int>(5);
+    test_op_minus<double>(5.5);
+    test_op_times<int>(5);
+    test_op_times<double>(5.5);
+    test_op_divide<int>(5);
+    test_op_divide<double>(5.5);
 
     test_times_scalar<int>();
     test_times_scalar<double>();
