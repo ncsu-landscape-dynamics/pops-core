@@ -24,10 +24,10 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "raster.hpp"
-#include "treatments.hpp"
-#include "date.hpp"
-#include "scheduling.hpp"
+#include <pops/raster.hpp>
+#include <pops/treatments.hpp>
+#include <pops/date.hpp>
+#include <pops/scheduling.hpp>
 
 using namespace pops;
 

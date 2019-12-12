@@ -114,7 +114,57 @@ to the latest one, you the following command:
 git submodule update --remote
 ```
 
-## Testing the model in this repository
+## Compiling and testing using CMake
+
+Configure the project and use build directory for configure and build
+outputs:
+
+```
+cmake -S . -B build
+```
+
+Build the project:
+
+```
+cmake --build build
+```
+
+Run tests:
+
+```
+cmake --build build --target test
+```
+
+Create documentation:
+
+```
+cmake --build build --target docs
+```
+
+Optionally, to remove the build directory when you are done, use:
+
+```
+rm -rf build
+```
+
+## Compiling as part of another project
+
+Note that if you are not using CMake, you can just add the headers to
+your project since this a header-only library. However,
+if you are using CMake, you probably want to use the following approach.
+
+Assuming you added the directory as a submodule or a plain subdirectory
+called `PoPS` add these two following lines to your `CMakeLists.txt` file
+(assuming you already have target called `your_target`):
+
+```
+add_subdirectory(PoPS)
+target_link_libraries(your_target PRIVATE pops)
+```
+
+## Testing the model in this repository using make (obsolete)
+
+*This will be removed in the future in favor of CMake builds.*
 
 Here we are assuming that you use Linux command line or equivalent,
 i.e., you have `make` (e.g. GNU make) and GNU GCC with `g++`

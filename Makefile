@@ -1,33 +1,37 @@
 CXXFLAGS := $(CXXFLAGS) -std=c++11 -pedantic -Wall -Wextra
 COMMON_DEFINES := -D POPS_TEST
+INCLUDES := -Iinclude/
 
 all: test_date test_raster test_simulation test_treatments test_spread_rate test_statistics test_scheduling test_deterministic test_model
 
-test_date: test_date.cpp date.hpp
-	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_date.cpp -o test_date
+test_date: tests/test_date.cpp include/pops/date.hpp
+	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_date.cpp -o test_date
 
-test_raster: test_raster.cpp *.hpp
-	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_raster.cpp -o test_raster
+test_raster: tests/test_raster.cpp include/pops/*.hpp
+	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_raster.cpp -o test_raster
 
-test_simulation: test_simulation.cpp *.hpp
-	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_simulation.cpp -o test_simulation
+test_simulation: tests/test_simulation.cpp include/pops/*.hpp
+	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_simulation.cpp -o test_simulation
 
-test_treatments: test_treatments.cpp *.hpp
-	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_treatments.cpp -o test_treatments
+test_treatments: tests/test_treatments.cpp include/pops/*.hpp
+	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_treatments.cpp -o test_treatments
 
-test_spread_rate: test_spread_rate.cpp *.hpp
-	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_spread_rate.cpp -o test_spread_rate
+test_spread_rate: tests/test_spread_rate.cpp include/pops/*.hpp
+	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_spread_rate.cpp -o test_spread_rate
 
-test_statistics: test_statistics.cpp *.hpp
-	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_statistics.cpp -o test_statistics
+test_statistics: tests/test_statistics.cpp include/pops/*.hpp
+	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_statistics.cpp -o test_statistics
 
-test_scheduling: test_scheduling.cpp *.hpp
+test_scheduling: tests/test_scheduling.cpp include/pops/*.hpp
+	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_scheduling.cpp -o test_scheduling
+
+test_scheduling: tests/test_scheduling.cpp include/pops/*.hpp
 	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_scheduling.cpp -o test_scheduling
 
-test_deterministic: test_deterministic.cpp *.hpp
+test_deterministic: tests/test_deterministic.cpp include/pops/*.hpp
 	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_deterministic.cpp -o test_deterministic
 
-test_model: test_model.cpp *.hpp
+test_model: tests/test_model.cpp include/pops/*.hpp
 	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_model.cpp -o test_model
 
 test:

@@ -23,7 +23,7 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "date.hpp"
+#include <pops/date.hpp>
 
 #include <map>
 #include <iostream>

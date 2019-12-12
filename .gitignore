@@ -1,3 +1,5 @@
+# usual cmake build directory
+build
 # compilation intermediate files
 *.gch
 *.o

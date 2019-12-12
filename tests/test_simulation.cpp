@@ -23,10 +23,10 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "raster.hpp"
-#include "neighbor_kernel.hpp"
-#include "radial_kernel.hpp"
-#include "simulation.hpp"
+#include <pops/raster.hpp>
+#include <pops/radial_kernel.hpp>
+#include <pops/neighbor_kernel.hpp>
+#include <pops/simulation.hpp>
 
 #include <map>
 #include <iostream>

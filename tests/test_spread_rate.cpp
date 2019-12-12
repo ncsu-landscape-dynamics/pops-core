@@ -28,8 +28,8 @@
 #include <vector>
 #include <cmath>
 
-#include "raster.hpp"
-#include "spread_rate.hpp"
+#include <pops/raster.hpp>
+#include <pops/spread_rate.hpp>
 
 using namespace pops;
 
