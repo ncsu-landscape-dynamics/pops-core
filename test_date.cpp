@@ -96,7 +96,7 @@ int test_from_string()
 {
     int num_errors = 0;
     Date d = Date("2020-02-01");
-    if (d.year() != 2020 && d.month() != 2 && d.day() != 1) {
+    if (d.year() != 2020 || d.month() != 2 || d.day() != 1) {
         num_errors++;
         cout << d << endl;
     }
@@ -108,7 +108,43 @@ int test_from_string()
         d = Date("2016-04-31");
     }
     catch (std::invalid_argument) {}
-    if (d.year() != 2020 && d.month() != 2 && d.day() != 1) {
+    if (d.year() != 2020 || d.month() != 2 || d.day() != 1) {
+        num_errors++;
+        cout << d << endl;
+    }
+    return num_errors;
+}
+
+int test_add_days()
+{
+    int num_errors = 0;
+    Date d = Date("2000-02-28");
+    d.add_days(2);
+    if (d.month() != 3 || d.day() != 1) {
+        num_errors++;
+        cout << d << endl;
+    }
+    d = Date("2001-12-31");
+    d.add_days(366);
+    if (d.year() != 2003 || d.month() != 1 || d.day() != 1) {
+        num_errors++;
+        cout << d << endl;
+    }
+    return num_errors;
+}
+
+int test_subtract_days()
+{
+    int num_errors = 0;
+    Date d = Date("2000-03-01");
+    d.subtract_days(2);
+    if (d.month() != 2 || d.day() != 28) {
+        num_errors++;
+        cout << d << endl;
+    }
+    d = Date("2002-01-01");
+    d.subtract_days(366);
+    if (d.year() != 2000 || d.month() != 12 || d.day() != 31) {
         num_errors++;
         cout << d << endl;
     }
@@ -122,6 +158,8 @@ int main()
     test_years_by_month();
     num_errors += test_last_day_of_step();
     num_errors += test_from_string();
+    num_errors += test_add_days();
+    num_errors += test_subtract_days();
     cout << "Test Date class: number of errors: " << num_errors << endl;
 
     return 0;

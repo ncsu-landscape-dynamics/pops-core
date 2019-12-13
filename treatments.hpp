@@ -157,7 +157,7 @@ public:
                        std::function<void (Date&)> increase_by_step):
         BaseTreatment<IntegerRaster, FloatRaster>(map, start, treatment_application, increase_by_step)
     {
-        this->end_.increased_by_days(num_days);
+        this->end_.add_days(num_days);
     }
     bool should_start(const Date& date) override
     {
@@ -211,8 +211,11 @@ public:
  * and using pesticide (temporarily removed).
  * Each treatment can have unique date, type (simple, pesticide),
  * length (in case of pesticide), and treatment application.
+ *
  * Pesticide treatments should not overlap spatially AND temporally
- * because of single resistance raster.
+ * because of single resistance raster. In that case all resistant
+ * populations that overlap both spatially and temporally
+ * are returned to the susceptible pool when the first treatment ends.
  */
 template<typename IntegerRaster, typename FloatRaster>
 class Treatments
