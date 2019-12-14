@@ -58,6 +58,7 @@ public:
     inline Date get_last_day_of_month();
     inline bool is_last_week_of_year();
     inline bool is_last_month_of_year();
+    inline bool is_last_day_of_year();
     inline bool is_leap_year();
     int month() const { return month_; }
     int year() const { return year_; }
@@ -145,6 +146,13 @@ bool Date::is_last_week_of_year()
 bool Date::is_last_month_of_year()
 {
     if (month_ == 12)
+        return true;
+    return false;
+}
+
+bool Date::is_last_day_of_year()
+{
+    if (month_ == 12 && day_ == 31)
         return true;
     return false;
 }
@@ -410,7 +418,7 @@ public:
      * \param month A month in year (1-12)
      * \return true if in season, false otherwise
      */
-    inline bool month_in_season(int month)
+    inline bool month_in_season(int month) const
     {
         return month >= start_month_ && month <= end_month_;
     }

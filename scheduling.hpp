@@ -83,7 +83,8 @@ public:
             Date start(date);
             increase_date(date);
             Date end(date);
-            steps.push_back(Step(start, end.get_previous_day()));
+            end.subtract_day();
+            steps.push_back(Step(start, end));
             step++;
         }
         num_steps = step;

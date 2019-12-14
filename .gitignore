@@ -9,6 +9,7 @@ test_simulation
 test_treatments
 test_spread_rate
 test_statistics
+test_scheduling
 # generated documentation
 html
 # Qt Creator files

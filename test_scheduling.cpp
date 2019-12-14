@@ -201,7 +201,7 @@ int test_schedule_action_date()
 
     Scheduler scheduling1(st, end, StepUnit::Month, 2);
     unsigned n = scheduling1.schedule_action_date(Date(2020, 3, 3));
-    if (n != 12) {
+    if (n != 1) {
         std::cout << "Failed scheduling of date action" << std::endl;
         scheduling1.debug_schedule(n);
         num_errors++;
