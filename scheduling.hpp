@@ -147,6 +147,20 @@ public:
         return schedule;
     }
 
+    std::vector<bool> schedule_action_monthly() {
+        std::vector<bool> schedule;
+        schedule.reserve(num_steps);
+        for (Step step : steps) {
+            Date st = step.start_date();
+            Date end = step.end_date();
+            if (st.month() != end.month() || end.is_last_day_of_month())
+                schedule.push_back(true);
+            else
+                schedule.push_back(false);
+        }
+        return schedule;
+    }
+
     unsigned schedule_action_date(const Date &date) {
         for (unsigned i = 0; i < num_steps; i++) {
             if (date >= steps[i].start_date() && date <= steps[i].end_date())

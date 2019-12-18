@@ -211,6 +211,23 @@ int test_schedule_action_nsteps()
     return num_errors;
 }
 
+int test_schedule_action_monthly()
+{
+    int num_errors = 0;
+
+    Date st(2020, 1, 1);
+    Date end(2021, 12, 31);
+
+    Scheduler scheduling1(st, end, StepUnit::Day, 7);
+    std::vector<bool> schedule = scheduling1.schedule_action_monthly();
+    if (!(schedule[4] && schedule[8])) {
+        std::cout << "Failed scheduling of monthly action" << std::endl;
+        scheduling1.debug_schedule(schedule);
+        num_errors++;
+    }
+
+    return num_errors;
+}
 int test_schedule_action_date()
 {
     int num_errors = 0;
@@ -240,6 +257,7 @@ int main()
     num_errors += test_schedule_action_end_of_year();
     num_errors += test_schedule_action_nsteps();
     num_errors += test_schedule_action_date();
+    num_errors += test_schedule_action_monthly();
 
     return num_errors;
 }
