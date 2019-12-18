@@ -4,6 +4,12 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2019-12-18 - More date functionality
+
+### Added
+
+- functions to check if a date is the last day or week of a month
+
 ## 2019-10-29 - More raster generalizations
 
 ### Added
