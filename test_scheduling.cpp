@@ -141,10 +141,29 @@ int test_schedule_action_yearly()
     Date end(2021, 12, 31);
 
     Scheduler scheduling1(st, end, StepUnit::Month, 2);
-    std::vector<bool> vect1 = scheduling1.schedule_spread(Season(1, 12));
-    std::vector<bool> vect_action1 =  scheduling1.schedule_action_yearly();
-    if (scheduling1.get_num_steps() != 12) {
+    std::vector<bool> vect_action1 = scheduling1.schedule_action_yearly(4, 5);
+    if (!(vect_action1[1] && vect_action1[7])) {
+        scheduling1.debug_schedule(vect_action1);
         std::cout << "Failed scheduling of yearly action" << std::endl;
+        num_errors++;
+    }
+
+    return num_errors;
+}
+
+
+int test_schedule_action_end_of_year()
+{
+    int num_errors = 0;
+
+    Date st(2020, 1, 1);
+    Date end(2021, 12, 31);
+
+    Scheduler scheduling1(st, end, StepUnit::Month, 2);
+    std::vector<bool> vect1 = scheduling1.schedule_spread(Season(1, 12));
+    std::vector<bool> vect_action1 =  scheduling1.schedule_action_end_of_year();
+    if (scheduling1.get_num_steps() != 12) {
+        std::cout << "Failed scheduling of end of year action" << std::endl;
         scheduling1.debug_schedule(vect_action1);
         num_errors++;
     }
@@ -154,9 +173,9 @@ int test_schedule_action_yearly()
 
     Scheduler scheduling2(st1, end1, StepUnit::Month, 2);
     std::vector<bool> vect2 = scheduling2.schedule_spread(Season(2, 8));
-    std::vector<bool> vect_action2 =  scheduling2.schedule_action_yearly();
+    std::vector<bool> vect_action2 =  scheduling2.schedule_action_end_of_year();
     if (scheduling2.get_num_steps() != 18) {
-        std::cout << "Failed scheduling of yearly action" << std::endl;
+        std::cout << "Failed scheduling of end of year action" << std::endl;
         scheduling2.debug_schedule(vect_action2);
         num_errors++;
     }
@@ -218,6 +237,7 @@ int main()
     num_errors += test_schedule_spread_month();
     num_errors += test_schedule_spread_days();
     num_errors += test_schedule_action_yearly();
+    num_errors += test_schedule_action_end_of_year();
     num_errors += test_schedule_action_nsteps();
     num_errors += test_schedule_action_date();
 

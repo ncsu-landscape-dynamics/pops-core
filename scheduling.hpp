@@ -105,7 +105,25 @@ public:
         }
         return schedule;
     }
-    std::vector<bool> schedule_action_yearly() {
+    std::vector<bool> schedule_action_yearly(int month, int day) {
+        std::vector<bool> schedule;
+        schedule.reserve(num_steps);
+        for (Step step : steps) {
+            Date st = step.start_date();
+            Date end = step.end_date();
+            /* this doesn't handle cases where
+               there is change in year within interval,
+               but that doesn't happen with current implementation */
+            Date test(st.year(), month, day);
+            if ((test >= st && test <= end))
+                schedule.push_back(true);
+            else
+                schedule.push_back(false);
+        }
+        return schedule;
+    }
+
+    std::vector<bool> schedule_action_end_of_year() {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
