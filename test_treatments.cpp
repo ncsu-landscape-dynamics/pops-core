@@ -218,6 +218,69 @@ int test_combination()
     return num_errors;
 }
 
+
+
+int test_pesticide_temporal_overlap()
+{
+    int num_errors = 0;
+    Treatments<Raster<int>, Raster<double>> treatments;
+    Raster<double> tr1 = {{1, 1}, {0, 0}};
+    Raster<double> tr2 = {{0, 0}, {1, 1}};
+
+    Raster<int> susceptible = {{10, 6}, {20, 42}};
+    Raster<int> resistant = {{0, 0}, {0, 0}};
+    Raster<int> infected = {{1, 4}, {16, 40}};
+    std::function<void (Date&)> increase_by_step = &Date::increased_by_week;
+    treatments.add_treatment(tr1, Date(2020, 5, 1), 30, TreatmentApplication::Ratio, increase_by_step);
+    treatments.add_treatment(tr2, Date(2020, 5, 20), 30, TreatmentApplication::Ratio, increase_by_step);
+
+    treatments.manage(Date(2020, 5, 1), infected, susceptible, resistant);
+
+    Raster<int> treated = {{0, 0}, {20, 42}};
+    Raster<int> inf_treated = {{0, 0}, {16, 40}};
+    Raster<int> resist = {{11, 10}, {0, 0}};
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+        std::cout << "Temporal overlap of pesticide treatments does not work" << std::endl;
+        std::cout << susceptible << infected << resistant;
+        num_errors++;
+    }
+
+    treatments.manage(Date(2020, 5, 20), infected, susceptible, resistant);
+
+    treated = {{0, 0}, {0, 0}};
+    inf_treated = {{0, 0}, {0, 0}};
+    resist = {{11, 10}, {36, 82}};
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+        std::cout << "Temporal overlap of pesticide treatments does not work" << std::endl;
+        std::cout << susceptible << infected << resistant;
+        num_errors++;
+    }
+
+    treatments.manage(Date(2020, 6, 1), infected, susceptible, resistant);
+
+    treated = {{11, 10}, {0, 0}};
+    inf_treated = {{0, 0}, {0, 0}};
+    resist = {{0, 0}, {36, 82}};
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+        std::cout << "Temporal overlap of pesticide treatments does not work" << std::endl;
+        std::cout << susceptible << infected << resistant;
+        num_errors++;
+    }
+
+    treatments.manage(Date(2020, 6, 21), infected, susceptible, resistant);
+
+    treated = {{11, 10}, {36, 82}};
+    inf_treated = {{0, 0}, {0, 0}};
+    resist = {{0, 0}, {0, 0}};
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+        std::cout << "Temporal overlap of pesticide treatments does not work" << std::endl;
+        std::cout << susceptible << infected << resistant;
+        num_errors++;
+    }
+
+    return num_errors;
+}
+
 int test_steering()
 {
     int num_errors = 0;
@@ -318,6 +381,7 @@ int main()
     num_errors += test_application_ratio_pesticide();
     num_errors += test_application_all_inf_pesticide();
     num_errors += test_combination();
+    num_errors += test_pesticide_temporal_overlap();
     num_errors += test_steering();
     num_errors += test_clear();
 
