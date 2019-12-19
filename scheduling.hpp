@@ -30,7 +30,7 @@ namespace pops {
  */
 
 /*!
- * 
+ * Simulation step representing an interval.
  */
 class Step
 {
@@ -55,18 +55,27 @@ std::ostream& operator<<(std::ostream& os, const Step &step)
  * @brief Enum for step unit
  */
 enum class StepUnit {
-    Day, Month
+    Day, Week, Month
 };
 
 class Scheduler
 {
 public:
-    Scheduler(const Date start, const Date end, StepUnit spread_unit, unsigned spread_num_units)
+    /**
+     * Scheduler creates a vector of simulation steps
+     * based on start, end date, unit and number of units.
+     * The steps can be e.g. 1 day, 3 months, 2 weeks.
+     * @param start simulation start date
+     * @param end simulation end date
+     * @param simulation_unit simulation unit
+     * @param simulation_num_units number of days/weeks/months in a simulation step
+     */
+    Scheduler(const Date start, const Date end, StepUnit simulation_unit, unsigned simulation_num_units)
         :
           start_(start),
           end_(end),
-          spread_unit_(spread_unit),
-          spread_num_units_(spread_num_units)
+          simulation_unit_(simulation_unit),
+          simulation_num_units_(simulation_num_units)
     {
         if (start >= end)
             throw std::invalid_argument("Start date must be before end date");
@@ -74,7 +83,7 @@ public:
         increase_date(d);
         if (d > end)
             throw std::invalid_argument("There must be at least one step between start and end date");
-        if (spread_unit == StepUnit::Month && start.day() != 1)
+        if (simulation_unit == StepUnit::Month && start.day() != 1)
             throw std::invalid_argument("If step unit is month, start date must start the first day of a month");
         
         Date date(start_);
@@ -90,10 +99,18 @@ public:
         num_steps = step;
     }
 
+    /**
+     * @brief Get number of simulation steps
+     */
     unsigned get_num_steps() {
         return num_steps;
     }
 
+    /**
+     * @brief Schedule spread
+     * @param season seasonality information
+     * @return vector of bools, true if spread should happen that step
+     */
     std::vector<bool> schedule_spread(const Season &season) {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
@@ -105,15 +122,24 @@ public:
         }
         return schedule;
     }
+
+    /**
+     * @brief Schedule an action at certain date each year,
+     *        e.g. lethality.
+     *
+     * This doesn't handle cases where there is change in year within interval,
+     * but that doesn't happen with current implementation
+     *
+     * @param month month
+     * @param day day
+     * @return vector of bools, true if action should happen that step
+     */
     std::vector<bool> schedule_action_yearly(int month, int day) {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
             Date st = step.start_date();
             Date end = step.end_date();
-            /* this doesn't handle cases where
-               there is change in year within interval,
-               but that doesn't happen with current implementation */
             Date test(st.year(), month, day);
             if ((test >= st && test <= end))
                 schedule.push_back(true);
@@ -123,6 +149,11 @@ public:
         return schedule;
     }
 
+    /**
+     * @brief Schedule an action at the end of each year,
+     *        e.g. mortality.
+     * @return vector of bools, true if action should happen that step
+     */
     std::vector<bool> schedule_action_end_of_year() {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
@@ -135,6 +166,14 @@ public:
         return schedule;
     }
 
+    /**
+     * @brief Schedule action every N simulation steps,
+     *
+     * Useful for e.g. export. If simulation step is 2 months
+     * and n_steps = 2, actions is scheduled every 4 months.
+     * @param n_steps schedule every N steps
+     * @return vector of bools, true if action should happen that step
+     */
     std::vector<bool> schedule_action_nsteps(unsigned n_steps) {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
@@ -147,6 +186,13 @@ public:
         return schedule;
     }
 
+    /**
+     * @brief Schedule action at the end of each month.
+     *
+     * More precisely, whenever end of the month is within the step interval.
+     *
+     * @return vector of bools, true if action should happen that step
+     */
     std::vector<bool> schedule_action_monthly() {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
@@ -161,6 +207,14 @@ public:
         return schedule;
     }
 
+    /**
+     * @brief Schedule action at a specific date (not repeated action).
+     *
+     * Should be used within Treatments class.
+     *
+     * @param date date to schedule action
+     * @return index of step
+     */
     unsigned schedule_action_date(const Date &date) {
         for (unsigned i = 0; i < num_steps; i++) {
             if (date >= steps[i].start_date() && date <= steps[i].end_date())
@@ -168,6 +222,10 @@ public:
         }
         throw std::invalid_argument("Date is outside of schedule");
     }
+    /**
+     * @brief Prints schedule for debugging purposes.
+     * @param vector of bools to print along the steps
+     */
     void debug_schedule(std::vector<bool> &schedule) {
         for (unsigned i = 0; i < num_steps; i++)
             std::cout << steps[i] << ": " << (schedule.at(i) ? "true" : "false") << std::endl;
@@ -176,21 +234,34 @@ public:
         for (unsigned i = 0; i < num_steps; i++)
             std::cout << steps[i] << ": " << (n == i ? "true" : "false") << std::endl;
     }
+    void debug_schedule() {
+        for (unsigned i = 0; i < num_steps; i++)
+            std::cout << steps[i] << std::endl;
+    }
 
 private:
     Date start_;
     Date end_;
-    StepUnit spread_unit_;
-    unsigned spread_num_units_;
+    StepUnit simulation_unit_;
+    unsigned simulation_num_units_;
     std::vector<Step> steps;
     unsigned num_steps;
 
+    /**
+     * @brief Increse date by simulation step
+     * @param date date
+     */
     void increase_date(Date &date) {
-        if (spread_unit_ == StepUnit::Day) {
-            date.increased_by_days(spread_num_units_);
+        if (simulation_unit_ == StepUnit::Day) {
+            date.increased_by_days(simulation_num_units_);
         }
-        else if (spread_unit_ == StepUnit::Month) {
-            for (unsigned i = 0; i < spread_num_units_; i++) {
+        else if (simulation_unit_ == StepUnit::Week) {
+            for (unsigned i = 0; i < simulation_num_units_; i++) {
+                date.increased_by_week();
+            }
+        }
+        else if (simulation_unit_ == StepUnit::Month) {
+            for (unsigned i = 0; i < simulation_num_units_; i++) {
                 date.increased_by_month();
             }
         }
