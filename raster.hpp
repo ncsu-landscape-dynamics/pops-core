@@ -130,7 +130,7 @@ public:
     }
 
     Raster(Raster&& other)
-        : owns_(true)
+        : owns_(other.owns_)
     {
         cols_ = other.cols_;
         rows_ = other.rows_;
