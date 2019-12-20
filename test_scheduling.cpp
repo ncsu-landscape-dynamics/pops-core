@@ -246,6 +246,43 @@ int test_schedule_action_date()
     return num_errors;
 }
 
+int test_simulation_step_to_action_step()
+{
+    int num_errors = 0;
+
+    Date st(2020, 1, 1);
+    Date end(2021, 12, 31);
+
+    Scheduler scheduling1(st, end, StepUnit::Month, 1);
+    std::vector<bool> vect_action1 = scheduling1.schedule_action_yearly(4, 5);
+    unsigned i1 = simulation_step_to_action_step(vect_action1, 3);
+    unsigned i2 = simulation_step_to_action_step(vect_action1, 15);
+    if (!(i1 == 0 && i2 == 1)) {
+        std::cout << "Failed simulation_step_to_action_step" << std::endl;
+        num_errors++;
+    }
+
+    return num_errors;
+}
+
+int test_get_number_of_scheduled_actions()
+{
+    int num_errors = 0;
+
+    Date st(2020, 1, 1);
+    Date end(2021, 12, 31);
+
+    Scheduler scheduling1(st, end, StepUnit::Month, 1);
+    std::vector<bool> vect_action1 = scheduling1.schedule_action_yearly(4, 5);
+    unsigned n = get_number_of_scheduled_actions(vect_action1);
+    if (n != 2) {
+        std::cout << "Failed get_number_of_scheduled_actions" << std::endl;
+        num_errors++;
+    }
+
+    return num_errors;
+}
+
 int main()
 {
     int num_errors = 0;
@@ -258,6 +295,8 @@ int main()
     num_errors += test_schedule_action_nsteps();
     num_errors += test_schedule_action_date();
     num_errors += test_schedule_action_monthly();
+    num_errors += test_simulation_step_to_action_step();
+    num_errors += test_get_number_of_scheduled_actions();
 
     return num_errors;
 }

@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 #include "date.hpp"
 
@@ -38,8 +39,8 @@ public:
     Step(Date start_date, Date end_date)
         : start_date_(start_date), end_date_(end_date)
     {}
-    inline Date start_date(){return start_date_;}
-    inline Date end_date(){return end_date_;}
+    inline Date start_date() const {return start_date_;}
+    inline Date end_date() const {return end_date_;}
     inline friend std::ostream& operator<<(std::ostream& os, const Step &step);
 private:
     Date start_date_;
@@ -70,7 +71,7 @@ public:
      * @param simulation_unit simulation unit
      * @param simulation_num_units number of days/weeks/months in a simulation step
      */
-    Scheduler(const Date start, const Date end, StepUnit simulation_unit, unsigned simulation_num_units)
+    Scheduler(const Date &start, const Date &end, StepUnit simulation_unit, unsigned simulation_num_units)
         :
           start_(start),
           end_(end),
@@ -102,8 +103,15 @@ public:
     /**
      * @brief Get number of simulation steps
      */
-    unsigned get_num_steps() {
+    unsigned get_num_steps() const {
         return num_steps;
+    }
+
+    /**
+     * @brief Get step based on index
+     */
+    Step get_step(unsigned index) const {
+        return steps.at(index);
     }
 
     /**
@@ -111,7 +119,7 @@ public:
      * @param season seasonality information
      * @return vector of bools, true if spread should happen that step
      */
-    std::vector<bool> schedule_spread(const Season &season) {
+    std::vector<bool> schedule_spread(const Season &season) const {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
@@ -134,7 +142,7 @@ public:
      * @param day day
      * @return vector of bools, true if action should happen that step
      */
-    std::vector<bool> schedule_action_yearly(int month, int day) {
+    std::vector<bool> schedule_action_yearly(int month, int day) const {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
@@ -154,7 +162,7 @@ public:
      *        e.g. mortality.
      * @return vector of bools, true if action should happen that step
      */
-    std::vector<bool> schedule_action_end_of_year() {
+    std::vector<bool> schedule_action_end_of_year() const {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
@@ -174,7 +182,7 @@ public:
      * @param n_steps schedule every N steps
      * @return vector of bools, true if action should happen that step
      */
-    std::vector<bool> schedule_action_nsteps(unsigned n_steps) {
+    std::vector<bool> schedule_action_nsteps(unsigned n_steps) const {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (unsigned i = 0; i < num_steps; i++) {
@@ -193,7 +201,7 @@ public:
      *
      * @return vector of bools, true if action should happen that step
      */
-    std::vector<bool> schedule_action_monthly() {
+    std::vector<bool> schedule_action_monthly() const {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
@@ -215,7 +223,7 @@ public:
      * @param date date to schedule action
      * @return index of step
      */
-    unsigned schedule_action_date(const Date &date) {
+    unsigned schedule_action_date(const Date &date) const {
         for (unsigned i = 0; i < num_steps; i++) {
             if (date >= steps[i].start_date() && date <= steps[i].end_date())
                 return i;
@@ -226,15 +234,15 @@ public:
      * @brief Prints schedule for debugging purposes.
      * @param vector of bools to print along the steps
      */
-    void debug_schedule(std::vector<bool> &schedule) {
+    void debug_schedule(std::vector<bool> &schedule) const {
         for (unsigned i = 0; i < num_steps; i++)
             std::cout << steps[i] << ": " << (schedule.at(i) ? "true" : "false") << std::endl;
     }
-    void debug_schedule(unsigned n) {
+    void debug_schedule(unsigned n) const {
         for (unsigned i = 0; i < num_steps; i++)
             std::cout << steps[i] << ": " << (n == i ? "true" : "false") << std::endl;
     }
-    void debug_schedule() {
+    void debug_schedule() const {
         for (unsigned i = 0; i < num_steps; i++)
             std::cout << steps[i] << std::endl;
     }
@@ -268,7 +276,37 @@ private:
     }
 };
 
+/**
+ * Converts simulation step to step of actions.
+ * This is useful for getting the right index of
+ * lethal temperature file.
+ *
+ * schedule: [F, T, F, F, F, T, F]
+ * step: 1 -> returns 0
+ * step: 5 -> returns 1
+ *
+ * Result for input step any other then 1 and 5 in this case
+ * returns valid number but has no particular meaning.
+ */
+unsigned simulation_step_to_action_step(std::vector<bool> &action_schedule, unsigned step) {
+    std::vector<unsigned> indices(action_schedule.size());
+    unsigned idx = 0;
+    for (unsigned i = 0; i < action_schedule.size();i++) {
+        indices[i] = idx;
+        if (action_schedule[i])
+            ++idx;
+    }
+    return indices.at(step);
+}
 
+/**
+ * Returns how many actions are scheduled.
+ *
+ * action_schedule: [F, T, F, F, F, T, F] -> 2
+ */
+unsigned get_number_of_scheduled_actions(std::vector<bool> &action_schedule) {
+    return std::count(action_schedule.begin(), action_schedule.end(), true);
+}
 
 } // namespace pops
 
