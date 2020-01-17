@@ -60,10 +60,11 @@ int main()
     int ns_res = 30;
     Simulation<Raster<int>, Raster<double>> simulation(42, infected);
     simulation.remove(infected, susceptible, temperature, lethal_temperature);
-    simulation.generate(infected, weather, weather_coefficient, reproductive_rate);
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
     RadialDispersalKernel kernel(ew_res, ns_res, dispersal_kernel,
                                  short_distance_scale);
-    simulation.disperse(susceptible, infected,
+    simulation.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_plants,
                         outside_dispersers, weather, weather_coefficient,
                         kernel);

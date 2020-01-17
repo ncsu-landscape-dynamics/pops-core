@@ -50,15 +50,13 @@ class Simulation
 private:
     int width;
     int height;
-    IntegerRaster dispersers;
     std::default_random_engine generator;
 public:
 
     Simulation(unsigned random_seed, const IntegerRaster &size)
         :
           width(size.cols()),
-          height(size.rows()),
-          dispersers(height, width)
+          height(size.rows())
     {
         generator.seed(random_seed);
     }
@@ -106,7 +104,8 @@ public:
         }
     }
 
-    void generate(const IntegerRaster& infected,
+    void generate(IntegerRaster& dispersers,
+                  const IntegerRaster& infected,
                   bool weather, const FloatRaster& weather_coefficient,
                   double reproductive_rate)
     {
@@ -144,7 +143,8 @@ public:
      * `std::make_tuple(row, column)` fulfills this requirement.
      */
     template<typename DispersalKernel>
-    void disperse(IntegerRaster& susceptible, IntegerRaster& infected,
+    void disperse(const IntegerRaster& dispersers,
+                  IntegerRaster& susceptible, IntegerRaster& infected,
                   IntegerRaster& mortality_tracker,
                   const IntegerRaster& total_plants,
                   std::vector<std::tuple<int, int>>& outside_dispersers,
