@@ -143,7 +143,7 @@ public:
      * `std::make_tuple(row, column)` fulfills this requirement.
      */
     template<typename DispersalKernel>
-    void disperse(IntegerRaster& dispersers,
+    void disperse(const IntegerRaster& dispersers,
                   IntegerRaster& susceptible, IntegerRaster& infected,
                   IntegerRaster& mortality_tracker,
                   const IntegerRaster& total_plants,
