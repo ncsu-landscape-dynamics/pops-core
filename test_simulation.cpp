@@ -50,6 +50,7 @@ int main()
     Raster<int> total_plants = {{15, 6}, {14, 15}};
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0.6, 0.8}, {0.2, 0.8}};
+    Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     DispersalKernelType dispersal_kernel = DispersalKernelType::Cauchy;
     bool weather = true;
@@ -58,9 +59,8 @@ int main()
     double short_distance_scale = 0.0;
     int ew_res = 30;
     int ns_res = 30;
-    Simulation<Raster<int>, Raster<double>> simulation(42, infected);
+    Simulation<Raster<int>, Raster<double>> simulation(42, infected.rows(), infected.cols());
     simulation.remove(infected, susceptible, temperature, lethal_temperature);
-    Raster<int> dispersers(infected.rows(), infected.cols());
     simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
     RadialDispersalKernel kernel(ew_res, ns_res, dispersal_kernel,
                                  short_distance_scale);
