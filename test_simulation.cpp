@@ -62,7 +62,7 @@ int main()
     unsigned step = 1;
     unsinged last_index = 0;
     std::vector<std::vector<int> > movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
-    std::vector<unsigned> movement_schedule = {1};
+    std::vector<unsigned> movement_schedule = {1, 1};
     Simulation<Raster<int>, Raster<double>> simulation(42, infected.rows(), infected.cols());
     simulation.remove(infected, susceptible, temperature, lethal_temperature);
     simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
