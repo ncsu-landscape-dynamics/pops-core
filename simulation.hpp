@@ -1,7 +1,7 @@
 /*
- * SOD model - spore simulation
+ * PoPS model - pest or pathogen spread simulation
  *
- * Copyright (C) 2015-2017 by the authors.
+ * Copyright (C) 2015-2020 by the authors.
  *
  * Authors: Zexi Chen (zchen22 ncsu edu)
  *          Vaclav Petras (wenzeslaus gmail com)
@@ -169,7 +169,7 @@ public:
                 infected_mean = infected(row_from, col_from) * inf_ratio;
                 std::poisson_distribution<int> distribution(infected_mean);
                 if (infected_mean > 0)
-                    infected_moved += distribution(generator);
+                    infected_moved += distribution(generator_);
                 }
             if ((hosts - infected_moved) > susceptible(row_from, col_from)) {
                 susceptible_moved = susceptible(row_from, col_from);

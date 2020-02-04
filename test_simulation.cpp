@@ -3,7 +3,7 @@
 /*
  * Simple compilation test for the PoPS Simulation class.
  *
- * Copyright (C) 2018-2019 by the authors.
+ * Copyright (C) 2018-2020 by the authors.
  *
  * Authors: Vaclav Petras <wenzeslaus gmail com>
  *
