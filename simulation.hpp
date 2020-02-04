@@ -129,6 +129,75 @@ public:
         }
     }
 
+    /** Moves hosts from one location to another
+     *
+     * @param infected Currently infected hosts
+     * @param susceptible Currently susceptible hosts
+     * @param mortality_tracker Hosts that are infected at a specific time step
+     * @param total_plants 
+     * @param step the current step of the simulation
+     * @param last_index the last index to not be used from movements
+     * @param movements a vector of ints with row_from, col_from, row_to, col_to, and num_hosts
+     * @param movement_schedule a vector matching movements with the step at which the movement from movements are applied
+     */
+    unsigned movement(IntegerRaster& infected,
+                      IntegerRaster& susceptible, 
+                      IntegerRaster& mortality_tracker,
+                      IntegerRaster& total_plants,
+                      unsigned step, unsigned last_index,
+                      const std::vector<std::vector<int> >& movements,
+                      std::vector<unsigned> movement_schedule)
+    {
+        for (unsigned i = last_index; i < movements.size(); i++) {
+            auto moved = movements[i];
+            unsigned move_schedule = movement_schedule[i];
+            if (move_schedule != step) {
+                return i;
+            }
+            int infected_moved = 0;
+            int susceptible_moved = 0;
+            int total_hosts_moved = 0;
+            double infected_mean = 0;
+            double inf_ratio = 0;
+            int row_from = moved[0];
+            int col_from = moved[1];
+            int row_to = moved[2];
+            int col_to = moved[3];
+            int hosts = moved[4];
+            if (infected(row_from, col_from) > 0 || susceptible(row_from, col_from)) {
+                inf_ratio = double(infected(row_from, col_from)) / double(susceptible(row_from, col_from));
+                infected_mean = infected(row_from, col_from) * inf_ratio;
+                std::poisson_distribution<int> distribution(infected_mean);
+                if (infected_mean > 0)
+                    infected_moved += distribution(generator);
+                }
+            if ((hosts - infected_moved) > susceptible(row_from, col_from)) {
+                susceptible_moved = susceptible(row_from, col_from);
+            } else {
+                susceptible_moved = hosts - infected_moved;
+            }
+            infected(row_from, col_from) -= infected_moved;
+            susceptible(row_from, col_from) -= susceptible_moved;
+            if (hosts > total_plants(row_from, col_from)) {
+                total_hosts_moved = total_plants(row_from, col_from);
+            } else {
+                total_hosts_moved = hosts;
+            }
+            total_plants(row_from, col_from) -= total_hosts_moved;
+            if (infected(row_from, col_from) < 0)
+                infected(row_from, col_from) = 0;
+            if (susceptible(row_from, col_from) < 0)
+                susceptible(row_from, col_from) = 0;
+            if (total_plants(row_from, col_from) < 0)
+                total_plants(row_from, col_from) = 0;
+            infected(row_to, col_to) += infected_moved;
+            susceptible(row_to, col_to) += susceptible_moved;
+            total_plants(row_to, col_to) += total_hosts_moved;
+        }
+      return movements.size();
+    }
+    
+    
     /** Generates dispersers based on infected
      *
      * @param[out] dispersers  (existing values are ignored)
