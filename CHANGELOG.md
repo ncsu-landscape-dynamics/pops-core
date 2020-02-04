@@ -4,6 +4,12 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2020-01-04 - More date functionality
+
+### Added
+
+- movement modeule to the simulation class to move hosts from one location to another.
+
 ## 2019-12-18 - More date functionality
 
 ### Added
