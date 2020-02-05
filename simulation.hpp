@@ -164,7 +164,7 @@ public:
             int row_to = moved[2];
             int col_to = moved[3];
             int hosts = moved[4];
-            if (infected(row_from, col_from) > 0 && susceptible(row_from, col_from) > 0) {
+            if (infected(row_from, col_from) > 0 || susceptible(row_from, col_from) > 0) {
                 inf_ratio = double(infected(row_from, col_from)) / double(susceptible(row_from, col_from));
                 int infected_mean = infected(row_from, col_from) * inf_ratio;
                 std::poisson_distribution<int> distribution(infected_mean);
