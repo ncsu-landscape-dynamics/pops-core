@@ -164,26 +164,33 @@ public:
             int row_to = moved[2];
             int col_to = moved[3];
             int hosts = moved[4];
-            if (infected(row_from, col_from) > 0 || susceptible(row_from, col_from) > 0) {
-                inf_ratio = double(infected(row_from, col_from)) / double(susceptible(row_from, col_from));
-                int infected_mean = infected(row_from, col_from) * inf_ratio;
-                std::poisson_distribution<int> distribution(infected_mean);
-                if (infected_mean > 0)
-                    infected_moved += distribution(generator_);
-            }
             if (hosts > total_plants(row_from, col_from)) {
-              total_hosts_moved = total_plants(row_from, col_from);
+                total_hosts_moved = total_plants(row_from, col_from);
             } else {
-              total_hosts_moved = hosts;
+                total_hosts_moved = hosts;
             }
-            if (infected_moved > infected(row_from, col_from)) {
-              infected_moved = infected(row_from, col_from);
-            } 
-            if ((total_hosts_moved - infected_moved) > susceptible(row_from, col_from)) {
-              susceptible_moved = susceptible(row_from, col_from);
+            if (infected(row_from, col_from) > 0 && susceptible(row_from, col_from) > 0) {
+                inf_ratio = double(infected(row_from, col_from)) / double(susceptible(row_from, col_from));
+                int infected_mean = total_hosts_moved * inf_ratio;
+                if (infected_mean > 0) {
+                    std::poisson_distribution<int> distribution(infected_mean);
+                    infected_moved += distribution(generator_);
+                }
+                susceptible_moved = total_hosts_moved - infected_moved;
+                if (infected_moved > infected(row_from, col_from)) {
+                    infected_moved = infected(row_from, col_from);
+                } 
+                if (susceptible_moved > susceptible(row_from, col_from)) {
+                    susceptible_moved = susceptible(row_from, col_from);
+                } 
+            } else if (infected(row_from, col_from) > 0 && susceptible(row_from, col_from) == 0) {
+                infected_moved = total_hosts_moved;
+            } else if(infected(row_from, col_from) == 0 && susceptible(row_from, col_from) > 0) {
+                susceptible_moved = total_hosts_moved;
             } else {
-              susceptible_moved = total_hosts_moved - infected_moved;
+                continue;
             }
+            
             infected(row_from, col_from) -= infected_moved;
             susceptible(row_from, col_from) -= susceptible_moved;
             total_plants(row_from, col_from) -= total_hosts_moved;
