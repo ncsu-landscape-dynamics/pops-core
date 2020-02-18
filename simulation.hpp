@@ -157,7 +157,6 @@ public:
             int infected_moved = 0;
             int susceptible_moved = 0;
             int total_hosts_moved = 0;
-            double infected_mean = 0;
             double inf_ratio = 0;
             int row_from = moved[0];
             int col_from = moved[1];
@@ -179,6 +178,9 @@ public:
                 if (infected_moved > infected(row_from, col_from)) {
                     infected_moved = infected(row_from, col_from);
                 } 
+                if (infected_moved > total_hosts_moved) {
+                  infected_moved = total_hosts_moved;
+                }
                 susceptible_moved = total_hosts_moved - infected_moved;
                 if (susceptible_moved > susceptible(row_from, col_from)) {
                     susceptible_moved = susceptible(row_from, col_from);
