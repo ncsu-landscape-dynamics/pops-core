@@ -3,7 +3,7 @@
 /*
  * Simple compilation test for the PoPS Simulation class.
  *
- * Copyright (C) 2018-2019 by the authors.
+ * Copyright (C) 2018-2020 by the authors.
  *
  * Authors: Vaclav Petras <wenzeslaus gmail com>
  *
@@ -59,11 +59,17 @@ int main()
     double short_distance_scale = 0.0;
     int ew_res = 30;
     int ns_res = 30;
+    unsigned step = 1;
+    unsigned last_index = 0;
+    std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
+    std::vector<unsigned> movement_schedule = {1, 1};
     Simulation<Raster<int>, Raster<double>> simulation(42, infected.rows(), infected.cols());
     simulation.remove(infected, susceptible, temperature, lethal_temperature);
     simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
     RadialDispersalKernel kernel(ew_res, ns_res, dispersal_kernel,
                                  short_distance_scale);
+    simulation.movement(infected, susceptible, mortality_tracker, total_plants, step, 
+                        last_index, movements, movement_schedule);
     simulation.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_plants,
                         outside_dispersers, weather, weather_coefficient,
