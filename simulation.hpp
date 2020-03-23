@@ -21,14 +21,70 @@
 
 #include <cmath>
 #include <tuple>
+#include <vector>
 #include <random>
-
-using std::cerr;
-using std::endl;
+#include <string>
+#include <stdexcept>
 
 namespace pops {
 
+/** Rotate elements in a container to the left by one
+ *
+ * Rotates (moves) elements in a container to the left (anticlockwise)
+ * by one. The second element is moved to the front and the first
+ * element is moved to the back.
+ */
+template <typename Container>
+void rotate_left(Container& container)
+{
+    std::rotate(container.begin(), container.begin() + 1, container.end());
+}
+
+/** The type of a epidemiological model (SI or SEI)
+ */
+enum class ModelType {
+    SusceptibleInfected,  ///< SI (susceptible - infected)
+    SusceptibleExposedInfected  ///< SEI (susceptible - exposed - infected)
+};
+
+/*! Get a corresponding enum value for a string which is a model type name.
+ *
+ * Throws an std::invalid_argument exception if the value was not
+ * found or is not supported (which is the same thing).
+ */
+inline
+ModelType model_type_from_string(const std::string& text)
+{
+    if (text == "SI" || text == "SusceptibleInfected"
+            || text == "susceptible-infected"
+            || text == "susceptible_infected")
+        return ModelType::SusceptibleInfected;
+    else if (text == "SEI" || text == "SusceptibleExposedInfected"
+             || text == "susceptible-exposed-infected"
+             || text == "susceptible_exposed_infected")
+        return ModelType::SusceptibleExposedInfected;
+    else
+        throw std::invalid_argument("model_type_from_string: Invalid"
+                                    " value '" + text +"' provided");
+}
+
+/*! Overload which allows to pass C-style string which is nullptr (NULL)
+ *
+ * @see model_type_from_string(const std::string& text)
+ */
+inline
+ModelType model_type_from_string(const char* text)
+{
+    // call the string version
+    return model_type_from_string(text ? std::string(text)
+                                       : std::string());
+}
+
 /*! The main class to control the spread simulation.
+ *
+ * The Simulation class handles the mechanics of the model, but the
+ * timing of the events or steps should be handled outside of this
+ * class unless noted otherwise.
  *
  * The template parameters IntegerRaster and FloatRaster are raster
  * image or matrix types. Any 2D numerical array should work as long as
@@ -56,6 +112,8 @@ class Simulation
 private:
     RasterIndex rows_;
     RasterIndex cols_;
+    ModelType model_type_;
+    unsigned latency_period_;
     std::default_random_engine generator_;
 public:
 
@@ -74,10 +132,14 @@ public:
      */
     Simulation(unsigned random_seed,
                RasterIndex rows,
-               RasterIndex cols)
+               RasterIndex cols,
+               ModelType model_type,
+               unsigned latency_period)
         :
           rows_(rows),
-          cols_(cols)
+          cols_(cols),
+          model_type_(model_type),
+          latency_period_(latency_period)
     {
         generator_.seed(random_seed);
     }
@@ -241,8 +303,12 @@ public:
 
     /** Creates dispersal locations for the dispersing individuals
      *
+     * Depending on what data is provided as the *exposed_or_infected*
+     * paramater, this function can be part of as S to E step or S to I.
+     *
      * Typically, the generate() function is called beforehand to
-     * create dispersers.
+     * create dispersers. In SEI model, the infect() function is
+     * typically called afterwards.
      *
      * DispersalKernel is callable object or function with one parameter
      * which is the random number engine (generator). The return value
@@ -251,11 +317,21 @@ public:
      * form of a tuple with row and column so that std::tie() is usable
      * on the result, i.e. function returning
      * `std::make_tuple(row, column)` fulfills this requirement.
+     *
+     * @param[in] dispersers Dispersing individuals ready to be dispersed
+     * @param[in,out] susceptible Susceptible hosts
+     * @param[in,out] exposed_or_infected Exposed or infected hosts
+     * @param[in,out] mortality_tracker Newly infected hosts (if applicable)
+     * @param[in] total_plants All plants in the landscape
+     * @param[in,out] outside_dispersers Dispersers escaping the rasters
+     * @param weather Whether or not weather coefficients should be used
+     * @param[in] weather_coefficient Weather coefficient for each location
+     * @param dispersal_kernel Dispersal kernel to move dispersers
      */
     template<typename DispersalKernel>
     void disperse(const IntegerRaster& dispersers,
                   IntegerRaster& susceptible,
-                  IntegerRaster& infected,
+                  IntegerRaster& exposed_or_infected,
                   IntegerRaster& mortality_tracker,
                   const IntegerRaster& total_plants,
                   std::vector<std::tuple<int, int>>& outside_dispersers,
@@ -288,9 +364,17 @@ public:
                             if (weather)
                                 probability_of_establishment *= weather_coefficient(i, j);
                             if (establishment_tester < probability_of_establishment) {
-                                infected(row, col) += 1;
-                                mortality_tracker(row, col) += 1;
+                                exposed_or_infected(row, col) += 1;
                                 susceptible(row, col) -= 1;
+                                if (model_type_ == ModelType::SusceptibleInfected) {
+                                    mortality_tracker(row, col) += 1;
+                                }
+                                else if (model_type_ == ModelType::SusceptibleExposedInfected) {
+                                    // no-op
+                                }
+                                else {
+                                    throw std::runtime_error("Unknown ModelType value in Simulation::disperse()");
+                                }
                             }
                         }
                     }
@@ -299,6 +383,90 @@ public:
         }
     }
 
+    /** Infect exposed hosts (E to I step)
+     *
+     * Applicable to SEI model, no-operation otherwise, i.e., parameters
+     * are left intact for other models.
+     *
+     * Like in disperse(), there is no distiction between *infected*
+     * and *mortality_tracker*, but different usage is expected outside
+     * of this function.
+     *
+     * @param exposed Exposed hosts
+     * @param infected Infected hosts
+     * @param mortality_tracker Newly infected hosts
+     * @returns Index of oldest exposed raster in the next step
+     */
+    void infect(
+            std::vector<IntegerRaster>& exposed,
+            IntegerRaster& infected,
+            IntegerRaster& mortality_tracker)
+    {
+        if (model_type_ == ModelType::SusceptibleExposedInfected) {
+            if (exposed.size() >= latency_period_ + 1) {
+                auto& oldest = exposed.front();
+                infected += oldest;
+                mortality_tracker += oldest;
+                // the raster class needs to support .fill()
+                oldest.fill(0);
+                // elements go one position to the left
+                // new oldest goes to the front
+                // old oldest goes to the back
+                rotate_left(exposed);
+            }
+        }
+        else if (model_type_ == ModelType::SusceptibleInfected) {
+            // no-op
+        }
+        else {
+            throw std::runtime_error("Unknown ModelType value in Simulation::infect()");
+        }
+    }
+
+    /** Disperse, expose, and infect based on dispersers
+     *
+     * This function wraps disperse() and infect() for use in SI and SEI
+     * models.
+     *
+     * See disperse() and infect() for a detailed list of parameters
+     * and behavior. The disperse() parameter documentation can be
+     * applied as is except that disperse() function's parameter
+     * *exposed_or_infested* is expected to change based on the context
+     * while this function's parameter *infected* is always the infected
+     * individuals. Besides parameters from disperse(), this function
+     * has parameter *exposed* which is the same as the one from the
+     * infect() function.
+     */
+    template<typename DispersalKernel>
+    void disperse_and_infect(
+            const IntegerRaster& dispersers,
+            IntegerRaster& susceptible,
+            std::vector<IntegerRaster>& exposed,
+            IntegerRaster& infected,
+            IntegerRaster& mortality_tracker,
+            const IntegerRaster& total_plants,
+            std::vector<std::tuple<int, int>>& outside_dispersers,
+            bool weather,
+            const FloatRaster& weather_coefficient,
+            DispersalKernel& dispersal_kernel)
+    {
+        auto& infected_or_exposed = infected;
+        if (model_type_ == ModelType::SusceptibleExposedInfected)
+            infected_or_exposed = exposed.back();
+        this->disperse(
+                    dispersers,
+                    susceptible,
+                    infected_or_exposed,
+                    mortality_tracker,
+                    total_plants,
+                    outside_dispersers,
+                    weather,
+                    weather_coefficient,
+                    dispersal_kernel);
+        if (model_type_ == ModelType::SusceptibleExposedInfected) {
+            this->infect(exposed, infected, mortality_tracker);
+        }
+    }
 };
 
 } // namespace pops
