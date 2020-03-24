@@ -126,15 +126,18 @@ public:
      * of rasters used with the Simulation object
      * (potentially, it can be also smaller).
      *
+     * @param model_type Type of the model (SI or SEI)
+     * @param latency_period Lenght of the latency period in steps
      * @param random_seed Number to seed the random number generator
      * @param rows Number of rows
      * @param cols Number of columns
      */
-    Simulation(unsigned random_seed,
+    Simulation(ModelType model_type,
+               unsigned latency_period,
+               unsigned random_seed,
                RasterIndex rows,
-               RasterIndex cols,
-               ModelType model_type,
-               unsigned latency_period)
+               RasterIndex cols
+               )
         :
           rows_(rows),
           cols_(cols),

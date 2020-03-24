@@ -110,10 +110,17 @@ int test_calling_all_functions()
     int ew_res = 30;
     int ns_res = 30;
     unsigned step = 1;
+    unsigned latency_period_steps = 2;
     unsigned last_index = 0;
+    int seed = 42;
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
-    Simulation<Raster<int>, Raster<double>> simulation(42, infected.rows(), infected.cols());
+    Simulation<Raster<int>, Raster<double>> simulation(
+                model_type_from_string("SI"),
+                latency_period_steps,
+                seed,
+                infected.rows(),
+                infected.cols());
     simulation.remove(infected, susceptible, temperature, lethal_temperature);
     simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
     RadialDispersalKernel kernel(ew_res, ns_res, dispersal_kernel,
