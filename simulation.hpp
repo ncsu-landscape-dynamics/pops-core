@@ -35,7 +35,7 @@ namespace pops {
  * element is moved to the back.
  */
 template <typename Container>
-void rotate_left(Container& container)
+void rotate_left_by_one(Container& container)
 {
     std::rotate(container.begin(), container.begin() + 1, container.end());
 }
@@ -415,7 +415,7 @@ public:
                 // elements go one position to the left
                 // new oldest goes to the front
                 // old oldest goes to the back
-                rotate_left(exposed);
+                rotate_left_by_one(exposed);
             }
         }
         else if (model_type_ == ModelType::SusceptibleInfected) {

@@ -43,6 +43,16 @@ using std::endl;
 
 using namespace pops;
 
+int test_rotate_left_by_one(std::vector<int> a, std::vector<int> b)
+{
+    rotate_left_by_one(a);
+    if (a != b) {
+        cout << "Rotated vector not correct\n";
+        return 1;
+    }
+    return 0;
+}
+
 int test_with_neighbor_kernel()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
@@ -132,12 +142,17 @@ int test_calling_all_functions()
                         outside_dispersers, weather, weather_coefficient,
                         kernel);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;
+    cout << outside_dispersers.size() << endl;
     return 0;
 }
 
 int main()
 {
     int ret = 0;
+
+    ret += test_rotate_left_by_one({1}, {2});
+    ret += test_rotate_left_by_one({1, 2}, {2, 1});
+    ret += test_rotate_left_by_one({1, 2, 3, 4, 5}, {2, 3, 4, 5, 1});
 
     ret += test_calling_all_functions();
     ret += test_with_neighbor_kernel();
