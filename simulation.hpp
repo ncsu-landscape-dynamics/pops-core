@@ -84,13 +84,14 @@ ModelType model_type_from_string(const char* text)
  *
  * The Simulation class handles the mechanics of the model, but the
  * timing of the events or steps should be handled outside of this
- * class unless noted otherwise.
+ * class unless noted otherwise. The notable exceptions are exposed
+ * hosts in the SEI model type and mortality.
  *
  * The template parameters IntegerRaster and FloatRaster are raster
  * image or matrix types. Any 2D numerical array should work as long as
  * it uses function call operator to access the values, i.e. it provides
  * indexing for reading and writing values using `()`. In other words,
- * the two following operations should be possible:
+ * the operations such as the two following ones should be possible:
  *
  * ```
  * a(i, j) = 1;
@@ -386,19 +387,42 @@ public:
         }
     }
 
-    /** Infect exposed hosts (E to I step)
+    /** Infect exposed hosts (E to I transition in the SEI model)
      *
      * Applicable to SEI model, no-operation otherwise, i.e., parameters
      * are left intact for other models.
+     *
+     * The exposed vector are the hosts exposed in the previous steps.
+     * The lenght of the vector is the number of steps of the latency
+     * period plus one when the simulation is in the steps beyond the
+     * first latency period. Before that, exposed vector lenght is
+     * smaller than latency period plus one and the E to I transition
+     * won't happen because no item in the exposed vector is old enough
+     * to become infected.
+     *
+     * The position of the items in the exposed vector determines their
+     * age, i.e., for how long the hosts are exposed. The oldest item
+     * is at the front and youngest at the end. After the first latency
+     * period, this needs to be true before the function is called and
+     * it is true after the function
+     * finished with the difference that the last item is empty in the
+     * sense that it does not contain any hosts.
+     *
+     * When the E to I transition happens, hosts from the oldest item
+     * in the exposed vector are moved to the infected (and mortality
+     * tracker). They are removed from the exposed item and this item
+     * is moved to the back of the vector.
      *
      * Like in disperse(), there is no distiction between *infected*
      * and *mortality_tracker*, but different usage is expected outside
      * of this function.
      *
+     * The raster class used with the simulation class needs to support
+     * `.fill()` method for this function to work.
+     *
      * @param exposed Exposed hosts
      * @param infected Infected hosts
      * @param mortality_tracker Newly infected hosts
-     * @returns Index of oldest exposed raster in the next step
      */
     void infect(
             std::vector<IntegerRaster>& exposed,
@@ -407,11 +431,15 @@ public:
     {
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
             if (exposed.size() >= latency_period_ + 1) {
+                // Oldest item needs to be in the front
                 auto& oldest = exposed.front();
+                // Move hosts to infected raster
                 infected += oldest;
                 mortality_tracker += oldest;
-                // the raster class needs to support .fill()
+                // Reset the raster
+                // (hosts moved from the raster)
                 oldest.fill(0);
+                // Age the items and the used one to the back
                 // elements go one position to the left
                 // new oldest goes to the front
                 // old oldest goes to the back
@@ -430,6 +458,21 @@ public:
      *
      * This function wraps disperse() and infect() for use in SI and SEI
      * models.
+     *
+     * In case of SEI model, before calling this function, last item in
+     * the exposed vector needs to be ready to be used for exposure,
+     * i.e., typically, it should be empty in the sense that there are
+     * no hosts in the raster. This is the state this function produces
+     * when executed after the first latency period is over. Before
+     * that, a new item should be added to the exposed vector:
+     *
+     * ```
+     * if (exposed_vector.size() < latency_period_steps + 1)
+     *     exposed_vector.emplace_back(rows, cols, 0);
+     * ```
+     *
+     * See the infect() function for the details about exposed vector,
+     * its size, and its items.
      *
      * See disperse() and infect() for a detailed list of parameters
      * and behavior. The disperse() parameter documentation can be
@@ -455,6 +498,8 @@ public:
     {
         auto& infected_or_exposed = infected;
         if (model_type_ == ModelType::SusceptibleExposedInfected)
+            // The empty - not yet exposed - raster is in the back
+            // and will become yougest exposed one.
             infected_or_exposed = exposed.back();
         this->disperse(
                     dispersers,
