@@ -142,7 +142,6 @@ int test_calling_all_functions()
                         outside_dispersers, weather, weather_coefficient,
                         kernel);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;
-    cout << outside_dispersers.size() << endl;
     return 0;
 }
 
@@ -151,6 +150,7 @@ int main()
     int ret = 0;
 
     ret += test_rotate_left_by_one({1}, {2});
+    ret += test_rotate_left_by_one({1}, {1});
     ret += test_rotate_left_by_one({1, 2}, {2, 1});
     ret += test_rotate_left_by_one({1, 2, 3, 4, 5}, {2, 3, 4, 5, 1});
 
