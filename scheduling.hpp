@@ -95,6 +95,9 @@ public:
      * The steps can be e.g. 1 day, 3 months, 2 weeks.
      * Step is scheduled if start date of an interval is
      * within [start, end] even if end date of the step is outside.
+     * That means the entire interval is contained in the simulation steps
+     * even when only part of it was requested.
+     *
      * @param start simulation start date
      * @param end simulation end date
      * @param simulation_unit simulation unit

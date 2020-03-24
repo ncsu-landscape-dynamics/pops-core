@@ -313,14 +313,14 @@ int test_output_schedule_from_string()
     Date end(2020, 1, 28);
 
     Scheduler scheduling(st, end, StepUnit::Week, 1);
-    std::vector<bool> out = output_schedule_from_string(scheduling, "week", 0);
+    std::vector<bool> out = output_schedule_from_string(scheduling, "week");
     if (get_number_of_scheduled_actions(out) != 4)
         num_errors++;
     out = output_schedule_from_string(scheduling, "every_n_steps", 2);
     if (get_number_of_scheduled_actions(out) != 2)
         num_errors++;
     try {
-        out = output_schedule_from_string(scheduling, "day", 0);
+        out = output_schedule_from_string(scheduling, "day");
         num_errors++;
     }
     catch (std::invalid_argument) {
@@ -328,10 +328,10 @@ int test_output_schedule_from_string()
     }
 
     Scheduler scheduling2(st, end, StepUnit::Day, 1);
-    out = output_schedule_from_string(scheduling2, "week", 0);
+    out = output_schedule_from_string(scheduling2, "week");
     if (get_number_of_scheduled_actions(out) != 4)
         num_errors++;
-    out = output_schedule_from_string(scheduling2, "day", 0);
+    out = output_schedule_from_string(scheduling2, "day");
     if (get_number_of_scheduled_actions(out) != 28)
         num_errors++;
     out = output_schedule_from_string(scheduling2, "every_n_steps", 7);
@@ -340,7 +340,7 @@ int test_output_schedule_from_string()
 
     Scheduler scheduling3(st, end, StepUnit::Week, 2);
     try {
-        out = output_schedule_from_string(scheduling3, "week", 0);
+        out = output_schedule_from_string(scheduling3, "week");
         num_errors++;
     }
     catch (std::invalid_argument) {
@@ -349,7 +349,7 @@ int test_output_schedule_from_string()
     out = output_schedule_from_string(scheduling3, "every_n_steps", 2);
     if (get_number_of_scheduled_actions(out) != 1)
         num_errors++;
-    out = output_schedule_from_string(scheduling3, "month", 0);
+    out = output_schedule_from_string(scheduling3, "month");
     if (get_number_of_scheduled_actions(out) != 0)
         num_errors++;
 

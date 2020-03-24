@@ -54,7 +54,7 @@ inline TreatmentApplication treatment_app_enum_from_string(const std::string& te
     }
     catch (const std::out_of_range&) {
         throw std::invalid_argument("treatment_application_enum_from_string:"
-                                    " Invalid value '" + text +"' provided");
+                                    " Invalid value '" + text + "' provided");
     }
 }
 
