@@ -66,6 +66,8 @@ public:
      * Scheduler creates a vector of simulation steps
      * based on start, end date, unit and number of units.
      * The steps can be e.g. 1 day, 3 months, 2 weeks.
+     * Step is scheduled if start date of an interval is
+     * within [start, end] even if end date of the step is outside.
      * @param start simulation start date
      * @param end simulation end date
      * @param simulation_unit simulation unit
@@ -89,7 +91,7 @@ public:
         
         Date date(start_);
         unsigned step = 0;
-        while (date < end_) {
+        while (date <= end_) {
             Date start(date);
             increase_date(date);
             Date end(date);
