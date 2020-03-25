@@ -24,6 +24,7 @@
  */
 
 #include <vector>
+#include <tuple>
 
 #include "scheduling.hpp"
 #include "date.hpp"
@@ -283,6 +284,98 @@ int test_get_number_of_scheduled_actions()
     return num_errors;
 }
 
+int test_unit_enum_from_string()
+{
+    int num_errors = 0;
+    if (step_unit_enum_from_string("day") != StepUnit::Day)
+        num_errors++;
+    if (step_unit_enum_from_string("week") != StepUnit::Week)
+        num_errors++;
+    if (step_unit_enum_from_string("month") != StepUnit::Month)
+        num_errors++;
+    try {
+        step_unit_enum_from_string("invalid_input");
+        num_errors++;
+    }
+    catch (std::invalid_argument) {
+        // OK
+    }
+    catch (...) {
+        num_errors++;
+    }
+    return num_errors;
+}
+
+int test_output_schedule_from_string()
+{
+    int num_errors = 0;
+    Date st(2020, 1, 1);
+    Date end(2020, 1, 28);
+
+    Scheduler scheduling(st, end, StepUnit::Week, 1);
+    std::vector<bool> out = output_schedule_from_string(scheduling, "week");
+    if (get_number_of_scheduled_actions(out) != 4)
+        num_errors++;
+    out = output_schedule_from_string(scheduling, "every_n_steps", 2);
+    if (get_number_of_scheduled_actions(out) != 2)
+        num_errors++;
+    try {
+        out = output_schedule_from_string(scheduling, "day");
+        num_errors++;
+    }
+    catch (std::invalid_argument) {
+        // OK
+    }
+
+    Scheduler scheduling2(st, end, StepUnit::Day, 1);
+    out = output_schedule_from_string(scheduling2, "week");
+    if (get_number_of_scheduled_actions(out) != 4)
+        num_errors++;
+    out = output_schedule_from_string(scheduling2, "day");
+    if (get_number_of_scheduled_actions(out) != 28)
+        num_errors++;
+    out = output_schedule_from_string(scheduling2, "every_n_steps", 7);
+    if (get_number_of_scheduled_actions(out) != 4)
+        num_errors++;
+
+    Scheduler scheduling3(st, end, StepUnit::Week, 2);
+    try {
+        out = output_schedule_from_string(scheduling3, "week");
+        num_errors++;
+    }
+    catch (std::invalid_argument) {
+        // OK
+    }
+    out = output_schedule_from_string(scheduling3, "every_n_steps", 2);
+    if (get_number_of_scheduled_actions(out) != 1)
+        num_errors++;
+    out = output_schedule_from_string(scheduling3, "month");
+    if (get_number_of_scheduled_actions(out) != 0)
+        num_errors++;
+
+    out = output_schedule_from_string(scheduling3, "", 0);
+    if (get_number_of_scheduled_actions(out) != 0)
+        num_errors++;
+    return num_errors;
+}
+
+
+int test_get_step_length()
+{
+    int num_errors = 0;
+    Date st(2020, 1, 1);
+    Date end(2021, 12, 31);
+
+    Scheduler scheduling(st, end, StepUnit::Month, 2);
+    unsigned n;
+    StepUnit unit;
+    std::tie(n, unit) = scheduling.get_step_length();
+    if (unit != StepUnit::Month || n != 2)
+        num_errors++;
+
+    return num_errors;
+}
+
 int main()
 {
     int num_errors = 0;
@@ -297,7 +390,11 @@ int main()
     num_errors += test_schedule_action_monthly();
     num_errors += test_simulation_step_to_action_step();
     num_errors += test_get_number_of_scheduled_actions();
+    num_errors += test_unit_enum_from_string();
+    num_errors += test_get_step_length();
+    num_errors += test_output_schedule_from_string();
 
+    std::cout << "Test scheduling number of errors: " << num_errors << std::endl;
     return num_errors;
 }
 

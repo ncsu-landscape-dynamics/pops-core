@@ -407,6 +407,26 @@ int test_clear()
     return num_errors;
 }
 
+int test_treat_app_from_string()
+{
+    int num_errors = 0;
+    if (treatment_app_enum_from_string("ratio_to_all") != TreatmentApplication::Ratio)
+        num_errors++;
+    if (treatment_app_enum_from_string("all_infected_in_cell") != TreatmentApplication::AllInfectedInCell)
+        num_errors++;
+    try {
+        treatment_app_enum_from_string("invalid_input");
+        num_errors++;
+    }
+    catch (std::invalid_argument) {
+        // OK
+    }
+    catch (...) {
+        num_errors++;
+    }
+    return num_errors;
+}
+
 int main()
 {
     int num_errors = 0;
@@ -419,7 +439,9 @@ int main()
     num_errors += test_pesticide_temporal_overlap();
     num_errors += test_steering();
     num_errors += test_clear();
+    num_errors += test_treat_app_from_string();
 
+    std::cout << "Test treatments number of errors: " << num_errors << std::endl;
     return num_errors;
 }
 
