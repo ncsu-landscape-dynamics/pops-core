@@ -47,7 +47,9 @@ inline TreatmentApplication treatment_app_enum_from_string(const std::string& te
 {
     std::map<std::string, TreatmentApplication> mapping{
         {"ratio_to_all", TreatmentApplication::Ratio},
-        {"all_infected_in_cell", TreatmentApplication::AllInfectedInCell}
+        {"ratio", TreatmentApplication::Ratio},
+        {"all_infected_in_cell", TreatmentApplication::AllInfectedInCell},
+        {"all infected", TreatmentApplication::AllInfectedInCell}
     };
     try {
         return mapping.at(text);

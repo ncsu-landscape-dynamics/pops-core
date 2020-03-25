@@ -367,11 +367,11 @@ inline std::vector<bool> output_schedule_from_string(const Scheduler &scheduler,
     std::invalid_argument exception("Output frequency and simulation step are incompatible");
     std::tie(sim_n, sim_unit) = scheduler.get_step_length();
     if (!frequency.empty()) {
-        if (frequency == "year")
+        if (frequency == "year" || frequency == "yearly")
             return scheduler.schedule_action_end_of_year();
-        else if (frequency == "month")
+        else if (frequency == "month" || frequency == "monthly")
             return scheduler.schedule_action_monthly();
-        else if (frequency == "week") {
+        else if (frequency == "week" || frequency == "weekly") {
             if (sim_unit == StepUnit::Day) {
                 if (sim_n == 1)
                     return scheduler.schedule_action_nsteps(7);
@@ -388,7 +388,7 @@ inline std::vector<bool> output_schedule_from_string(const Scheduler &scheduler,
             }
             throw exception;
         }
-        else if (frequency == "day") {
+        else if (frequency == "day" || frequency == "daily") {
             if (sim_unit == StepUnit::Day && sim_n == 1)
                  return scheduler.schedule_action_nsteps(1);
             else
