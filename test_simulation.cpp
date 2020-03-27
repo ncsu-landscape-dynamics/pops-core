@@ -24,6 +24,7 @@
  */
 
 #include "raster.hpp"
+#include "neighbor_kernel.hpp"
 #include "radial_kernel.hpp"
 #include "simulation.hpp"
 
@@ -42,12 +43,61 @@ using std::endl;
 
 using namespace pops;
 
-int main()
+int test_with_neighbor_kernel()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
     Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
+    // Susceptible and total are set in a way that there won't be any
+    // dilution effect and the disperser will always establish given the
+    // selected random seed. Establishment probability is high and with
+    // the given seed we don't get any random numbers in establishment
+    // test higher than that. (The weather is disabled.)
     Raster<int> susceptible = {{10, 6}, {14, 15}};
-    Raster<int> total_plants = {{15, 6}, {14, 15}};
+    // add a lot of hosts, so that exposing or infecting them won't
+    // chanage the susceptible/total ratio much
+    susceptible += 100000;
+    // we want to minimize the dilution effect
+    Raster<int> total_plants = susceptible;
+    Raster<double> temperature = {{5, 0}, {0, 0}};
+    Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
+
+    Raster<int> expected_exposed = {{0, 10}, {0, 0}};
+    Raster<int> expected_mortality_tracker = expected_exposed;
+
+    Raster<int> exposed(infected.rows(), infected.cols());
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+    bool weather = false;
+    double reproductive_rate = 2;
+    NeighborDispersalKernel kernel(Direction::E);
+    Simulation<Raster<int>, Raster<double>> simulation(42, infected.rows(), infected.cols());
+    dispersers = reproductive_rate * infected;
+    // cout << dispersers;
+    simulation.disperse(dispersers, susceptible, exposed,
+                        mortality_tracker, total_plants,
+                        outside_dispersers, weather, weather_coefficient,
+                        kernel);
+    if (!outside_dispersers.empty()) {
+        cout << "There are outside_dispersers (" << outside_dispersers.size() << ") but there should be none\n";
+        return 1;
+    }
+    if (exposed != expected_exposed) {
+        cout << "Neighbor kernel test (actual, expected):\n" << exposed << "  !=\n" << expected_exposed << "\n";
+        return 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout << "Neighbor kernel test mortality tracker (actual, expected):\n" << mortality_tracker << "  !=\n" << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+int test_calling_all_functions()
+{
+    Raster<int> infected = {{5, 0}, {0, 0}};
+    Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
+    Raster<int> susceptible = {{10, 15}, {14, 15}};
+    Raster<int> total_plants = {{15, 15}, {14, 15}};
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0.6, 0.8}, {0.2, 0.8}};
     Raster<int> dispersers(infected.rows(), infected.cols());
@@ -74,8 +124,17 @@ int main()
                         mortality_tracker, total_plants,
                         outside_dispersers, weather, weather_coefficient,
                         kernel);
-    cout << outside_dispersers.size() << endl;
-    return 0;
+    cout << "outside_dispersers: " << outside_dispersers.size() << endl;
+}
+
+int main()
+{
+    int ret = 0;
+
+    ret += test_calling_all_functions();
+    ret += test_with_neighbor_kernel();
+
+    return ret;
 }
 
 #endif  // POPS_TEST
