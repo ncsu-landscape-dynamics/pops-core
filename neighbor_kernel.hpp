@@ -23,30 +23,30 @@
 
 namespace pops {
 
-/*! Dispersal kernel for random uniform dispersal over the whole
- * landscape
+/*! Dispersal kernel for deterministic spread to a next cell
  *
- * This class is a good example of how to write a kernel and
- * it is useful for testing due to its simplicity. It tends to generate
- * a lot of spread because it quickly spreads over the landscape.
- * However, it may work as a good starting point for cases where no
- * theory about the spread is available.
+ * This kernel spreads only in one direction specified by a parameter.
+ * It is useful for testing because the result is completely
+ * deteministic.
+ *
+ * When a diagonal direction such as SE is used, disperser is moved
+ * one cell in each cooresponding cardial direction, i.e., 1 S and 1 E
+ * for SE.
  */
-class NeighborDispersalKernel
+class DeterministicNeighborDispersalKernel
 {
 protected:
     Direction direction_;
 public:
-    NeighborDispersalKernel(Direction dispersal_direction)
+    DeterministicNeighborDispersalKernel(Direction dispersal_direction)
         :
           direction_(dispersal_direction)
     {}
 
     /*! \copybrief RadialDispersalKernel::operator()()
      *
-     * The randomness is based on the *generator*.
-     * The new position does not depend on the position of the current
-     * disperser thus *row* and *col* are unused.
+     * Thehere is no randomness, so the *generator*
+     * is unused.
      */
     template<typename Generator>
     std::tuple<int, int> operator() (Generator& generator, int row, int col)
