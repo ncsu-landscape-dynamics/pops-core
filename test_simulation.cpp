@@ -64,7 +64,7 @@ int test_with_neighbor_kernel()
     Raster<int> expected_exposed = {{0, 10}, {0, 0}};
     Raster<int> expected_mortality_tracker = expected_exposed;
 
-    Raster<int> exposed(infected.rows(), infected.cols());
+    Raster<int> exposed(infected.rows(), infected.cols(), 0);
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     bool weather = false;
@@ -125,6 +125,7 @@ int test_calling_all_functions()
                         outside_dispersers, weather, weather_coefficient,
                         kernel);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;
+    return 0;
 }
 
 int main()
