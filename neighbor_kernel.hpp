@@ -1,7 +1,7 @@
 /*
- * PoPS model - random uniform dispersal kernel
+ * PoPS model - deterministic neighbor dispersal kernel
  *
- * Copyright (C) 2015-2020 by the authors.
+ * Copyright (C) 2020 by the authors.
  *
  * Authors: Vaclav Petras (wenzeslaus gmail com)
  *
@@ -19,15 +19,13 @@
 #include "kernel_types.hpp"
 #include "radial_kernel.hpp"
 
-#include <random>
-
 namespace pops {
 
 /*! Dispersal kernel for deterministic spread to a next cell
  *
  * This kernel spreads only in one direction specified by a parameter.
  * It is useful for testing because the result is completely
- * deteministic.
+ * deterministic.
  *
  * When a diagonal direction such as SE is used, disperser is moved
  * one cell in each cooresponding cardial direction, i.e., 1 S and 1 E
@@ -86,11 +84,11 @@ public:
         return std::make_tuple(row, col);
     }
 
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
+    /*! Enum value is defined, so this always returns false.
      */
     static bool supports_kernel(const DispersalKernelType type)
     {
-        return type == DispersalKernelType::Uniform;
+        return false;
     }
 };
 
