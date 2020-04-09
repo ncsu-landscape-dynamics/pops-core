@@ -89,8 +89,15 @@ int test_with_neighbor_kernel()
     std::vector<std::tuple<int, int>> outside_dispersers;
     bool weather = false;
     double reproductive_rate = 2;
+    unsigned latency_period_steps = 2;
     DeterministicNeighborDispersalKernel kernel(Direction::E);
-    Simulation<Raster<int>, Raster<double>> simulation(42, infected.rows(), infected.cols());
+    Simulation<Raster<int>, Raster<double>> simulation(
+                model_type_from_string("SI"),
+                latency_period_steps,
+                42,
+                infected.rows(),
+                infected.cols()
+                );
     dispersers = reproductive_rate * infected;
     // cout << dispersers;
     simulation.disperse(dispersers, susceptible, exposed,
