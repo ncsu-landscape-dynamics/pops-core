@@ -43,11 +43,21 @@ using std::endl;
 
 using namespace pops;
 
+void print_vector(std::vector<int> v)
+{
+    for (auto i : v) {
+        cout << i;
+    }
+    cout << "\n";
+}
+
 int test_rotate_left_by_one(std::vector<int> a, std::vector<int> b)
 {
     rotate_left_by_one(a);
     if (a != b) {
         cout << "Rotated vector not correct\n";
+        print_vector(a);
+        print_vector(b);
         return 1;
     }
     return 0;
@@ -149,8 +159,7 @@ int main()
 {
     int ret = 0;
 
-    ret += test_rotate_left_by_one({1}, {2});
-    ret += test_rotate_left_by_one({1}, {1});
+    ret += test_rotate_left_by_one({2}, {2});
     ret += test_rotate_left_by_one({1, 2}, {2, 1});
     ret += test_rotate_left_by_one({1, 2, 3, 4, 5}, {2, 3, 4, 5, 1});
 
