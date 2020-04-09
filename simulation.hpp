@@ -425,12 +425,13 @@ public:
      * @param mortality_tracker Newly infected hosts
      */
     void infect(
+            unsigned step,
             std::vector<IntegerRaster>& exposed,
             IntegerRaster& infected,
             IntegerRaster& mortality_tracker)
     {
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
-            if (exposed.size() >= latency_period_ + 1) {
+            if (step > latency_period_) {
                 // Oldest item needs to be in the front
                 auto& oldest = exposed.front();
                 // Move hosts to infected raster
@@ -485,6 +486,7 @@ public:
      */
     template<typename DispersalKernel>
     void disperse_and_infect(
+            unsigned step,
             const IntegerRaster& dispersers,
             IntegerRaster& susceptible,
             std::vector<IntegerRaster>& exposed,
@@ -500,7 +502,10 @@ public:
         if (model_type_ == ModelType::SusceptibleExposedInfected)
             // The empty - not yet exposed - raster is in the back
             // and will become yougest exposed one.
-            infected_or_exposed = exposed.back();
+            if (step > latency_period_)
+                infected_or_exposed = exposed.back();
+            else
+                infected_or_exposed = exposed[step];
         this->disperse(
                     dispersers,
                     susceptible,
@@ -512,7 +517,7 @@ public:
                     weather_coefficient,
                     dispersal_kernel);
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
-            this->infect(exposed, infected, mortality_tracker);
+            this->infect(step, exposed, infected, mortality_tracker);
         }
     }
 };
