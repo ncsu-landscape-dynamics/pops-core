@@ -394,19 +394,18 @@ public:
      *
      * The exposed vector are the hosts exposed in the previous steps.
      * The lenght of the vector is the number of steps of the latency
-     * period plus one when the simulation is in the steps beyond the
-     * first latency period. Before that, exposed vector lenght is
-     * smaller than latency period plus one and the E to I transition
-     * won't happen because no item in the exposed vector is old enough
-     * to become infected.
+     * period plus one. Before the first latency period is over,
+     * the E to I transition won't happen because no item in the exposed
+     * vector is old enough to become infected.
      *
      * The position of the items in the exposed vector determines their
      * age, i.e., for how long the hosts are exposed. The oldest item
      * is at the front and youngest at the end. After the first latency
      * period, this needs to be true before the function is called and
      * it is true after the function
-     * finished with the difference that the last item is empty in the
-     * sense that it does not contain any hosts.
+     * finished with the difference that after the function is called,
+     * the last item is empty in the sense that it does not contain any
+     * hosts.
      *
      * When the E to I transition happens, hosts from the oldest item
      * in the exposed vector are moved to the infected (and mortality
@@ -420,7 +419,8 @@ public:
      * The raster class used with the simulation class needs to support
      * `.fill()` method for this function to work.
      *
-     * @param exposed Exposed hosts
+     * @param step Step in the simulation (>=0)
+     * @param exposed Vector of exposed hosts
      * @param infected Infected hosts
      * @param mortality_tracker Newly infected hosts
      */
@@ -463,14 +463,16 @@ public:
      * In case of SEI model, before calling this function, last item in
      * the exposed vector needs to be ready to be used for exposure,
      * i.e., typically, it should be empty in the sense that there are
-     * no hosts in the raster. This is the state this function produces
-     * when executed after the first latency period is over. Before
-     * that, a new item should be added to the exposed vector:
+     * no hosts in the raster. This is normally taken care of by a
+     * previous call to this function. The initial state of the exposed
+     * vector should be such that size is latency period in steps plus 1
+     * and each raster is empty, i.e., does not conatain any hosts
+     * (all values set to zero).
      *
-     * ```
-     * if (exposed_vector.size() < latency_period_steps + 1)
-     *     exposed_vector.emplace_back(rows, cols, 0);
-     * ```
+     * Before the first latency period is over, the function uses each
+     * item in the vector starting with the first item continuing to
+     * the back of the vector. After the first latency period, the last
+     * item is always used.
      *
      * See the infect() function for the details about exposed vector,
      * its size, and its items.
