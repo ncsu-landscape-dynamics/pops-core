@@ -400,7 +400,11 @@ public:
      *
      * The position of the items in the exposed vector determines their
      * age, i.e., for how long the hosts are exposed. The oldest item
-     * is at the front and youngest at the end. After the first latency
+     * is at the front and youngest at the end.
+     * Before the the first latency period is over, items in the front
+     * are still empty (unused) because no hosts were exposed for the
+     * given time period.
+     * After the first latency
      * period, this needs to be true before the function is called and
      * it is true after the function
      * finished with the difference that after the function is called,
@@ -440,12 +444,12 @@ public:
                 // Reset the raster
                 // (hosts moved from the raster)
                 oldest.fill(0);
-                // Age the items and the used one to the back
-                // elements go one position to the left
-                // new oldest goes to the front
-                // old oldest goes to the back
-                rotate_left_by_one(exposed);
             }
+            // Age the items and the used one to the back
+            // elements go one position to the left
+            // new oldest goes to the front
+            // old oldest goes to the back
+            rotate_left_by_one(exposed);
         }
         else if (model_type_ == ModelType::SusceptibleInfected) {
             // no-op
@@ -468,11 +472,6 @@ public:
      * vector should be such that size is latency period in steps plus 1
      * and each raster is empty, i.e., does not conatain any hosts
      * (all values set to zero).
-     *
-     * Before the first latency period is over, the function uses each
-     * item in the vector starting with the first item continuing to
-     * the back of the vector. After the first latency period, the last
-     * item is always used.
      *
      * See the infect() function for the details about exposed vector,
      * its size, and its items.
@@ -500,18 +499,16 @@ public:
             const FloatRaster& weather_coefficient,
             DispersalKernel& dispersal_kernel)
     {
-        auto& infected_or_exposed = infected;
-        if (model_type_ == ModelType::SusceptibleExposedInfected)
+        auto* infected_or_exposed = &infected;
+        if (model_type_ == ModelType::SusceptibleExposedInfected) {
             // The empty - not yet exposed - raster is in the back
             // and will become yougest exposed one.
-            if (step > latency_period_)
-                infected_or_exposed = exposed.back();
-            else
-                infected_or_exposed = exposed[step];
+            infected_or_exposed = &exposed.back();
+        }
         this->disperse(
                     dispersers,
                     susceptible,
-                    infected_or_exposed,
+                    *infected_or_exposed,
                     mortality_tracker,
                     total_plants,
                     outside_dispersers,
