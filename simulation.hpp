@@ -133,11 +133,11 @@ public:
      * @param rows Number of rows
      * @param cols Number of columns
      */
-    Simulation(ModelType model_type,
-               unsigned latency_period,
-               unsigned random_seed,
+    Simulation(unsigned random_seed,
                RasterIndex rows,
-               RasterIndex cols
+               RasterIndex cols,
+               ModelType model_type = ModelType::SusceptibleInfected,
+               unsigned latency_period = 0
                )
         :
           rows_(rows),

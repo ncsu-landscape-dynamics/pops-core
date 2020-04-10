@@ -93,8 +93,6 @@ int test_with_neighbor_kernel()
     unsigned latency_period_steps = 2;
     DeterministicNeighborDispersalKernel kernel(Direction::E);
     Simulation<Raster<int>, Raster<double>> simulation(
-                model_type_from_string("SI"),
-                latency_period_steps,
                 42,
                 infected.rows(),
                 infected.cols()
@@ -187,11 +185,11 @@ int test_with_sei()
 
     DeterministicNeighborDispersalKernel kernel(Direction::E);
     Simulation<Raster<int>, Raster<double>> simulation(
-                model_type_from_string("SEI"),
-                latency_period_steps,
                 42,
                 infected.rows(),
-                infected.cols()
+                infected.cols(),
+                model_type_from_string("SEI"),
+                latency_period_steps
                 );
     dispersers = reproductive_rate * infected;
     int step = 0;
@@ -319,8 +317,6 @@ int test_calling_all_functions()
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
     Simulation<Raster<int>, Raster<double>> simulation(
-                model_type_from_string("SI"),
-                latency_period_steps,
                 seed,
                 infected.rows(),
                 infected.cols());
