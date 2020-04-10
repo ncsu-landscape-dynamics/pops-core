@@ -43,7 +43,8 @@ using std::endl;
 
 using namespace pops;
 
-void print_vector(std::vector<int> v)
+template <typename T>
+void print_vector(const std::vector<T>& v)
 {
     for (auto i : v) {
         cout << i;
