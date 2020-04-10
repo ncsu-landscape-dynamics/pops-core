@@ -82,15 +82,13 @@ int test_with_neighbor_kernel()
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
 
-    Raster<int> expected_exposed = {{0, 10}, {0, 0}};
-    Raster<int> expected_mortality_tracker = expected_exposed;
+    Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
+    auto expected_infected = expected_mortality_tracker + infected;
 
-    Raster<int> exposed(infected.rows(), infected.cols(), 0);
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     bool weather = false;
     double reproductive_rate = 2;
-    unsigned latency_period_steps = 2;
     DeterministicNeighborDispersalKernel kernel(Direction::E);
     Simulation<Raster<int>, Raster<double>> simulation(
                 42,
@@ -99,7 +97,7 @@ int test_with_neighbor_kernel()
                 );
     dispersers = reproductive_rate * infected;
     // cout << dispersers;
-    simulation.disperse(dispersers, susceptible, exposed,
+    simulation.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_plants,
                         outside_dispersers, weather, weather_coefficient,
                         kernel);
@@ -107,8 +105,8 @@ int test_with_neighbor_kernel()
         cout << "There are outside_dispersers (" << outside_dispersers.size() << ") but there should be none\n";
         return 1;
     }
-    if (exposed != expected_exposed) {
-        cout << "Neighbor kernel test (actual, expected):\n" << exposed << "  !=\n" << expected_exposed << "\n";
+    if (infected != expected_infected) {
+        cout << "Neighbor kernel test infected (actual, expected):\n" << infected << "  !=\n" << expected_infected << "\n";
         return 1;
     }
     if (mortality_tracker != expected_mortality_tracker) {
