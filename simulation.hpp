@@ -435,7 +435,7 @@ public:
             IntegerRaster& mortality_tracker)
     {
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
-            if (step > latency_period_) {
+            if (step >= latency_period_) {
                 // Oldest item needs to be in the front
                 auto& oldest = exposed.front();
                 // Move hosts to infected raster
