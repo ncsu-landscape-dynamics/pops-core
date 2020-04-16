@@ -4,6 +4,16 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2020-04-16 - SEI model
+
+### Added
+
+- Exposed host tracking with latency period to run SEI models. (Vaclav Petras)
+
+### Changed
+
+- Step numbering is now expected to start at zero. (Vaclav Petras)
+
 ## 2020-01-04 - Movement Module
 
 ### Added

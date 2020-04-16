@@ -43,6 +43,27 @@ using std::endl;
 
 using namespace pops;
 
+template <typename T>
+void print_vector(const std::vector<T>& v)
+{
+    for (auto i : v) {
+        cout << i;
+    }
+    cout << "\n";
+}
+
+int test_rotate_left_by_one(std::vector<int> a, std::vector<int> b)
+{
+    rotate_left_by_one(a);
+    if (a != b) {
+        cout << "Rotated vector not correct\n";
+        print_vector(a);
+        print_vector(b);
+        return 1;
+    }
+    return 0;
+}
+
 int test_with_neighbor_kernel()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
@@ -61,19 +82,22 @@ int test_with_neighbor_kernel()
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
 
-    Raster<int> expected_exposed = {{0, 10}, {0, 0}};
-    Raster<int> expected_mortality_tracker = expected_exposed;
+    Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
+    auto expected_infected = expected_mortality_tracker + infected;
 
-    Raster<int> exposed(infected.rows(), infected.cols(), 0);
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     bool weather = false;
     double reproductive_rate = 2;
     DeterministicNeighborDispersalKernel kernel(Direction::E);
-    Simulation<Raster<int>, Raster<double>> simulation(42, infected.rows(), infected.cols());
+    Simulation<Raster<int>, Raster<double>> simulation(
+                42,
+                infected.rows(),
+                infected.cols()
+                );
     dispersers = reproductive_rate * infected;
     // cout << dispersers;
-    simulation.disperse(dispersers, susceptible, exposed,
+    simulation.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_plants,
                         outside_dispersers, weather, weather_coefficient,
                         kernel);
@@ -81,8 +105,8 @@ int test_with_neighbor_kernel()
         cout << "There are outside_dispersers (" << outside_dispersers.size() << ") but there should be none\n";
         return 1;
     }
-    if (exposed != expected_exposed) {
-        cout << "Neighbor kernel test (actual, expected):\n" << exposed << "  !=\n" << expected_exposed << "\n";
+    if (infected != expected_infected) {
+        cout << "Neighbor kernel test infected (actual, expected):\n" << infected << "  !=\n" << expected_infected << "\n";
         return 1;
     }
     if (mortality_tracker != expected_mortality_tracker) {
@@ -90,6 +114,289 @@ int test_with_neighbor_kernel()
         return 1;
     }
     return 0;
+}
+
+int disperse_and_infect_postcondition(int step, const std::vector<Raster<int>>& exposed)
+{
+    Raster<int> zeros(exposed[0].rows(), exposed[0].cols(), 0);
+    if (exposed.back() != zeros) {
+        cout << "SEI: disperse_and_infect post-condition not met in step " << step << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+int exposed_state(int step, const std::vector<Raster<int>>& exposed, const Raster<int>& expected_exposed)
+{
+    int ret = 0;
+    Raster<int> zeros(exposed[0].rows(), exposed[0].cols(), 0);
+    for (int i = 0; i < exposed.size(); ++i) {
+        if (i >= int(exposed.size()) - step - 2 && i < exposed.size() - 1) {
+            if (exposed[i] != expected_exposed) {
+                cout << "SEI test exposed[" << i << "] (actual, expected):\n" << exposed[i] << "  !=\n" << expected_exposed << "\n";
+                print_vector(exposed);
+                ret += 1;
+            }
+        }
+        else {
+            if (exposed[i] != zeros) {
+                cout << "SEI test exposed[" << i << "] (actual, expected zeros):\n" << exposed[i] << "\n";
+                print_vector(exposed);
+                ret += 1;
+            }
+        }
+    }
+    return ret;
+}
+
+int test_with_sei()
+{
+    Raster<int> infected = {{5, 0}, {0, 0}};
+    Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
+    // Susceptible and total are set in a way that there won't be any
+    // dilution effect and the disperser will always establish given the
+    // selected random seed. Establishment probability is high and with
+    // the given seed we don't get any random numbers in establishment
+    // test higher than that. (The weather is disabled.)
+    Raster<int> susceptible = {{10, 6}, {14, 15}};
+    // add a lot of hosts, so that exposing or infecting them won't
+    // chanage the susceptible/total ratio much
+    susceptible += 100000;
+    // we want to minimize the dilution effect
+    Raster<int> total_plants = susceptible;
+    Raster<double> temperature = {{5, 0}, {0, 0}};
+    Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+
+    Raster<int> expected_infected = infected;
+    Raster<int> expected_exposed = {{0, 10}, {0, 0}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+    bool weather = false;
+    double reproductive_rate = 2;
+    unsigned latency_period_steps = 3;
+
+    std::vector<Raster<int>> exposed(
+                latency_period_steps + 1,
+                Raster<int>(infected.rows(), infected.cols(), 0));
+
+    DeterministicNeighborDispersalKernel kernel(Direction::E);
+    Simulation<Raster<int>, Raster<double>> simulation(
+                42,
+                infected.rows(),
+                infected.cols(),
+                model_type_from_string("SEI"),
+                latency_period_steps
+                );
+    dispersers = reproductive_rate * infected;
+    int step = 0;
+    int ret = 0;
+    simulation.disperse_and_infect(
+                step, dispersers, susceptible,
+                exposed, infected,
+                mortality_tracker, total_plants,
+                outside_dispersers, weather,
+                weather_coefficient,
+                kernel);
+    if (infected != expected_infected) {
+        cout << "SEI test infected (actual, expected):\n" << infected << "  !=\n" << expected_infected << "\n";
+        ret += 1;
+    }
+    if (mortality_tracker != zeros) {
+        cout << "SEI test mortality tracker (actual, expected zeros):\n" << mortality_tracker << "\n";
+        ret += 1;
+    }
+    print_vector(exposed);
+    cout << infected << "\n\n";
+    ret += disperse_and_infect_postcondition(step, exposed);
+    simulation.disperse_and_infect(
+                ++step, dispersers, susceptible,
+                exposed, infected,
+                mortality_tracker, total_plants,
+                outside_dispersers, weather,
+                weather_coefficient,
+                kernel);
+    print_vector(exposed);
+    cout << infected << "\n\n";
+    ret += disperse_and_infect_postcondition(step, exposed);
+    simulation.disperse_and_infect(
+                ++step, dispersers, susceptible,
+                exposed, infected,
+                mortality_tracker, total_plants,
+                outside_dispersers, weather,
+                weather_coefficient,
+                kernel);
+    print_vector(exposed);
+    cout << infected << "\n\n";
+    ret += disperse_and_infect_postcondition(step, exposed);
+    if (!outside_dispersers.empty()) {
+        cout << "SEI test: There are outside_dispersers (" << outside_dispersers.size() << ") but there should be none\n";
+        ret += 1;
+    }
+    exposed_state(step, exposed, expected_exposed);
+    if (mortality_tracker != zeros) {
+        cout << "SEI test mortality tracker (actual, expected zeros):\n" << mortality_tracker << "\n";
+        ret += 1;
+    }
+    simulation.disperse_and_infect(
+                ++step, dispersers, susceptible,
+                exposed, infected,
+                mortality_tracker, total_plants,
+                outside_dispersers, weather,
+                weather_coefficient,
+                kernel);
+    print_vector(exposed);
+    cout << infected << "\n\n";
+    ret += disperse_and_infect_postcondition(step, exposed);
+    expected_infected = expected_infected + expected_exposed;
+    Raster<int> expected_mortality_tracker = expected_exposed;
+    if (!outside_dispersers.empty()) {
+        cout << "SEI test: There are outside_dispersers (" << outside_dispersers.size() << ") but there should be none\n";
+        ret += 1;
+    }
+    if (infected != expected_infected) {
+        cout << "SEI test infected (actual, expected):\n" << infected << "  !=\n" << expected_infected << "\n";
+        ret += 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout << "SEI test mortality tracker (actual, expected):\n" << mortality_tracker << "  !=\n" << expected_mortality_tracker << "\n";
+        ret += 1;
+    }
+    exposed_state(step, exposed, expected_exposed);
+    simulation.disperse_and_infect(
+                ++step, dispersers, susceptible,
+                exposed, infected,
+                mortality_tracker, total_plants,
+                outside_dispersers, weather,
+                weather_coefficient,
+                kernel);
+    print_vector(exposed);
+    cout << infected << "\n\n";
+    ret += disperse_and_infect_postcondition(step, exposed);
+
+    for (int i = 0; i < 10; ++i) {
+        simulation.disperse_and_infect(
+                    ++step, dispersers, susceptible,
+                    exposed, infected,
+                    mortality_tracker, total_plants,
+                    outside_dispersers, weather,
+                    weather_coefficient,
+                    kernel);
+        print_vector(exposed);
+        cout << infected << "\n\n";
+        ret += disperse_and_infect_postcondition(step, exposed);
+    }
+
+    return ret;
+}
+
+int test_SI_versus_SEI0()
+{
+    Raster<int> infected_1 = {{5, 0}, {0, 0}};
+    auto infected_2 = infected_1;
+    auto infected_3 = infected_1;
+    Raster<int> mortality_tracker_1 = {{0, 0}, {0, 0}};
+    auto mortality_tracker_2 = mortality_tracker_1;
+    auto mortality_tracker_3 = mortality_tracker_1;
+    // Susceptible and total are set in a way that there won't be any
+    // dilution effect and the disperser will always establish given the
+    // selected random seed. Establishment probability is high and with
+    // the given seed we don't get any random numbers in establishment
+    // test higher than that. (The weather is disabled.)
+    Raster<int> susceptible_1 = {{10, 6}, {14, 15}};
+    // add a lot of hosts, so that exposing or infecting them won't
+    // chanage the susceptible/total ratio much
+    susceptible_1 += 100000;
+    auto susceptible_2 = susceptible_1;
+    auto susceptible_3 = susceptible_1;
+    // we want to minimize the dilution effect
+    auto total_plants_1 = susceptible_1;
+    auto total_plants_2 = susceptible_2;
+    auto total_plants_3 = susceptible_3;
+    Raster<double> temperature = {{5, 0}, {0, 0}};
+    Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
+    auto rows = infected_1.rows();
+    auto cols = infected_1.cols();
+
+    std::vector<std::tuple<int, int>> outside_dispersers_1;
+    auto outside_dispersers_2 = outside_dispersers_1;
+    auto outside_dispersers_3 = outside_dispersers_1;
+    bool weather = false;
+    double reproductive_rate = 2;
+    unsigned latency_period_steps = 0;
+
+    auto dispersers = reproductive_rate * infected_1;
+    std::vector<Raster<int>> empty_exposed;
+
+    std::vector<Raster<int>> exposed(
+                latency_period_steps + 1,
+                Raster<int>(rows, cols, 0));
+
+    DeterministicNeighborDispersalKernel kernel(Direction::E);
+    Simulation<Raster<int>, Raster<double>> simulation_SI_1(
+                42,
+                rows,
+                cols,
+                model_type_from_string("SI")
+                );
+    Simulation<Raster<int>, Raster<double>> simulation_SI_2(
+                42,
+                rows,
+                cols,
+                model_type_from_string("SI")
+                );
+    Simulation<Raster<int>, Raster<double>> simulation_SEI0(
+                42,
+                rows,
+                cols,
+                model_type_from_string("SEI"),
+                latency_period_steps
+                );
+    int ret = 0;
+    for (int step = 0; step < 10; ++step) {
+        simulation_SI_1.disperse_and_infect(
+                    step, dispersers, susceptible_1,
+                    empty_exposed, infected_1,
+                    mortality_tracker_1, total_plants_1,
+                    outside_dispersers_1, weather,
+                    weather_coefficient,
+                    kernel);
+        simulation_SI_2.disperse(
+                    dispersers, susceptible_2, infected_2,
+                    mortality_tracker_2, total_plants_2,
+                    outside_dispersers_2, weather,
+                    weather_coefficient,
+                    kernel);
+        simulation_SEI0.disperse_and_infect(
+                    step, dispersers, susceptible_3,
+                    exposed, infected_3,
+                    mortality_tracker_3, total_plants_3,
+                    outside_dispersers_3, weather,
+                    weather_coefficient,
+                    kernel);
+        ret += disperse_and_infect_postcondition(step, exposed);
+        if (infected_2 != infected_1) {
+            cout << "SI with disperse vs SI with disperse_and_infect: infected don't fit\n";
+            cout << infected_2;
+            cout << infected_1;
+            ret += 1;
+        }
+        if (infected_3 != infected_1) {
+            cout << "SI with disperse_and_infect vs SEI0: infected don't fit\n";
+            cout << infected_1;
+            cout << infected_3;
+            ret += 1;
+        }
+        if (infected_3 != infected_2) {
+            cout << "SI with disperse vs SEI0: infected don't fit\n";
+            cout << infected_2;
+            cout << infected_3;
+            ret += 1;
+        }
+    }
+
+    return ret;
 }
 
 int test_calling_all_functions()
@@ -111,9 +418,13 @@ int test_calling_all_functions()
     int ns_res = 30;
     unsigned step = 1;
     unsigned last_index = 0;
+    int seed = 42;
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
-    Simulation<Raster<int>, Raster<double>> simulation(42, infected.rows(), infected.cols());
+    Simulation<Raster<int>, Raster<double>> simulation(
+                seed,
+                infected.rows(),
+                infected.cols());
     simulation.remove(infected, susceptible, temperature, lethal_temperature);
     simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
     RadialDispersalKernel kernel(ew_res, ns_res, dispersal_kernel,
@@ -132,8 +443,14 @@ int main()
 {
     int ret = 0;
 
+    ret += test_rotate_left_by_one({2}, {2});
+    ret += test_rotate_left_by_one({1, 2}, {2, 1});
+    ret += test_rotate_left_by_one({1, 2, 3, 4, 5}, {2, 3, 4, 5, 1});
+
     ret += test_calling_all_functions();
     ret += test_with_neighbor_kernel();
+    ret += test_with_sei();
+    ret += test_SI_versus_SEI0();
 
     return ret;
 }
