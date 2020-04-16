@@ -312,7 +312,7 @@ public:
      * S to I step.
      *
      * Typically, the generate() function is called beforehand to
-     * create dispersers. In SEI model, the infect() function is
+     * create dispersers. In SEI model, the infect_exposed() function is
      * typically called afterwards.
      *
      * DispersalKernel is callable object or function with one parameter
@@ -429,7 +429,7 @@ public:
      * @param infected Infected hosts
      * @param mortality_tracker Newly infected hosts
      */
-    void infect(
+    void infect_exposed(
             unsigned step,
             std::vector<IntegerRaster>& exposed,
             IntegerRaster& infected,
@@ -456,14 +456,15 @@ public:
             // no-op
         }
         else {
-            throw std::runtime_error("Unknown ModelType value in Simulation::infect()");
+            throw std::runtime_error(
+                        "Unknown ModelType value in Simulation::infect_exposed()");
         }
     }
 
     /** Disperse, expose, and infect based on dispersers
      *
-     * This function wraps disperse() and infect() for use in SI and SEI
-     * models.
+     * This function wraps disperse() and infect_exposed() for use in SI
+     * and SEI models.
      *
      * In case of SEI model, before calling this function, last item in
      * the exposed vector needs to be ready to be used for exposure,
@@ -474,17 +475,17 @@ public:
      * and each raster is empty, i.e., does not conatain any hosts
      * (all values set to zero).
      *
-     * See the infect() function for the details about exposed vector,
-     * its size, and its items.
+     * See the infect_exposed() function for the details about exposed
+     * vector, its size, and its items.
      *
-     * See disperse() and infect() for a detailed list of parameters
-     * and behavior. The disperse() parameter documentation can be
-     * applied as is except that disperse() function's parameter
+     * See disperse() and infect_exposed() for a detailed list of
+     * parameters and behavior. The disperse() parameter documentation
+     * can be applied as is except that disperse() function's parameter
      * *exposed_or_infested* is expected to change based on the context
      * while this function's parameter *infected* is always the infected
      * individuals. Besides parameters from disperse(), this function
      * has parameter *exposed* which is the same as the one from the
-     * infect() function.
+     * infect_exposed() function.
      */
     template<typename DispersalKernel>
     void disperse_and_infect(
@@ -517,7 +518,7 @@ public:
                     weather_coefficient,
                     dispersal_kernel);
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
-            this->infect(step, exposed, infected, mortality_tracker);
+            this->infect_exposed(step, exposed, infected, mortality_tracker);
         }
     }
 };
