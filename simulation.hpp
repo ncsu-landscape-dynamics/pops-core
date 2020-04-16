@@ -128,7 +128,7 @@ public:
      * (potentially, it can be also smaller).
      *
      * @param model_type Type of the model (SI or SEI)
-     * @param latency_period Lenght of the latency period in steps
+     * @param latency_period Length of the latency period in steps
      * @param random_seed Number to seed the random number generator
      * @param rows Number of rows
      * @param cols Number of columns
@@ -308,7 +308,8 @@ public:
     /** Creates dispersal locations for the dispersing individuals
      *
      * Depending on what data is provided as the *exposed_or_infected*
-     * paramater, this function can be part of as S to E step or S to I.
+     * paramater, this function can be part of the S to E step or the
+     * S to I step.
      *
      * Typically, the generate() function is called beforehand to
      * create dispersers. In SEI model, the infect() function is
@@ -393,7 +394,7 @@ public:
      * are left intact for other models.
      *
      * The exposed vector are the hosts exposed in the previous steps.
-     * The lenght of the vector is the number of steps of the latency
+     * The length of the vector is the number of steps of the latency
      * period plus one. Before the first latency period is over,
      * the E to I transition won't happen because no item in the exposed
      * vector is old enough to become infected.
@@ -416,7 +417,7 @@ public:
      * tracker). They are removed from the exposed item and this item
      * is moved to the back of the vector.
      *
-     * Like in disperse(), there is no distiction between *infected*
+     * Like in disperse(), there is no distinction between *infected*
      * and *mortality_tracker*, but different usage is expected outside
      * of this function.
      *
