@@ -281,6 +281,13 @@ public:
     }
 
     template<typename OtherNumber>
+    Raster& operator=(OtherNumber value)
+    {
+        this->fill(value);
+        return *this;
+    }
+
+    template<typename OtherNumber>
     Raster& operator+=(OtherNumber value)
     {
         std::for_each(data_, data_ + (cols_ * rows_),
