@@ -335,6 +335,12 @@ public:
      * on the result, i.e. function returning
      * `std::make_tuple(row, column)` fulfills this requirement.
      *
+     * If establishment stochasticity is disabled,
+     * *establishment_probability* is used to decide whether or not
+     * a disperser is established in a cell. Value 1 means that all
+     * dispresers will establish and value 0 means that no dispersers
+     * will establish.
+     *
      * @param[in] dispersers Dispersing individuals ready to be dispersed
      * @param[in,out] susceptible Susceptible hosts
      * @param[in,out] exposed_or_infected Exposed or infected hosts
@@ -356,7 +362,7 @@ public:
                   bool weather,
                   const FloatRaster& weather_coefficient,
                   DispersalKernel& dispersal_kernel,
-                  double establishment_probability = 1)
+                  double establishment_probability = 0.5)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         int row;

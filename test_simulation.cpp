@@ -134,6 +134,7 @@ int test_with_reduced_stochasticity()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    // We want everything to establish.
     double establishment_probability = 1;
     DeterministicNeighborDispersalKernel kernel(Direction::E);
     Simulation<Raster<int>, Raster<double>> simulation(
