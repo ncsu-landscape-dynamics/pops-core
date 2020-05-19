@@ -26,8 +26,8 @@
 #include <vector>
 #include <tuple>
 
-#include "scheduling.hpp"
-#include "date.hpp"
+#include <pops/scheduling.hpp>
+#include <pops/date.hpp>
 
 using namespace pops;
 
