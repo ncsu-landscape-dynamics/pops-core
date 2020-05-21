@@ -116,6 +116,61 @@ int test_with_neighbor_kernel()
     return 0;
 }
 
+int test_with_reduced_stochasticity()
+{
+    Raster<int> infected = {{5, 0}, {0, 0}};
+    Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
+    Raster<int> susceptible = {{10, 20}, {14, 15}};
+    Raster<int> total_plants = susceptible;
+    Raster<double> temperature = {{5, 0}, {0, 0}};
+    Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
+
+    Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
+    auto expected_infected = expected_mortality_tracker + infected;
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+    bool weather = false;
+    double reproductive_rate = 2;
+    bool generate_stochasticity = false;
+    bool establishment_stochasticity = false;
+    // We want everything to establish.
+    double establishment_probability = 1;
+    DeterministicNeighborDispersalKernel kernel(Direction::E);
+    Simulation<Raster<int>, Raster<double>> simulation(
+                42,
+                infected.rows(),
+                infected.cols(),
+                model_type_from_string("SI"),
+                0,
+                generate_stochasticity,
+                establishment_stochasticity
+                );
+    simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
+    auto expected_dispersers = reproductive_rate * infected;
+    if (dispersers != expected_dispersers) {
+        cout << "reduced_stochasticity: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
+        return 1;
+    }
+    simulation.disperse(dispersers, susceptible, infected,
+                        mortality_tracker, total_plants,
+                        outside_dispersers, weather, weather_coefficient,
+                        kernel, establishment_probability);
+    if (!outside_dispersers.empty()) {
+        cout << "reduced_stochasticity: There are outside_dispersers (" << outside_dispersers.size() << ") but there should be none\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "reduced_stochasticity: infected (actual, expected):\n" << infected << "  !=\n" << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout << "reduced_stochasticity: mortality tracker (actual, expected):\n" << mortality_tracker << "  !=\n" << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+
 int disperse_and_infect_postcondition(int step, const std::vector<Raster<int>>& exposed)
 {
     Raster<int> zeros(exposed[0].rows(), exposed[0].cols(), 0);
@@ -186,6 +241,7 @@ int test_with_sei()
                 42,
                 infected.rows(),
                 infected.cols(),
+
                 model_type_from_string("SEI"),
                 latency_period_steps
                 );
@@ -449,6 +505,7 @@ int main()
 
     ret += test_calling_all_functions();
     ret += test_with_neighbor_kernel();
+    ret += test_with_reduced_stochasticity();
     ret += test_with_sei();
     ret += test_SI_versus_SEI0();
 

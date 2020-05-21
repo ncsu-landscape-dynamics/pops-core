@@ -113,6 +113,8 @@ class Simulation
 private:
     RasterIndex rows_;
     RasterIndex cols_;
+    bool dispersers_stochasticity_;
+    bool establishment_stochasticity_;
     ModelType model_type_;
     unsigned latency_period_;
     std::default_random_engine generator_;
@@ -132,16 +134,22 @@ public:
      * @param random_seed Number to seed the random number generator
      * @param rows Number of rows
      * @param cols Number of columns
+     * @param dispersers_stochasticity Enable stochasticity in generating of dispersers
+     * @param establishment_stochasticity Enable stochasticity in establishment step
      */
     Simulation(unsigned random_seed,
                RasterIndex rows,
                RasterIndex cols,
                ModelType model_type = ModelType::SusceptibleInfected,
-               unsigned latency_period = 0
+               unsigned latency_period = 0,
+               bool dispersers_stochasticity = true,
+               bool establishment_stochasticity = true
                )
         :
           rows_(rows),
           cols_(cols),
+          dispersers_stochasticity_(dispersers_stochasticity),
+          establishment_stochasticity_(establishment_stochasticity),
           model_type_(model_type),
           latency_period_(latency_period)
     {
@@ -291,10 +299,14 @@ public:
                     if (weather)
                         lambda = reproductive_rate * weather_coefficient(i, j); // calculate 
                     int dispersers_from_cell = 0;
-                    std::poisson_distribution<int> distribution(lambda);
-                    
-                    for (int k = 0; k < infected(i, j); k++) {
-                        dispersers_from_cell += distribution(generator_);
+                    if (dispersers_stochasticity_) {
+                        std::poisson_distribution<int> distribution(lambda);
+                        for (int k = 0; k < infected(i, j); k++) {
+                            dispersers_from_cell += distribution(generator_);
+                        }
+                    }
+                    else {
+                        dispersers_from_cell = lambda * infected(i, j);
                     }
                     dispersers(i, j) = dispersers_from_cell;
                 }
@@ -323,6 +335,12 @@ public:
      * on the result, i.e. function returning
      * `std::make_tuple(row, column)` fulfills this requirement.
      *
+     * If establishment stochasticity is disabled,
+     * *establishment_probability* is used to decide whether or not
+     * a disperser is established in a cell. Value 1 means that all
+     * dispresers will establish and value 0 means that no dispersers
+     * will establish.
+     *
      * @param[in] dispersers Dispersing individuals ready to be dispersed
      * @param[in,out] susceptible Susceptible hosts
      * @param[in,out] exposed_or_infected Exposed or infected hosts
@@ -332,6 +350,7 @@ public:
      * @param weather Whether or not weather coefficients should be used
      * @param[in] weather_coefficient Weather coefficient for each location
      * @param dispersal_kernel Dispersal kernel to move dispersers
+     * @param establishment_probability Probability of establishment with no stochasticity
      */
     template<typename DispersalKernel>
     void disperse(const IntegerRaster& dispersers,
@@ -342,7 +361,8 @@ public:
                   std::vector<std::tuple<int, int>>& outside_dispersers,
                   bool weather,
                   const FloatRaster& weather_coefficient,
-                  DispersalKernel& dispersal_kernel)
+                  DispersalKernel& dispersal_kernel,
+                  double establishment_probability = 0.5)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         int row;
@@ -364,7 +384,9 @@ public:
                             double probability_of_establishment =
                                     (double)(susceptible(row, col)) /
                                     total_plants(row, col);
-                            double establishment_tester = distribution_uniform(generator_);
+                            double establishment_tester = 1 - establishment_probability;
+                            if (establishment_stochasticity_)
+                                establishment_tester = distribution_uniform(generator_);
 
                             if (weather)
                                 probability_of_establishment *= weather_coefficient(i, j);

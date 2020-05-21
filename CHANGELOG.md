@@ -4,6 +4,17 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2020-05-15 - Reducing stochasticity
+
+### Added
+
+- Stochasticity in Simulation can now be optionally reduced. (Vaclav Petras)
+  * Simulation constructor takes additional parameters to disable
+    stochasticity in generate and disperse functions, particularly in
+    generating and establishing dispersers.
+  * The disperse function takes additional parameter which is a fixed
+    probability value when disperser is established.
+
 ## 2020-04-16 - SEI model
 
 ### Added
