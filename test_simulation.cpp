@@ -78,7 +78,7 @@ int test_with_neighbor_kernel()
     // chanage the susceptible/total ratio much
     susceptible += 100000;
     // we want to minimize the dilution effect
-    Raster<int> total_plants = susceptible;
+    Raster<int> total_hosts = susceptible;
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
 
@@ -98,7 +98,7 @@ int test_with_neighbor_kernel()
     dispersers = reproductive_rate * infected;
     // cout << dispersers;
     simulation.disperse(dispersers, susceptible, infected,
-                        mortality_tracker, total_plants,
+                        mortality_tracker, total_hosts,
                         outside_dispersers, weather, weather_coefficient,
                         kernel);
     if (!outside_dispersers.empty()) {
@@ -121,7 +121,7 @@ int test_with_reduced_stochasticity()
     Raster<int> infected = {{5, 0}, {0, 0}};
     Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
     Raster<int> susceptible = {{10, 20}, {14, 15}};
-    Raster<int> total_plants = susceptible;
+    Raster<int> total_hosts = susceptible;
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
 
@@ -153,7 +153,7 @@ int test_with_reduced_stochasticity()
         return 1;
     }
     simulation.disperse(dispersers, susceptible, infected,
-                        mortality_tracker, total_plants,
+                        mortality_tracker, total_hosts,
                         outside_dispersers, weather, weather_coefficient,
                         kernel, establishment_probability);
     if (!outside_dispersers.empty()) {
@@ -218,7 +218,7 @@ int test_with_sei()
     // chanage the susceptible/total ratio much
     susceptible += 100000;
     // we want to minimize the dilution effect
-    Raster<int> total_plants = susceptible;
+    Raster<int> total_hosts = susceptible;
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
@@ -251,7 +251,7 @@ int test_with_sei()
     simulation.disperse_and_infect(
                 step, dispersers, susceptible,
                 exposed, infected,
-                mortality_tracker, total_plants,
+                mortality_tracker, total_hosts,
                 outside_dispersers, weather,
                 weather_coefficient,
                 kernel);
@@ -269,7 +269,7 @@ int test_with_sei()
     simulation.disperse_and_infect(
                 ++step, dispersers, susceptible,
                 exposed, infected,
-                mortality_tracker, total_plants,
+                mortality_tracker, total_hosts,
                 outside_dispersers, weather,
                 weather_coefficient,
                 kernel);
@@ -279,7 +279,7 @@ int test_with_sei()
     simulation.disperse_and_infect(
                 ++step, dispersers, susceptible,
                 exposed, infected,
-                mortality_tracker, total_plants,
+                mortality_tracker, total_hosts,
                 outside_dispersers, weather,
                 weather_coefficient,
                 kernel);
@@ -298,7 +298,7 @@ int test_with_sei()
     simulation.disperse_and_infect(
                 ++step, dispersers, susceptible,
                 exposed, infected,
-                mortality_tracker, total_plants,
+                mortality_tracker, total_hosts,
                 outside_dispersers, weather,
                 weather_coefficient,
                 kernel);
@@ -323,7 +323,7 @@ int test_with_sei()
     simulation.disperse_and_infect(
                 ++step, dispersers, susceptible,
                 exposed, infected,
-                mortality_tracker, total_plants,
+                mortality_tracker, total_hosts,
                 outside_dispersers, weather,
                 weather_coefficient,
                 kernel);
@@ -335,7 +335,7 @@ int test_with_sei()
         simulation.disperse_and_infect(
                     ++step, dispersers, susceptible,
                     exposed, infected,
-                    mortality_tracker, total_plants,
+                    mortality_tracker, total_hosts,
                     outside_dispersers, weather,
                     weather_coefficient,
                     kernel);
@@ -367,9 +367,9 @@ int test_SI_versus_SEI0()
     auto susceptible_2 = susceptible_1;
     auto susceptible_3 = susceptible_1;
     // we want to minimize the dilution effect
-    auto total_plants_1 = susceptible_1;
-    auto total_plants_2 = susceptible_2;
-    auto total_plants_3 = susceptible_3;
+    auto total_hosts_1 = susceptible_1;
+    auto total_hosts_2 = susceptible_2;
+    auto total_hosts_3 = susceptible_3;
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
     auto rows = infected_1.rows();
@@ -414,20 +414,20 @@ int test_SI_versus_SEI0()
         simulation_SI_1.disperse_and_infect(
                     step, dispersers, susceptible_1,
                     empty_exposed, infected_1,
-                    mortality_tracker_1, total_plants_1,
+                    mortality_tracker_1, total_hosts_1,
                     outside_dispersers_1, weather,
                     weather_coefficient,
                     kernel);
         simulation_SI_2.disperse(
                     dispersers, susceptible_2, infected_2,
-                    mortality_tracker_2, total_plants_2,
+                    mortality_tracker_2, total_hosts_2,
                     outside_dispersers_2, weather,
                     weather_coefficient,
                     kernel);
         simulation_SEI0.disperse_and_infect(
                     step, dispersers, susceptible_3,
                     exposed, infected_3,
-                    mortality_tracker_3, total_plants_3,
+                    mortality_tracker_3, total_hosts_3,
                     outside_dispersers_3, weather,
                     weather_coefficient,
                     kernel);
@@ -460,7 +460,7 @@ int test_calling_all_functions()
     Raster<int> infected = {{5, 0}, {0, 0}};
     Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
     Raster<int> susceptible = {{10, 15}, {14, 15}};
-    Raster<int> total_plants = {{15, 15}, {14, 15}};
+    Raster<int> total_hosts = {{15, 15}, {14, 15}};
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0.6, 0.8}, {0.2, 0.8}};
     Raster<int> dispersers(infected.rows(), infected.cols());
@@ -485,10 +485,10 @@ int test_calling_all_functions()
     simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
     RadialDispersalKernel kernel(ew_res, ns_res, dispersal_kernel,
                                  short_distance_scale);
-    simulation.movement(infected, susceptible, mortality_tracker, total_plants, step, 
+    simulation.movement(infected, susceptible, mortality_tracker, total_hosts, step, 
                         last_index, movements, movement_schedule);
     simulation.disperse(dispersers, susceptible, infected,
-                        mortality_tracker, total_plants,
+                        mortality_tracker, total_hosts,
                         outside_dispersers, weather, weather_coefficient,
                         kernel);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;
