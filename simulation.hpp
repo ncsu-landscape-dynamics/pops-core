@@ -166,7 +166,7 @@ public:
         for (int i = 0; i < rows_; i++) {
             for (int j = 0; j < cols_; j++) {
                 if (temperature(i, j) < lethal_temperature) {
-                    susceptible(i, j) += infected(i, j);  // move infested/infected host back to suseptible pool
+                    susceptible(i, j) += infected(i, j);  // move infested/infected host back to susceptible pool
                     infected(i, j) = 0;  // remove all infestation/infection in the infected class
                 }
             }
@@ -208,7 +208,7 @@ public:
      * @param infected Currently infected hosts
      * @param susceptible Currently susceptible hosts
      * @param mortality_tracker Hosts that are infected at a specific time step
-     * @param total_plants 
+     * @param total_hosts total number of hosts
      * @param step the current step of the simulation
      * @param last_index the last index to not be used from movements
      * @param movements a vector of ints with row_from, col_from, row_to, col_to, and num_hosts
@@ -217,7 +217,7 @@ public:
     unsigned movement(IntegerRaster& infected,
                       IntegerRaster& susceptible, 
                       IntegerRaster& mortality_tracker,
-                      IntegerRaster& total_plants,
+                      IntegerRaster& total_hosts,
                       unsigned step, unsigned last_index,
                       const std::vector<std::vector<int>>& movements,
                       std::vector<unsigned> movement_schedule)
@@ -237,13 +237,13 @@ public:
             int row_to = moved[2];
             int col_to = moved[3];
             int hosts = moved[4];
-            if (hosts > total_plants(row_from, col_from)) {
-                total_hosts_moved = total_plants(row_from, col_from);
+            if (hosts > total_hosts(row_from, col_from)) {
+                total_hosts_moved = total_hosts(row_from, col_from);
             } else {
                 total_hosts_moved = hosts;
             }
             if (infected(row_from, col_from) > 0 && susceptible(row_from, col_from) > 0) {
-                inf_ratio = double(infected(row_from, col_from)) / double(total_plants(row_from, col_from));
+                inf_ratio = double(infected(row_from, col_from)) / double(total_hosts(row_from, col_from));
                 int infected_mean = total_hosts_moved * inf_ratio;
                 if (infected_mean > 0) {
                     std::poisson_distribution<int> distribution(infected_mean);
@@ -269,10 +269,10 @@ public:
             
             infected(row_from, col_from) -= infected_moved;
             susceptible(row_from, col_from) -= susceptible_moved;
-            total_plants(row_from, col_from) -= total_hosts_moved;
+            total_hosts(row_from, col_from) -= total_hosts_moved;
             infected(row_to, col_to) += infected_moved;
             susceptible(row_to, col_to) += susceptible_moved;
-            total_plants(row_to, col_to) += total_hosts_moved;
+            total_hosts(row_to, col_to) += total_hosts_moved;
         }
       return movements.size();
     }
@@ -330,7 +330,7 @@ public:
      * DispersalKernel is callable object or function with one parameter
      * which is the random number engine (generator). The return value
      * is row and column in the raster (or outside of it). The current
-     * position is passed as parameters. The return valus is in the
+     * position is passed as parameters. The return value is in the
      * form of a tuple with row and column so that std::tie() is usable
      * on the result, i.e. function returning
      * `std::make_tuple(row, column)` fulfills this requirement.
@@ -345,7 +345,7 @@ public:
      * @param[in,out] susceptible Susceptible hosts
      * @param[in,out] exposed_or_infected Exposed or infected hosts
      * @param[in,out] mortality_tracker Newly infected hosts (if applicable)
-     * @param[in] total_plants All plants in the landscape
+     * @param[in] total_hosts All hosts in the area
      * @param[in,out] outside_dispersers Dispersers escaping the rasters
      * @param weather Whether or not weather coefficients should be used
      * @param[in] weather_coefficient Weather coefficient for each location
@@ -357,7 +357,7 @@ public:
                   IntegerRaster& susceptible,
                   IntegerRaster& exposed_or_infected,
                   IntegerRaster& mortality_tracker,
-                  const IntegerRaster& total_plants,
+                  const IntegerRaster& total_hosts,
                   std::vector<std::tuple<int, int>>& outside_dispersers,
                   bool weather,
                   const FloatRaster& weather_coefficient,
@@ -383,7 +383,7 @@ public:
                         if (susceptible(row, col) > 0) {
                             double probability_of_establishment =
                                     (double)(susceptible(row, col)) /
-                                    total_plants(row, col);
+                                    total_hosts(row, col);
                             double establishment_tester = 1 - establishment_probability;
                             if (establishment_stochasticity_)
                                 establishment_tester = distribution_uniform(generator_);
@@ -494,7 +494,7 @@ public:
      * no hosts in the raster. This is normally taken care of by a
      * previous call to this function. The initial state of the exposed
      * vector should be such that size is latency period in steps plus 1
-     * and each raster is empty, i.e., does not conatain any hosts
+     * and each raster is empty, i.e., does not contain any hosts
      * (all values set to zero).
      *
      * See the infect_exposed() function for the details about exposed
@@ -517,7 +517,7 @@ public:
             std::vector<IntegerRaster>& exposed,
             IntegerRaster& infected,
             IntegerRaster& mortality_tracker,
-            const IntegerRaster& total_plants,
+            const IntegerRaster& total_hosts,
             std::vector<std::tuple<int, int>>& outside_dispersers,
             bool weather,
             const FloatRaster& weather_coefficient,
@@ -526,7 +526,7 @@ public:
         auto* infected_or_exposed = &infected;
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
             // The empty - not yet exposed - raster is in the back
-            // and will become yougest exposed one.
+            // and will become youngest exposed one.
             infected_or_exposed = &exposed.back();
         }
         this->disperse(
@@ -534,7 +534,7 @@ public:
                     susceptible,
                     *infected_or_exposed,
                     mortality_tracker,
-                    total_plants,
+                    total_hosts,
                     outside_dispersers,
                     weather,
                     weather_coefficient,

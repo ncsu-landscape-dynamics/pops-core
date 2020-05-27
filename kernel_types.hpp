@@ -23,8 +23,8 @@
  * This file contains general functionality shared in general by all
  * kernels.
  *
- * An alternative implementation would be for each class to mainain its
- * own enum of supported kernels, potentially creatng a hiearchy of
+ * An alternative implementation would be for each class to maintain its
+ * own enum of supported kernels, potentially creating a hierarchy of
  * kernel types and subtypes. This would avoid the need for a separate
  * header file such as this one due to all kernels potentially
  * depending on it which prevents us from having it in the same header
