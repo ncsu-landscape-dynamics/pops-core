@@ -115,7 +115,7 @@ private:
     RasterIndex cols_;
     bool dispersers_stochasticity_;
     bool establishment_stochasticity_;
-    unsigned movement_stochasticity_;
+    bool movement_stochasticity_;
     ModelType model_type_;
     unsigned latency_period_;
     std::default_random_engine generator_;
@@ -137,7 +137,7 @@ public:
      * @param cols Number of columns
      * @param dispersers_stochasticity Enable stochasticity in generating of dispersers
      * @param establishment_stochasticity Enable stochasticity in establishment step
-     * @param movement_stochasticity Enable stochasticity in movement if equal to zero, other values determine infected movement
+     * @param movement_stochasticity Enable stochasticity in movement of hosts
      */
     Simulation(unsigned random_seed,
                RasterIndex rows,
@@ -146,7 +146,7 @@ public:
                unsigned latency_period = 0,
                bool dispersers_stochasticity = true,
                bool establishment_stochasticity = true,
-               unsigned movement_stochasticity = 0
+               bool movement_stochasticity = true
                )
         :
           rows_(rows),
@@ -250,10 +250,11 @@ public:
                 inf_ratio = double(infected(row_from, col_from)) / double(total_hosts(row_from, col_from));
                 int infected_mean = total_hosts_moved * inf_ratio;
                 if (infected_mean > 0) {
-                	std::poisson_distribution<int> distribution(infected_mean);
-                	infected_moved = movement_stochasticity_;
-                	if (movement_stochasticity_ == 0) {
+                	if (movement_stochasticity_) {
+                		std::poisson_distribution<int> distribution(infected_mean);
                 		infected_moved = distribution(generator_);
+                	} else {
+                		infected_moved = infected_mean;
                 	}
                 }
                 if (infected_moved > infected(row_from, col_from)) {
