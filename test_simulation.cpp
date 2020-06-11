@@ -183,8 +183,8 @@ int test_with_deterministic_kernel()
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
-    Raster<int> expected_mortality_tracker = {{1, 5, 2}, {4, 3, 0}, {2, 0, 2}};
-    Raster<int> expected_infected = {{6, 5, 2}, {4, 8, 0}, {2, 0, 4}};
+    Raster<int> expected_mortality_tracker = {{1, 3, 1}, {3, 1, 0}, {1, 0, 1}};
+    Raster<int> expected_infected = {{6, 3, 1}, {3, 6, 0}, {1, 0, 3}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
@@ -210,14 +210,15 @@ int test_with_deterministic_kernel()
         cout << "Deterministic Kernel Cauchy: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
         return 1;
     }
-    DeterministicDispersalKernel deterministicKernel(3, 3, DispersalKernelType::Cauchy,
-                          		1, 0, dispersers);
+    DeterministicDispersalKernel deterministicKernel(DispersalKernelType::Cauchy,
+                          		0.5, 0, dispersers, 0.99, 30, 30);
+                          		// using a smaller scale value since the test raster is so small
     simulation.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_hosts,
                         outside_dispersers, weather, weather_coefficient,
                         deterministicKernel, establishment_probability);
-    if (!outside_dispersers.empty()) {
-        cout << "Deterministic Kernel Cauchy: There are outside_dispersers (" << outside_dispersers.size() << ") but there should be none\n";
+    if (outside_dispersers.size() != 9) {
+        cout << "Deterministic Kernel Cauchy: There are outside_dispersers (" << outside_dispersers.size() << ") but there should be 9\n";
         return 1;
     }
     if (infected != expected_infected) {
@@ -236,10 +237,9 @@ int test_with_deterministic_kernel()
     total_hosts = susceptible;
     movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     movement_schedule = {1, 1};
-
-    expected_mortality_tracker = {{1, 5, 2}, {4, 3, 0}, {2, 0, 2}};
-    expected_infected = {{6, 5, 2}, {4, 8, 0}, {2, 0, 4}};
-
+	std::vector<std::tuple<int, int>> outside_dispersers2;
+    expected_mortality_tracker = {{1, 3, 1}, {3, 1, 0}, {1, 0, 1}};
+    expected_infected = {{6, 3, 1}, {3, 6, 0}, {1, 0, 3}};
     dispersers(infected.rows(), infected.cols());
     
     // Exponential
@@ -258,14 +258,15 @@ int test_with_deterministic_kernel()
         cout << "Deterministic Kernel Exponential: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
         return 1;
     }
-    DeterministicDispersalKernel deterministicKernel2(3, 3, DispersalKernelType::Exponential, 1, 0, dispersers);
+    DeterministicDispersalKernel deterministicKernel2(DispersalKernelType::Exponential,
+    							 0.5, 0, dispersers, 0.99, 1, 1);
    
     s2.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_hosts,
-                        outside_dispersers, weather, weather_coefficient,
+                        outside_dispersers2, weather, weather_coefficient,
                         deterministicKernel2, establishment_probability);
-    if (!outside_dispersers.empty()) {
-        cout << "Deterministic Kernel Exponential: There are outside_dispersers (" << outside_dispersers.size() << ") but there should be none\n";
+    if (outside_dispersers2.size() != 9) {
+        cout << "Deterministic Kernel Exponential: There are outside_dispersers (" << outside_dispersers.size() << ") but there should be 9\n";
         return 1;
     }
     if (infected != expected_infected) {

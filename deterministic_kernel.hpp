@@ -32,20 +32,37 @@
 namespace pops {
 
 /*! 
- * Cauchy probability density function
- * returns the probability that the variate has the value x
+ * Cauchy distribution
+ * includes probability density function and cumulative distribution function
+ * pdf returns the probability that the variate has the value x
+ * cdf returns the range that encompasses x percent of the distribution
  */
-class cauchy_density_function
+class cauchy_distribution
 {
 public:
-	cauchy_density_function(double scale, double locator)
+	cauchy_distribution(double scale, double locator)
         : s(scale), t(locator)
     {}
 
-    double operator ()(double x)
+    double pdf(double x)
     {
     	return 1 / ((s*PI)*(1 + (std::pow((x - t)/s, 2))));
     
+    }
+    
+    // x is the percentage of the distribution you want covered (e.g for 99% input .99)
+    // rewrote cdf to not assume the integral is equal to 1, instead made it equal to 
+    // x and solved for the maximum value which should return the value on the x-axis that
+    // corresponds to the upper (x/2 %) of the distribution
+    double cdf(double x)
+    {
+    	if ( s == 1 && t == 0) {
+    		return std::tan((x / 2) * M_PI) * 2;
+    		// need to multiply result by 2 since checking just the upper half of the
+    		// symmetrical distribution
+    	} else {
+    		return (std::tan((x/2)*M_PI + (std::atan(-t/s))) * s + t) * 2;
+    	}
     }
 private:
 	// scale parameter - specifies half width at half maximum - 1 for standard
@@ -55,28 +72,42 @@ private:
     double t;
 };
 
-// 
 /*! 
- * Exponential probability density function 
- * returns the probability that the variate has the value x
+ * Exponential distribution
+ * includes probability density function and cumulative distribution function
+ * pdf returns the probability that the variate has the value x
+ * cdf returns the range that encompasses x percent of the distribution
  */
-class exponential_density_function
+class exponential_distribution
 {
 public:
-exponential_density_function(double scale, double locator)
-        : beta(scale), mu(locator)
+exponential_distribution(double scale)
+        : beta(scale)
     {}
     
-    double operator ()(double x)
+    // changing it to assume mu is 0 which is traditionally accepted
+    // (1/beta)*(std::exp(-(x-mu)/beta));
+    double pdf(double x)
     {
-    	return (1/beta)*(std::exp(-(x-mu)/beta));
+    	return (1/beta)*(std::exp(-x/beta));
+    }
+    
+    // x is the % of the distribution you want covered (e.g for 99% input 0.99)
+    // don't take half of this since exponential distribution begins at 0
+    double cdf(double x)
+    {
+    	// std::log is ln
+    	if ( beta == 1) {
+    		return -std::log(1-x);
+    	} else {
+    		return -beta * std::log(1-x);
+    	}
     }
 private:
 	// scale parameter - 1 for standard
 	double beta;
-	// location parameter - 0 for standard 
-    double mu;
 };
+
 /*! 
  * Dispersal kernel for deterministic spread to cell with highest probability of spread
  *
@@ -90,54 +121,86 @@ private:
 class DeterministicDispersalKernel
 {
 protected:
-    int row_max_;
-    int col_max_;
     Raster<int> dispersers_;
     DispersalKernelType kernel_type_;
+    // the west-east resolution of the pixel
+    double east_west_resolution;
+    // the north-south resolution of the pixel
+    double north_south_resolution;
     
+    // TODO could change to store this pair in a tuple
+//     std::tuple<int, int> middle;
+    int mid_row = 0;
+    int mid_col = 0;
+    // Can't be in a tuple because it needs to be mutable, but could be in a vector?
     int prev_row = -1;
     int prev_col = -1;
-    int window_r_min;
-    int window_r_max;
-    int window_c_min;
-    int window_c_max;
+    int row_max;
+    int col_max;
     std::vector<std::vector<double>> probability;
-    std::vector<std::vector<double>> window;
-    cauchy_density_function cauchy_pdf;
-    exponential_density_function exponential_pdf;
+    std::vector<std::vector<double>> probability_copy;
+    cauchy_distribution cauchy;
+    exponential_distribution exponential;
 public:
-    DeterministicDispersalKernel(int row_max, int col_max, DispersalKernelType dispersal_kernel,
-                          		double distance_scale, double locator, Raster<int> dispersers)
+    DeterministicDispersalKernel(DispersalKernelType dispersal_kernel, double distance_scale,
+    							double locator, Raster<int> dispersers, double window_size,
+    							double ew_res, double ns_res)
         :
-        row_max_(row_max),
-        col_max_(col_max),
         dispersers_(dispersers),
-        cauchy_pdf(distance_scale, locator),
-        exponential_pdf(distance_scale, locator),
-        kernel_type_(dispersal_kernel)
+        cauchy(distance_scale, locator),
+        exponential(distance_scale),
+        kernel_type_(dispersal_kernel),
+        east_west_resolution(ew_res),
+        north_south_resolution(ns_res)
     {
+    	if (kernel_type_ == DispersalKernelType::Cauchy) {
+    		// window_size is the percent of all possible dispersal to be included 
+    		// in the moving window size
+    		row_max = (int) std::ceil(cauchy.cdf(window_size));
+    	} else { 
+    		// otherwise just default to exponential
+    		// if changed this would need to include some check for kernel type
+    		row_max = (int) std::ceil(exponential.cdf(window_size));
+    	}
+    	col_max = row_max / east_west_resolution;
+    	row_max /= north_south_resolution;
+    	// must be odd
+    	if ( row_max % 2 == 0 ) {
+    		row_max += 1;
+    	}
+    	if ( col_max % 2 == 0 ) {
+    		col_max += 1;
+    	}
     	// create probability matrix
-    	// compute distance from center to all cells
+    	// compute distance from center to all cells within window
     	probability.resize(row_max, std::vector<double>(col_max));
-    	int med_row = row_max_/2;
-    	int med_col = col_max_/2;
+    	// also set the size of the copy
+    	probability_copy.resize(row_max, std::vector<double>(col_max));
+    	mid_row = row_max / 2;
+    	mid_col = col_max / 2;
     	double sum = 0;
-    	for ( int i = 0; i < row_max_; i++ ) {
-    		for ( int j = 0; j < col_max_; j++ ) {
-    			// store distance to center
-    			probability[i][j] = std::abs(med_row - i) + std::abs(med_col - j);
-    			// determine probability based on distance
-    			if (kernel_type_ == DispersalKernelType::Cauchy) {
- 					probability[i][j] = std::abs(cauchy_pdf(probability[i][j]));
- 				} else if ( kernel_type_ == DispersalKernelType::Exponential ) {
- 					probability[i][j] = std::abs(exponential_pdf(probability[i][j]));
+    	for ( int i = 0; i < row_max; i++ ) {
+    		for ( int j = 0; j < col_max; j++ ) {
+    			if ( i == mid_row && j == mid_col ) {
+    				// do not want anything put in the middle cell
+    				probability[i][j] = 0;
+    			} else {
+    				// store distance to center
+    				probability[i][j] = (std::abs(mid_row - i) / east_west_resolution)
+    								  + (std::abs(mid_col - j) / north_south_resolution);
+    				// determine probability based on distance
+    				if (kernel_type_ == DispersalKernelType::Cauchy) {
+ 					probability[i][j] = std::abs(cauchy.pdf(probability[i][j]));
+ 					} else if ( kernel_type_ == DispersalKernelType::Exponential ) {
+ 						probability[i][j] = std::abs(exponential.pdf(probability[i][j]));
+ 					}
+ 					sum += probability[i][j];
  				}
- 				sum += probability[i][j];
     		}
     	}
     	//normalize based on the sum of all probabilities in the raster
-    	for ( int i = 0; i < row_max_; i++ ) {
-    		for ( int j = 0; j < col_max_; j++ ) {
+    	for ( int i = 0; i < row_max; i++ ) {
+    		for ( int j = 0; j < col_max; j++ ) {
     			probability[i][j] /= sum;
     		}
     	}
@@ -156,41 +219,39 @@ public:
     template<typename Generator>
     std::tuple<int, int> operator() (Generator& generator, int row, int col)
     {
-
 		// reset the window if considering a new cell
     	if ( row != prev_row || col != prev_col ) {
-    		int dispersers_num = dispersers_(row, col)/2;
+    		// determine dimensions for this window
     		
-    		// determine moving window boundary values
-    		// length/width = number of dispersers
-    		// TODO could change to different dimensions
-    		window_r_min = ((row - (dispersers_num)) < 0) ? 0 : (row - (dispersers_num));
-    		window_r_max = ((row + (dispersers_num)) > row_max_) ? row_max_ : (row + (dispersers_num));
-			window_c_min = ((col - (dispersers_num)) < 0 ) ? 0 : (col - (dispersers_num));
-    		window_c_max = ((col + (dispersers_num)) > col_max_) ? col_max_ : (col + (dispersers_num));
-    		window.resize((window_r_max - window_r_min), std::vector<double>(window_c_max - window_c_min));
-    		// copy probabilities from window_r_max matrix
-    		for ( int i = window_r_min; i < window_r_max; i++) {
-    			for ( int j = window_c_min; j < window_c_max; j++) {
-    				window[i][j] = probability[i][j];
+    		// determine the number of dispersers per cell and store these values
+    		// in the probability copy
+    		// dimensions from the original probability  matrix
+    		for ( int i = 0; i < row_max; i++) {
+    			for ( int j = 0; j < col_max; j++) {
+    				probability_copy[i][j] = probability[i][j];
     			}
     		}
     	}
     	
+    	int row_translate = row - mid_row;
+    	int col_translate = col - mid_col;
+    	
     	double max = (double)-std::numeric_limits<int>::max();
-    	// have to add a max value because if row == window_r_min and the probability
+    	// have to add a max value because if row == probability_r_min and the probability
     	// of this cell is greater than every other cell - no cell will be selected
-    	int max_prob_row = window_r_min;
-    	int max_prob_col = window_c_min;
+    	int max_prob_row = 0;
+    	int max_prob_col = 0;
     	
     	//find cell with highest probability
-    	for ( int i = window_r_min; i < window_r_max; i++ ) {
-    		for ( int j = window_c_min; j < window_c_max; j++ ) {
-    			if (i == row && j == col) {
+    	for ( int i = 0; i < row_max; i++ ) {
+    		for ( int j = 0; j < col_max; j++ ) {
+    			// compare row/col to middle row/col
+    			if ((i + row_translate)== row && ((j + col_translate) == col)) {
     				// do nothing
+    				// should be zero anyways - could probably remove this
     			}
-    			else if (window[i][j] > max ) {
-    				max = window[i][j];
+    			else if (probability_copy[i][j] > max ) {
+    				max = probability_copy[i][j];
     				max_prob_row = i;
 					max_prob_col = j;
     			}
@@ -199,11 +260,14 @@ public:
 
 		// subtracting 1 preserves the probability order but ensures that this cell
 		// is not select again unless all other cells in window have been selected
-    	window[max_prob_row][max_prob_col] -= 1;
+    	probability_copy[max_prob_row][max_prob_col] -= 1;
     	
     	prev_row = row;
     	prev_col = col;
-        return std::make_tuple(max_prob_row, max_prob_col);
+    	
+    	// need to return values in terms of actual location
+    	// find the difference between the row/col values from the middle cell
+        return std::make_tuple(max_prob_row + row_translate, max_prob_col + col_translate);
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()
