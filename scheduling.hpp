@@ -214,6 +214,18 @@ public:
     }
 
     /**
+     * @brief Schedule an action at the end of simulation.
+     *
+     * @return vector of bools, true if action should happen that step
+     */
+    std::vector<bool> schedule_action_end_of_simulation() const {
+        std::vector<bool> schedule(num_steps, false);
+        if (num_steps > 0)
+            schedule[num_steps - 1] = true;
+        return schedule;
+    }
+
+    /**
      * @brief Schedule action every N simulation steps,
      *
      * Useful for e.g. export. If simulation step is 2 months
@@ -349,7 +361,7 @@ unsigned get_number_of_scheduled_actions(std::vector<bool> &action_schedule) {
 
 /**
  * @brief Get output (export) schedule based on
- * frequency string ("year", "month", "week", "day", "every_n_steps").
+ * frequency string ("year", "month", "week", "day", "every_n_steps", "final_step").
  * If frequency is "every_n_steps", then output is scheduled every
  * n steps of the simulation.
  *
@@ -367,7 +379,9 @@ inline std::vector<bool> output_schedule_from_string(const Scheduler &scheduler,
     std::invalid_argument exception("Output frequency and simulation step are incompatible");
     std::tie(sim_n, sim_unit) = scheduler.get_step_length();
     if (!frequency.empty()) {
-        if (frequency == "year" || frequency == "yearly")
+        if (frequency == "final_step")
+            return scheduler.schedule_action_end_of_simulation();
+        else if (frequency == "year" || frequency == "yearly")
             return scheduler.schedule_action_end_of_year();
         else if (frequency == "month" || frequency == "monthly")
             return scheduler.schedule_action_monthly();

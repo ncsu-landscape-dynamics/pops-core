@@ -247,6 +247,24 @@ int test_schedule_action_date()
     return num_errors;
 }
 
+int test_schedule_end_of_simulation()
+{
+    int num_errors = 0;
+
+    Date st(2020, 1, 1);
+    Date end(2020, 3, 3);
+
+    Scheduler scheduling1(st, end, StepUnit::Week, 1);
+    std::vector<bool> schedule = scheduling1.schedule_action_end_of_simulation();
+    if (!(get_number_of_scheduled_actions(schedule) == 1 && schedule[scheduling1.get_num_steps() - 1])) {
+        std::cout << "Failed scheduling of end of simulation" << std::endl;
+        scheduling1.debug_schedule(schedule);
+        num_errors++;
+    }
+
+    return num_errors;
+}
+
 int test_simulation_step_to_action_step()
 {
     int num_errors = 0;
@@ -337,6 +355,9 @@ int test_output_schedule_from_string()
     out = output_schedule_from_string(scheduling2, "every_n_steps", 7);
     if (get_number_of_scheduled_actions(out) != 4)
         num_errors++;
+    out = output_schedule_from_string(scheduling2, "final_step");
+    if (get_number_of_scheduled_actions(out) != 1)
+        num_errors++;
 
     Scheduler scheduling3(st, end, StepUnit::Week, 2);
     try {
@@ -387,6 +408,7 @@ int main()
     num_errors += test_schedule_action_end_of_year();
     num_errors += test_schedule_action_nsteps();
     num_errors += test_schedule_action_date();
+    num_errors += test_schedule_end_of_simulation();
     num_errors += test_schedule_action_monthly();
     num_errors += test_simulation_step_to_action_step();
     num_errors += test_get_number_of_scheduled_actions();
