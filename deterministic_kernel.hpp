@@ -16,11 +16,9 @@
 #ifndef POPS_DETERMINISTIC_KERNEL_HPP
 #define POPS_DETERMINISTIC_KERNEL_HPP
 
-#include "kernel_types.hpp"
-#include "radial_kernel.hpp"
-
 #include <vector>
 #include <cmath>
+#include <tuple>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -31,22 +29,30 @@
 
 namespace pops {
 
+using std::pow;
+using std::tan;
+using std::atan;
+using std::exp;
+using std::log;
+using std::ceil;
+using std::abs;
+
 /*! 
  * Cauchy distribution
  * Includes probability density function and cumulative distribution function
  * pdf returns the probability that the variate has the value x
  * cdf returns the upper range that encompasses x percent of the distribution (e.g for 99% input .99)
  */
-class cauchy_distribution
+class CauchyDistribution
 {
 public:
-	cauchy_distribution(double scale, double locator)
+	CauchyDistribution(double scale, double locator)
         : s(scale), t(locator)
     {}
 
     double pdf(double x)
     {
-    	return 1 / ((s*PI)*(1 + (std::pow((x - t)/s, 2))));
+    	return 1 / ((s*PI)*(1 + (pow((x - t)/s, 2))));
     
     }
     
@@ -54,9 +60,9 @@ public:
     {
     	if ( s == 1 && t == 0) {
     		// checking upper half so multiply result by 2
-    		return std::tan((x / 2) * M_PI) * 2;
+    		return tan((x / 2) * M_PI) * 2;
     	} else {
-    		return (std::tan((x/2)*M_PI + (std::atan(-t/s))) * s + t) * 2;
+    		return (tan((x/2)*M_PI + (atan(-t/s))) * s + t) * 2;
     	}
     }
 private:
@@ -72,24 +78,24 @@ private:
  * pdf returns the probability that the variate has the value x
  * cdf returns the upper range that encompasses x percent of the distribution (e.g for 99% input 0.99)
  */
-class exponential_distribution
+class ExponentialDistribution
 {
 public:
-exponential_distribution(double scale)
+ExponentialDistribution(double scale)
         : beta(scale)
     {}
     // assumes mu is 0 which is traditionally accepted
     double pdf(double x)
     {
-    	return (1/beta)*(std::exp(-x/beta));
+    	return (1/beta)*(exp(-x/beta));
     }
     
     double cdf(double x)
     {
     	if ( beta == 1) {
-    		return -std::log(1-x);
+    		return -log(1-x);
     	} else {
-    		return -beta * std::log(1-x);
+    		return -beta * log(1-x);
     	}
     }
 private:
@@ -131,14 +137,14 @@ protected:
     double max_distance;
     std::vector<std::vector<double>> probability;
     std::vector<std::vector<double>> probability_copy;
-    cauchy_distribution cauchy;
-    exponential_distribution exponential;
+    CauchyDistribution cauchy;
+    ExponentialDistribution exponential;
     double number_of_dispersers;
 public:
     DeterministicDispersalKernel(DispersalKernelType dispersal_kernel, 
     							Raster<int> dispersers, double dispersal_percentage,
-    							double ew_res, double ns_res, double distance_scale = 1,
-    							double locator = 0)
+    							double ew_res, double ns_res, double distance_scale = 1.0,
+    							double locator = 0.0)
         :
         dispersers_(dispersers),
         cauchy(distance_scale, locator),
@@ -154,23 +160,23 @@ public:
     	} else { 
     		//for expanding compatible kernel types
     	}
-    	number_of_columns = std::ceil(max_distance / east_west_resolution) * 2 + 1;
-    	number_of_rows = std::ceil(max_distance / north_south_resolution) * 2 + 1;
+    	number_of_columns = ceil(max_distance / east_west_resolution) * 2 + 1;
+    	number_of_rows = ceil(max_distance / north_south_resolution) * 2 + 1;
     	probability.resize(number_of_rows, std::vector<double>(number_of_columns));
     	probability_copy.resize(number_of_rows, std::vector<double>(number_of_columns));
     	mid_row = number_of_rows / 2;
     	mid_col = number_of_columns / 2;
-    	double sum = 0;
+    	double sum = 0.0;
     	for ( int i = 0; i < number_of_rows; i++ ) {
     		for ( int j = 0; j < number_of_columns; j++ ) {
     			double distance_to_center = 
-    			std::sqrt(std::pow((std::abs(mid_row - i) * east_west_resolution), 2) 
-    			+ pow((std::abs(mid_col - j) * north_south_resolution), 2));
+    			sqrt(pow((abs(mid_row - i) * east_west_resolution), 2) 
+    			+ pow((abs(mid_col - j) * north_south_resolution), 2));
     			// determine probability based on distance
 				if (kernel_type_ == DispersalKernelType::Cauchy) {
- 					probability[i][j] = std::abs(cauchy.pdf(distance_to_center));
+ 					probability[i][j] = abs(cauchy.pdf(distance_to_center));
  				} else if ( kernel_type_ == DispersalKernelType::Exponential ) {
- 					probability[i][j] = std::abs(exponential.pdf(distance_to_center));
+ 					probability[i][j] = abs(exponential.pdf(distance_to_center));
 				}
  				sum += probability[i][j];
     		}
@@ -191,10 +197,8 @@ public:
      *  Selects next row/col value based on the cell with the highest probability
      *  in the window.
      *
-     *  Generator is not used
      */
-    template<typename Generator>
-    std::tuple<int, int> operator() (Generator& generator, int row, int col)
+    std::tuple<int, int> spread(int row, int col)
     {
 		// reset the window if considering a new cell
     	if ( row != prev_row || col != prev_col ) {
@@ -234,18 +238,6 @@ public:
     	
     	// need to return values in terms of actual location
         return std::make_tuple(row + row_movement, col + col_movement);
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        static const std::array<DispersalKernelType, 2> supports = {
-            DispersalKernelType::Cauchy,
-            DispersalKernelType::Exponential
-        };
-        auto it = std::find(supports.cbegin(), supports.cend(), type);
-        return it != supports.cend();;
     }
 };
 

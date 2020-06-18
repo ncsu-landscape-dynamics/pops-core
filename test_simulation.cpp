@@ -210,9 +210,8 @@ int test_with_deterministic_kernel()
         cout << "Deterministic Kernel Cauchy: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
         return 1;
     }
-    DeterministicDispersalKernel deterministicKernel(DispersalKernelType::Cauchy,
-                          		dispersers, 0.99, 30, 30, 0.3, 0);
-                          		// using a smaller scale value since the test raster is so small
+    RadialDispersalKernel deterministicKernel(30, 30, DispersalKernelType::Cauchy, 0.3, Direction::None, 0.0, true, dispersers, 0.99, 0.0);
+    // using a smaller scale value since the test raster is so small
     simulation.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_hosts,
                         outside_dispersers, weather, weather_coefficient,
@@ -258,8 +257,7 @@ int test_with_deterministic_kernel()
         cout << "Deterministic Kernel Exponential: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
         return 1;
     }
-    DeterministicDispersalKernel deterministicKernel2(DispersalKernelType::Exponential,
-    							 dispersers, 0.99, 30, 30, 1, 0);
+    RadialDispersalKernel deterministicKernel2(30, 30, DispersalKernelType::Exponential, 1.0, Direction::None, 0.0, true, dispersers, 0.99, 0.0);
    
     s2.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_hosts,
@@ -278,6 +276,57 @@ int test_with_deterministic_kernel()
         return 1;
     }
     cout << "Deterministic Kernel Exponential: no errors\n";
+    
+    // testing cauchy pdf & cdf
+    double scale = 0.001;  // rounding to thousands place
+    CauchyDistribution cauchy(1.0, 0.0);
+    double probability = (int) (cauchy.pdf(5) / scale) * scale;
+    if ( probability != 0.012) {
+    	cout << "Cauchy Distribution: probability was " << probability << " but should be 0.012\n";
+        return 1;
+    }
+    double x = (int) (cauchy.cdf(0.98) / scale) * scale;
+    if ( x != 63.641) {
+    	cout << "Cauchy Distribution: x was " << x << " but should be 63.641\n";
+        return 1;
+    }
+    CauchyDistribution cauchy1(1.5, 0.5);
+    probability = (int) (cauchy1.pdf(5) / scale) * scale;
+    if ( probability != 0.021) {
+    	cout << "Cauchy Distribution: probability was " << probability << " but should be 0.021\n";
+        return 1;
+    }
+    x = (int) (cauchy1.cdf(0.98) / scale) * scale;
+    if ( x != 9.138) {
+    	cout << "Cauchy Distribution: x was " << x << " but should be 9.138\n";
+        return 1;
+    }
+    cout << "Cauchy Distribution: cdf and pdf pass\n";
+    
+    // testing exponential pdf & cdf
+    ExponentialDistribution exponential(1.0);
+    probability = (int) (exponential.pdf(1) / scale) * scale;
+    if ( probability != 0.367) {
+    	cout << "Exponential Distribution: probability was " << probability << " but should be 0.367\n";
+        return 1;
+    }
+    x = (int) (exponential.cdf(0.98) / scale) * scale;
+    if ( x != 3.912) {
+    	cout << "Exponential Distribution: x was " << x << " but should be 3.912\n";
+        return 1;
+    }
+    ExponentialDistribution exponential2(1.5);
+    probability = (int) (exponential2.pdf(1) / scale) * scale;
+    if ( probability != 0.342) {
+    	cout << "Exponential Distribution: probability was " << probability << " but should be 0.342\n";
+        return 1;
+    }
+    x = (int) (exponential2.cdf(0.98) / scale) * scale;
+    if ( x != 5.868) {
+    	cout << "Exponential Distribution: x was " << x << " but should be 5.868\n";
+        return 1;
+    }
+    cout << "Exponential Distribution: cdf and pdf pass\n";
     return 0;
 }
 
@@ -579,7 +628,7 @@ int test_calling_all_functions()
     bool weather = true;
     double lethal_temperature = -4.5;
     double reproductive_rate = 4.5;
-    double short_distance_scale = 0.0;
+    double short_distance_scale = 1.0;
     int ew_res = 30;
     int ns_res = 30;
     unsigned step = 1;
@@ -593,8 +642,7 @@ int test_calling_all_functions()
                 infected.cols());
     simulation.remove(infected, susceptible, temperature, lethal_temperature);
     simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
-    RadialDispersalKernel kernel(ew_res, ns_res, dispersal_kernel,
-                                 short_distance_scale);
+    RadialDispersalKernel kernel(ew_res, ns_res, dispersal_kernel, short_distance_scale);
     simulation.movement(infected, susceptible, mortality_tracker, total_hosts, step, 
                         last_index, movements, movement_schedule);
     simulation.disperse(dispersers, susceptible, infected,

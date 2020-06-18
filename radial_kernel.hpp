@@ -20,6 +20,7 @@
 #define POPS_RADIAL_KERNEL_HPP
 
 #include "kernel_types.hpp"
+#include "deterministic_kernel.hpp"
 
 #include <cmath>
 #include <map>
@@ -175,12 +176,18 @@ protected:
     std::cauchy_distribution<double> cauchy_distribution;
     std::exponential_distribution<double> exponential_distribution;
     von_mises_distribution von_mises;
+    DeterministicDispersalKernel deterministic_kernel;
+    bool deterministic_;
 public:
     RadialDispersalKernel(double ew_res, double ns_res,
                           DispersalKernelType dispersal_kernel,
-                          double distance_scale,
+                          double distance_scale = 1.0,
                           Direction dispersal_direction = Direction::None,
-                          double dispersal_direction_kappa = 0
+                          double dispersal_direction_kappa = 0,
+                          bool deterministic = false,
+                          Raster<int> dispersers = {{0}},
+                          double dispersal_percentage = 0.99,
+                          double locator = 0.0
             )
         :
           east_west_resolution(ew_res),
@@ -192,6 +199,8 @@ public:
           // When lambda is higher, exponential gives less higher values,
           // so we do multiplicative inverse to behave like cauchy.
           exponential_distribution(1.0 / distance_scale),
+          deterministic_(deterministic),
+          deterministic_kernel(dispersal_kernel, dispersers, dispersal_percentage, ew_res, ns_res, distance_scale, locator),
           // if no wind, then kappa is 0
           // TODO: change these two computations to standalone inline
           // functions (dir to rad and adjust kappa)
@@ -210,10 +219,12 @@ public:
     template<typename Generator>
     std::tuple<int, int> operator() (Generator& generator, int row, int col)
     {
+    	if (deterministic_) {
+    		return deterministic_kernel.spread(row, col);
+    	}
         double distance = 0;
         double theta = 0;
-
-        // switch in between the supported kernels
+        // switch between the supported kernels
         // generate the distance from cauchy distribution or cauchy mixture distribution
         if (dispersal_kernel_type_ == DispersalKernelType::Cauchy) {
             distance = std::abs(cauchy_distribution(generator));
@@ -226,7 +237,6 @@ public:
             // not all allowed kernels will/are supported by this class
             throw std::invalid_argument("Unsupported dispersal kernel type");
         }
-
         theta = von_mises(generator);
 
         row -= round(distance * cos(theta) / north_south_resolution);
