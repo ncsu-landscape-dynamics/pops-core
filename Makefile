@@ -1,7 +1,7 @@
 CXXFLAGS := $(CXXFLAGS) -std=c++11 -pedantic -Wall -Wextra
 COMMON_DEFINES := -D POPS_TEST
 
-all: test_date test_raster test_simulation test_treatments test_spread_rate test_statistics test_scheduling test_deterministic
+all: test_date test_raster test_simulation test_treatments test_spread_rate test_statistics test_scheduling test_deterministic test_model
 
 test_date: test_date.cpp date.hpp
 	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_date.cpp -o test_date
@@ -27,6 +27,9 @@ test_scheduling: test_scheduling.cpp *.hpp
 test_deterministic: test_deterministic.cpp *.hpp
 	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_deterministic.cpp -o test_deterministic
 
+test_model: test_model.cpp *.hpp
+	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_model.cpp -o test_model
+
 test:
 	./test_date
 	./test_raster
@@ -36,6 +39,7 @@ test:
 	./test_statistics
 	./test_scheduling
 	./test_deterministic
+	./test_model
 
 doc:
 	doxygen
@@ -49,3 +53,4 @@ clean:
 	rm -f test_statistics
 	rm -f test_scheduling
 	rm -f test_deterministic
+	rm -f test_model
