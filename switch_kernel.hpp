@@ -18,6 +18,7 @@
 
 #include "radial_kernel.hpp"
 #include "uniform_kernel.hpp"
+#include "neighbor_kernel.hpp"
 #include "kernel_types.hpp"
 
 namespace pops {
@@ -37,18 +38,21 @@ protected:
     DispersalKernelType dispersal_kernel_type_;
     RadialDispersalKernel radial_kernel_;
     UniformDispersalKernel uniform_kernel_;
-
+    DeterministicNeighborDispersalKernel deterministic_neighbor_kernel_;
 public:
-    SwitchDispersalKernel(const DispersalKernelType& dispersal_kernel_type,
-                          const RadialDispersalKernel& radial_kernel,
-                          const UniformDispersalKernel& uniform_kernel
-                          )
+    SwitchDispersalKernel(
+            const DispersalKernelType& dispersal_kernel_type,
+            const RadialDispersalKernel& radial_kernel,
+            const UniformDispersalKernel& uniform_kernel,
+            const DeterministicNeighborDispersalKernel& deterministic_neighbor_kernel = DeterministicNeighborDispersalKernel(Direction::None)
+            )
         :
           dispersal_kernel_type_(dispersal_kernel_type),
           // Here we initialize all kernels,
           // although we won't use all of them.
           radial_kernel_(radial_kernel),
-          uniform_kernel_(uniform_kernel)
+          uniform_kernel_(uniform_kernel),
+          deterministic_neighbor_kernel_(deterministic_neighbor_kernel)
     {}
 
     /*! \copydoc RadialDispersalKernel::operator()()
@@ -60,6 +64,9 @@ public:
         if (dispersal_kernel_type_ == DispersalKernelType::Uniform) {
             return uniform_kernel_(generator, row, col);
         }
+        else if (dispersal_kernel_type_ == DispersalKernelType::DeterministicNeighbor) {
+            return deterministic_neighbor_kernel_(generator, row, col);
+        }
         else {
             return radial_kernel_(generator, row, col);
         }
@@ -70,6 +77,8 @@ public:
     static bool supports_kernel(const DispersalKernelType type)
     {
         if (type == DispersalKernelType::Uniform)
+            return true;
+        if (type == DispersalKernelType::DeterministicNeighbor)
             return true;
         else
             return RadialDispersalKernel::supports_kernel(type);

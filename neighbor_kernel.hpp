@@ -36,6 +36,17 @@ class DeterministicNeighborDispersalKernel
 protected:
     Direction direction_;
 public:
+    /**
+     * Creates kernel based on the spread direction.
+     *
+     * If the spread direction is None, i.e., Direction::None,
+     * the object is created, but it cannot be actually used as a kernel.
+     * If it is called, it throws std::invalid_argument.
+     * This allows creating "default" instance of this object which is
+     * never actually used in the simulation.
+     *
+     * @param dispersal_direction Direction of the spread
+     */
     DeterministicNeighborDispersalKernel(Direction dispersal_direction)
         :
           direction_(dispersal_direction)
