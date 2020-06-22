@@ -339,7 +339,7 @@ private:
  * Result for input step any other then 1 and 5 in this case
  * returns valid number but has no particular meaning.
  */
-unsigned simulation_step_to_action_step(std::vector<bool> &action_schedule, unsigned step) {
+unsigned simulation_step_to_action_step(const std::vector<bool>& action_schedule, unsigned step) {
     std::vector<unsigned> indices(action_schedule.size());
     unsigned idx = 0;
     for (unsigned i = 0; i < action_schedule.size();i++) {
@@ -355,7 +355,7 @@ unsigned simulation_step_to_action_step(std::vector<bool> &action_schedule, unsi
  *
  * action_schedule: [F, T, F, F, F, T, F] -> 2
  */
-unsigned get_number_of_scheduled_actions(std::vector<bool> &action_schedule) {
+unsigned get_number_of_scheduled_actions(const std::vector<bool>& action_schedule) {
     return std::count(action_schedule.begin(), action_schedule.end(), true);
 }
 
