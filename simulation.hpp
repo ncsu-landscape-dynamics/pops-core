@@ -351,6 +351,9 @@ public:
      * @param[in] weather_coefficient Weather coefficient for each location
      * @param dispersal_kernel Dispersal kernel to move dispersers
      * @param establishment_probability Probability of establishment with no stochasticity
+     *
+     * @note If the parameters or their default values don't correspond
+     * with the disperse_and_infect() function, it is a bug.
      */
     template<typename DispersalKernel>
     void disperse(const IntegerRaster& dispersers,
@@ -521,7 +524,8 @@ public:
             std::vector<std::tuple<int, int>>& outside_dispersers,
             bool weather,
             const FloatRaster& weather_coefficient,
-            DispersalKernel& dispersal_kernel)
+            DispersalKernel& dispersal_kernel,
+            double establishment_probability = 0.5)
     {
         auto* infected_or_exposed = &infected;
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
@@ -538,7 +542,8 @@ public:
                     outside_dispersers,
                     weather,
                     weather_coefficient,
-                    dispersal_kernel);
+                    dispersal_kernel,
+                    establishment_probability);
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
             this->infect_exposed(step, exposed, infected, mortality_tracker);
         }
