@@ -55,6 +55,7 @@ enum class DispersalKernelType
     Cauchy,  //!< Cauchy dispersal kernel
     Exponential,  //!< Exponential dispersal kernel
     Uniform,  //!< Random uniform dispersal kernel
+    DeterministicNeighbor,  //!< Deterministic immediate neighbor dispersal kernel
     None,  //!< No dispersal kernel (no spread)
 };
 
@@ -72,6 +73,8 @@ DispersalKernelType kernel_type_from_string(const std::string& text)
         return DispersalKernelType::Exponential;
     else if (text == "uniform")
         return DispersalKernelType::Uniform;
+    else if (text == "deterministic-neighbor" || text == "deterministic_neighbor")
+        return DispersalKernelType::DeterministicNeighbor;
     else if (text == "none" || text == "None"
              || text == "NONE" || text.empty())
         return DispersalKernelType::None;
