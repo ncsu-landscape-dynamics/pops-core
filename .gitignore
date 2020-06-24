@@ -5,6 +5,7 @@
 a.out
 test_date
 test_deterministic
+test_model
 test_raster
 test_scheduling
 test_simulation
