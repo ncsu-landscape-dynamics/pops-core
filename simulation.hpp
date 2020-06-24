@@ -115,6 +115,7 @@ private:
     RasterIndex cols_;
     bool dispersers_stochasticity_;
     bool establishment_stochasticity_;
+    bool movement_stochasticity_;
     ModelType model_type_;
     unsigned latency_period_;
     std::default_random_engine generator_;
@@ -136,6 +137,7 @@ public:
      * @param cols Number of columns
      * @param dispersers_stochasticity Enable stochasticity in generating of dispersers
      * @param establishment_stochasticity Enable stochasticity in establishment step
+     * @param movement_stochasticity Enable stochasticity in movement of hosts
      */
     Simulation(unsigned random_seed,
                RasterIndex rows,
@@ -143,13 +145,15 @@ public:
                ModelType model_type = ModelType::SusceptibleInfected,
                unsigned latency_period = 0,
                bool dispersers_stochasticity = true,
-               bool establishment_stochasticity = true
+               bool establishment_stochasticity = true,
+               bool movement_stochasticity = true
                )
         :
           rows_(rows),
           cols_(cols),
           dispersers_stochasticity_(dispersers_stochasticity),
           establishment_stochasticity_(establishment_stochasticity),
+          movement_stochasticity_(movement_stochasticity),
           model_type_(model_type),
           latency_period_(latency_period)
     {
@@ -246,8 +250,12 @@ public:
                 inf_ratio = double(infected(row_from, col_from)) / double(total_hosts(row_from, col_from));
                 int infected_mean = total_hosts_moved * inf_ratio;
                 if (infected_mean > 0) {
-                    std::poisson_distribution<int> distribution(infected_mean);
-                    infected_moved = distribution(generator_);
+                	if (movement_stochasticity_) {
+                		std::poisson_distribution<int> distribution(infected_mean);
+                		infected_moved = distribution(generator_);
+                	} else {
+                		infected_moved = infected_mean;
+                	}
                 }
                 if (infected_moved > infected(row_from, col_from)) {
                     infected_moved = infected(row_from, col_from);
@@ -375,7 +383,6 @@ public:
             for (int j = 0; j < cols_; j++) {
                 if (dispersers(i, j) > 0) {
                     for (int k = 0; k < dispersers(i, j); k++) {
-
                         std::tie(row, col) = dispersal_kernel(generator_, i, j);
 
                         if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {

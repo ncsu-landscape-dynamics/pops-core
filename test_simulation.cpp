@@ -124,6 +124,10 @@ int test_with_reduced_stochasticity()
     Raster<int> total_hosts = susceptible;
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
+    std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
+    std::vector<unsigned> movement_schedule = {1, 1};
+    unsigned step = 1;
+    unsigned last_index = 0;
 
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
     auto expected_infected = expected_mortality_tracker + infected;
@@ -134,6 +138,7 @@ int test_with_reduced_stochasticity()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     DeterministicNeighborDispersalKernel kernel(Direction::E);
@@ -144,7 +149,8 @@ int test_with_reduced_stochasticity()
                 model_type_from_string("SI"),
                 0,
                 generate_stochasticity,
-                establishment_stochasticity
+                establishment_stochasticity,
+                movement_stochasticity
                 );
     simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
     auto expected_dispersers = reproductive_rate * infected;
@@ -166,6 +172,17 @@ int test_with_reduced_stochasticity()
     }
     if (mortality_tracker != expected_mortality_tracker) {
         cout << "reduced_stochasticity: mortality tracker (actual, expected):\n" << mortality_tracker << "  !=\n" << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    infected = {{5, 0}, {0, 0}};
+    susceptible = {{10, 20}, {14, 15}};
+    mortality_tracker = {{0, 0}, {0, 0}};
+    total_hosts = susceptible;
+    simulation.movement(infected, susceptible, mortality_tracker, total_hosts,
+    					step, last_index, movements, movement_schedule);
+    expected_infected = {{4, 0}, {0, 1}};
+     if (infected != expected_infected) {
+        cout << "reduced_stochasticity: infected (actual, expected):\n" << infected << "  !=\n" << expected_infected << "\n";
         return 1;
     }
     return 0;
