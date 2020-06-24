@@ -36,6 +36,15 @@ namespace pops {
 
 struct Config
 {
+    Config()
+        :
+          generate_stochasticity(true),
+          establishment_stochasticity(true),
+          use_lethal_temperature(false),
+          use_anthropogenic_kernel(false),
+          use_treatments(false),
+          use_mortality(false)
+    {}
     // Seed
     int random_seed;
     // Size
