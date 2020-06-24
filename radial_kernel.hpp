@@ -165,6 +165,7 @@ Direction direction_from_string(const char* text)
  * its implementation in the function call operator, and extend the
  * supports_kernel() function.
  */
+template<typename IntegerRaster>
 class RadialDispersalKernel
 {
 protected:
@@ -176,7 +177,7 @@ protected:
     std::cauchy_distribution<double> cauchy_distribution;
     std::exponential_distribution<double> exponential_distribution;
     von_mises_distribution von_mises;
-    DeterministicDispersalKernel deterministic_kernel;
+    DeterministicDispersalKernel<IntegerRaster> deterministic_kernel;
     bool deterministic_;
 public:
     RadialDispersalKernel(double ew_res, double ns_res,
@@ -185,7 +186,7 @@ public:
                           Direction dispersal_direction = Direction::None,
                           double dispersal_direction_kappa = 0,
                           bool deterministic = false,
-                          Raster<int> dispersers = {{0}},
+                          IntegerRaster dispersers = {{0}},
                           double dispersal_percentage = 0.99,
                           double locator = 0.0
             )
@@ -219,9 +220,9 @@ public:
     template<typename Generator>
     std::tuple<int, int> operator() (Generator& generator, int row, int col)
     {
-    	if (deterministic_) {
-    		return deterministic_kernel.spread(row, col);
-    	}
+        if (deterministic_) {
+            return deterministic_kernel(generator, row, col);
+        }
         double distance = 0;
         double theta = 0;
         // switch between the supported kernels

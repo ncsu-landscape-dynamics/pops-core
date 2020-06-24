@@ -172,164 +172,6 @@ int test_with_reduced_stochasticity()
     return 0;
 }
 
-int test_with_deterministic_kernel()
-{
-	Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
-    Raster<int> mortality_tracker = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
-    Raster<int> total_hosts = susceptible;
-    Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-    std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
-    std::vector<unsigned> movement_schedule = {1, 1};
-
-    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
-    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
-
-    Raster<int> dispersers(infected.rows(), infected.cols());
-    std::vector<std::tuple<int, int>> outside_dispersers;
-    bool weather = false;
-    double reproductive_rate = 2;
-    bool generate_stochasticity = false;
-    bool establishment_stochasticity = false;
-    // We want everything to establish.
-    double establishment_probability = 1;
-    // Cauchy
-    Simulation<Raster<int>, Raster<double>> simulation(
-                42,
-                infected.rows(),
-                infected.cols(),
-                model_type_from_string("SI"),
-                0,
-                generate_stochasticity,
-                establishment_stochasticity
-                );
-    simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
-    auto expected_dispersers = reproductive_rate * infected;
-    if (dispersers != expected_dispersers) {
-        cout << "Deterministic Kernel Cauchy: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
-        return 1;
-    }
-    RadialDispersalKernel deterministicKernel(30, 30, DispersalKernelType::Cauchy, 0.3, Direction::None, 0.0, true, dispersers, 0.99, 0.0);
-    // using a smaller scale value since the test raster is so small
-    simulation.disperse(dispersers, susceptible, infected,
-                        mortality_tracker, total_hosts,
-                        outside_dispersers, weather, weather_coefficient,
-                        deterministicKernel, establishment_probability);
-    if (outside_dispersers.size() != 0) {
-        cout << "Deterministic Kernel Cauchy: There are outside_dispersers (" << outside_dispersers.size() << ") but there should be 0\n";
-        return 1;
-    }
-    if (infected != expected_infected) {
-        cout << "Deterministic Kernel Cauchy: infected (actual, expected):\n" << infected << "  !=\n" << expected_infected << "\n";
-        return 1;
-    }
-    if (mortality_tracker != expected_mortality_tracker) {
-        cout << "Deterministic Kernel Cauchy: mortality tracker (actual, expected):\n" << mortality_tracker << "  !=\n" << expected_mortality_tracker << "\n";
-        return 1;
-    }
-    cout << "Deterministic Kernel Cauchy: no errors\n";
-    
-    infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
-    mortality_tracker = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-    susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
-    total_hosts = susceptible;
-    movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
-    movement_schedule = {1, 1};
-	std::vector<std::tuple<int, int>> outside_dispersers2;
-    expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
-    expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
-    dispersers(infected.rows(), infected.cols());
-    
-    // Exponential
-    Simulation<Raster<int>, Raster<double>> s2(
-                42,
-                infected.rows(),
-                infected.cols(),
-                model_type_from_string("SI"),
-                0,
-                generate_stochasticity,
-                establishment_stochasticity
-                );
-    s2.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
-    expected_dispersers = reproductive_rate * infected;
-    if (dispersers != expected_dispersers) {
-        cout << "Deterministic Kernel Exponential: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
-        return 1;
-    }
-    RadialDispersalKernel deterministicKernel2(30, 30, DispersalKernelType::Exponential, 1.0, Direction::None, 0.0, true, dispersers, 0.99, 0.0);
-   
-    s2.disperse(dispersers, susceptible, infected,
-                        mortality_tracker, total_hosts,
-                        outside_dispersers2, weather, weather_coefficient,
-                        deterministicKernel2, establishment_probability);
-    if (outside_dispersers2.size() != 0) {
-        cout << "Deterministic Kernel Exponential: There are outside_dispersers (" << outside_dispersers2.size() << ") but there should be 0\n";
-        return 1;
-    }
-    if (infected != expected_infected) {
-        cout << "Deterministic Kernel Exponential: infected (actual, expected):\n" << infected << "  !=\n" << expected_infected << "\n";
-        return 1;
-    }
-    if (mortality_tracker != expected_mortality_tracker) {
-        cout << "Deterministic Kernel Exponential: mortality tracker (actual, expected):\n" << mortality_tracker << "  !=\n" << expected_mortality_tracker << "\n";
-        return 1;
-    }
-    cout << "Deterministic Kernel Exponential: no errors\n";
-    
-    // testing cauchy pdf & cdf
-    double scale = 0.001;  // rounding to thousands place
-    CauchyDistribution cauchy(1.0, 0.0);
-    double probability = (int) (cauchy.pdf(5) / scale) * scale;
-    if ( probability != 0.012) {
-    	cout << "Cauchy Distribution: probability was " << probability << " but should be 0.012\n";
-        return 1;
-    }
-    double x = (int) (cauchy.cdf(0.98) / scale) * scale;
-    if ( x != 63.641) {
-    	cout << "Cauchy Distribution: x was " << x << " but should be 63.641\n";
-        return 1;
-    }
-    CauchyDistribution cauchy1(1.5, 0.5);
-    probability = (int) (cauchy1.pdf(5) / scale) * scale;
-    if ( probability != 0.021) {
-    	cout << "Cauchy Distribution: probability was " << probability << " but should be 0.021\n";
-        return 1;
-    }
-    x = (int) (cauchy1.cdf(0.98) / scale) * scale;
-    if ( x != 9.138) {
-    	cout << "Cauchy Distribution: x was " << x << " but should be 9.138\n";
-        return 1;
-    }
-    cout << "Cauchy Distribution: cdf and pdf pass\n";
-    
-    // testing exponential pdf & cdf
-    ExponentialDistribution exponential(1.0);
-    probability = (int) (exponential.pdf(1) / scale) * scale;
-    if ( probability != 0.367) {
-    	cout << "Exponential Distribution: probability was " << probability << " but should be 0.367\n";
-        return 1;
-    }
-    x = (int) (exponential.cdf(0.98) / scale) * scale;
-    if ( x != 3.912) {
-    	cout << "Exponential Distribution: x was " << x << " but should be 3.912\n";
-        return 1;
-    }
-    ExponentialDistribution exponential2(1.5);
-    probability = (int) (exponential2.pdf(1) / scale) * scale;
-    if ( probability != 0.342) {
-    	cout << "Exponential Distribution: probability was " << probability << " but should be 0.342\n";
-        return 1;
-    }
-    x = (int) (exponential2.cdf(0.98) / scale) * scale;
-    if ( x != 5.868) {
-    	cout << "Exponential Distribution: x was " << x << " but should be 5.868\n";
-        return 1;
-    }
-    cout << "Exponential Distribution: cdf and pdf pass\n";
-    return 0;
-}
-
 int disperse_and_infect_postcondition(int step, const std::vector<Raster<int>>& exposed)
 {
     Raster<int> zeros(exposed[0].rows(), exposed[0].cols(), 0);
@@ -642,8 +484,8 @@ int test_calling_all_functions()
                 infected.cols());
     simulation.remove(infected, susceptible, temperature, lethal_temperature);
     simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
-    RadialDispersalKernel kernel(ew_res, ns_res, dispersal_kernel, short_distance_scale);
-    simulation.movement(infected, susceptible, mortality_tracker, total_hosts, step, 
+    RadialDispersalKernel<Raster<int>> kernel(ew_res, ns_res, dispersal_kernel, short_distance_scale);
+    simulation.movement(infected, susceptible, mortality_tracker, total_hosts, step,
                         last_index, movements, movement_schedule);
     simulation.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_hosts,
@@ -664,7 +506,6 @@ int main()
     ret += test_calling_all_functions();
     ret += test_with_neighbor_kernel();
     ret += test_with_reduced_stochasticity();
-    ret += test_with_deterministic_kernel();
     ret += test_with_sei();
     ret += test_SI_versus_SEI0();
 
