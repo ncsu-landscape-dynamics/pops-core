@@ -27,7 +27,6 @@
 #include "neighbor_kernel.hpp"
 #include "radial_kernel.hpp"
 #include "simulation.hpp"
-#include "deterministic_kernel.hpp"
 
 #include <map>
 #include <iostream>

@@ -17,7 +17,6 @@
 #define POPS_DETERMINISTIC_KERNEL_HPP
 
 #include <vector>
-#include <cmath>
 #include <tuple>
 
 #include "raster.hpp"
@@ -33,7 +32,6 @@ namespace pops {
 
 using std::pow;
 using std::tan;
-using std::atan;
 using std::exp;
 using std::log;
 using std::ceil;

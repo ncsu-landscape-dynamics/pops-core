@@ -23,18 +23,8 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "raster.hpp"
 #include "radial_kernel.hpp"
 #include "simulation.hpp"
-#include "deterministic_kernel.hpp"
-
-#include <map>
-#include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <fstream>
-#include <sstream>
-#include <string>
 
 using std::string;
 using std::cout;
@@ -97,7 +87,6 @@ int test_with_cauchy_deterministic_kernel()
         cout << "Deterministic Kernel Cauchy: mortality tracker (actual, expected):\n" << mortality_tracker << "  !=\n" << expected_mortality_tracker << "\n";
         return 1;
     }
-    cout << "Deterministic Kernel Cauchy: no errors\n";
     return 0;
 }
 
@@ -158,7 +147,6 @@ int test_with_exponential_deterministic_kernel()
         cout << "Deterministic Kernel Exponential: mortality tracker (actual, expected):\n" << mortality_tracker << "  !=\n" << expected_mortality_tracker << "\n";
         return 1;
     }
-    cout << "Deterministic Kernel Exponential: no errors\n";
     return 0;
 }
 
@@ -192,7 +180,6 @@ int test_cauchy_distribution_functions()
         cout << "Cauchy Distribution: x was " << x << " but should be " << x_ref << "\n";
         return 1;
     }
-    cout << "Cauchy Distribution: icdf and pdf pass\n";
     return 0;
 }
 
@@ -226,7 +213,6 @@ int test_exponential_distribution_functions()
         cout << "Exponential Distribution: x was " << x << " but should be " << x_ref << "\n";
         return 1;
     }
-    cout << "Exponential Distribution: icdf and pdf pass\n";
     return 0;
 }
 
@@ -239,6 +225,7 @@ int main()
     ret += test_cauchy_distribution_functions();
     ret += test_exponential_distribution_functions();
 
+    std::cout << "Test deterministic number of errors: " << ret << std::endl;
     return ret;
 }
 #endif  // POPS_TEST
