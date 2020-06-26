@@ -160,28 +160,30 @@ bool Date::is_last_day_of_year()
 
 bool Date::is_last_week_of_month()
 {
-  if (this->is_leap_year()){
-    if ((day_ + 7) >= day_in_month[1][month_])
-      return true;
-    return false;
-  } else {
-    if ((day_ + 7) >= day_in_month[0][month_])
-      return true;
-    return false;
-  }
+    if (this->is_leap_year()) {
+        if ((day_ + 7) >= day_in_month[1][month_])
+            return true;
+        return false;
+    }
+    else {
+        if ((day_ + 7) >= day_in_month[0][month_])
+            return true;
+        return false;
+    }
 }
 
 bool Date::is_last_day_of_month()
 {
-  if (this->is_leap_year()){
-    if (day_ == day_in_month[1][month_])
-      return true;
-    return false;
-  } else {
-    if (day_ == day_in_month[0][month_])
-      return true;
-    return false;
-  }
+    if (this->is_leap_year()) {
+        if (day_ == day_in_month[1][month_])
+            return true;
+        return false;
+    }
+    else {
+        if (day_ == day_in_month[0][month_])
+            return true;
+        return false;
+    }
 }
 
 Date Date::get_next_year_end()
@@ -273,37 +275,37 @@ bool operator!=(const Date& d1, const Date& d2)
  */
 void Date::increased_by_days(int num_days)
 {
-  day_ += num_days;
-  if (this->is_leap_year()) {
-    if (month_ == 12 && day_ > (31 - (num_days + 1))) {
-      year_++;
-      month_ = 1;
-      day_ = 1;
+    day_ += num_days;
+    if (this->is_leap_year()) {
+        if (month_ == 12 && day_ > (31 - (num_days + 1))) {
+            year_++;
+            month_ = 1;
+            day_ = 1;
+        }
+        if (day_ > day_in_month[1][month_]) {
+            day_ = day_ - day_in_month[1][month_];
+            month_++;
+            if (month_ > 12) {
+                year_++;
+                month_ = 1;
+            }
+        }
     }
-    if (day_ > day_in_month[1][month_]) {
-      day_ = day_ - day_in_month[1][month_];
-      month_++;
-      if (month_ > 12) {
-        year_++;
-        month_ = 1;
-      }
+    else {
+        if (month_ == 12 && day_ > (31 - num_days)) {
+            year_++;
+            month_ = 1;
+            day_ = 1;
+        }
+        if (day_ > day_in_month[0][month_]) {
+            day_ = day_ - day_in_month[0][month_];
+            month_++;
+            if (month_ > 12) {
+                year_++;
+                month_ = 1;
+            }
+        }
     }
-  }
-  else {
-    if (month_ == 12 && day_ > (31 - num_days)) {
-      year_++;
-      month_ = 1;
-      day_ = 1;
-    }
-    if (day_ > day_in_month[0][month_]) {
-      day_ = day_ - day_in_month[0][month_];
-      month_++;
-      if (month_ > 12) {
-        year_++;
-        month_ = 1;
-      }
-    }
-  }
 }
 
 /*!
