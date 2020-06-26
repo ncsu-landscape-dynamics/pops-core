@@ -43,7 +43,7 @@ using std::abs;
  * Cauchy distribution
  * Includes probability density function and cumulative distribution function
  * pdf returns the probability that the variate has the value x
- * cdf returns the upper range that encompasses x percent of the distribution (e.g for 99% input .99)
+ * icdf returns the upper range that encompasses x percent of the distribution (e.g for 99% input .99)
  */
 class CauchyDistribution
 {
@@ -57,14 +57,13 @@ public:
         return 1 / ((s*PI)*(1 + (pow((x - t)/s, 2))));
 
     }
-
-    double cdf(double x)
+    // Inverse cdf (quantile function)
+    double icdf(double x)
     {
         if ( s == 1 && t == 0) {
-            // checking upper half so multiply result by 2
-            return tan((x / 2) * M_PI) * 2;
+            return tan(M_PI * (x - 0.5));
         } else {
-            return (tan((x/2)*M_PI + (atan(-t/s))) * s + t) * 2;
+            return t + s * tan(M_PI * (x - 0.5));
         }
     }
 private:
@@ -78,7 +77,7 @@ private:
  * Exponential distribution
  * Includes probability density function and cumulative distribution function
  * pdf returns the probability that the variate has the value x
- * cdf returns the upper range that encompasses x percent of the distribution (e.g for 99% input 0.99)
+ * icdf returns the upper range that encompasses x percent of the distribution (e.g for 99% input 0.99)
  */
 class ExponentialDistribution
 {
@@ -91,8 +90,8 @@ ExponentialDistribution(double scale)
     {
         return (1/beta)*(exp(-x/beta));
     }
-
-    double cdf(double x)
+    // Inverse cdf (quantile function)
+    double icdf(double x)
     {
         if ( beta == 1) {
             return -log(1-x);
@@ -121,7 +120,7 @@ template<typename IntegerRaster>
 class DeterministicDispersalKernel
 {
 protected:
-    IntegerRaster dispersers_;
+    const IntegerRaster& dispersers_;
     DispersalKernelType kernel_type_;
     // the west-east resolution of the pixel
     double east_west_resolution;
@@ -157,11 +156,11 @@ public:
         north_south_resolution(ns_res)
     {
         if (kernel_type_ == DispersalKernelType::Cauchy) {
-            max_distance = cauchy.cdf(dispersal_percentage);
+            max_distance = cauchy.icdf(dispersal_percentage);
         } else if (kernel_type_ == DispersalKernelType::Exponential) {
-            max_distance = exponential.cdf(dispersal_percentage);
+            max_distance = exponential.icdf(dispersal_percentage);
         } else {
-            //for expanding compatible kernel types
+            throw std::invalid_argument("Unsupported dispersal kernel type");
         }
         number_of_columns = ceil(max_distance / east_west_resolution) * 2 + 1;
         number_of_rows = ceil(max_distance / north_south_resolution) * 2 + 1;
@@ -186,11 +185,7 @@ public:
             }
         }
         //normalize based on the sum of all probabilities in the raster
-        for ( int i = 0; i < number_of_rows; i++ ) {
-            for ( int j = 0; j < number_of_columns; j++ ) {
-                probability(i,j) /= sum;
-            }
-        }
+        probability /= sum;
     }
 
     /*! Generates a new position for the spread.
@@ -207,7 +202,7 @@ public:
     {
         // reset the window if considering a new cell
         if ( row != prev_row || col != prev_col ) {
-            number_of_dispersers = 1.0 / dispersers_(row, col);
+            number_of_dispersers = 1.0 / (double)dispersers_(row, col);
             probability_copy = probability;
         }
 

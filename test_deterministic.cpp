@@ -79,7 +79,7 @@ int test_with_cauchy_deterministic_kernel()
         cout << "Deterministic Kernel Cauchy: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(30, 30, DispersalKernelType::Cauchy, 0.3, Direction::None, 0.0, true, dispersers, 0.99, 0.0);
+    RadialDispersalKernel<Raster<int>> deterministicKernel(30, 30, DispersalKernelType::Cauchy, 0.9, Direction::None, 0.0, true, dispersers, 0.9, 0.0);
     // using a smaller scale value since the test raster is so small
     simulation.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_hosts,
@@ -140,12 +140,12 @@ int test_with_exponential_deterministic_kernel()
         cout << "Deterministic Kernel Exponential: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel2(30, 30, DispersalKernelType::Exponential, 1.0, Direction::None, 0.0, true, dispersers, 0.99, 0.0);
+    RadialDispersalKernel<Raster<int>> deterministicKernel(30, 30, DispersalKernelType::Exponential, 1.0, Direction::None, 0.0, true, dispersers, 0.99, 0.0);
 
     s2.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_hosts,
                         outside_dispersers, weather, weather_coefficient,
-                        deterministicKernel2, establishment_probability);
+                        deterministicKernel, establishment_probability);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Exponential: There are outside_dispersers (" << outside_dispersers.size() << ") but there should be 0\n";
         return 1;
@@ -164,7 +164,7 @@ int test_with_exponential_deterministic_kernel()
 
 int test_cauchy_distribution_functions()
 {
-    // testing cauchy pdf & cdf
+    // testing cauchy pdf & icdf
     double scale = 0.001;  // rounding to thousands place
     CauchyDistribution cauchy(1.0, 0.0);
     double probability = (int) (cauchy.pdf(5) / scale) * scale;
@@ -173,8 +173,8 @@ int test_cauchy_distribution_functions()
         cout << "Cauchy Distribution: probability was " << probability << " but should be " << probability_ref << "\n";
         return 1;
     }
-    double x = (int) (cauchy.cdf(0.98) / scale) * scale;
-    double x_ref = 63.641;
+    double x = (int) (cauchy.icdf(0.98) / scale) * scale;
+    double x_ref = 15.894;
     if ( x != x_ref) {
         cout << "Cauchy Distribution: x was " << x << " but should be " << x_ref << "\n";
         return 1;
@@ -186,20 +186,20 @@ int test_cauchy_distribution_functions()
         cout << "Cauchy Distribution: probability was " << probability << " but should be " << probability_ref << "\n";
         return 1;
     }
-    x = (int) (cauchy1.cdf(0.98) / scale) * scale;
-    x_ref = 9.138;
+    x = (int) (cauchy1.icdf(0.98) / scale) * scale;
+    x_ref = 24.341;
     if ( x != x_ref) {
         cout << "Cauchy Distribution: x was " << x << " but should be " << x_ref << "\n";
         return 1;
     }
-    cout << "Cauchy Distribution: cdf and pdf pass\n";
+    cout << "Cauchy Distribution: icdf and pdf pass\n";
     return 0;
 }
 
 int test_exponential_distribution_functions()
 {
     double scale = 0.001;  // rounding to thousands place
-    // testing exponential pdf & cdf
+    // testing exponential pdf & icdf
     ExponentialDistribution exponential(1.0);
     double probability = (int) (exponential.pdf(1) / scale) * scale;
     double probability_ref = 0.367;
@@ -207,7 +207,7 @@ int test_exponential_distribution_functions()
         cout << "Exponential Distribution: probability was " << probability << " but should be " << probability_ref << "\n";
         return 1;
     }
-    double x = (int) (exponential.cdf(0.98) / scale) * scale;
+    double x = (int) (exponential.icdf(0.98) / scale) * scale;
     double x_ref = 3.912;
     if ( x != x_ref) {
         cout << "Exponential Distribution: x was " << x << " but should be " << x_ref << "\n";
@@ -220,13 +220,13 @@ int test_exponential_distribution_functions()
         cout << "Exponential Distribution: probability was " << probability << " but should be " << probability_ref << "\n";
         return 1;
     }
-    x = (int) (exponential2.cdf(0.98) / scale) * scale;
+    x = (int) (exponential2.icdf(0.98) / scale) * scale;
     x_ref = 5.868;
     if ( x != x_ref) {
         cout << "Exponential Distribution: x was " << x << " but should be " << x_ref << "\n";
         return 1;
     }
-    cout << "Exponential Distribution: cdf and pdf pass\n";
+    cout << "Exponential Distribution: icdf and pdf pass\n";
     return 0;
 }
 

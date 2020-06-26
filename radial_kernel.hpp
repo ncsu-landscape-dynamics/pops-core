@@ -186,7 +186,7 @@ public:
                           Direction dispersal_direction = Direction::None,
                           double dispersal_direction_kappa = 0,
                           bool deterministic = false,
-                          IntegerRaster dispersers = {{0}},
+                          const IntegerRaster& dispersers = {{0}},
                           double dispersal_percentage = 0.99,
                           double locator = 0.0
             )
