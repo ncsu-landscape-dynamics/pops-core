@@ -26,7 +26,6 @@ typedef std::tuple<int, int, int, int> BBoxInt;
 typedef std::tuple<double, double, double, double> BBoxFloat;
 typedef std::tuple<bool, bool, bool, bool> BBoxBool;
 
-
 /**
  * Class storing and computing yearly spread rate for one simulation.
  */
@@ -202,7 +201,5 @@ BBoxFloat average_spread_rate(const std::vector<SpreadRate<Raster>>& rates, unsi
     return std::make_tuple(avg_n, avg_s, avg_e, avg_w);
 }
 
-
-}
-#endif // POPS_SPREAD_RATE_HPP
-
+}  // namespace pops
+#endif  // POPS_SPREAD_RATE_HPP

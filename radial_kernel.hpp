@@ -59,7 +59,7 @@ public:
         : mu(mu), kappa(kappa), distribution(0.0, 1.0)
     {}
     template<class Generator>
-    double operator ()(Generator& generator)
+    double operator()(Generator& generator)
     {
         double a, b, c, f, r, theta, u1, u2, u3, z;
 
@@ -89,6 +89,7 @@ public:
         }
         return theta;
     }
+
 private:
     double mu;
     double kappa;
@@ -217,7 +218,7 @@ public:
      * current disperser. The generated position will be relative to it.
      */
     template<typename Generator>
-    std::tuple<int, int> operator() (Generator& generator, int row, int col)
+    std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
         if (deterministic_) {
             return deterministic_kernel(generator, row, col);
@@ -262,6 +263,6 @@ public:
     }
 };
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_RADIAL_KERNEL_HPP
+#endif  // POPS_RADIAL_KERNEL_HPP

@@ -35,6 +35,7 @@ class DeterministicNeighborDispersalKernel
 {
 protected:
     Direction direction_;
+
 public:
     /**
      * Creates kernel based on the spread direction.
@@ -58,7 +59,7 @@ public:
      * is unused.
      */
     template<typename Generator>
-    std::tuple<int, int> operator() (Generator& generator, int row, int col)
+    std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
         switch (direction_) {
         case Direction::E:
@@ -103,6 +104,6 @@ public:
     }
 };
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_NEIGHBOR_KERNEL_HPP
+#endif  // POPS_NEIGHBOR_KERNEL_HPP

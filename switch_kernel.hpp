@@ -59,7 +59,7 @@ public:
     /*! \copydoc RadialDispersalKernel::operator()()
      */
     template<typename Generator>
-    std::tuple<int, int> operator() (Generator& generator, int row, int col)
+    std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
         // switch in between the supported kernels
         if (dispersal_kernel_type_ == DispersalKernelType::Uniform) {
@@ -86,6 +86,6 @@ public:
     }
 };
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_SWITCH_KERNEL_HPP
+#endif  // POPS_SWITCH_KERNEL_HPP

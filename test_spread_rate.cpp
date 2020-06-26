@@ -85,7 +85,6 @@ int test_spread_rate()
     return err;
 }
 
-
 int main()
 {
     int num_errors = 0;

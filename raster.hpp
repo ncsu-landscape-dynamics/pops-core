@@ -589,6 +589,6 @@ operator/(const Raster<LeftNumber>& lhs, const Raster<RightNumber>& rhs)
     return out;
 }
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_RASTER_HPP
+#endif  // POPS_RASTER_HPP

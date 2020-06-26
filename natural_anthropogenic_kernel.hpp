@@ -68,7 +68,7 @@ public:
     /*! \copydoc RadialDispersalKernel::operator()()
      */
     template<typename Generator>
-    std::tuple<int, int> operator() (Generator& generator, int row, int col)
+    std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
         // switch in between the supported kernels
         if (!use_anthropogenic_kernel_ || bernoulli_distribution(generator)) {
@@ -102,6 +102,6 @@ public:
     }
 };
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_NATURAL_ANTHROPOGENIC_KERNEL_HPP
+#endif  // POPS_NATURAL_ANTHROPOGENIC_KERNEL_HPP

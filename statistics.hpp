@@ -50,6 +50,5 @@ double area_of_infected(const IntegerRaster& infected, double ew_res, double ns_
     return cells * ew_res * ns_res;
 }
 
-}
-#endif // POPS_STATISTICS_HPP
-
+}  // namespace pops
+#endif  // POPS_STATISTICS_HPP

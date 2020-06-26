@@ -14,7 +14,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #ifndef POPS_SCHEDULING_HPP
 #define POPS_SCHEDULING_HPP
 
@@ -49,7 +48,7 @@ private:
     Date start_date_;
     Date end_date_;
 };
-std::ostream& operator<<(std::ostream& os, const Step &step)
+std::ostream& operator<<(std::ostream& os, const Step& step)
 {
     os << step.start_date_ << " - " << step.end_date_;
     return os;
@@ -344,7 +343,7 @@ private:
 unsigned simulation_step_to_action_step(const std::vector<bool>& action_schedule, unsigned step) {
     std::vector<unsigned> indices(action_schedule.size());
     unsigned idx = 0;
-    for (unsigned i = 0; i < action_schedule.size();i++) {
+    for (unsigned i = 0; i < action_schedule.size(); i++) {
         indices[i] = idx;
         if (action_schedule[i])
             ++idx;
@@ -421,6 +420,6 @@ inline std::vector<bool> output_schedule_from_string(const Scheduler &scheduler,
     }
 }
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_SCHEDULING_HPP
+#endif  // POPS_SCHEDULING_HPP

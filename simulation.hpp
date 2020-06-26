@@ -119,8 +119,8 @@ private:
     ModelType model_type_;
     unsigned latency_period_;
     std::default_random_engine generator_;
-public:
 
+public:
     /** Creates simulation object and seeds the internal random number generator.
      *
      * The same random number generator is used throughout the simulation
@@ -557,6 +557,6 @@ public:
     }
 };
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_SIMULATION_HPP
+#endif  // POPS_SIMULATION_HPP

@@ -15,7 +15,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #ifndef POPS_DATE_HPP
 #define POPS_DATE_HPP
 
@@ -66,13 +65,13 @@ public:
     int year() const { return year_; }
     int day() const { return day_; }
     inline int weeks_from_date(Date start);
-    inline friend std::ostream& operator<<(std::ostream& os, const Date &d);
-    inline friend bool operator> (const Date &d1, const Date &d2);
-    inline friend bool operator>= (const Date &d1, const Date &d2);
-    inline friend bool operator< (const Date &d1, const Date &d2);
-    inline friend bool operator<= (const Date &d1, const Date &d2);
-    inline friend bool operator== (const Date &d1, const Date &d2);
-    inline friend bool operator!= (const Date &d1, const Date &d2);
+    inline friend std::ostream& operator<<(std::ostream& os, const Date& d);
+    inline friend bool operator>(const Date& d1, const Date& d2);
+    inline friend bool operator>=(const Date& d1, const Date& d2);
+    inline friend bool operator<(const Date& d1, const Date& d2);
+    inline friend bool operator<=(const Date& d1, const Date& d2);
+    inline friend bool operator==(const Date& d1, const Date& d2);
+    inline friend bool operator!=(const Date& d1, const Date& d2);
 };
 
 /*!
@@ -92,11 +91,11 @@ Date::Date(std::string date)
     month_ = std::stoi(date.substr(0, pos));
     date.erase(0, pos + 1);
     day_ = std::stoi(date);
-    if (month_ <= 0 || month_ > 12 || day_> day_in_month[1][month_])
+    if (month_ <= 0 || month_ > 12 || day_ > day_in_month[1][month_])
         throw std::invalid_argument("Invalid date specified");
 }
 
-std::ostream& operator<<(std::ostream& os, const Date &d)
+std::ostream& operator<<(std::ostream& os, const Date& d)
 {
     os << d.year_ << '-' << d.month_ << '-' << d.day_;
     return os;
@@ -200,9 +199,9 @@ bool Date::is_leap_year()
     return false;
 }
 
-bool operator> (const Date &d1, const Date &d2)
+bool operator>(const Date& d1, const Date& d2)
 {
-    if(d1.year_ < d2.year_)
+    if (d1.year_ < d2.year_)
         return false;
     else if (d1.year_ > d2.year_)
         return true;
@@ -220,14 +219,14 @@ bool operator> (const Date &d1, const Date &d2)
     }
 }
 
-bool operator<= (const Date &d1, const Date &d2)
+bool operator<=(const Date& d1, const Date& d2)
 {
     return !(d1 > d2);
 }
 
-bool operator< (const Date &d1, const Date &d2)
+bool operator<(const Date& d1, const Date& d2)
 {
-    if(d1.year_ > d2.year_)
+    if (d1.year_ > d2.year_)
         return false;
     else if (d1.year_ < d2.year_)
         return true;
@@ -245,19 +244,19 @@ bool operator< (const Date &d1, const Date &d2)
     }
 }
 
-bool operator>= (const Date &d1, const Date &d2)
+bool operator>=(const Date& d1, const Date& d2)
 {
     return !(d1 < d2);
 }
 
-bool operator== (const Date &d1, const Date &d2)
+bool operator==(const Date& d1, const Date& d2)
 {
     if (d1.year_ == d2.year_ && d1.month_ == d2.month_ && d1.day_ == d2.day_)
         return true;
     return false;
 }
 
-bool operator!= (const Date &d1, const Date &d2)
+bool operator!=(const Date& d1, const Date& d2)
 {
     if (d1 == d2)
         return false;
@@ -450,11 +449,12 @@ public:
     {
         return month >= start_month_ && month <= end_month_;
     }
+
 private:
     int start_month_;
     int end_month_;
 };
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_DATE_HPP
+#endif  // POPS_DATE_HPP

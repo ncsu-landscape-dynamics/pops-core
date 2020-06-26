@@ -239,12 +239,12 @@ class Treatments
 private:
     std::vector<AbstractTreatment<IntegerRaster, FloatRaster>*> treatments;
     Scheduler scheduler_;
+
 public:
     Treatments(const Scheduler &scheduler): scheduler_(scheduler) {}
     ~Treatments()
     {
-        for (auto item : treatments)
-        {
+        for (auto item : treatments) {
             delete item;
         }
     }
@@ -324,10 +324,8 @@ public:
      */
     void clear_after_step(unsigned step)
     {
-        for(auto& treatment : treatments)
-        {
-            if (treatment->get_start() > step)
-            {
+        for (auto& treatment : treatments) {
+            if (treatment->get_start() > step) {
                 delete treatment;
                 treatment = nullptr;
             }
@@ -337,6 +335,5 @@ public:
     }
 };
 
-}
-#endif // POPS_TREATMENTS_HPP
-
+}  // namespace pops
+#endif  // POPS_TREATMENTS_HPP

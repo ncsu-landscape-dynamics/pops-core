@@ -93,6 +93,6 @@ DispersalKernelType kernel_type_from_string(const char* text)
                                         : std::string());
 }
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_KERNEL_TYPES_HPP
+#endif  // POPS_KERNEL_TYPES_HPP

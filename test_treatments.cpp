@@ -29,9 +29,7 @@
 #include "date.hpp"
 #include "scheduling.hpp"
 
-
 using namespace pops;
-
 
 int test_application_ratio()
 {
@@ -123,7 +121,6 @@ int test_application_ratio_pesticide()
     return num_errors;
 }
 
-
 int test_application_all_inf_pesticide()
 {
     int num_errors = 0;
@@ -168,7 +165,6 @@ int test_application_all_inf_pesticide()
     }
     return num_errors;
 }
-
 
 int test_combination()
 {
@@ -229,8 +225,6 @@ int test_combination()
     }
     return num_errors;
 }
-
-
 
 int test_pesticide_temporal_overlap()
 {
