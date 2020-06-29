@@ -60,7 +60,8 @@ DerivePointerAlignment: false
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
 IndentCaseLabels: false
-IndentGotoLabels: true
+# Unknown to clang-format 9, available in 10
+# IndentGotoLabels: true
 IndentPPDirectives: None
 IndentWidth: 4
 IndentWrappedFunctionNames: false
