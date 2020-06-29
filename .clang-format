@@ -43,4 +43,5 @@ BreakInheritanceList: BeforeColon
 PointerAlignment: Left
 SpaceAfterTemplateKeyword: false
 AllowShortFunctionsOnASingleLine: Empty
-Standard: c++11
+# Unknown to clang-format 9
+# Standard: c++11
