@@ -97,7 +97,8 @@ SpacesInContainerLiterals: true
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-SpaceBeforeSquareBrackets: false
+# Unknown to clang-format 9, available in 10
+# SpaceBeforeSquareBrackets: false
 # Unknown to clang-format 9, available in 10
 # Standard: c++11
 TabWidth: 4
