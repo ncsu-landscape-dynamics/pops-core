@@ -49,8 +49,7 @@ public:
      * @param dispersal_direction Direction of the spread
      */
     DeterministicNeighborDispersalKernel(Direction dispersal_direction)
-        :
-          direction_(dispersal_direction)
+        : direction_(dispersal_direction)
     {}
 
     /*! \copybrief RadialDispersalKernel::operator()()
@@ -91,7 +90,8 @@ public:
             col -= 1;
             break;
         default:
-            throw std::invalid_argument("NeighborDispersalKernel: Unsupported Direction");
+            throw std::invalid_argument(
+                "NeighborDispersalKernel: Unsupported Direction");
         }
         return std::make_tuple(row, col);
     }

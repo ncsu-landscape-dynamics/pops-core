@@ -64,8 +64,7 @@ enum class DispersalKernelType
  * Throws an std::invalid_argument exception if the values was not
  * found or is not supported (which is the same thing).
  */
-inline
-DispersalKernelType kernel_type_from_string(const std::string& text)
+inline DispersalKernelType kernel_type_from_string(const std::string& text)
 {
     if (text == "cauchy")
         return DispersalKernelType::Cauchy;
@@ -78,18 +77,18 @@ DispersalKernelType kernel_type_from_string(const std::string& text)
     else if (text == "none" || text == "None" || text == "NONE" || text.empty())
         return DispersalKernelType::None;
     else
-        throw std::invalid_argument("kernel_type_from_string: Invalid"
-                                    " value '" + text +"' provided");
+        throw std::invalid_argument(
+            "kernel_type_from_string: Invalid"
+            " value '"
+            + text + "' provided");
 }
 
 /*! Overload which allows to pass C-style string which is nullptr (NULL)
  */
-inline
-DispersalKernelType kernel_type_from_string(const char* text)
+inline DispersalKernelType kernel_type_from_string(const char* text)
 {
     // call the string version
-    return kernel_type_from_string(text ? std::string(text)
-                                        : std::string());
+    return kernel_type_from_string(text ? std::string(text) : std::string());
 }
 
 }  // namespace pops

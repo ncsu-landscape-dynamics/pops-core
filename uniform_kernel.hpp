@@ -41,8 +41,7 @@ protected:
 
 public:
     UniformDispersalKernel(int row_max, int col_max)
-        :
-          row_max_(row_max),
+        : row_max_(row_max),
           col_max_(col_max),
           row_distribution(0, row_max),
           col_distribution(0, col_max)

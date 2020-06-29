@@ -40,15 +40,15 @@ protected:
     RadialDispersalKernel<IntegerRaster> radial_kernel_;
     UniformDispersalKernel uniform_kernel_;
     DeterministicNeighborDispersalKernel deterministic_neighbor_kernel_;
+
 public:
     SwitchDispersalKernel(
-            const DispersalKernelType& dispersal_kernel_type,
-            const RadialDispersalKernel<IntegerRaster>& radial_kernel,
-            const UniformDispersalKernel& uniform_kernel,
-            const DeterministicNeighborDispersalKernel& deterministic_neighbor_kernel = DeterministicNeighborDispersalKernel(Direction::None)
-            )
-        :
-          dispersal_kernel_type_(dispersal_kernel_type),
+        const DispersalKernelType& dispersal_kernel_type,
+        const RadialDispersalKernel<IntegerRaster>& radial_kernel,
+        const UniformDispersalKernel& uniform_kernel,
+        const DeterministicNeighborDispersalKernel& deterministic_neighbor_kernel =
+            DeterministicNeighborDispersalKernel(Direction::None))
+        : dispersal_kernel_type_(dispersal_kernel_type),
           // Here we initialize all kernels,
           // although we won't use all of them.
           radial_kernel_(radial_kernel),
