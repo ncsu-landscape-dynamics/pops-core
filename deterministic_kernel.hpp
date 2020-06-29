@@ -39,41 +39,34 @@ using std::abs;
 
 /*!
  * Cauchy distribution
- * Includes probability density function and cumulative distribution function
+ * Includes probability density function and inverse cumulative distribution function
  * pdf returns the probability that the variate has the value x
  * icdf returns the upper range that encompasses x percent of the distribution (e.g for 99% input .99)
  */
 class CauchyDistribution
 {
 public:
-    CauchyDistribution(double scale, double locator)
-        : s(scale), t(locator)
+    CauchyDistribution(double scale)
+        : s(scale)
     {}
 
     double pdf(double x)
     {
-        return 1 / ((s*PI)*(1 + (pow((x - t)/s, 2))));
-
+        return 1 / ((s * M_PI) * (1 + (pow(x / s, 2))));
     }
     // Inverse cdf (quantile function)
     double icdf(double x)
     {
-        if ( s == 1 && t == 0) {
-            return tan(M_PI * (x - 0.5));
-        } else {
-            return t + s * tan(M_PI * (x - 0.5));
-        }
+        return s * tan(M_PI * (x - 0.5));
     }
 private:
     // scale parameter - 1 for standard
     double s;
-    // location parameter - location of peak - 0 for standard
-    double t;
 };
 
 /*!
  * Exponential distribution
- * Includes probability density function and cumulative distribution function
+ * Includes probability density function and inverse cumulative distribution function
  * pdf returns the probability that the variate has the value x
  * icdf returns the upper range that encompasses x percent of the distribution (e.g for 99% input 0.99)
  */
@@ -86,15 +79,15 @@ ExponentialDistribution(double scale)
     // assumes mu is 0 which is traditionally accepted
     double pdf(double x)
     {
-        return (1/beta)*(exp(-x/beta));
+        return (1 / beta)*(exp(-x / beta));
     }
     // Inverse cdf (quantile function)
     double icdf(double x)
     {
         if ( beta == 1) {
-            return -log(1-x);
+            return -log(1 - x);
         } else {
-            return -beta * log(1-x);
+            return -beta * log(1 - x);
         }
     }
 private:
@@ -139,15 +132,14 @@ protected:
     Raster<double> probability_copy;
     CauchyDistribution cauchy;
     ExponentialDistribution exponential;
-    double number_of_dispersers;
+    double proportion_of_dispersers;
 public:
     DeterministicDispersalKernel(DispersalKernelType dispersal_kernel,
                                 const IntegerRaster& dispersers, double dispersal_percentage,
-                                double ew_res, double ns_res, double distance_scale = 1.0,
-                                double locator = 0.0)
+                                double ew_res, double ns_res, double distance_scale)
         :
         dispersers_(dispersers),
-        cauchy(distance_scale, locator),
+        cauchy(distance_scale),
         exponential(distance_scale),
         kernel_type_(dispersal_kernel),
         east_west_resolution(ew_res),
@@ -200,7 +192,7 @@ public:
     {
         // reset the window if considering a new cell
         if ( row != prev_row || col != prev_col ) {
-            number_of_dispersers = 1.0 / (double)dispersers_(row, col);
+            proportion_of_dispersers = 1.0 / (double)dispersers_(row, col);
             probability_copy = probability;
         }
 
@@ -226,11 +218,11 @@ public:
 
         // subtracting 1/number of dispersers ensures we always move the same proportion
         // of the individuals to each cell no matter how many are dispersing
-        probability_copy(max_prob_row, max_prob_col) -= number_of_dispersers;
+        probability_copy(max_prob_row, max_prob_col) -= proportion_of_dispersers;
         prev_row = row;
         prev_col = col;
 
-        // need to return values in terms of actual location
+        // return values in terms of actual location
         return std::make_tuple(row + row_movement, col + col_movement);
     }
 };

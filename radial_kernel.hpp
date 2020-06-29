@@ -182,13 +182,12 @@ protected:
 public:
     RadialDispersalKernel(double ew_res, double ns_res,
                           DispersalKernelType dispersal_kernel,
-                          double distance_scale = 1.0,
+                          double distance_scale,
                           Direction dispersal_direction = Direction::None,
                           double dispersal_direction_kappa = 0,
                           bool deterministic = false,
                           const IntegerRaster& dispersers = {{0}},
-                          double dispersal_percentage = 0.99,
-                          double locator = 0.0
+                          double dispersal_percentage = 0.99
             )
         :
           east_west_resolution(ew_res),
@@ -201,7 +200,7 @@ public:
           // so we do multiplicative inverse to behave like cauchy.
           exponential_distribution(1.0 / distance_scale),
           deterministic_(deterministic),
-          deterministic_kernel(dispersal_kernel, dispersers, dispersal_percentage, ew_res, ns_res, distance_scale, locator),
+          deterministic_kernel(dispersal_kernel, dispersers, dispersal_percentage, ew_res, ns_res, distance_scale),
           // if no wind, then kappa is 0
           // TODO: change these two computations to standalone inline
           // functions (dir to rad and adjust kappa)

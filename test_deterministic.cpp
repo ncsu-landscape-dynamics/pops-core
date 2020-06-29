@@ -69,7 +69,7 @@ int test_with_cauchy_deterministic_kernel()
         cout << "Deterministic Kernel Cauchy: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(30, 30, DispersalKernelType::Cauchy, 0.9, Direction::None, 0.0, true, dispersers, 0.9, 0.0);
+    RadialDispersalKernel<Raster<int>> deterministicKernel(30, 30, DispersalKernelType::Cauchy, 0.9, Direction::None, 0.0, true, dispersers, 0.9);
     // using a smaller scale value since the test raster is so small
     simulation.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_hosts,
@@ -129,7 +129,7 @@ int test_with_exponential_deterministic_kernel()
         cout << "Deterministic Kernel Exponential: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(30, 30, DispersalKernelType::Exponential, 1.0, Direction::None, 0.0, true, dispersers, 0.99, 0.0);
+    RadialDispersalKernel<Raster<int>> deterministicKernel(30, 30, DispersalKernelType::Exponential, 1.0, Direction::None, 0.0, true, dispersers, 0.99);
 
     s2.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_hosts,
@@ -154,7 +154,7 @@ int test_cauchy_distribution_functions()
 {
     // testing cauchy pdf & icdf
     double scale = 0.001;  // rounding to thousands place
-    CauchyDistribution cauchy(1.0, 0.0);
+    CauchyDistribution cauchy(1.0);
     double probability = (int) (cauchy.pdf(5) / scale) * scale;
     double probability_ref = 0.012;
     if ( probability != probability_ref) {
@@ -167,15 +167,15 @@ int test_cauchy_distribution_functions()
         cout << "Cauchy Distribution: x was " << x << " but should be " << x_ref << "\n";
         return 1;
     }
-    CauchyDistribution cauchy1(1.5, 0.5);
-    probability_ref = 0.021;
+    CauchyDistribution cauchy1(1.5);
+    probability_ref = 0.017;
     probability = (int) (cauchy1.pdf(5) / scale) * scale;
     if ( probability != probability_ref) {
         cout << "Cauchy Distribution: probability was " << probability << " but should be " << probability_ref << "\n";
         return 1;
     }
     x = (int) (cauchy1.icdf(0.98) / scale) * scale;
-    x_ref = 24.341;
+    x_ref = 23.841;
     if ( x != x_ref) {
         cout << "Cauchy Distribution: x was " << x << " but should be " << x_ref << "\n";
         return 1;
