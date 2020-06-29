@@ -175,18 +175,16 @@ public:
     Raster(std::initializer_list<std::initializer_list<Number>> l)
         : Raster(l.size(), l.begin()->size())
     {
-         Index i = 0;
-         Index j = 0;
-         for (const auto& subl : l)
-         {
-            for (const auto& value : subl)
-            {
-               data_[cols_ * i + j] = value;
-               ++j;
+        Index i = 0;
+        Index j = 0;
+        for (const auto& subl : l) {
+            for (const auto& value : subl) {
+                data_[cols_ * i + j] = value;
+                ++j;
             }
             j = 0;
             ++i;
-         }
+        }
     }
 
     ~Raster()

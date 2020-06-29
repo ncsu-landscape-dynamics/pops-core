@@ -75,8 +75,7 @@ DispersalKernelType kernel_type_from_string(const std::string& text)
         return DispersalKernelType::Uniform;
     else if (text == "deterministic-neighbor" || text == "deterministic_neighbor")
         return DispersalKernelType::DeterministicNeighbor;
-    else if (text == "none" || text == "None"
-             || text == "NONE" || text.empty())
+    else if (text == "none" || text == "None" || text == "NONE" || text.empty())
         return DispersalKernelType::None;
     else
         throw std::invalid_argument("kernel_type_from_string: Invalid"

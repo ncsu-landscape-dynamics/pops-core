@@ -38,6 +38,7 @@ protected:
     int col_max_;
     std::uniform_int_distribution<> row_distribution;
     std::uniform_int_distribution<> col_distribution;
+
 public:
     UniformDispersalKernel(int row_max, int col_max)
         :

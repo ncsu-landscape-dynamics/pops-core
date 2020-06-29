@@ -98,6 +98,7 @@ protected:
     unsigned end_step_;
     FloatRaster map_;
     TreatmentApplication application_;
+
 public:
     BaseTreatment(const FloatRaster& map, unsigned start,
                   TreatmentApplication treatment_application):
@@ -108,8 +109,8 @@ public:
     unsigned get_end() {return end_step_;}
     void apply_treatment_mortality(IntegerRaster& infected) override
     {
-        for(unsigned i = 0; i < infected.rows(); i++)
-            for(unsigned j = 0; j < infected.cols(); j++) {
+        for (unsigned i = 0; i < infected.rows(); i++)
+            for (unsigned j = 0; j < infected.cols(); j++) {
                 if (application_ == TreatmentApplication::Ratio) {
                     infected(i, j) = infected(i, j) - (infected(i, j) * map_(i, j));
                 }
@@ -145,8 +146,8 @@ public:
     }
     void apply_treatment(IntegerRaster& infected, IntegerRaster& susceptible, IntegerRaster& ) override
     {
-        for(unsigned i = 0; i < infected.rows(); i++)
-            for(unsigned j = 0; j < infected.cols(); j++) {
+        for (unsigned i = 0; i < infected.rows(); i++)
+            for (unsigned j = 0; j < infected.cols(); j++) {
                 if (this->application_ == TreatmentApplication::Ratio) {
                     infected(i, j) = infected(i, j) - (infected(i, j) * this->map_(i, j));
                 }
@@ -193,11 +194,11 @@ public:
 
     void apply_treatment(IntegerRaster& infected, IntegerRaster& susceptible, IntegerRaster& resistant) override
     {
-        for(unsigned i = 0; i < infected.rows(); i++)
-            for(unsigned j = 0; j < infected.cols(); j++) {
+        for (unsigned i = 0; i < infected.rows(); i++)
+            for (unsigned j = 0; j < infected.cols(); j++) {
                 int infected_resistant;
                 int susceptible_resistant = susceptible(i, j) * this->map_(i, j);
-                int current_resistant = resistant(i, j); 
+                int current_resistant = resistant(i, j);
                 if (this->application_ == TreatmentApplication::Ratio) {
                     infected_resistant = infected(i, j) * this->map_(i, j);
                 }
@@ -211,9 +212,9 @@ public:
     }
     void end_treatment(IntegerRaster& susceptible, IntegerRaster& resistant) override
     {
-        for(unsigned i = 0; i < resistant.rows(); i++)
-            for(unsigned j = 0; j < resistant.cols(); j++) {
-                if (this->map_(i, j) > 0){
+        for (unsigned i = 0; i < resistant.rows(); i++)
+            for (unsigned j = 0; j < resistant.cols(); j++) {
+                if (this->map_(i, j) > 0) {
                     susceptible(i, j) += resistant(i, j);
                     resistant(i, j) = 0;
                 }

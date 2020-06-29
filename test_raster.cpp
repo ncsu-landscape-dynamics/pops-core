@@ -341,14 +341,14 @@ int test_times_scalar()
     Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
     auto b = a * 0.4;
     T sum = 0;
-    b.for_each([&sum](T& v){sum += v;});
+    b.for_each([&sum](T& v) { sum += v; });
     if (sum == 0) {
         ++errors;
         std::cout << "Operator 'raster * scalar' does not work" << std::endl;
     }
     a *= 0.4;
     sum = 0;
-    a.for_each([&sum](T& v){sum += v;});
+    a.for_each([&sum](T& v) { sum += v; });
     if (sum == 0) {
         ++errors;
         std::cout << "Operator 'raster *= scalar' does not work" << std::endl;
@@ -439,7 +439,8 @@ std::vector<Raster<T>> return_vector_of_rasters(int num_rasters)
 }
 
 template<typename T, typename I>
-std::vector<Raster<T>> return_vector_of_rasters(T** data, int num_rasters, I rows, I cols)
+std::vector<Raster<T>>
+return_vector_of_rasters(T** data, int num_rasters, I rows, I cols)
 {
     std::vector<Raster<T>> rasters;
     for (int i = 0; i < num_rasters; ++i) {
@@ -454,10 +455,10 @@ int test_return_from_function(int num_rasters)
     int errors = 0;
     auto rasters = return_vector_of_rasters<T, I>(num_rasters);
     for (const auto& raster : rasters)
-    if (raster(0, 0) != 42) {
-        ++errors;
-        break;
-    }
+        if (raster(0, 0) != 42) {
+            ++errors;
+            break;
+        }
     if (!errors)
         std::cout << "Returning owning raster from function works (value: " << typeid(T).name() << ", index: " << typeid(I).name() << ")" << std::endl;
     return errors;

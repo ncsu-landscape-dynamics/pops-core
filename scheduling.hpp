@@ -405,7 +405,7 @@ inline std::vector<bool> output_schedule_from_string(const Scheduler &scheduler,
         }
         else if (frequency == "day" || frequency == "daily") {
             if (sim_unit == StepUnit::Day && sim_n == 1)
-                 return scheduler.schedule_action_nsteps(1);
+                return scheduler.schedule_action_nsteps(1);
             else
                 throw exception;
         }

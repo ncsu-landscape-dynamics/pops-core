@@ -282,10 +282,9 @@ public:
             susceptible(row_to, col_to) += susceptible_moved;
             total_hosts(row_to, col_to) += total_hosts_moved;
         }
-      return movements.size();
+        return movements.size();
     }
-    
-    
+
     /** Generates dispersers based on infected
      *
      * @param[out] dispersers  (existing values are ignored)
@@ -489,7 +488,7 @@ public:
         }
         else {
             throw std::runtime_error(
-                        "Unknown ModelType value in Simulation::infect_exposed()");
+                "Unknown ModelType value in Simulation::infect_exposed()");
         }
     }
 
