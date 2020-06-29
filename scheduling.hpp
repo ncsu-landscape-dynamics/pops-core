@@ -38,12 +38,18 @@ namespace pops {
 class Step
 {
 public:
-    Step(Date start_date, Date end_date)
-        : start_date_(start_date), end_date_(end_date)
+    Step(Date start_date, Date end_date) : start_date_(start_date), end_date_(end_date)
     {}
-    inline Date start_date() const {return start_date_;}
-    inline Date end_date() const {return end_date_;}
-    inline friend std::ostream& operator<<(std::ostream& os, const Step &step);
+    inline Date start_date() const
+    {
+        return start_date_;
+    }
+    inline Date end_date() const
+    {
+        return end_date_;
+    }
+    inline friend std::ostream& operator<<(std::ostream& os, const Step& step);
+
 private:
     Date start_date_;
     Date end_date_;
@@ -57,8 +63,11 @@ std::ostream& operator<<(std::ostream& os, const Step& step)
 /**
  * @brief Enum for step unit
  */
-enum class StepUnit {
-    Day, Week, Month
+enum class StepUnit
+{
+    Day,
+    Week,
+    Month
 };
 
 /**
@@ -70,20 +79,17 @@ enum class StepUnit {
 inline StepUnit step_unit_enum_from_string(const std::string& text)
 {
     std::map<std::string, StepUnit> mapping{
-        {"day", StepUnit::Day},
-        {"week", StepUnit::Week},
-        {"month", StepUnit::Month}
-    };
+        {"day", StepUnit::Day}, {"week", StepUnit::Week}, {"month", StepUnit::Month}};
     try {
         return mapping.at(text);
     }
     catch (const std::out_of_range&) {
-        throw std::invalid_argument("step_unit_enum_from_string:"
-                                    " Invalid value '" + text +"' provided");
+        throw std::invalid_argument(
+            "step_unit_enum_from_string:"
+            " Invalid value '"
+            + text + "' provided");
     }
 }
-
-
 
 class Scheduler
 {
@@ -102,9 +108,12 @@ public:
      * @param simulation_unit simulation unit
      * @param simulation_num_units number of days/weeks/months in a simulation step
      */
-    Scheduler(const Date &start, const Date &end, StepUnit simulation_unit, unsigned simulation_num_units)
-        :
-          start_(start),
+    Scheduler(
+        const Date& start,
+        const Date& end,
+        StepUnit simulation_unit,
+        unsigned simulation_num_units)
+        : start_(start),
           end_(end),
           simulation_unit_(simulation_unit),
           simulation_num_units_(simulation_num_units)
@@ -116,10 +125,13 @@ public:
         Date d(start);
         increase_date(d);
         if (d > end)
-            throw std::invalid_argument("There must be at least one step between start and end date");
+            throw std::invalid_argument(
+                "There must be at least one step between start and end date");
         if (simulation_unit == StepUnit::Month && start.day() != 1)
-            throw std::invalid_argument("If step unit is month, start date must start the first day of a month");
-        
+            throw std::invalid_argument(
+                "If step unit is month, start date must start the first day of a "
+                "month");
+
         Date date(start_);
         unsigned step = 0;
         while (date <= end_) {
@@ -136,21 +148,24 @@ public:
     /**
      * @brief Get number of simulation steps
      */
-    unsigned get_num_steps() const {
+    unsigned get_num_steps() const
+    {
         return num_steps;
     }
 
     /**
      * @brief Get step based on index
      */
-    Step get_step(unsigned index) const {
+    Step get_step(unsigned index) const
+    {
         return steps.at(index);
     }
 
     /**
      * @brief Get length of simulation step as number of units and unit type
      */
-    std::tuple<unsigned, StepUnit> get_step_length() const {
+    std::tuple<unsigned, StepUnit> get_step_length() const
+    {
         return std::make_tuple(simulation_num_units_, simulation_unit_);
     }
 
@@ -159,7 +174,8 @@ public:
      * @param season seasonality information
      * @return vector of bools, true if spread should happen that step
      */
-    std::vector<bool> schedule_spread(const Season &season) const {
+    std::vector<bool> schedule_spread(const Season& season) const
+    {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
@@ -182,7 +198,8 @@ public:
      * @param day day
      * @return vector of bools, true if action should happen that step
      */
-    std::vector<bool> schedule_action_yearly(int month, int day) const {
+    std::vector<bool> schedule_action_yearly(int month, int day) const
+    {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
@@ -202,7 +219,8 @@ public:
      *        e.g. mortality.
      * @return vector of bools, true if action should happen that step
      */
-    std::vector<bool> schedule_action_end_of_year() const {
+    std::vector<bool> schedule_action_end_of_year() const
+    {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
@@ -219,7 +237,8 @@ public:
      *
      * @return vector of bools, true if action should happen that step
      */
-    std::vector<bool> schedule_action_end_of_simulation() const {
+    std::vector<bool> schedule_action_end_of_simulation() const
+    {
         std::vector<bool> schedule(num_steps, false);
         if (num_steps > 0)
             schedule[num_steps - 1] = true;
@@ -234,7 +253,8 @@ public:
      * @param n_steps schedule every N steps
      * @return vector of bools, true if action should happen that step
      */
-    std::vector<bool> schedule_action_nsteps(unsigned n_steps) const {
+    std::vector<bool> schedule_action_nsteps(unsigned n_steps) const
+    {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (unsigned i = 0; i < num_steps; i++) {
@@ -253,7 +273,8 @@ public:
      *
      * @return vector of bools, true if action should happen that step
      */
-    std::vector<bool> schedule_action_monthly() const {
+    std::vector<bool> schedule_action_monthly() const
+    {
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
@@ -275,7 +296,8 @@ public:
      * @param date date to schedule action
      * @return index of step
      */
-    unsigned schedule_action_date(const Date &date) const {
+    unsigned schedule_action_date(const Date& date) const
+    {
         for (unsigned i = 0; i < num_steps; i++) {
             if (date >= steps[i].start_date() && date <= steps[i].end_date())
                 return i;
@@ -286,15 +308,19 @@ public:
      * @brief Prints schedule for debugging purposes.
      * @param vector of bools to print along the steps
      */
-    void debug_schedule(std::vector<bool> &schedule) const {
+    void debug_schedule(std::vector<bool>& schedule) const
+    {
         for (unsigned i = 0; i < num_steps; i++)
-            std::cout << steps[i] << ": " << (schedule.at(i) ? "true" : "false") << std::endl;
+            std::cout << steps[i] << ": " << (schedule.at(i) ? "true" : "false")
+                      << std::endl;
     }
-    void debug_schedule(unsigned n) const {
+    void debug_schedule(unsigned n) const
+    {
         for (unsigned i = 0; i < num_steps; i++)
             std::cout << steps[i] << ": " << (n == i ? "true" : "false") << std::endl;
     }
-    void debug_schedule() const {
+    void debug_schedule() const
+    {
         for (unsigned i = 0; i < num_steps; i++)
             std::cout << steps[i] << std::endl;
     }
@@ -311,7 +337,8 @@ private:
      * @brief Increse date by simulation step
      * @param date date
      */
-    void increase_date(Date &date) {
+    void increase_date(Date& date)
+    {
         if (simulation_unit_ == StepUnit::Day) {
             date.increased_by_days(simulation_num_units_);
         }
@@ -340,7 +367,9 @@ private:
  * Result for input step any other then 1 and 5 in this case
  * returns valid number but has no particular meaning.
  */
-unsigned simulation_step_to_action_step(const std::vector<bool>& action_schedule, unsigned step) {
+unsigned
+simulation_step_to_action_step(const std::vector<bool>& action_schedule, unsigned step)
+{
     std::vector<unsigned> indices(action_schedule.size());
     unsigned idx = 0;
     for (unsigned i = 0; i < action_schedule.size(); i++) {
@@ -356,7 +385,8 @@ unsigned simulation_step_to_action_step(const std::vector<bool>& action_schedule
  *
  * action_schedule: [F, T, F, F, F, T, F] -> 2
  */
-unsigned get_number_of_scheduled_actions(const std::vector<bool>& action_schedule) {
+unsigned get_number_of_scheduled_actions(const std::vector<bool>& action_schedule)
+{
     return std::count(action_schedule.begin(), action_schedule.end(), true);
 }
 
@@ -371,13 +401,13 @@ unsigned get_number_of_scheduled_actions(const std::vector<bool>& action_schedul
  * simulation step (e.g., frequency is weekly, but simulation runs every 2 weeks).
  * If frequency is empty string, empty output schedule is returned.
  */
-inline std::vector<bool> output_schedule_from_string(const Scheduler &scheduler,
-                                                     const std::string& frequency,
-                                                     unsigned n = 0)
+inline std::vector<bool> output_schedule_from_string(
+    const Scheduler& scheduler, const std::string& frequency, unsigned n = 0)
 {
     StepUnit sim_unit;
     unsigned sim_n;
-    std::invalid_argument exception("Output frequency and simulation step are incompatible");
+    std::invalid_argument exception(
+        "Output frequency and simulation step are incompatible");
     std::tie(sim_n, sim_unit) = scheduler.get_step_length();
     if (!frequency.empty()) {
         if (frequency == "final_step")

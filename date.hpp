@@ -36,13 +36,12 @@ private:
     int month_;
     int day_;
     int day_in_month[2][13] = {
-        {0,31,28,31,30,31,30,31,31,30,31,30,31},
-        {0,31,29,31,30,31,30,31,31,30,31,30,31}
-    };
+        {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+        {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}};
 
 public:
-    Date(const Date& d): year_(d.year_), month_(d.month_), day_(d.day_) {}
-    Date(int y, int m, int d): year_(y), month_(m), day_(d) {}
+    Date(const Date& d) : year_(d.year_), month_(d.month_), day_(d.day_) {}
+    Date(int y, int m, int d) : year_(y), month_(m), day_(d) {}
     Date(std::string date);
     inline void increased_by_days(int num_days);
     inline void increased_by_week();
@@ -61,9 +60,18 @@ public:
     inline bool is_last_day_of_month();
     inline bool is_last_week_of_month();
     inline bool is_leap_year();
-    int month() const { return month_; }
-    int year() const { return year_; }
-    int day() const { return day_; }
+    int month() const
+    {
+        return month_;
+    }
+    int year() const
+    {
+        return year_;
+    }
+    int day() const
+    {
+        return day_;
+    }
     inline int weeks_from_date(Date start);
     inline friend std::ostream& operator<<(std::ostream& os, const Date& d);
     inline friend bool operator>(const Date& d1, const Date& d2);
@@ -439,9 +447,7 @@ int Date::weeks_from_date(Date start)
 class Season
 {
 public:
-    Season(int start, int end)
-        : start_month_(start), end_month_(end)
-    {}
+    Season(int start, int end) : start_month_(start), end_month_(end) {}
     /*!
      * \brief Decides if a month is in season or not
      * \param month A month in year (1-12)
