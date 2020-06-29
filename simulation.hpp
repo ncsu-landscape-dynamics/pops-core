@@ -170,8 +170,10 @@ public:
         for (int i = 0; i < rows_; i++) {
             for (int j = 0; j < cols_; j++) {
                 if (temperature(i, j) < lethal_temperature) {
-                    susceptible(i, j) += infected(i, j);  // move infested/infected host back to susceptible pool
-                    infected(i, j) = 0;  // remove all infestation/infection in the infected class
+                    // move infested/infected host back to susceptible pool
+                    susceptible(i, j) += infected(i, j);
+                    // remove all infestation/infection in the infected class
+                    infected(i, j) = 0;
                 }
             }
         }
@@ -187,18 +189,19 @@ public:
         if (current_year >= (first_mortality_year)) {
             int mortality_current_year = 0;
             int max_year_index = current_year - first_mortality_year;
-            
+
             for (int i = 0; i < rows_; i++) {
                 for (int j = 0; j < cols_; j++) {
-                    for (unsigned year_index = 0; year_index <= max_year_index; year_index++) {
-                      int mortality_in_year_index = 0;
+                    for (unsigned year_index = 0; year_index <= max_year_index;
+                         year_index++) {
+                        int mortality_in_year_index = 0;
                         if (mortality_tracker_vector[year_index](i, j) > 0) {
                             mortality_in_year_index = mortality_rate*mortality_tracker_vector[year_index](i,j);
                             mortality_tracker_vector[year_index](i,j) -= mortality_in_year_index;
                             mortality(i,j) += mortality_in_year_index;
                             mortality_current_year += mortality_in_year_index;
-                            if (infected(i,j) > 0) {
-                                infected(i,j) -= mortality_in_year_index;
+                            if (infected(i, j) > 0) {
+                                infected(i, j) -= mortality_in_year_index;
                             }
                         }
                     }
@@ -250,18 +253,19 @@ public:
                 inf_ratio = double(infected(row_from, col_from)) / double(total_hosts(row_from, col_from));
                 int infected_mean = total_hosts_moved * inf_ratio;
                 if (infected_mean > 0) {
-                	if (movement_stochasticity_) {
-                		std::poisson_distribution<int> distribution(infected_mean);
-                		infected_moved = distribution(generator_);
-                	} else {
-                		infected_moved = infected_mean;
-                	}
+                    if (movement_stochasticity_) {
+                        std::poisson_distribution<int> distribution(infected_mean);
+                        infected_moved = distribution(generator_);
+                    }
+                    else {
+                        infected_moved = infected_mean;
+                    }
                 }
                 if (infected_moved > infected(row_from, col_from)) {
                     infected_moved = infected(row_from, col_from);
-                } 
+                }
                 if (infected_moved > total_hosts_moved) {
-                  infected_moved = total_hosts_moved;
+                    infected_moved = total_hosts_moved;
                 }
                 susceptible_moved = total_hosts_moved - infected_moved;
                 if (susceptible_moved > susceptible(row_from, col_from)) {
@@ -274,7 +278,7 @@ public:
             } else {
                 continue;
             }
-            
+
             infected(row_from, col_from) -= infected_moved;
             susceptible(row_from, col_from) -= susceptible_moved;
             total_hosts(row_from, col_from) -= total_hosts_moved;
