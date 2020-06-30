@@ -1,5 +1,8 @@
 ---
 # BasedOnStyle: LLVM
+# Modified to resemble Black format for Python
+# The if statements are sub-optimal, it needs dangling parenthesis (D33029).
+# https://reviews.llvm.org/D33029
 Language: Cpp
 AccessModifierOffset: -4
 AlignAfterOpenBracket: AlwaysBreak
