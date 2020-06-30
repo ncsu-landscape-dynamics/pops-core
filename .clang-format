@@ -107,6 +107,7 @@ SpacesInSquareBrackets: false
 # Unknown to clang-format 9, available in 10
 # Standard: c++11
 TabWidth: 4
-UseCRLF: false
+# Unknown to clang-format 9, available in 10
+# UseCRLF: false
 UseTab: Never
 ...
