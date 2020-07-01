@@ -486,7 +486,7 @@ int test_calling_all_functions()
     bool weather = true;
     double lethal_temperature = -4.5;
     double reproductive_rate = 4.5;
-    double short_distance_scale = 0.0;
+    double short_distance_scale = 1.0;
     int ew_res = 30;
     int ns_res = 30;
     unsigned step = 1;
@@ -500,9 +500,8 @@ int test_calling_all_functions()
                 infected.cols());
     simulation.remove(infected, susceptible, temperature, lethal_temperature);
     simulation.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
-    RadialDispersalKernel kernel(ew_res, ns_res, dispersal_kernel,
-                                 short_distance_scale);
-    simulation.movement(infected, susceptible, mortality_tracker, total_hosts, step, 
+    RadialDispersalKernel<Raster<int>> kernel(ew_res, ns_res, dispersal_kernel, short_distance_scale);
+    simulation.movement(infected, susceptible, mortality_tracker, total_hosts, step,
                         last_index, movements, movement_schedule);
     simulation.disperse(dispersers, susceptible, infected,
                         mortality_tracker, total_hosts,
