@@ -24,6 +24,7 @@
 #ifndef POPS_MODEL_HPP
 #define POPS_MODEL_HPP
 
+#include "config.hpp"
 #include "treatments.hpp"
 #include "spread_rate.hpp"
 #include "simulation.hpp"
@@ -33,57 +34,6 @@
 #include <vector>
 
 namespace pops {
-
-struct Config
-{
-    Config()
-        :
-          generate_stochasticity(true),
-          establishment_stochasticity(true),
-          use_lethal_temperature(false),
-          use_anthropogenic_kernel(false),
-          use_treatments(false),
-          use_mortality(false)
-    {}
-    // Seed
-    int random_seed;
-    // Size
-    int rows;
-    int cols;
-    double ew_res;
-    double ns_res;
-    // TODO: Time
-    int steps;
-    // Reduced stochasticity
-    bool generate_stochasticity;
-    bool establishment_stochasticity;
-    double establishment_probability;
-    // Temperature
-    bool use_lethal_temperature;
-    double lethal_temperature;
-    bool weather;
-    double reproductive_rate;
-    // SI/SEI
-    std::string model_type;
-    int latency_period_steps;
-    // Kernels
-    std::string natural_kernel_type;
-    double natural_scale;
-    std::string natural_direction;
-    double natural_kappa;
-    bool use_anthropogenic_kernel;
-    double percent_natural_dispersal;
-    std::string anthro_kernel_type;
-    double anthro_scale;
-    std::string anthro_direction;
-    double anthro_kappa;
-    // Treatments
-    bool use_treatments;
-    // Mortality
-    bool use_mortality;
-    double mortality_rate;
-    int first_mortality_year;  // TODO: document that it starts at 1, not 0
-};
 
 template<typename IntegerRaster, typename FloatRaster, typename RasterIndex>
 class Model
@@ -101,7 +51,6 @@ private:
     SwitchDispersalKernel anthro_selectable_kernel;
     DispersalKernel dispersal_kernel;
     Simulation<IntegerRaster, FloatRaster, RasterIndex> simulation_;
-    std::vector<std::tuple<int, int>> outside_dispersers;
 public:
     Model(
             const Config& config
@@ -156,10 +105,6 @@ public:
 
     void run_step(
             int step,
-            const std::vector<bool>& spread_schedule,
-            const std::vector<bool>& mortality_schedule,
-            const std::vector<bool>& lethal_schedule,
-            const std::vector<bool>& spread_rate_schedule,
             int weather_step, // TODO: this should be schedule (?)
             IntegerRaster& infected,
             IntegerRaster& susceptible,
@@ -176,17 +121,17 @@ public:
             SpreadRate<IntegerRaster>& spread_rate // out
             )
     {
-        unsigned mortality_simulation_year = simulation_step_to_action_step(mortality_schedule, step);
+        unsigned mortality_simulation_year = simulation_step_to_action_step(config_.mortality_schedule(), step);
         // removal of dispersers due to lethal tempearture
-        if (config_.use_lethal_temperature && lethal_schedule[step]) {
-            int lethal_step = simulation_step_to_action_step(lethal_schedule, step);
+        if (config_.use_lethal_temperature && config_.lethal_schedule()[step]) {
+            int lethal_step = simulation_step_to_action_step(config_.lethal_schedule(), step);
             simulation_.remove(infected,
                                      susceptible,
                                      temperatures[lethal_step],
                                      config_.lethal_temperature);
         }
         // actual spread
-        if (spread_schedule[step]) {
+        if (config_.spread_schedule()[step]) {
             simulation_.generate(dispersers,
                                        infected,
                                        config_.weather,
@@ -223,7 +168,7 @@ public:
                 }
             }
         }
-        if (config_.use_mortality && mortality_schedule[step]) {
+        if (config_.use_mortality && config_.mortality_schedule()[step]) {
             // only run to the current year of simulation
             // (first year is 0):
             //   max index == sim year
@@ -241,8 +186,8 @@ public:
                                         mortality_tracker);
         }
         // compute spread rate
-        if (spread_rate_schedule[step]) {
-            unsigned simulation_year = simulation_step_to_action_step(spread_rate_schedule, step);
+        if (config_.spread_rate_schedule()[step]) {
+            unsigned simulation_year = simulation_step_to_action_step(config_.spread_rate_schedule(), step);
             spread_rate.compute_yearly_spread_rate(infected, simulation_year);
         }
     }
