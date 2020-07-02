@@ -81,11 +81,8 @@ public:
     double mortality_rate;
     int first_mortality_year;  // TODO: document that it starts at 1, not 0
 
-    std::string step_unit;
-    unsigned step_num_units;
-
-    int season_start_month{0};
-    int season_end_month{0};
+    int season_start_month{1};
+    int season_end_month{12};
 
     std::string output_frequency;
     unsigned output_frequency_n;
@@ -93,7 +90,7 @@ public:
 
     void create_schedules()
     {
-        scheduler_ = Scheduler(Date(date_start_), Date(date_end_), step_unit_enum_from_string(step_unit), step_num_units);
+        scheduler_ = Scheduler(date_start_, date_end_, step_unit_, step_num_units_);
         spread_schedule_ = scheduler_.schedule_spread(Season(season_start_month, season_end_month));
         output_schedule_ = output_schedule_from_string(scheduler_, output_frequency, output_frequency_n);
         mortality_schedule_ = scheduler_.schedule_action_end_of_year();
@@ -165,31 +162,61 @@ public:
         get_number_of_scheduled_actions(spread_rate_schedule_);
     }
 
-    const std::string& date_end() const
-    {
-        return date_end_;
-    }
-
-    void set_date_end(const std::string &date_end)
-    {
-        date_end_ = date_end;
-    }
-
-    const std::string& date_start() const
+    const Date& date_start() const
     {
         return date_start_;
     }
 
-    void set_date_start(const std::string &date_start)
+    template <typename... Args>
+    void set_date_start(Args&&... args)
     {
-        date_start_ = date_start;
+        date_start_ = Date(std::forward<Args>(args)...);
+    }
+
+    const Date& date_end() const
+    {
+        return date_end_;
+    }
+
+    template <typename... Args>
+    void set_date_end(Args&&... args)
+    {
+        date_end_ = Date(std::forward<Args>(args)...);
+    }
+
+    StepUnit step_unit() const
+    {
+        return step_unit_;
+    }
+
+    void set_step_unit(StepUnit step_unit)
+    {
+        step_unit_ = step_unit;
+    }
+
+    void set_step_unit(const std::string& text)
+    {
+        step_unit_ = step_unit_enum_from_string(text);
+    }
+
+    unsigned step_num_units() const
+    {
+        return step_num_units_;
+    }
+
+    void set_step_num_units(unsigned step_num_units)
+    {
+        step_num_units_ = step_num_units;
     }
 
 private:
-    std::string date_start_;
-    std::string date_end_;
+    Date date_start_{"0-01-01"};
+    Date date_end_{"0-01-02"};
 
-    Scheduler scheduler_{Date("0-01-01"), Date("0-01-02"), StepUnit::Day, 1};
+    StepUnit step_unit_{StepUnit::Day};
+    unsigned step_num_units_{1};
+
+    Scheduler scheduler_{date_start_, date_end_, step_unit_, step_num_units_};
     bool schedules_created_{false};
 
     std::vector<bool> spread_schedule_;

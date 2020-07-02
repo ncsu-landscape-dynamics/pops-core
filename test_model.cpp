@@ -57,17 +57,14 @@ int test_with_reduced_stochasticity()
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
 
-    Date start(2020, 1, 1);
-    Date end(2021, 12, 31);
-    Scheduler scheduler(start, end, StepUnit::Month, 1);
-    auto spread_schedule = scheduler.schedule_action_monthly();
-    auto mortality_schedule = scheduler.schedule_action_end_of_year();
-    decltype(spread_schedule) lethal_schedule;
-    // TODO: Add schedule_action_never()?
-    decltype(spread_schedule) spread_rate_schedule(mortality_schedule.size(), false);
-    int weather_step = 0;
+    config.set_date_start(2020, 1, 1);
+    config.set_date_end(2021, 12, 31);
+    config.set_step_unit(StepUnit::Month);
+    config.set_step_num_units(1);
+    config.create_schedules();
 
-    unsigned num_mortality_years = get_number_of_scheduled_actions(mortality_schedule);
+    int weather_step = 0;
+    unsigned num_mortality_years = config.num_mortality_years();
     std::cerr << "num_mortality_years: " << num_mortality_years << "\n";
     std::vector<Raster<int>> mortality_tracker(num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
 
@@ -80,11 +77,11 @@ int test_with_reduced_stochasticity()
     Raster<int> died(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(scheduler);
+    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.use_treatments = false;
     config.ew_res = 1;
     config.ns_res = 1;
-    unsigned rate_num_years = get_number_of_scheduled_actions(spread_rate_schedule);
+    unsigned rate_num_years = get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(infected, config.ew_res, config.ns_res, rate_num_years);
 
     auto expected_dispersers = config.reproductive_rate * infected;
@@ -94,10 +91,6 @@ int test_with_reduced_stochasticity()
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     model.run_step(
                 step++,
-                spread_schedule,
-                mortality_schedule,
-                lethal_schedule,
-                spread_rate_schedule,
                 weather_step,
                 infected,
                 susceptible,
