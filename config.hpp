@@ -81,9 +81,6 @@ public:
     double mortality_rate;
     int first_mortality_year;  // TODO: document that it starts at 1, not 0
 
-    int season_start_month{1};
-    int season_end_month{12};
-
     std::string output_frequency;
     unsigned output_frequency_n;
     int lethal_temperature_month;
@@ -91,7 +88,7 @@ public:
     void create_schedules()
     {
         scheduler_ = Scheduler(date_start_, date_end_, step_unit_, step_num_units_);
-        spread_schedule_ = scheduler_.schedule_spread(Season(season_start_month, season_end_month));
+        spread_schedule_ = scheduler_.schedule_spread(Season(season_start_month_, season_end_month_));
         output_schedule_ = output_schedule_from_string(scheduler_, output_frequency, output_frequency_n);
         mortality_schedule_ = scheduler_.schedule_action_end_of_year();
         lethal_schedule_ = scheduler_.schedule_action_yearly(lethal_temperature_month, 1);
@@ -209,9 +206,25 @@ public:
         step_num_units_ = step_num_units;
     }
 
+    // TODO: move to Season?
+    void set_season_start_end_month(int start, int end)
+    {
+        season_start_month_ = start;
+        season_end_month_ = end;
+    }
+
+    void set_season_start_end_month(const std::string& start, const std::string& end)
+    {
+        season_start_month_ = std::stoi(start);
+        season_end_month_ = std::stoi(end);
+    }
+
 private:
     Date date_start_{"0-01-01"};
     Date date_end_{"0-01-02"};
+
+    int season_start_month_{1};
+    int season_end_month_{12};
 
     StepUnit step_unit_{StepUnit::Day};
     unsigned step_num_units_{1};
