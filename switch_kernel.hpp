@@ -32,17 +32,18 @@ namespace pops {
  * its call in the function call operator, and extend the
  * supports_kernel() function.
  */
+template<typename IntegerRaster>
 class SwitchDispersalKernel
 {
 protected:
     DispersalKernelType dispersal_kernel_type_;
-    RadialDispersalKernel radial_kernel_;
+    RadialDispersalKernel<IntegerRaster> radial_kernel_;
     UniformDispersalKernel uniform_kernel_;
     DeterministicNeighborDispersalKernel deterministic_neighbor_kernel_;
 public:
     SwitchDispersalKernel(
             const DispersalKernelType& dispersal_kernel_type,
-            const RadialDispersalKernel& radial_kernel,
+            const RadialDispersalKernel<IntegerRaster>& radial_kernel,
             const UniformDispersalKernel& uniform_kernel,
             const DeterministicNeighborDispersalKernel& deterministic_neighbor_kernel = DeterministicNeighborDispersalKernel(Direction::None)
             )
@@ -81,7 +82,7 @@ public:
         if (type == DispersalKernelType::DeterministicNeighbor)
             return true;
         else
-            return RadialDispersalKernel::supports_kernel(type);
+            return RadialDispersalKernel<IntegerRaster>::supports_kernel(type);
     }
 };
 
