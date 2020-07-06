@@ -75,7 +75,8 @@ namespace pops {
  * See NaturalAnthropogenicDispersalKernel and SwitchDispersalKernel for further
  * documentation.
  */
-typedef NaturalAnthropogenicDispersalKernel<SwitchDispersalKernel, SwitchDispersalKernel> DispersalKernel;
+template<typename IntegerRaster>
+using DispersalKernel = NaturalAnthropogenicDispersalKernel<SwitchDispersalKernel<IntegerRaster>, SwitchDispersalKernel<IntegerRaster>>;
 
 } // namespace pops
 
