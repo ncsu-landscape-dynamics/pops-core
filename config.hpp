@@ -153,14 +153,14 @@ public:
             throw std::logic_error("num_lethal() not available when use_lethal_temperature is false");
         if (!schedules_created_)
             throw std::logic_error("Schedules were not created before calling num_lethal()");
-        get_number_of_scheduled_actions(lethal_schedule_);
+        return get_number_of_scheduled_actions(lethal_schedule_);
     }
 
     unsigned rate_num_years()
     {
         if (!schedules_created_)
             throw std::logic_error("Schedules were not created before calling rate_num_years()");
-        get_number_of_scheduled_actions(spread_rate_schedule_);
+        return get_number_of_scheduled_actions(spread_rate_schedule_);
     }
 
     const Date& date_start() const
