@@ -37,7 +37,6 @@ public:
         :
           generate_stochasticity(true),
           establishment_stochasticity(true),
-          use_lethal_temperature(false),
           use_anthropogenic_kernel(false),
           use_treatments(false),
           use_mortality(false)
@@ -56,8 +55,9 @@ public:
     bool establishment_stochasticity;
     double establishment_probability;
     // Temperature
-    bool use_lethal_temperature;
-    double lethal_temperature;
+    bool use_lethal_temperature{false};
+    double lethal_temperature{-273.15};  // 0 K
+    int lethal_temperature_month{0};
     bool weather;
     double reproductive_rate;
     // SI/SEI
@@ -83,7 +83,6 @@ public:
 
     std::string output_frequency;
     unsigned output_frequency_n;
-    int lethal_temperature_month;
 
     void create_schedules()
     {
@@ -91,7 +90,8 @@ public:
         spread_schedule_ = scheduler_.schedule_spread(Season(season_start_month_, season_end_month_));
         output_schedule_ = output_schedule_from_string(scheduler_, output_frequency, output_frequency_n);
         mortality_schedule_ = scheduler_.schedule_action_end_of_year();
-        lethal_schedule_ = scheduler_.schedule_action_yearly(lethal_temperature_month, 1);
+        if (use_lethal_temperature)
+            lethal_schedule_ = scheduler_.schedule_action_yearly(lethal_temperature_month, 1);
         spread_rate_schedule_ = scheduler_.schedule_action_end_of_year();
         schedules_created_ = true;
     }
@@ -119,6 +119,8 @@ public:
 
     const std::vector<bool>& lethal_schedule() const
     {
+        if (!use_lethal_temperature)
+            throw std::logic_error("lethal_schedule() not available when use_lethal_temperature is false");
         if (!schedules_created_)
             throw std::logic_error("Schedules were not created before calling lethal_schedule()");
         return lethal_schedule_;
@@ -147,6 +149,8 @@ public:
 
     unsigned num_lethal()
     {
+        if (!use_lethal_temperature)
+            throw std::logic_error("num_lethal() not available when use_lethal_temperature is false");
         if (!schedules_created_)
             throw std::logic_error("Schedules were not created before calling num_lethal()");
         get_number_of_scheduled_actions(lethal_schedule_);
