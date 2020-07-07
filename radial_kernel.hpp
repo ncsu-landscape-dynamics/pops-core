@@ -235,7 +235,8 @@ public:
         else {
             // TODO: move this to constructor (fail fast)
             // not all allowed kernels will/are supported by this class
-            throw std::invalid_argument("Unsupported dispersal kernel type");
+            throw std::invalid_argument(
+                "RadialDispersalKernel: Unsupported dispersal kernel type");
         }
         theta = von_mises(generator);
 
