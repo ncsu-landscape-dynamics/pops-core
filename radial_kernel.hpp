@@ -19,8 +19,8 @@
 #ifndef POPS_RADIAL_KERNEL_HPP
 #define POPS_RADIAL_KERNEL_HPP
 
-#include "kernel_types.hpp"
 #include "deterministic_kernel.hpp"
+#include "kernel_types.hpp"
 
 #include <cmath>
 #include <map>
