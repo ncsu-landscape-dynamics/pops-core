@@ -42,14 +42,14 @@ private:
     Config config_;
     DispersalKernelType natural_kernel;
     DispersalKernelType anthro_kernel;
-    RadialDispersalKernel natural_radial_kernel;
-    RadialDispersalKernel long_radial_kernel;
+    RadialDispersalKernel<IntegerRaster> natural_radial_kernel;
+    RadialDispersalKernel<IntegerRaster> long_radial_kernel;
     UniformDispersalKernel uniform_kernel;
     DeterministicNeighborDispersalKernel natural_neighbor_kernel;
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
-    SwitchDispersalKernel natural_selectable_kernel;
-    SwitchDispersalKernel anthro_selectable_kernel;
-    DispersalKernel dispersal_kernel;
+    SwitchDispersalKernel<IntegerRaster> natural_selectable_kernel;
+    SwitchDispersalKernel<IntegerRaster> anthro_selectable_kernel;
+    DispersalKernel<IntegerRaster> dispersal_kernel;
     Simulation<IntegerRaster, FloatRaster, RasterIndex> simulation_;
 public:
     Model(
