@@ -146,12 +146,13 @@ public:
         east_west_resolution(ew_res),
         north_south_resolution(ns_res)
     {
+        // We initialize max distance only for the supported kernels.
+        // For the others, we report the error only when really called
+        // to allow use of this class in initialization phase.
         if (kernel_type_ == DispersalKernelType::Cauchy) {
             max_distance = cauchy.icdf(dispersal_percentage);
         } else if (kernel_type_ == DispersalKernelType::Exponential) {
             max_distance = exponential.icdf(dispersal_percentage);
-        } else {
-            throw std::invalid_argument("Unsupported dispersal kernel type");
         }
         number_of_columns = ceil(max_distance / east_west_resolution) * 2 + 1;
         number_of_rows = ceil(max_distance / north_south_resolution) * 2 + 1;
@@ -191,6 +192,11 @@ public:
     template<class Generator>
     std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
+        if (kernel_type_ != DispersalKernelType::Cauchy
+            && kernel_type_ != DispersalKernelType::Exponential) {
+            throw std::invalid_argument(
+                "DeterministicDispersalKernel: Unsupported dispersal kernel type");
+        }
         // reset the window if considering a new cell
         if ( row != prev_row || col != prev_col ) {
             proportion_of_dispersers = 1.0 / (double)dispersers_(row, col);
