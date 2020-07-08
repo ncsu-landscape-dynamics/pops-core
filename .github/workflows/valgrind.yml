@@ -1,0 +1,25 @@
+name: Valgrind Memcheck
+
+on:
+- push
+- pull_request
+
+jobs:
+  memcheck:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: make
+    - name: Memcheck
+      run: |
+        valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./test_treatments
+        valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./test_spread_rate
+        valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./test_scheduling
+        valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./test_raster
+        valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./test_simulation
+        valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./test_statistics
+        valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./test_date
+        valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./test_deterministic
