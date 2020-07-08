@@ -19,11 +19,12 @@ jobs:
       run: make
     - name: Memcheck
       run: |
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_treatments
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_spread_rate
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_scheduling
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_raster
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_simulation
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_statistics
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_date
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_deterministic
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_model
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_raster
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_scheduling
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_simulation
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_spread_rate
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_statistics
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_treatments
