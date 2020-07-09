@@ -29,7 +29,6 @@
 #include "scheduling.hpp"
 #include "date.hpp"
 
-
 using namespace pops;
 
 int test_schedule_spread_month()
@@ -38,7 +37,7 @@ int test_schedule_spread_month()
 
     Date st(2020, 1, 1);
     Date end(2021, 12, 31);
-    
+
     Scheduler scheduling1(st, end, StepUnit::Month, 1);
     std::vector<bool> vect1 = scheduling1.schedule_spread(Season(1, 12));
     if (scheduling1.get_num_steps() != 24) {
@@ -56,7 +55,7 @@ int test_schedule_spread_month()
     }
 
     Scheduler scheduling3(st, end, StepUnit::Month, 5);
-    std::vector<bool> vect3 = scheduling3.schedule_spread( Season(1, 12));
+    std::vector<bool> vect3 = scheduling3.schedule_spread(Season(1, 12));
     if (scheduling3.get_num_steps() != 5) {
         std::cout << "Failed scheduling of monthly spread" << std::endl;
         scheduling3.debug_schedule(vect3);
@@ -81,7 +80,7 @@ int test_schedule_spread_month()
         scheduling5.debug_schedule(vect5);
         num_errors++;
     }
-    
+
     return num_errors;
 }
 
@@ -133,7 +132,6 @@ int test_schedule_spread_days()
     return num_errors;
 }
 
-
 int test_schedule_action_yearly()
 {
     int num_errors = 0;
@@ -152,7 +150,6 @@ int test_schedule_action_yearly()
     return num_errors;
 }
 
-
 int test_schedule_action_end_of_year()
 {
     int num_errors = 0;
@@ -162,7 +159,7 @@ int test_schedule_action_end_of_year()
 
     Scheduler scheduling1(st, end, StepUnit::Month, 2);
     std::vector<bool> vect1 = scheduling1.schedule_spread(Season(1, 12));
-    std::vector<bool> vect_action1 =  scheduling1.schedule_action_end_of_year();
+    std::vector<bool> vect_action1 = scheduling1.schedule_action_end_of_year();
     if (scheduling1.get_num_steps() != 12) {
         std::cout << "Failed scheduling of end of year action" << std::endl;
         scheduling1.debug_schedule(vect_action1);
@@ -174,7 +171,7 @@ int test_schedule_action_end_of_year()
 
     Scheduler scheduling2(st1, end1, StepUnit::Month, 2);
     std::vector<bool> vect2 = scheduling2.schedule_spread(Season(2, 8));
-    std::vector<bool> vect_action2 =  scheduling2.schedule_action_end_of_year();
+    std::vector<bool> vect_action2 = scheduling2.schedule_action_end_of_year();
     if (scheduling2.get_num_steps() != 18) {
         std::cout << "Failed scheduling of end of year action" << std::endl;
         scheduling2.debug_schedule(vect_action2);
@@ -193,7 +190,7 @@ int test_schedule_action_nsteps()
 
     Scheduler scheduling1(st, end, StepUnit::Month, 2);
     std::vector<bool> vect1 = scheduling1.schedule_spread(Season(1, 12));
-    std::vector<bool> vect_action1 =  scheduling1.schedule_action_nsteps(2);
+    std::vector<bool> vect_action1 = scheduling1.schedule_action_nsteps(2);
     if (scheduling1.get_num_steps() != 12) {
         std::cout << "Failed scheduling of n-steps action" << std::endl;
         scheduling1.debug_schedule(vect_action1);
@@ -202,7 +199,7 @@ int test_schedule_action_nsteps()
 
     Scheduler scheduling2(st, end, StepUnit::Day, 15);
     std::vector<bool> vect2 = scheduling2.schedule_spread(Season(2, 10));
-    std::vector<bool> vect_action2 =  scheduling2.schedule_action_nsteps(2);
+    std::vector<bool> vect_action2 = scheduling2.schedule_action_nsteps(2);
     if (scheduling2.get_num_steps() != 48) {
         std::cout << "Failed scheduling of n-steps action" << std::endl;
         scheduling2.debug_schedule(vect_action2);
@@ -256,7 +253,8 @@ int test_schedule_end_of_simulation()
 
     Scheduler scheduling1(st, end, StepUnit::Week, 1);
     std::vector<bool> schedule = scheduling1.schedule_action_end_of_simulation();
-    if (!(get_number_of_scheduled_actions(schedule) == 1 && schedule[scheduling1.get_num_steps() - 1])) {
+    if (!(get_number_of_scheduled_actions(schedule) == 1
+          && schedule[scheduling1.get_num_steps() - 1])) {
         std::cout << "Failed scheduling of end of simulation" << std::endl;
         scheduling1.debug_schedule(schedule);
         num_errors++;
@@ -380,7 +378,6 @@ int test_output_schedule_from_string()
     return num_errors;
 }
 
-
 int test_get_step_length()
 {
     int num_errors = 0;
@@ -400,7 +397,6 @@ int test_get_step_length()
 int main()
 {
     int num_errors = 0;
-
 
     num_errors += test_schedule_spread_month();
     num_errors += test_schedule_spread_days();

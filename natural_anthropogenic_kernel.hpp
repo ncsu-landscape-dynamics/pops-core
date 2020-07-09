@@ -39,8 +39,7 @@ namespace pops {
  * anthropogenic distance kernel. The anthropogenic distance dispersal can be also
  * competely disabled.
  */
-template<typename NaturalKernelType,
-         typename AnthropogenicKernelType>
+template<typename NaturalKernelType, typename AnthropogenicKernelType>
 class NaturalAnthropogenicDispersalKernel
 {
 protected:
@@ -50,13 +49,12 @@ protected:
     std::bernoulli_distribution bernoulli_distribution;
 
 public:
-    NaturalAnthropogenicDispersalKernel(const NaturalKernelType& natural_kernel,
-                             const AnthropogenicKernelType& anthropogenic_kernel,
-                             bool use_anthropogenic_kernel,
-                             double percent_natural_dispersal
-                             )
-        :
-          use_anthropogenic_kernel_(use_anthropogenic_kernel),
+    NaturalAnthropogenicDispersalKernel(
+        const NaturalKernelType& natural_kernel,
+        const AnthropogenicKernelType& anthropogenic_kernel,
+        bool use_anthropogenic_kernel,
+        double percent_natural_dispersal)
+        : use_anthropogenic_kernel_(use_anthropogenic_kernel),
           // Here we initialize all distributions,
           // although we won't use all of them.
           natural_kernel_(natural_kernel),
@@ -68,7 +66,7 @@ public:
     /*! \copydoc RadialDispersalKernel::operator()()
      */
     template<typename Generator>
-    std::tuple<int, int> operator() (Generator& generator, int row, int col)
+    std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
         // switch in between the supported kernels
         if (!use_anthropogenic_kernel_ || bernoulli_distribution(generator)) {
@@ -96,12 +94,12 @@ public:
             return NaturalKernelType::supports_kernel(type);
         }
         else {
-            return NaturalKernelType::supports_kernel(type) ||
-                    AnthropogenicKernelType::supports_kernel(type);
+            return NaturalKernelType::supports_kernel(type)
+                   || AnthropogenicKernelType::supports_kernel(type);
         }
     }
 };
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_NATURAL_ANTHROPOGENIC_KERNEL_HPP
+#endif  // POPS_NATURAL_ANTHROPOGENIC_KERNEL_HPP

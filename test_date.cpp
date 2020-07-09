@@ -103,11 +103,13 @@ int test_from_string()
     try {
         d = Date("2015-31-01");
     }
-    catch (std::invalid_argument) {}
+    catch (std::invalid_argument) {
+    }
     try {
         d = Date("2016-04-31");
     }
-    catch (std::invalid_argument) {}
+    catch (std::invalid_argument) {
+    }
     if (d.year() != 2020 || d.month() != 2 || d.day() != 1) {
         num_errors++;
         cout << d << endl;

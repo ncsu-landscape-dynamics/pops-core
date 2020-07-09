@@ -76,8 +76,10 @@ namespace pops {
  * documentation.
  */
 template<typename IntegerRaster>
-using DispersalKernel = NaturalAnthropogenicDispersalKernel<SwitchDispersalKernel<IntegerRaster>, SwitchDispersalKernel<IntegerRaster>>;
+using DispersalKernel = NaturalAnthropogenicDispersalKernel<
+    SwitchDispersalKernel<IntegerRaster>,
+    SwitchDispersalKernel<IntegerRaster>>;
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_KERNEL_HPP
+#endif  // POPS_KERNEL_HPP

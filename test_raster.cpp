@@ -42,16 +42,14 @@ using std::endl;
 
 using pops::Raster;
 
-static
-void test_constructor_by_type()
+static void test_constructor_by_type()
 {
     Raster<int> a(10, 10);
     Raster<float> b(10, 10);
     Raster<double> c(10, 10);
 }
 
-static
-void test_constructor_dimensions()
+static void test_constructor_dimensions()
 {
     int x = 5;
     int y = 3;
@@ -67,22 +65,16 @@ void test_constructor_dimensions()
     std::cout << y << "x" << x << ":" << std::endl << b;
 }
 
-static
-void test_initializer_and_output()
+static void test_initializer_and_output()
 {
-    Raster<int> a = {{1, 2},
-                     {3, 4},
-                     {5, 6}};
+    Raster<int> a = {{1, 2}, {3, 4}, {5, 6}};
     std::cout << "3x2:" << std::endl << a;
 
-    Raster<int> b = {{0, 0, 0, 5, 5},
-                     {0, 0, 0, 5, 5},
-                     {0, 0, 0, 10, 0}};
+    Raster<int> b = {{0, 0, 0, 5, 5}, {0, 0, 0, 5, 5}, {0, 0, 0, 10, 0}};
     std::cout << "3x5:" << std::endl << b;
 }
 
-static
-void test_equal_operator()
+static void test_equal_operator()
 {
     Raster<int> a = {{1, 2}, {3, 4}, {5, 6}};
     Raster<int> b = {{1, 2}, {3, 4}, {5, 6}};
@@ -92,8 +84,7 @@ void test_equal_operator()
         std::cout << "Operator equal does not work" << std::endl;
 }
 
-static
-void test_not_equal_operator()
+static void test_not_equal_operator()
 {
     Raster<int> a = {{1, 2}, {3, 4}, {5, 6}};
     Raster<int> b = {{1, 2}, {3, 5}, {5, 6}};
@@ -103,8 +94,7 @@ void test_not_equal_operator()
         std::cout << "Operator not-equal does not work" << std::endl;
 }
 
-static
-int test_plus_operator()
+static int test_plus_operator()
 {
     Raster<int> d = {{1, 2}, {3, 4}, {5, 6}};
     Raster<int> e = {{8, 9}, {10, 11}, {12, 13}};
@@ -119,8 +109,7 @@ int test_plus_operator()
     }
 }
 
-static
-int test_multiply_in_place_operator()
+static int test_multiply_in_place_operator()
 {
     Raster<double> d = {{1.1, 2}, {3.84, 4}, {5, 6}};
     Raster<double> e = {{8, 9.5}, {10, 11}, {12, 13}};
@@ -137,8 +126,7 @@ int test_multiply_in_place_operator()
     }
 }
 
-static
-void test_sqrt()
+static void test_sqrt()
 {
     Raster<int> a = {{16, 25}, {4, 9}};
     Raster<int> b = {{4, 5}, {2, 3}};
@@ -151,8 +139,7 @@ void test_sqrt()
 }
 
 template<typename T, typename U, typename V>
-static
-void test_diff_types_const()
+static void test_diff_types_const()
 {
     Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
     Raster<U> b = {{1, 2}, {3, 4}, {5, 6}};
@@ -163,8 +150,7 @@ void test_diff_types_const()
 }
 
 template<typename T, typename U>
-static
-void test_diff_types_modify()
+static void test_diff_types_modify()
 {
     Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
     Raster<U> b = {{1, 2}, {3, 4}, {5, 6}};
@@ -175,8 +161,7 @@ void test_diff_types_modify()
 }
 
 template<typename T>
-static
-void test_op_int()
+static void test_op_int()
 {
     Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
     a += 1;
@@ -186,8 +171,7 @@ void test_op_int()
 }
 
 template<typename T>
-static
-void test_op_double()
+static void test_op_double()
 {
     Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
     a += 1.1;
@@ -197,8 +181,7 @@ void test_op_double()
 }
 
 template<typename T>
-static
-void test_op_order()
+static void test_op_order()
 {
     Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
     a + 1.1;
@@ -212,16 +195,12 @@ void test_op_order()
 }
 
 template<typename T, typename U>
-static
-int test_op_plus(U value)
+static int test_op_plus(U value)
 {
     int errors = 0;
-    Raster<T> a = {{1, 2},
-                   {3, 4},
-                   {5, 6}};
-    Raster<T> b = {{1 + value, 2 + value},
-                   {3 + value, 4 + value},
-                   {5 + value, 6 + value}};
+    Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
+    Raster<T> b = {
+        {1 + value, 2 + value}, {3 + value, 4 + value}, {5 + value, 6 + value}};
     if (a + value != b) {
         std::cout << "Operator raster + scalar broken:\n" << a << b << std::endl;
         ++errors;
@@ -236,21 +215,18 @@ int test_op_plus(U value)
         ++errors;
     }
     if (!errors)
-        std::cout << "Operator raster and scalar + OK for raster " << typeid(T).name() << " and scalar " << typeid(U).name() << std::endl;
+        std::cout << "Operator raster and scalar + OK for raster " << typeid(T).name()
+                  << " and scalar " << typeid(U).name() << std::endl;
     return errors;
 }
 
 template<typename T, typename U>
-static
-int test_op_times(U value)
+static int test_op_times(U value)
 {
     int errors = 0;
-    Raster<T> a = {{1, 2},
-                   {3, 4},
-                   {5, 6}};
-    Raster<T> b = {{1 * value, 2 * value},
-                   {3 * value, 4 * value},
-                   {5 * value, 6 * value}};
+    Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
+    Raster<T> b = {
+        {1 * value, 2 * value}, {3 * value, 4 * value}, {5 * value, 6 * value}};
     if (a * value != b) {
         std::cout << "Operator raster * scalar broken:\n" << a << b << std::endl;
         ++errors;
@@ -265,24 +241,20 @@ int test_op_times(U value)
         ++errors;
     }
     if (!errors)
-        std::cout << "Operator raster and scalar * OK for raster " << typeid(T).name() << " and scalar " << typeid(U).name() << std::endl;
+        std::cout << "Operator raster and scalar * OK for raster " << typeid(T).name()
+                  << " and scalar " << typeid(U).name() << std::endl;
     return errors;
 }
 
 template<typename T, typename U>
-static
-int test_op_minus(U value)
+static int test_op_minus(U value)
 {
     int errors = 0;
-    Raster<T> a = {{1, 2},
-                   {3, 4},
-                   {5, 6}};
-    Raster<T> b = {{1 - value, 2 - value},
-                   {3 - value, 4 - value},
-                   {5 - value, 6 - value}};
-    Raster<T> c = {{value - 1, value - 2},
-                   {value - 3, value - 4},
-                   {value - 5, value - 6}};
+    Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
+    Raster<T> b = {
+        {1 - value, 2 - value}, {3 - value, 4 - value}, {5 - value, 6 - value}};
+    Raster<T> c = {
+        {value - 1, value - 2}, {value - 3, value - 4}, {value - 5, value - 6}};
     if (a - value != b) {
         std::cout << "Operator raster - scalar broken:\n" << a << b << std::endl;
         ++errors;
@@ -297,24 +269,20 @@ int test_op_minus(U value)
         ++errors;
     }
     if (!errors)
-        std::cout << "Operator raster and scalar - OK for raster " << typeid(T).name() << " and scalar " << typeid(U).name() << std::endl;
+        std::cout << "Operator raster and scalar - OK for raster " << typeid(T).name()
+                  << " and scalar " << typeid(U).name() << std::endl;
     return errors;
 }
 
 template<typename T, typename U>
-static
-int test_op_divide(U value)
+static int test_op_divide(U value)
 {
     int errors = 0;
-    Raster<T> a = {{1, 2},
-                   {3, 4},
-                   {5, 6}};
-    Raster<T> b = {{1 / value, 2 / value},
-                   {3 / value, 4 / value},
-                   {5 / value, 6 / value}};
-    Raster<T> c = {{value / 1, value / 2},
-                   {value / 3, value / 4},
-                   {value / 5, value / 6}};
+    Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
+    Raster<T> b = {
+        {1 / value, 2 / value}, {3 / value, 4 / value}, {5 / value, 6 / value}};
+    Raster<T> c = {
+        {value / 1, value / 2}, {value / 3, value / 4}, {value / 5, value / 6}};
     if (a / value != b) {
         std::cout << "Operator raster / scalar broken:\n" << a << b << std::endl;
         ++errors;
@@ -329,26 +297,26 @@ int test_op_divide(U value)
         ++errors;
     }
     if (!errors)
-        std::cout << "Operator raster and scalar / OK for raster " << typeid(T).name() << " and scalar " << typeid(U).name() << std::endl;
+        std::cout << "Operator raster and scalar / OK for raster " << typeid(T).name()
+                  << " and scalar " << typeid(U).name() << std::endl;
     return errors;
 }
 
 template<typename T>
-static
-int test_times_scalar()
+static int test_times_scalar()
 {
     int errors = 0;
     Raster<T> a = {{1, 2}, {3, 4}, {5, 6}};
     auto b = a * 0.4;
     T sum = 0;
-    b.for_each([&sum](T& v){sum += v;});
+    b.for_each([&sum](T& v) { sum += v; });
     if (sum == 0) {
         ++errors;
         std::cout << "Operator 'raster * scalar' does not work" << std::endl;
     }
     a *= 0.4;
     sum = 0;
-    a.for_each([&sum](T& v){sum += v;});
+    a.for_each([&sum](T& v) { sum += v; });
     if (sum == 0) {
         ++errors;
         std::cout << "Operator 'raster *= scalar' does not work" << std::endl;
@@ -359,13 +327,10 @@ int test_times_scalar()
 }
 
 template<typename T, typename I>
-static
-int test_index()
+static int test_index()
 {
     int errors = 0;
-    Raster<T, I> a = {{11, 12, 13, 14},
-                      {21, 22, 23, 24},
-                      {31, 32, 33, 34}};
+    Raster<T, I> a = {{11, 12, 13, 14}, {21, 22, 23, 24}, {31, 32, 33, 34}};
     I row = 0;
     I col = 3;
     if (a(row, col) != 14) {
@@ -375,7 +340,8 @@ int test_index()
     T value = 20;
     a(row, col) = value;
     if (a(row, col) != value) {
-        std::cout << "Not reading the right value after assignment, but: " << a(row, col) << std::endl;
+        std::cout << "Not reading the right value after assignment, but: "
+                  << a(row, col) << std::endl;
         return ++errors;
     }
     if (!errors)
@@ -384,39 +350,40 @@ int test_index()
 }
 
 template<typename T, typename I>
-static
-int test_non_owner()
+static int test_non_owner()
 {
     int errors = 0;
     const I rows = 3;
     const I cols = 4;
-    T x[rows * cols] = {11, 12, 13, 14,
-                        21, 22, 23, 24,
-                        31, 32, 33, 34};
+    T x[rows * cols] = {11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34};
     Raster<T> a(x, rows, cols);
     I row = 2;
     I col = 3;
     if (a(row, col) != 34) {
-        std::cout << "Not reading from raster the value in array, but: " << a(row, col) << std::endl;
+        std::cout << "Not reading from raster the value in array, but: " << a(row, col)
+                  << std::endl;
         return ++errors;
     }
     T value = 40;
     a(row, col) = value;
     if (a(row, col) != value) {
-        std::cout << "Not reading from raster what was written, but: " << a(row, col) << std::endl;
+        std::cout << "Not reading from raster what was written, but: " << a(row, col)
+                  << std::endl;
         return ++errors;
     }
     value = 50;
     x[row * cols + col] = value;
     if (a(row, col) != value) {
-        std::cout << "Not reading from array what was written, but: " << a(row, col) << std::endl;
+        std::cout << "Not reading from array what was written, but: " << a(row, col)
+                  << std::endl;
         return ++errors;
     }
     // no delete should be called here
     a = {{100, 200}, {300, 400}};
     a(1, 0) = 1000;
     if (a(1, 0) != 1000) {
-        std::cout << "Not reading correctly after assignment, but: " << a(1, 0) << std::endl;
+        std::cout << "Not reading correctly after assignment, but: " << a(1, 0)
+                  << std::endl;
         return ++errors;
     }
     if (x[cols] != 21) {
@@ -439,7 +406,8 @@ std::vector<Raster<T>> return_vector_of_rasters(int num_rasters)
 }
 
 template<typename T, typename I>
-std::vector<Raster<T>> return_vector_of_rasters(T** data, int num_rasters, I rows, I cols)
+std::vector<Raster<T>>
+return_vector_of_rasters(T** data, int num_rasters, I rows, I cols)
 {
     std::vector<Raster<T>> rasters;
     for (int i = 0; i < num_rasters; ++i) {
@@ -454,12 +422,14 @@ int test_return_from_function(int num_rasters)
     int errors = 0;
     auto rasters = return_vector_of_rasters<T, I>(num_rasters);
     for (const auto& raster : rasters)
-    if (raster(0, 0) != 42) {
-        ++errors;
-        break;
-    }
+        if (raster(0, 0) != 42) {
+            ++errors;
+            break;
+        }
     if (!errors)
-        std::cout << "Returning owning raster from function works (value: " << typeid(T).name() << ", index: " << typeid(I).name() << ")" << std::endl;
+        std::cout << "Returning owning raster from function works (value: "
+                  << typeid(T).name() << ", index: " << typeid(I).name() << ")"
+                  << std::endl;
     return errors;
 }
 
@@ -470,15 +440,9 @@ int test_return_from_function_non_owner()
     const I rows = 3;
     const I cols = 4;
     const int num_rasters = 3;
-    T x[rows * cols] = {11, 12, 13, 14,
-                        21, 22, 23, 24,
-                        31, 32, 33, 34};
-    T y[rows * cols] = {11, 12, 13, 14,
-                        21, 22, 23, 24,
-                        31, 32, 33, 34};
-    T z[rows * cols] = {11, 12, 13, 14,
-                        21, 22, 23, 24,
-                        31, 32, 33, 34};
+    T x[rows * cols] = {11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34};
+    T y[rows * cols] = {11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34};
+    T z[rows * cols] = {11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34};
     T* data[num_rasters] = {x, y, z};
     auto rasters = return_vector_of_rasters<T>(data, num_rasters, rows, cols);
     for (const auto& raster : rasters) {
@@ -488,7 +452,9 @@ int test_return_from_function_non_owner()
         }
     }
     if (!errors)
-        std::cout << "Returning non-owning raster from function works (value: " << typeid(T).name() << ", index: " << typeid(I).name() << ")" << std::endl;
+        std::cout << "Returning non-owning raster from function works (value: "
+                  << typeid(T).name() << ", index: " << typeid(I).name() << ")"
+                  << std::endl;
     return errors;
 }
 

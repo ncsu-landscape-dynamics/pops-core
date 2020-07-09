@@ -42,14 +42,13 @@ using std::abs;
  * Cauchy distribution
  * Includes probability density function and inverse cumulative distribution function
  * pdf returns the probability that the variate has the value x
- * icdf returns the upper range that encompasses x percent of the distribution (e.g for 99% input .99)
+ * icdf returns the upper range that encompasses x percent of the distribution (e.g for
+ * 99% input .99)
  */
 class CauchyDistribution
 {
 public:
-    CauchyDistribution(double scale)
-        : s(scale)
-    {}
+    CauchyDistribution(double scale) : s(scale) {}
 
     double pdf(double x)
     {
@@ -60,6 +59,7 @@ public:
     {
         return s * tan(M_PI * (x - 0.5));
     }
+
 private:
     // scale parameter - 1 for standard
     double s;
@@ -69,28 +69,29 @@ private:
  * Exponential distribution
  * Includes probability density function and inverse cumulative distribution function
  * pdf returns the probability that the variate has the value x
- * icdf returns the upper range that encompasses x percent of the distribution (e.g for 99% input 0.99)
+ * icdf returns the upper range that encompasses x percent of the distribution (e.g for
+ * 99% input 0.99)
  */
 class ExponentialDistribution
 {
 public:
-ExponentialDistribution(double scale)
-        : beta(scale)
-    {}
+    ExponentialDistribution(double scale) : beta(scale) {}
     // assumes mu is 0 which is traditionally accepted
     double pdf(double x)
     {
-        return (1 / beta)*(exp(-x / beta));
+        return (1 / beta) * (exp(-x / beta));
     }
     // Inverse cdf (quantile function)
     double icdf(double x)
     {
-        if ( beta == 1) {
+        if (beta == 1) {
             return -log(1 - x);
-        } else {
+        }
+        else {
             return -beta * log(1 - x);
         }
     }
+
 private:
     // scale parameter - 1 for standard
     // equal to 1/lambda
@@ -134,24 +135,29 @@ protected:
     CauchyDistribution cauchy;
     ExponentialDistribution exponential;
     double proportion_of_dispersers;
+
 public:
-    DeterministicDispersalKernel(DispersalKernelType dispersal_kernel,
-                                const IntegerRaster& dispersers, double dispersal_percentage,
-                                double ew_res, double ns_res, double distance_scale)
-        :
-        dispersers_(dispersers),
-        cauchy(distance_scale),
-        exponential(distance_scale),
-        kernel_type_(dispersal_kernel),
-        east_west_resolution(ew_res),
-        north_south_resolution(ns_res)
+    DeterministicDispersalKernel(
+        DispersalKernelType dispersal_kernel,
+        const IntegerRaster& dispersers,
+        double dispersal_percentage,
+        double ew_res,
+        double ns_res,
+        double distance_scale)
+        : dispersers_(dispersers),
+          cauchy(distance_scale),
+          exponential(distance_scale),
+          kernel_type_(dispersal_kernel),
+          east_west_resolution(ew_res),
+          north_south_resolution(ns_res)
     {
         // We initialize max distance only for the supported kernels.
         // For the others, we report the error only when really called
         // to allow use of this class in initialization phase.
         if (kernel_type_ == DispersalKernelType::Cauchy) {
             max_distance = cauchy.icdf(dispersal_percentage);
-        } else if (kernel_type_ == DispersalKernelType::Exponential) {
+        }
+        else if (kernel_type_ == DispersalKernelType::Exponential) {
             max_distance = exponential.icdf(dispersal_percentage);
         }
         number_of_columns = ceil(max_distance / east_west_resolution) * 2 + 1;
@@ -162,21 +168,22 @@ public:
         mid_row = number_of_rows / 2;
         mid_col = number_of_columns / 2;
         double sum = 0.0;
-        for ( int i = 0; i < number_of_rows; i++ ) {
-            for ( int j = 0; j < number_of_columns; j++ ) {
-                double distance_to_center =
-                std::sqrt(pow((abs(mid_row - i) * east_west_resolution), 2)
-                + pow((abs(mid_col - j) * north_south_resolution), 2));
+        for (int i = 0; i < number_of_rows; i++) {
+            for (int j = 0; j < number_of_columns; j++) {
+                double distance_to_center = std::sqrt(
+                    pow((abs(mid_row - i) * east_west_resolution), 2)
+                    + pow((abs(mid_col - j) * north_south_resolution), 2));
                 // determine probability based on distance
                 if (kernel_type_ == DispersalKernelType::Cauchy) {
-                    probability(i,j) = abs(cauchy.pdf(distance_to_center));
-                } else if ( kernel_type_ == DispersalKernelType::Exponential ) {
-                    probability(i,j) = abs(exponential.pdf(distance_to_center));
+                    probability(i, j) = abs(cauchy.pdf(distance_to_center));
                 }
-            sum += probability(i,j);
+                else if (kernel_type_ == DispersalKernelType::Exponential) {
+                    probability(i, j) = abs(exponential.pdf(distance_to_center));
+                }
+                sum += probability(i, j);
             }
         }
-        //normalize based on the sum of all probabilities in the raster
+        // normalize based on the sum of all probabilities in the raster
         probability /= sum;
     }
 
@@ -198,7 +205,7 @@ public:
                 "DeterministicDispersalKernel: Unsupported dispersal kernel type");
         }
         // reset the window if considering a new cell
-        if ( row != prev_row || col != prev_col ) {
+        if (row != prev_row || col != prev_col) {
             proportion_of_dispersers = 1.0 / (double)dispersers_(row, col);
             probability_copy = probability;
         }
@@ -210,11 +217,11 @@ public:
         int max_prob_row = 0;
         int max_prob_col = 0;
 
-        //find cell with highest probability
-        for ( int i = 0; i < number_of_rows; i++ ) {
-            for ( int j = 0; j < number_of_columns; j++ ) {
-                if (probability_copy(i,j) > max ) {
-                    max = probability_copy(i,j);
+        // find cell with highest probability
+        for (int i = 0; i < number_of_rows; i++) {
+            for (int j = 0; j < number_of_columns; j++) {
+                if (probability_copy(i, j) > max) {
+                    max = probability_copy(i, j);
                     max_prob_row = i;
                     max_prob_col = j;
                     row_movement = i - mid_row;
@@ -234,6 +241,6 @@ public:
     }
 };
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_DETERMINISTIC_KERNEL_HPP
+#endif  // POPS_DETERMINISTIC_KERNEL_HPP

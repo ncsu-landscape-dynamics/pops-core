@@ -40,15 +40,15 @@ protected:
     RadialDispersalKernel<IntegerRaster> radial_kernel_;
     UniformDispersalKernel uniform_kernel_;
     DeterministicNeighborDispersalKernel deterministic_neighbor_kernel_;
+
 public:
     SwitchDispersalKernel(
-            const DispersalKernelType& dispersal_kernel_type,
-            const RadialDispersalKernel<IntegerRaster>& radial_kernel,
-            const UniformDispersalKernel& uniform_kernel,
-            const DeterministicNeighborDispersalKernel& deterministic_neighbor_kernel = DeterministicNeighborDispersalKernel(Direction::None)
-            )
-        :
-          dispersal_kernel_type_(dispersal_kernel_type),
+        const DispersalKernelType& dispersal_kernel_type,
+        const RadialDispersalKernel<IntegerRaster>& radial_kernel,
+        const UniformDispersalKernel& uniform_kernel,
+        const DeterministicNeighborDispersalKernel& deterministic_neighbor_kernel =
+            DeterministicNeighborDispersalKernel(Direction::None))
+        : dispersal_kernel_type_(dispersal_kernel_type),
           // Here we initialize all kernels,
           // although we won't use all of them.
           radial_kernel_(radial_kernel),
@@ -59,7 +59,7 @@ public:
     /*! \copydoc RadialDispersalKernel::operator()()
      */
     template<typename Generator>
-    std::tuple<int, int> operator() (Generator& generator, int row, int col)
+    std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
         // switch in between the supported kernels
         if (dispersal_kernel_type_ == DispersalKernelType::Uniform) {
@@ -86,6 +86,6 @@ public:
     }
 };
 
-} // namespace pops
+}  // namespace pops
 
-#endif // POPS_SWITCH_KERNEL_HPP
+#endif  // POPS_SWITCH_KERNEL_HPP

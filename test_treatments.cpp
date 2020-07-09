@@ -29,9 +29,7 @@
 #include "date.hpp"
 #include "scheduling.hpp"
 
-
 using namespace pops;
-
 
 int test_application_ratio()
 {
@@ -65,7 +63,8 @@ int test_application_all_inf()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
-    treatments.add_treatment(tr1, Date(2020, 1, 1), 0, TreatmentApplication::AllInfectedInCell);
+    treatments.add_treatment(
+        tr1, Date(2020, 1, 1), 0, TreatmentApplication::AllInfectedInCell);
     treatments.manage(0, infected, susceptible, resistant);
 
     Raster<int> treated = {{0, 3}, {5, 42}};
@@ -95,7 +94,8 @@ int test_application_ratio_pesticide()
     Raster<int> inf_treated = {{1, 4}, {16, 40}};
     Raster<int> resist = {{0, 0}, {0, 0}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Treatment with pesticide and ratio app does not work" << std::endl;
+        std::cout << "Treatment with pesticide and ratio app does not work"
+                  << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
@@ -106,7 +106,8 @@ int test_application_ratio_pesticide()
     inf_treated = {{0, 2}, {4, 40}};
     resist = {{11, 5}, {27, 0}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Treatment with pesticide and ratio app does not work" << std::endl;
+        std::cout << "Treatment with pesticide and ratio app does not work"
+                  << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
@@ -116,13 +117,13 @@ int test_application_ratio_pesticide()
     treated = {{11, 8}, {32, 42}};
     resist = {{0, 0}, {0, 0}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Treatment with pesticide and ratio app does not work" << std::endl;
+        std::cout << "Treatment with pesticide and ratio app does not work"
+                  << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
     return num_errors;
 }
-
 
 int test_application_all_inf_pesticide()
 {
@@ -133,7 +134,8 @@ int test_application_all_inf_pesticide()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
-    treatments.add_treatment(tr1, Date(2020, 5, 1), 7, TreatmentApplication::AllInfectedInCell);
+    treatments.add_treatment(
+        tr1, Date(2020, 5, 1), 7, TreatmentApplication::AllInfectedInCell);
     unsigned n = scheduler.schedule_action_date(Date(2020, 1, 1));
     treatments.manage(n, infected, susceptible, resistant);
 
@@ -141,7 +143,8 @@ int test_application_all_inf_pesticide()
     Raster<int> inf_treated = {{1, 4}, {16, 40}};
     Raster<int> resist = {{0, 0}, {0, 0}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Treatment with pesticide and AllInfectedInCell app does not work" << std::endl;
+        std::cout << "Treatment with pesticide and AllInfectedInCell app does not work"
+                  << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
@@ -152,7 +155,8 @@ int test_application_all_inf_pesticide()
     inf_treated = {{0, 0}, {0, 40}};
     resist = {{11, 7}, {31, 0}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Treatment with pesticide and AllInfectedInCell app does not work" << std::endl;
+        std::cout << "Treatment with pesticide and AllInfectedInCell app does not work"
+                  << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
@@ -162,13 +166,13 @@ int test_application_all_inf_pesticide()
     treated = {{11, 10}, {36, 42}};
     resist = {{0, 0}, {0, 0}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Treatment with pesticide and AllInfectedInCell app does not work" << std::endl;
+        std::cout << "Treatment with pesticide and AllInfectedInCell app does not work"
+                  << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
     return num_errors;
 }
-
 
 int test_combination()
 {
@@ -230,8 +234,6 @@ int test_combination()
     return num_errors;
 }
 
-
-
 int test_pesticide_temporal_overlap()
 {
     int num_errors = 0;
@@ -253,7 +255,8 @@ int test_pesticide_temporal_overlap()
     Raster<int> inf_treated = {{0, 0}, {16, 40}};
     Raster<int> resist = {{11, 10}, {0, 0}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Temporal overlap of pesticide treatments does not work" << std::endl;
+        std::cout << "Temporal overlap of pesticide treatments does not work"
+                  << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
@@ -265,7 +268,8 @@ int test_pesticide_temporal_overlap()
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{11, 10}, {36, 82}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Temporal overlap of pesticide treatments does not work" << std::endl;
+        std::cout << "Temporal overlap of pesticide treatments does not work"
+                  << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
@@ -277,7 +281,8 @@ int test_pesticide_temporal_overlap()
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{0, 0}, {36, 82}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Temporal overlap of pesticide treatments does not work" << std::endl;
+        std::cout << "Temporal overlap of pesticide treatments does not work"
+                  << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
@@ -289,7 +294,8 @@ int test_pesticide_temporal_overlap()
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{0, 0}, {0, 0}};
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
-        std::cout << "Temporal overlap of pesticide treatments does not work" << std::endl;
+        std::cout << "Temporal overlap of pesticide treatments does not work"
+                  << std::endl;
         std::cout << susceptible << infected << resistant;
         num_errors++;
     }
@@ -412,7 +418,8 @@ int test_treat_app_from_string()
     int num_errors = 0;
     if (treatment_app_enum_from_string("ratio_to_all") != TreatmentApplication::Ratio)
         num_errors++;
-    if (treatment_app_enum_from_string("all_infected_in_cell") != TreatmentApplication::AllInfectedInCell)
+    if (treatment_app_enum_from_string("all_infected_in_cell")
+        != TreatmentApplication::AllInfectedInCell)
         num_errors++;
     try {
         treatment_app_enum_from_string("invalid_input");

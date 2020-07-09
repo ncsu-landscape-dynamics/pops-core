@@ -31,35 +31,38 @@
 #include "raster.hpp"
 #include "spread_rate.hpp"
 
-
 using namespace pops;
 
 int test_spread_rate()
 {
     int err = 0;
-    Raster<int> infected = {{0, 0, 0, 0, 0},
-                            {0, 0, 0, 0, 0},
-                            {0, 0, 1, 0, 0},
-                            {0, 0, 0, 0, 0},
-                            {0, 0, 0, 0, 0}};
+    Raster<int> infected = {
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 1, 0, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0}};
 
-    Raster<int> infected1 = {{0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0},
-                             {0, 1, 2, 7, 0},
-                             {0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0}};
+    Raster<int> infected1 = {
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0},
+        {0, 1, 2, 7, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0}};
 
-    Raster<int> infected2 = {{0, 0, 0, 0, 0},
-                             {0, 0, 2, 0, 0},
-                             {1, 1, 2, 7, 0},
-                             {0, 0, 0, 9, 0},
-                             {0, 0, 0, 0, 0}};
+    Raster<int> infected2 = {
+        {0, 0, 0, 0, 0},
+        {0, 0, 2, 0, 0},
+        {1, 1, 2, 7, 0},
+        {0, 0, 0, 9, 0},
+        {0, 0, 0, 0, 0}};
 
-    Raster<int> infected3 = {{0, 0, 0, 0, 0},
-                             {0, 0, 2, 0, 1},
-                             {1, 1, 0, 7, 0},
-                             {0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0}};
+    Raster<int> infected3 = {
+        {0, 0, 0, 0, 0},
+        {0, 0, 2, 0, 1},
+        {1, 1, 0, 7, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0}};
 
     SpreadRate<Raster<int>> spread_rate(infected, 10, 10, 3);
     spread_rate.compute_yearly_spread_rate(infected1, 0);
@@ -84,7 +87,6 @@ int test_spread_rate()
 
     return err;
 }
-
 
 int main()
 {
