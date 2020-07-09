@@ -33,30 +33,23 @@ namespace pops {
 class Config
 {
 public:
-    Config()
-        : generate_stochasticity(true),
-          establishment_stochasticity(true),
-          use_anthropogenic_kernel(false),
-          use_treatments(false),
-          use_mortality(false)
-    {}
     // Seed
-    int random_seed;
+    int random_seed{0};
     // Size
-    int rows;
-    int cols;
-    double ew_res;
-    double ns_res;
+    int rows{0};
+    int cols{0};
+    double ew_res{0};
+    double ns_res{0};
     // Reduced stochasticity
-    bool generate_stochasticity;
-    bool establishment_stochasticity;
-    double establishment_probability;
+    bool generate_stochasticity{true};
+    bool establishment_stochasticity{true};
+    double establishment_probability{0};
     // Temperature
     bool use_lethal_temperature{false};
     double lethal_temperature{-273.15};  // 0 K
     int lethal_temperature_month{0};
-    bool weather;
-    double reproductive_rate;
+    bool weather{false};
+    double reproductive_rate{0};
     // SI/SEI
     std::string model_type;
     int latency_period_steps;
@@ -65,18 +58,18 @@ public:
     double natural_scale;
     std::string natural_direction;
     double natural_kappa;
-    bool use_anthropogenic_kernel;
+    bool use_anthropogenic_kernel{false};
     double percent_natural_dispersal;
     std::string anthro_kernel_type;
     double anthro_scale;
     std::string anthro_direction;
     double anthro_kappa;
     // Treatments
-    bool use_treatments;
+    bool use_treatments{false};
     // Mortality
-    bool use_mortality;
-    double mortality_rate;
-    int first_mortality_year;  // TODO: document that it starts at 1, not 0
+    bool use_mortality{false};
+    double mortality_rate{0};
+    int first_mortality_year{0};  // TODO: document that it starts at 1, not 0
 
     std::string output_frequency;
     unsigned output_frequency_n;
