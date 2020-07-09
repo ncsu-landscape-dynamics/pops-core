@@ -47,8 +47,6 @@ public:
     int cols;
     double ew_res;
     double ns_res;
-    // TODO: Time
-    // int steps;
     // Reduced stochasticity
     bool generate_stochasticity;
     bool establishment_stochasticity;
