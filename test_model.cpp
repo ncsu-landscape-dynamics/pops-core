@@ -66,14 +66,15 @@ int test_with_reduced_stochasticity()
     int weather_step = 0;
     unsigned num_mortality_years = config.num_mortality_years();
     std::cerr << "num_mortality_years: " << num_mortality_years << "\n";
-    std::vector<Raster<int>> mortality_tracker(num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker(
+        num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
 
-//    int exposed_size = 0;
-//    if (config.latency_period_steps)
-//        exposed_size = config.latency_period_steps + 1;
-//    std::vector<Raster<int>> exposed(
-//                exposed_size,
-//                Raster<int>(infected.rows(), infected.cols(), 0));
+    //    int exposed_size = 0;
+    //    if (config.latency_period_steps)
+    //        exposed_size = config.latency_period_steps + 1;
+    //    std::vector<Raster<int>> exposed(
+    //                exposed_size,
+    //                Raster<int>(infected.rows(), infected.cols(), 0));
     Raster<int> died(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
@@ -81,8 +82,10 @@ int test_with_reduced_stochasticity()
     config.use_treatments = false;
     config.ew_res = 1;
     config.ns_res = 1;
-    unsigned rate_num_years = get_number_of_scheduled_actions(config.spread_rate_schedule());
-    SpreadRate<Raster<int>> spread_rate(infected, config.ew_res, config.ns_res, rate_num_years);
+    unsigned rate_num_years =
+        get_number_of_scheduled_actions(config.spread_rate_schedule());
+    SpreadRate<Raster<int>> spread_rate(
+        infected, config.ew_res, config.ns_res, rate_num_years);
 
     auto expected_dispersers = config.reproductive_rate * infected;
 
@@ -90,36 +93,42 @@ int test_with_reduced_stochasticity()
 
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     model.run_step(
-                step++,
-                weather_step,
-                infected,
-                susceptible,
-                total_hosts,
-                dispersers,
-                empty_integer,
-                mortality_tracker,
-                died,
-                empty_float,
-                empty_float,
-                treatments,
-                zeros,
-                outside_dispersers,
-                spread_rate
-                );
+        step++,
+        weather_step,
+        infected,
+        susceptible,
+        total_hosts,
+        dispersers,
+        empty_integer,
+        mortality_tracker,
+        died,
+        empty_float,
+        empty_float,
+        treatments,
+        zeros,
+        outside_dispersers,
+        spread_rate);
     if (dispersers != expected_dispersers) {
-        cout << "reduced_stochasticity: dispersers (actual, expected):\n" << dispersers << "  !=\n" << expected_dispersers << "\n";
+        cout << "reduced_stochasticity: dispersers (actual, expected):\n"
+             << dispersers << "  !=\n"
+             << expected_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
-        cout << "reduced_stochasticity: There are outside_dispersers (" << outside_dispersers.size() << ") but there should be none\n";
+        cout << "reduced_stochasticity: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be none\n";
         return 1;
     }
     if (infected != expected_infected) {
-        cout << "reduced_stochasticity: infected (actual, expected):\n" << infected << "  !=\n" << expected_infected << "\n";
+        cout << "reduced_stochasticity: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
         return 1;
     }
     if (mortality_tracker[0] != expected_mortality_tracker) {
-        cout << "reduced_stochasticity: mortality tracker (actual, expected):\n" << mortality_tracker[0] << "  !=\n" << expected_mortality_tracker << "\n";
+        cout << "reduced_stochasticity: mortality tracker (actual, expected):\n"
+             << mortality_tracker[0] << "  !=\n"
+             << expected_mortality_tracker << "\n";
         return 1;
     }
     return 0;

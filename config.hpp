@@ -34,8 +34,7 @@ class Config
 {
 public:
     Config()
-        :
-          generate_stochasticity(true),
+        : generate_stochasticity(true),
           establishment_stochasticity(true),
           use_anthropogenic_kernel(false),
           use_treatments(false),
@@ -49,7 +48,7 @@ public:
     double ew_res;
     double ns_res;
     // TODO: Time
-    //int steps;
+    // int steps;
     // Reduced stochasticity
     bool generate_stochasticity;
     bool establishment_stochasticity;
@@ -87,11 +86,14 @@ public:
     void create_schedules()
     {
         scheduler_ = Scheduler(date_start_, date_end_, step_unit_, step_num_units_);
-        spread_schedule_ = scheduler_.schedule_spread(Season(season_start_month_, season_end_month_));
-        output_schedule_ = output_schedule_from_string(scheduler_, output_frequency, output_frequency_n);
+        spread_schedule_ =
+            scheduler_.schedule_spread(Season(season_start_month_, season_end_month_));
+        output_schedule_ = output_schedule_from_string(
+            scheduler_, output_frequency, output_frequency_n);
         mortality_schedule_ = scheduler_.schedule_action_end_of_year();
         if (use_lethal_temperature)
-            lethal_schedule_ = scheduler_.schedule_action_yearly(lethal_temperature_month, 1);
+            lethal_schedule_ =
+                scheduler_.schedule_action_yearly(lethal_temperature_month, 1);
         spread_rate_schedule_ = scheduler_.schedule_action_end_of_year();
         schedules_created_ = true;
     }
@@ -99,67 +101,78 @@ public:
     const Scheduler& scheduler() const
     {
         if (!schedules_created_)
-            throw std::logic_error("Schedules were not created before calling scheduler()");
+            throw std::logic_error(
+                "Schedules were not created before calling scheduler()");
         return scheduler_;
     }
 
     const std::vector<bool>& spread_schedule() const
     {
         if (!schedules_created_)
-            throw std::logic_error("Schedules were not created before calling spread_schedule()");
+            throw std::logic_error(
+                "Schedules were not created before calling spread_schedule()");
         return spread_schedule_;
     }
 
     const std::vector<bool>& mortality_schedule() const
     {
         if (!schedules_created_)
-            throw std::logic_error("Schedules were not created before calling mortality_schedule()");
+            throw std::logic_error(
+                "Schedules were not created before calling mortality_schedule()");
         return mortality_schedule_;
     }
 
     const std::vector<bool>& lethal_schedule() const
     {
         if (!use_lethal_temperature)
-            throw std::logic_error("lethal_schedule() not available when use_lethal_temperature is false");
+            throw std::logic_error(
+                "lethal_schedule() not available when use_lethal_temperature is false");
         if (!schedules_created_)
-            throw std::logic_error("Schedules were not created before calling lethal_schedule()");
+            throw std::logic_error(
+                "Schedules were not created before calling lethal_schedule()");
         return lethal_schedule_;
     }
 
     const std::vector<bool>& spread_rate_schedule() const
     {
         if (!schedules_created_)
-            throw std::logic_error("Schedules were not created before calling spread_rate_schedule()");
+            throw std::logic_error(
+                "Schedules were not created before calling spread_rate_schedule()");
         return spread_rate_schedule_;
     }
 
     const std::vector<bool>& output_schedule() const
     {
         if (!schedules_created_)
-            throw std::logic_error("Schedules were not created before calling output_schedule()");
+            throw std::logic_error(
+                "Schedules were not created before calling output_schedule()");
         return output_schedule_;
     }
 
     unsigned num_mortality_years()
     {
         if (!schedules_created_)
-            throw std::logic_error("Schedules were not created before calling num_mortality_years()");
+            throw std::logic_error(
+                "Schedules were not created before calling num_mortality_years()");
         return get_number_of_scheduled_actions(mortality_schedule_);
     }
 
     unsigned num_lethal()
     {
         if (!use_lethal_temperature)
-            throw std::logic_error("num_lethal() not available when use_lethal_temperature is false");
+            throw std::logic_error(
+                "num_lethal() not available when use_lethal_temperature is false");
         if (!schedules_created_)
-            throw std::logic_error("Schedules were not created before calling num_lethal()");
+            throw std::logic_error(
+                "Schedules were not created before calling num_lethal()");
         return get_number_of_scheduled_actions(lethal_schedule_);
     }
 
     unsigned rate_num_years()
     {
         if (!schedules_created_)
-            throw std::logic_error("Schedules were not created before calling rate_num_years()");
+            throw std::logic_error(
+                "Schedules were not created before calling rate_num_years()");
         return get_number_of_scheduled_actions(spread_rate_schedule_);
     }
 
@@ -168,7 +181,7 @@ public:
         return date_start_;
     }
 
-    template <typename... Args>
+    template<typename... Args>
     void set_date_start(Args&&... args)
     {
         date_start_ = Date(std::forward<Args>(args)...);
@@ -179,7 +192,7 @@ public:
         return date_end_;
     }
 
-    template <typename... Args>
+    template<typename... Args>
     void set_date_end(Args&&... args)
     {
         date_end_ = Date(std::forward<Args>(args)...);
