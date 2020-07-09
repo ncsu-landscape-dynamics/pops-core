@@ -129,7 +129,7 @@ protected:
     int number_of_rows = 0;
     int number_of_columns = 0;
     // maximum distance from center cell to outer cells
-    double max_distance;
+    double max_distance{0};
     Raster<double> probability;
     Raster<double> probability_copy;
     CauchyDistribution cauchy;

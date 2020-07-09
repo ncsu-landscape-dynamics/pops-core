@@ -4,12 +4,13 @@
 # generated executables
 a.out
 test_date
+test_deterministic
 test_raster
+test_scheduling
 test_simulation
-test_treatments
 test_spread_rate
 test_statistics
-test_scheduling
+test_treatments
 # generated documentation
 html
 # Qt Creator files
