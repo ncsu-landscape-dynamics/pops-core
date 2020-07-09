@@ -1,5 +1,5 @@
 ---
-# BasedOnStyle: LLVM
+# BasedOnStyle: LLVM  # but heavily modified
 # Modified to resemble Black format for Python
 # The if statements are sub-optimal, it needs dangling parenthesis (D33029).
 # https://reviews.llvm.org/D33029
@@ -15,7 +15,7 @@ AlignTrailingComments: false
 AllowAllArgumentsOnNextLine: true
 AllowAllConstructorInitializersOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortLambdasOnASingleLine: All
@@ -63,8 +63,7 @@ DerivePointerAlignment: false
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
 IndentCaseLabels: false
-# Unknown to clang-format 9, available in 10
-# IndentGotoLabels: true
+IndentGotoLabels: true
 IndentPPDirectives: None
 IndentWidth: 4
 IndentWrappedFunctionNames: false
@@ -91,23 +90,18 @@ SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: true
-# Unknown to clang-format 9, available in 10
-# SpaceInEmptyBlock: false
+SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 2
 SpacesInAngles: false
-# Unknown to clang-format 9, available in 10
-# SpacesInConditionalStatement: false
+SpacesInConditionalStatement: false
 SpacesInContainerLiterals: true
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-# Unknown to clang-format 9, available in 10
-# SpaceBeforeSquareBrackets: false
-# Unknown to clang-format 9, available in 10
-# Standard: c++11
+SpaceBeforeSquareBrackets: false
+Standard: c++11
 TabWidth: 4
-# Unknown to clang-format 9, available in 10
-# UseCRLF: false
+UseCRLF: false
 UseTab: Never
 ...
