@@ -55,13 +55,13 @@ enum class ModelType
  */
 inline ModelType model_type_from_string(const std::string& text)
 {
-    if (text == "SI" || text == "SusceptibleInfected"
-            || text == "susceptible-infected"
-            || text == "susceptible_infected")
+    if (text == "SI" || text == "SusceptibleInfected" || text == "susceptible-infected"
+        || text == "susceptible_infected")
         return ModelType::SusceptibleInfected;
-    else if (text == "SEI" || text == "SusceptibleExposedInfected"
-             || text == "susceptible-exposed-infected"
-             || text == "susceptible_exposed_infected")
+    else if (
+        text == "SEI" || text == "SusceptibleExposedInfected"
+        || text == "susceptible-exposed-infected"
+        || text == "susceptible_exposed_infected")
         return ModelType::SusceptibleExposedInfected;
     else
         throw std::invalid_argument(
@@ -258,8 +258,10 @@ public:
             else {
                 total_hosts_moved = hosts;
             }
-            if (infected(row_from, col_from) > 0 && susceptible(row_from, col_from) > 0) {
-                inf_ratio = double(infected(row_from, col_from)) / double(total_hosts(row_from, col_from));
+            if (infected(row_from, col_from) > 0
+                && susceptible(row_from, col_from) > 0) {
+                inf_ratio = double(infected(row_from, col_from))
+                            / double(total_hosts(row_from, col_from));
                 int infected_mean = total_hosts_moved * inf_ratio;
                 if (infected_mean > 0) {
                     if (movement_stochasticity_) {
@@ -279,10 +281,16 @@ public:
                 susceptible_moved = total_hosts_moved - infected_moved;
                 if (susceptible_moved > susceptible(row_from, col_from)) {
                     susceptible_moved = susceptible(row_from, col_from);
-                } 
-            } else if (infected(row_from, col_from) > 0 && susceptible(row_from, col_from) == 0) {
+                }
+            }
+            else if (
+                infected(row_from, col_from) > 0
+                && susceptible(row_from, col_from) == 0) {
                 infected_moved = total_hosts_moved;
-            } else if(infected(row_from, col_from) == 0 && susceptible(row_from, col_from) > 0) {
+            }
+            else if (
+                infected(row_from, col_from) == 0
+                && susceptible(row_from, col_from) > 0) {
                 susceptible_moved = total_hosts_moved;
             }
             else {
@@ -423,7 +431,9 @@ public:
                                 if (model_type_ == ModelType::SusceptibleInfected) {
                                     mortality_tracker(row, col) += 1;
                                 }
-                                else if (model_type_ == ModelType::SusceptibleExposedInfected) {
+                                else if (
+                                    model_type_
+                                    == ModelType::SusceptibleExposedInfected) {
                                     // no-op
                                 }
                                 else {

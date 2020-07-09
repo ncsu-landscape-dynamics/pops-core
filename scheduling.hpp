@@ -121,7 +121,8 @@ public:
         if (start >= end)
             throw std::invalid_argument("Start date must be before end date");
         if (simulation_num_units <= 0)
-            throw std::invalid_argument("Number of simulation units must be higher than zero");
+            throw std::invalid_argument(
+                "Number of simulation units must be higher than zero");
         Date d(start);
         increase_date(d);
         if (d > end)
@@ -179,7 +180,8 @@ public:
         std::vector<bool> schedule;
         schedule.reserve(num_steps);
         for (Step step : steps) {
-            if (season.month_in_season(step.start_date().month()) || season.month_in_season(step.end_date().month()))
+            if (season.month_in_season(step.start_date().month())
+                || season.month_in_season(step.end_date().month()))
                 schedule.push_back(true);
             else
                 schedule.push_back(false);

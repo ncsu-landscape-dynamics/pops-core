@@ -253,7 +253,8 @@ int test_schedule_end_of_simulation()
 
     Scheduler scheduling1(st, end, StepUnit::Week, 1);
     std::vector<bool> schedule = scheduling1.schedule_action_end_of_simulation();
-    if (!(get_number_of_scheduled_actions(schedule) == 1 && schedule[scheduling1.get_num_steps() - 1])) {
+    if (!(get_number_of_scheduled_actions(schedule) == 1
+          && schedule[scheduling1.get_num_steps() - 1])) {
         std::cout << "Failed scheduling of end of simulation" << std::endl;
         scheduling1.debug_schedule(schedule);
         num_errors++;

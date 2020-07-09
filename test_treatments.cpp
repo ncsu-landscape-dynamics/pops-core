@@ -418,7 +418,8 @@ int test_treat_app_from_string()
     int num_errors = 0;
     if (treatment_app_enum_from_string("ratio_to_all") != TreatmentApplication::Ratio)
         num_errors++;
-    if (treatment_app_enum_from_string("all_infected_in_cell") != TreatmentApplication::AllInfectedInCell)
+    if (treatment_app_enum_from_string("all_infected_in_cell")
+        != TreatmentApplication::AllInfectedInCell)
         num_errors++;
     try {
         treatment_app_enum_from_string("invalid_input");

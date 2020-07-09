@@ -170,7 +170,8 @@ public:
                     infected(i, j) =
                         infected(i, j) - (infected(i, j) * this->map_(i, j));
                 }
-                else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
+                else if (
+                    this->application_ == TreatmentApplication::AllInfectedInCell) {
                     infected(i, j) = this->map_(i, j) ? 0 : infected(i, j);
                 }
                 susceptible(i, j) =
@@ -228,8 +229,9 @@ public:
                 if (this->application_ == TreatmentApplication::Ratio) {
                     infected_resistant = infected(i, j) * this->map_(i, j);
                 }
-                else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
-                    infected_resistant = this->map_(i, j) ? infected(i, j): 0;
+                else if (
+                    this->application_ == TreatmentApplication::AllInfectedInCell) {
+                    infected_resistant = this->map_(i, j) ? infected(i, j) : 0;
                 }
                 infected(i, j) -= infected_resistant;
                 resistant(i, j) =
