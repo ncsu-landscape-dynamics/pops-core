@@ -54,18 +54,23 @@ target_include_directories(pops INTERFACE include/)
 # Show files in IDEs
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     target_sources(pops INTERFACE
-        include/pops/date.hpp
-        include/pops/kernel.hpp
-        include/pops/kernel_types.hpp
-        include/pops/radial_kernel.hpp
-        include/pops/raster.hpp
-        include/pops/short_long_kernel.hpp
-        include/pops/simulation.hpp
-        include/pops/spread_rate.hpp
-        include/pops/statistics.hpp
-        include/pops/switch_kernel.hpp
-        include/pops/treatments.hpp
+        include/pops/config.hpp
+        include/pops/natural_anthropogenic_kernel.hpp
         include/pops/uniform_kernel.hpp
+        include/pops/radial_kernel.hpp
+        include/pops/treatments.hpp
+        include/pops/raster.hpp
+        include/pops/statistics.hpp
+        include/pops/model.hpp
+        include/pops/neighbor_kernel.hpp
+        include/pops/deterministic_kernel.hpp
+        include/pops/kernel.hpp
+        include/pops/simulation.hpp
+        include/pops/kernel_types.hpp
+        include/pops/switch_kernel.hpp
+        include/pops/spread_rate.hpp
+        include/pops/date.hpp
+        include/pops/scheduling.hpp
     )
 endif()
 

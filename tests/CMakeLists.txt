@@ -12,6 +12,8 @@ function(add_pops_test NAME)
 endfunction()
 
 add_pops_test(test_date)
+add_pops_test(test_deterministic)
+add_pops_test(test_model)
 #add_pops_test(test_mortality)
 add_pops_test(test_raster)
 add_pops_test(test_scheduling)
