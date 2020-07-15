@@ -25,14 +25,11 @@ test_statistics: tests/test_statistics.cpp include/pops/*.hpp
 test_scheduling: tests/test_scheduling.cpp include/pops/*.hpp
 	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_scheduling.cpp -o test_scheduling
 
-test_scheduling: tests/test_scheduling.cpp include/pops/*.hpp
-	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_scheduling.cpp -o test_scheduling
-
 test_deterministic: tests/test_deterministic.cpp include/pops/*.hpp
-	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_deterministic.cpp -o test_deterministic
+	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_deterministic.cpp -o test_deterministic
 
 test_model: tests/test_model.cpp include/pops/*.hpp
-	g++ $(CXXFLAGS) $(COMMON_DEFINES) test_model.cpp -o test_model
+	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_model.cpp -o test_model
 
 test:
 	./test_date
