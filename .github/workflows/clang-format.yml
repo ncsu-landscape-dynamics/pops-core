@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Get clang-format-lint-action as image
       run: |
-        docker build -t jsharpe/clang-format-lint-action "https://github.com/jsharpe/clang-format-lint-action.git#clang-format10"
+        docker build -t doozyx/clang-format-lint-action "github.com/DoozyX/clang-format-lint-action"
     - name: Run clang-format lint
       run: |
-        docker run --rm --workdir /src -v $(pwd):/src jsharpe/clang-format-lint-action --clang-format-executable /clang-format/clang-format10 -r --exclude .git include tests
+        docker run --rm --workdir /src -v $(pwd):/src doozyx/clang-format-lint-action --clang-format-executable /clang-format/clang-format10 -r --exclude .git include tests
