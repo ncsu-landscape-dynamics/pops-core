@@ -23,7 +23,7 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "model.hpp"
+#include <pops/model.hpp>
 
 using namespace pops;
 using std::cout;

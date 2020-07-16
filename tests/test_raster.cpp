@@ -23,8 +23,8 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "raster.hpp"
-#include "simulation.hpp"
+#include <pops/raster.hpp>
+#include <pops/simulation.hpp>
 
 #include <map>
 #include <iostream>

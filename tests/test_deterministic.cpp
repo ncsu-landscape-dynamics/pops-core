@@ -23,8 +23,8 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "radial_kernel.hpp"
-#include "simulation.hpp"
+#include <pops/radial_kernel.hpp>
+#include <pops/simulation.hpp>
 
 using std::string;
 using std::cout;

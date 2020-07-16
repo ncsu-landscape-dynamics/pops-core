@@ -23,8 +23,8 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "raster.hpp"
-#include "statistics.hpp"
+#include <pops/raster.hpp>
+#include <pops/statistics.hpp>
 
 using namespace pops;
 
