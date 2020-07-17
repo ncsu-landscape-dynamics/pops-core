@@ -35,54 +35,80 @@ int test_quarantine()
     Raster<int> areas = {
         {0, 1, 1, 0, 0},
         {0, 0, 1, 4, 0},
-        {0, 0, 0, 4, 0},
-        {0, 3, 0, 4, 4},
+        {0, 0, 4, 4, 4},
+        {0, 3, 4, 4, 4},
         {0, 0, 0, 4, 0}};
 
-    Raster<int> infectionOutside = {
+    Raster<int> infection11 = {
         {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0},
-        {0, 1, 0, 0, 0},
+        {0, 0, 0, 1, 0},
         {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}};
 
-    Raster<int> infectionInside = {
+    Raster<int> infection12 = {
         {0, 0, 0, 0, 0},
-        {0, 0, 1, 0, 0},
         {0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 0},
         {0, 0, 0, 1, 0},
         {0, 0, 0, 0, 0}};
 
-    QuarantineEscape<Raster<int>> quarantine(areas, 10, 10);
-    EscapeDistDir res_out =
-        quarantine.infection_inside_quarantine(infectionOutside, areas);
-    EscapeDistDir res_in =
-        quarantine.infection_inside_quarantine(infectionInside, areas);
-    std::vector<DistDir> distdir;
-    bool escaped;
-    double dist;
-    Direction d;
+    Raster<int> infection13 = {
+        {0, 0, 0, 0, 0},
+        {0, 0, 1, 0, 0},
+        {0, 0, 0, 1, 0},
+        {0, 0, 1, 1, 0},
+        {0, 0, 0, 0, 0}};
 
-    std::tie(escaped, distdir) = res_out;
-    std::cout << escaped << std::endl;
-    for (unsigned i = 0; i < distdir.size(); i++) {
-        std::tie(dist, d) = distdir[i];
-        std::cout << "Min dist: " << dist << ", direction: " << d << std::endl;
+    Raster<int> infection21 = {
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0}};
+
+    Raster<int> infection22 = {
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 0},
+        {0, 0, 0, 1, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0}};
+
+    Raster<int> infection23 = {
+        {0, 0, 0, 1, 0},
+        {0, 0, 1, 0, 0},
+        {0, 0, 0, 1, 0},
+        {0, 0, 1, 1, 0},
+        {0, 0, 0, 0, 0}};
+
+    std::vector<QuarantineEscape<Raster<int>>> runs(
+        2, QuarantineEscape<Raster<int>>(areas, 10, 10, 3));
+    runs[0].infection_escape_quarantine(infection11, areas, 0);
+    runs[0].infection_escape_quarantine(infection12, areas, 1);
+    runs[0].infection_escape_quarantine(infection13, areas, 2);
+    runs[1].infection_escape_quarantine(infection21, areas, 0);
+    runs[1].infection_escape_quarantine(infection22, areas, 1);
+    runs[1].infection_escape_quarantine(infection23, areas, 2);
+    double p1 = quarantine_escape_probability(runs, 0);
+    double p2 = quarantine_escape_probability(runs, 1);
+    double p3 = quarantine_escape_probability(runs, 2);
+    std::cout << p1 << " " << p2 << " " << p3 << std::endl;
+
+    std::vector<double> d1 = distance_to_quarantine(runs, 0);
+    std::vector<double> d2 = distance_to_quarantine(runs, 1);
+    std::vector<double> d3 = distance_to_quarantine(runs, 2);
+    for (int i = 0; i < d1.size(); i++) {
+        std::cout << d1[i] << " ";
     }
-
-    std::tie(escaped, distdir) = res_in;
-    std::cout << escaped << std::endl;
-    for (unsigned i = 0; i < distdir.size(); i++) {
-        std::tie(dist, d) = distdir[i];
-        std::cout << "Min dist: " << dist << ", direction: " << d << std::endl;
+    std::cout << std::endl;
+    for (int i = 0; i < d2.size(); i++) {
+        std::cout << d2[i] << " ";
     }
-
-    //    double n, s, e, w;
-    //    std::tie(n, s, e, w) = spread_rate.yearly_rate(0);
-    //    if (!(n == 0 && s == 0 && e == 10 && w == 10)) {
-    //        std::cout << "spread rate for year 1 fails" << std::endl;
-    //        err++;
-    //    }
+    std::cout << std::endl;
+    for (int i = 0; i < d3.size(); i++) {
+        std::cout << d3[i] << " ";
+    }
+    std::cout << std::endl;
 
     return err;
 }

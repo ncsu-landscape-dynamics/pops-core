@@ -30,9 +30,10 @@ namespace pops {
 enum class Direction
 {
     N = 0,  //!< North
-    E = 90,  //!< NEast
+    E = 90,  //!< East
     S = 180,  //!< South
-    W = 270  //!< West
+    W = 270,  //!< West
+    None  //!< Escaped
 };
 std::ostream& operator<<(std::ostream& os, const Direction& obj)
 {
@@ -41,11 +42,13 @@ std::ostream& operator<<(std::ostream& os, const Direction& obj)
 }
 
 typedef std::tuple<int, int, int, int> BBoxInt;
-typedef std::tuple<double, double, double, double> BBoxFloat;
-typedef std::tuple<bool, bool, bool, bool> BBoxBool;
 typedef std::tuple<double, Direction> DistDir;
-typedef std::tuple<bool, std::vector<DistDir>> EscapeDistDir;
+typedef std::tuple<bool, DistDir> EscapeDistDir;
+typedef std::vector<EscapeDistDir> EscapeDistDirs;
 
+/**
+ * Class storing and computing quarantine escap metrics for one simulation.
+ */
 template<typename IntegerRaster, typename RasterIndex = int>
 class QuarantineEscape
 {
@@ -53,13 +56,20 @@ private:
     RasterIndex width_;
     RasterIndex height_;
     // the west-east resolution of the pixel
-    double west_east_resolution;
+    double west_east_resolution_;
     // the north-south resolution of the pixel
-    double north_south_resolution;
+    double north_south_resolution_;
+    unsigned num_years;
     std::vector<BBoxInt> boundaries;
+    // mapping between quarantine areas is from map and index
     std::map<int, int> boundary_id_idx_map;
-    IntegerRaster quarantine_areas_;
+    std::vector<EscapeDistDir> escape_dist_dirs;
 
+    /**
+     * Computes bbox of each quarantine area.
+     * Different quarantine areas are represented by different integers.
+     * 0 in the raster means no quarantine area.
+     */
     void quarantine_boundary(const IntegerRaster& quarantine_areas)
     {
         int n, s, e, w;
@@ -93,79 +103,146 @@ private:
             }
         }
     }
+    /**
+     * Computes minimum distance (in map units) and the associated direction
+     * to quarantine area boundary.
+     * @param i infected cell row
+     * @param j infected cell col
+     * @param boundary quarantine area boundary
+     */
     std::tuple<double, Direction>
     closest_direction(RasterIndex i, RasterIndex j, const BBoxInt boundary)
     {
         int n, s, e, w;
         int mindist = std::numeric_limits<int>::max();
         std::tie(n, s, e, w) = boundary;
-        std::cout << n << " " << s << " " << e << " " << w << std::endl;
-        std::cout << i << " " << j << std::endl;
-        std::tuple<double, Direction> closest;
-        if ((i - n) * north_south_resolution < mindist) {
-            mindist = (i - n) * north_south_resolution;
+        DistDir closest;
+        if ((i - n) * north_south_resolution_ < mindist) {
+            mindist = (i - n) * north_south_resolution_;
             closest = std::make_tuple(mindist, Direction::N);
         }
-        if ((s - i) * north_south_resolution < mindist) {
-            mindist = (s - i) * north_south_resolution;
+        if ((s - i) * north_south_resolution_ < mindist) {
+            mindist = (s - i) * north_south_resolution_;
             closest = std::make_tuple(mindist, Direction::S);
         }
-        if ((e - j) * west_east_resolution < mindist) {
-            mindist = (e - j) * west_east_resolution;
+        if ((e - j) * west_east_resolution_ < mindist) {
+            mindist = (e - j) * west_east_resolution_;
             closest = std::make_tuple(mindist, Direction::E);
         }
-        if ((j - w) * west_east_resolution < mindist) {
-            mindist = (j - w) * west_east_resolution;
+        if ((j - w) * west_east_resolution_ < mindist) {
+            mindist = (j - w) * west_east_resolution_;
             closest = std::make_tuple(mindist, Direction::W);
         }
-        std::cout << mindist << std::endl;
         return closest;
     }
 
 public:
     QuarantineEscape(
-        const IntegerRaster& quarantine_areas, double ew_res, double ns_res)
+        const IntegerRaster& quarantine_areas,
+        double ew_res,
+        double ns_res,
+        unsigned num_years)
         : width_(quarantine_areas.cols()),
           height_(quarantine_areas.rows()),
-          west_east_resolution(ew_res),
-          north_south_resolution(ns_res)
+          west_east_resolution_(ew_res),
+          north_south_resolution_(ns_res),
+          num_years(num_years),
+          escape_dist_dirs(
+              num_years,
+              std::make_tuple(
+                  false,
+                  std::make_tuple(std::numeric_limits<double>::max(), Direction::N)))
     {
         quarantine_boundary(quarantine_areas);
-        double n, s, e, w;
-        for (unsigned i = 0; i < boundaries.size(); i++) {
-            std::tie(n, s, e, w) = boundaries.at(i);
-        }
     }
 
     QuarantineEscape() = delete;
 
-    EscapeDistDir infection_inside_quarantine(
-        const IntegerRaster& infected, const IntegerRaster& quarantine_areas)
+    /**
+     * Computes whether infection in certain year escaped from quarantine areas
+     * and if not, computes and saves minimum distance and direction to quarantine areas
+     * for the specified step (simulation year). Aggregates over all quarantine areas.
+     */
+    void infection_escape_quarantine(
+        const IntegerRaster& infected,
+        const IntegerRaster& quarantine_areas,
+        unsigned simulation_year)
     {
-        std::vector<DistDir> min_dist_dir;
-        for (unsigned i = 0; i < boundaries.size(); i++) {
-            min_dist_dir.push_back(
-                std::make_tuple(std::numeric_limits<int>::max(), Direction::N));
-        }
+        DistDir min_dist_dir =
+            std::make_tuple(std::numeric_limits<double>::max(), Direction::None);
         for (int i = 0; i < height_; i++) {
             for (int j = 0; j < width_; j++) {
                 if (!infected(i, j))
                     continue;
                 int area = quarantine_areas(i, j);
                 if (area == 0) {
-                    return std::make_tuple(false, min_dist_dir);
+                    escape_dist_dirs.at(simulation_year) =
+                        std::make_tuple(true, std::make_tuple(0, Direction::None));
+                    return;
                 }
                 double dist;
                 Direction dir;
                 int bindex = boundary_id_idx_map[area];
                 std::tie(dist, dir) = closest_direction(i, j, boundaries.at(bindex));
-                if (dist < std::get<0>(min_dist_dir.at(bindex))) {
-                    min_dist_dir.at(bindex) = std::make_tuple(dist, dir);
+                if (dist < std::get<0>(min_dist_dir)) {
+                    min_dist_dir = std::make_tuple(dist, dir);
                 }
             }
         }
-        return std::make_tuple(true, min_dist_dir);
+        escape_dist_dirs.at(simulation_year) = std::make_tuple(false, min_dist_dir);
+    }
+    /**
+     * Computes escape info (if escaped, distance and direction if not escaped)
+     * for certain step (simulation year)
+     */
+    EscapeDistDir yearly_escape_info(unsigned simulation_year)
+    {
+        return escape_dist_dirs.at(simulation_year);
     }
 };
+
+/**
+ * Reports probability of escaping quarantine based on multiple runs for certain step
+ * (simulation year). 1 means 100% probability of escaping.
+ */
+template<typename IntegerRaster>
+double quarantine_escape_probability(
+    std::vector<QuarantineEscape<IntegerRaster>> escape_infos, unsigned simulation_year)
+{
+    bool escape;
+    DistDir distdir;
+    int escapes = 0;
+    for (unsigned i = 0; i < escape_infos.size(); i++) {
+        std::tie(escape, distdir) =
+            escape_infos.at(i).yearly_escape_info(simulation_year);
+        escapes += escape;
+    }
+    return (double)escapes / escape_infos.size();
+}
+
+/**
+ * Reports minimum distances to quarantine boundary (bbox)
+ * for each run for certain step (simulation year).
+ * If in certain runs infection escaped, it reports 0 distance for that run.
+ */
+template<typename IntegerRaster>
+std::vector<double> distance_to_quarantine(
+    std::vector<QuarantineEscape<IntegerRaster>> escape_infos, unsigned simulation_year)
+{
+    bool escape;
+    DistDir distdir;
+    double dist;
+    Direction dir;
+    std::vector<double> distances;
+    for (unsigned i = 0; i < escape_infos.size(); i++) {
+        std::tie(escape, distdir) =
+            escape_infos.at(i).yearly_escape_info(simulation_year);
+        std::tie(dist, dir) = distdir;
+        distances.push_back(dist);
+    }
+
+    return distances;
+}
+
 }  // namespace pops
 #endif  // POPS_QUARANTINE_HPP
