@@ -31,7 +31,7 @@ test_deterministic: tests/test_deterministic.cpp include/pops/*.hpp
 test_model: tests/test_model.cpp include/pops/*.hpp
 	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_model.cpp -o test_model
 
-test_quarantine: tests/test_quarantine.cpp *.hpp include/pops/*.hpp
+test_quarantine: tests/test_quarantine.cpp include/pops/*.hpp
 	g++ $(CXXFLAGS) $(INCLUDES) $(COMMON_DEFINES) tests/test_quarantine.cpp -o test_quarantine
 
 test:

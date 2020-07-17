@@ -25,8 +25,8 @@
  */
 
 
-#include "raster.hpp"
-#include "quarantine.hpp"
+#include <pops/raster.hpp>
+#include <pops/quarantine.hpp>
 
 using namespace pops;
 
@@ -46,7 +46,7 @@ int test_quarantine()
         {0, 1, 0, 0, 0},
         {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}};
-    
+
     Raster<int> infectionInside = {
         {0, 0, 0, 0, 0},
         {0, 0, 1, 0, 0},
@@ -61,21 +61,21 @@ int test_quarantine()
     bool escaped;
     double dist;
     Direction d;
-    
+
     std::tie(escaped, distdir) = res_out;
     std::cout << escaped << std::endl;
     for (unsigned i = 0; i < distdir.size(); i++) {
         std::tie(dist, d) = distdir[i];
         std::cout << "Min dist: " << dist << ", direction: " << d << std::endl;
     }
-    
+
     std::tie(escaped, distdir) = res_in;
     std::cout << escaped << std::endl;
     for (unsigned i = 0; i < distdir.size(); i++) {
         std::tie(dist, d) = distdir[i];
         std::cout << "Min dist: " << dist << ", direction: " << d << std::endl;
     }
-    
+
 //    double n, s, e, w;
 //    std::tie(n, s, e, w) = spread_rate.yearly_rate(0);
 //    if (!(n == 0 && s == 0 && e == 10 && w == 10)) {

@@ -14,6 +14,7 @@ test_simulation
 test_spread_rate
 test_statistics
 test_treatments
+test_quarantine
 # generated documentation
 html
 # Qt Creator files
