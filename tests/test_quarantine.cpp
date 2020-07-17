@@ -24,7 +24,6 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 #include <pops/raster.hpp>
 #include <pops/quarantine.hpp>
 
@@ -55,8 +54,10 @@ int test_quarantine()
         {0, 0, 0, 0, 0}};
 
     QuarantineEscape<Raster<int>> quarantine(areas, 10, 10);
-    EscapeDistDir res_out = quarantine.infection_inside_quarantine(infectionOutside, areas);
-    EscapeDistDir res_in = quarantine.infection_inside_quarantine(infectionInside, areas);
+    EscapeDistDir res_out =
+        quarantine.infection_inside_quarantine(infectionOutside, areas);
+    EscapeDistDir res_in =
+        quarantine.infection_inside_quarantine(infectionInside, areas);
     std::vector<DistDir> distdir;
     bool escaped;
     double dist;
@@ -76,12 +77,12 @@ int test_quarantine()
         std::cout << "Min dist: " << dist << ", direction: " << d << std::endl;
     }
 
-//    double n, s, e, w;
-//    std::tie(n, s, e, w) = spread_rate.yearly_rate(0);
-//    if (!(n == 0 && s == 0 && e == 10 && w == 10)) {
-//        std::cout << "spread rate for year 1 fails" << std::endl;
-//        err++;
-//    }
+    //    double n, s, e, w;
+    //    std::tie(n, s, e, w) = spread_rate.yearly_rate(0);
+    //    if (!(n == 0 && s == 0 && e == 10 && w == 10)) {
+    //        std::cout << "spread rate for year 1 fails" << std::endl;
+    //        err++;
+    //    }
 
     return err;
 }

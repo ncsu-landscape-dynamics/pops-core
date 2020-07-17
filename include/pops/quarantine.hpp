@@ -34,10 +34,10 @@ enum class Direction
     S = 180,  //!< South
     W = 270  //!< West
 };
-std::ostream& operator << (std::ostream& os, const Direction& obj)
+std::ostream& operator<<(std::ostream& os, const Direction& obj)
 {
-   os << static_cast<std::underlying_type<Direction>::type>(obj);
-   return os;
+    os << static_cast<std::underlying_type<Direction>::type>(obj);
+    return os;
 }
 
 typedef std::tuple<int, int, int, int> BBoxInt;
@@ -59,8 +59,7 @@ private:
     std::vector<BBoxInt> boundaries;
     std::map<int, int> boundary_id_idx_map;
     IntegerRaster quarantine_areas_;
-    
-    
+
     void quarantine_boundary(const IntegerRaster& quarantine_areas)
     {
         int n, s, e, w;
@@ -73,10 +72,8 @@ private:
                     int bidx;
                     if (search == boundary_id_idx_map.end()) {
                         boundary_id_idx_map.insert(std::make_pair(value, idx));
-                        boundaries.push_back(std::make_tuple(height_ - 1,
-                                                             0,
-                                                             0,
-                                                             width_ - 1));
+                        boundaries.push_back(
+                            std::make_tuple(height_ - 1, 0, 0, width_ - 1));
                         bidx = idx;
                         ++idx;
                     }
@@ -96,14 +93,14 @@ private:
             }
         }
     }
-    std::tuple<double, Direction> closest_direction(RasterIndex i,
-                                                    RasterIndex j,
-                                                    const BBoxInt boundary) {
+    std::tuple<double, Direction>
+    closest_direction(RasterIndex i, RasterIndex j, const BBoxInt boundary)
+    {
         int n, s, e, w;
         int mindist = std::numeric_limits<int>::max();
         std::tie(n, s, e, w) = boundary;
         std::cout << n << " " << s << " " << e << " " << w << std::endl;
-        std::cout << i << " " <<j<<std::endl;
+        std::cout << i << " " << j << std::endl;
         std::tuple<double, Direction> closest;
         if ((i - n) * north_south_resolution < mindist) {
             mindist = (i - n) * north_south_resolution;
@@ -126,9 +123,8 @@ private:
     }
 
 public:
-    QuarantineEscape(const IntegerRaster& quarantine_areas,
-                     double ew_res,
-                     double ns_res)
+    QuarantineEscape(
+        const IntegerRaster& quarantine_areas, double ew_res, double ns_res)
         : width_(quarantine_areas.cols()),
           height_(quarantine_areas.rows()),
           west_east_resolution(ew_res),
@@ -142,13 +138,14 @@ public:
     }
 
     QuarantineEscape() = delete;
-    
-    EscapeDistDir infection_inside_quarantine(const IntegerRaster& infected,
-                                              const IntegerRaster& quarantine_areas)
+
+    EscapeDistDir infection_inside_quarantine(
+        const IntegerRaster& infected, const IntegerRaster& quarantine_areas)
     {
         std::vector<DistDir> min_dist_dir;
         for (unsigned i = 0; i < boundaries.size(); i++) {
-            min_dist_dir.push_back(std::make_tuple(std::numeric_limits<int>::max(), Direction::N));
+            min_dist_dir.push_back(
+                std::make_tuple(std::numeric_limits<int>::max(), Direction::N));
         }
         for (int i = 0; i < height_; i++) {
             for (int j = 0; j < width_; j++) {
@@ -164,8 +161,8 @@ public:
                 std::tie(dist, dir) = closest_direction(i, j, boundaries.at(bindex));
                 if (dist < std::get<0>(min_dist_dir.at(bindex))) {
                     min_dist_dir.at(bindex) = std::make_tuple(dist, dir);
-                } 
-            }            
+                }
+            }
         }
         return std::make_tuple(true, min_dist_dir);
     }
