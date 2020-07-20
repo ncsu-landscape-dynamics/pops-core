@@ -22,6 +22,8 @@
 #include <cmath>
 #include <limits>
 #include <type_traits>
+#include <sstream>
+#include <iomanip>
 
 namespace pops {
 
@@ -110,8 +112,9 @@ private:
      * @param j infected cell col
      * @param boundary quarantine area boundary
      */
-    std::tuple<double, Direction>
-    closest_direction(RasterIndex i, RasterIndex j, const BBoxInt boundary)
+
+    DistDir
+    closest_direction(RasterIndex i, RasterIndex j, const BBoxInt boundary) const
     {
         int n, s, e, w;
         int mindist = std::numeric_limits<int>::max();
@@ -151,7 +154,7 @@ public:
               num_years,
               std::make_tuple(
                   false,
-                  std::make_tuple(std::numeric_limits<double>::max(), Direction::N)))
+                  std::make_tuple(std::numeric_limits<double>::max(), Direction::None)))
     {
         quarantine_boundary(quarantine_areas);
     }
@@ -176,8 +179,8 @@ public:
                     continue;
                 int area = quarantine_areas(i, j);
                 if (area == 0) {
-                    escape_dist_dirs.at(simulation_year) =
-                        std::make_tuple(true, std::make_tuple(0, Direction::None));
+                    escape_dist_dirs.at(simulation_year) = std::make_tuple(
+                        true, std::make_tuple(std::nan(""), Direction::None));
                     return;
                 }
                 double dist;
@@ -195,7 +198,7 @@ public:
      * Computes escape info (if escaped, distance and direction if not escaped)
      * for certain step (simulation year)
      */
-    EscapeDistDir yearly_escape_info(unsigned simulation_year)
+    const EscapeDistDir yearly_escape_info(unsigned simulation_year) const
     {
         return escape_dist_dirs.at(simulation_year);
     }
@@ -207,14 +210,14 @@ public:
  */
 template<typename IntegerRaster>
 double quarantine_escape_probability(
-    std::vector<QuarantineEscape<IntegerRaster>> escape_infos, unsigned simulation_year)
+    const std::vector<QuarantineEscape<IntegerRaster>> escape_infos,
+    unsigned simulation_year)
 {
     bool escape;
     DistDir distdir;
     int escapes = 0;
-    for (unsigned i = 0; i < escape_infos.size(); i++) {
-        std::tie(escape, distdir) =
-            escape_infos.at(i).yearly_escape_info(simulation_year);
+    for (const auto& item : escape_infos) {
+        std::tie(escape, distdir) = item.yearly_escape_info(simulation_year);
         escapes += escape;
     }
     return (double)escapes / escape_infos.size();
@@ -223,20 +226,20 @@ double quarantine_escape_probability(
 /**
  * Reports minimum distances to quarantine boundary (bbox)
  * for each run for certain step (simulation year).
- * If in certain runs infection escaped, it reports 0 distance for that run.
+ * If in certain runs infection escaped, it reports nan for distance.
  */
 template<typename IntegerRaster>
 std::vector<double> distance_to_quarantine(
-    std::vector<QuarantineEscape<IntegerRaster>> escape_infos, unsigned simulation_year)
+    const std::vector<QuarantineEscape<IntegerRaster>> escape_infos,
+    unsigned simulation_year)
 {
     bool escape;
     DistDir distdir;
     double dist;
     Direction dir;
     std::vector<double> distances;
-    for (unsigned i = 0; i < escape_infos.size(); i++) {
-        std::tie(escape, distdir) =
-            escape_infos.at(i).yearly_escape_info(simulation_year);
+    for (const auto& item : escape_infos) {
+        std::tie(escape, distdir) = item.yearly_escape_info(simulation_year);
         std::tie(dist, dir) = distdir;
         distances.push_back(dist);
     }
@@ -244,5 +247,37 @@ std::vector<double> distance_to_quarantine(
     return distances;
 }
 
+/**
+ * Writes quarantine escape summary for all years into a string.
+ * Uses CSV fomat with commas (year, probability of escape, distances from runs).
+ * If escaped in particular run, there is empty value for that distance
+ * (...,10,,20,...). It assumes yearly records.
+ */
+template<typename IntegerRaster>
+std::string write_quarantine_escape(
+    const std::vector<QuarantineEscape<IntegerRaster>> escape_infos,
+    unsigned num_years,
+    int start_year)
+{
+    std::stringstream ss;
+    ss << std::setprecision(1) << std::fixed;
+    ss << "year,escape_probability";
+    for (unsigned i = 0; i < escape_infos.size(); i++)
+        ss << ",dist" << i;
+    ss << "\n";
+    for (unsigned step = 0; step < num_years; step++) {
+        ss << start_year + step;
+        ss << "," << quarantine_escape_probability(escape_infos, step);
+        std::vector<double> dists = distance_to_quarantine(escape_infos, step);
+        for (unsigned i = 0; i < dists.size(); i++) {
+            if (std::isnan(dists.at(i)))
+                ss << ",";
+            else
+                ss << "," << dists.at(i);
+        }
+        ss << "\n";
+    }
+    return ss.str();
+}
 }  // namespace pops
 #endif  // POPS_QUARANTINE_HPP
