@@ -29,7 +29,7 @@ namespace pops {
 
 /*! Quarantine direction
  */
-enum class Direction
+enum class QuarantineDirection
 {
     N = 0,  //!< North
     E = 90,  //!< East
@@ -37,14 +37,14 @@ enum class Direction
     W = 270,  //!< West
     None  //!< Escaped
 };
-std::ostream& operator<<(std::ostream& os, const Direction& obj)
+std::ostream& operator<<(std::ostream& os, const QuarantineDirection& obj)
 {
-    os << static_cast<std::underlying_type<Direction>::type>(obj);
+    os << static_cast<std::underlying_type<QuarantineDirection>::type>(obj);
     return os;
 }
 
 typedef std::tuple<int, int, int, int> BBoxInt;
-typedef std::tuple<double, Direction> DistDir;
+typedef std::tuple<double, QuarantineDirection> DistDir;
 typedef std::tuple<bool, DistDir> EscapeDistDir;
 typedef std::vector<EscapeDistDir> EscapeDistDirs;
 
@@ -122,19 +122,19 @@ private:
         DistDir closest;
         if ((i - n) * north_south_resolution_ < mindist) {
             mindist = (i - n) * north_south_resolution_;
-            closest = std::make_tuple(mindist, Direction::N);
+            closest = std::make_tuple(mindist, QuarantineDirection::N);
         }
         if ((s - i) * north_south_resolution_ < mindist) {
             mindist = (s - i) * north_south_resolution_;
-            closest = std::make_tuple(mindist, Direction::S);
+            closest = std::make_tuple(mindist, QuarantineDirection::S);
         }
         if ((e - j) * west_east_resolution_ < mindist) {
             mindist = (e - j) * west_east_resolution_;
-            closest = std::make_tuple(mindist, Direction::E);
+            closest = std::make_tuple(mindist, QuarantineDirection::E);
         }
         if ((j - w) * west_east_resolution_ < mindist) {
             mindist = (j - w) * west_east_resolution_;
-            closest = std::make_tuple(mindist, Direction::W);
+            closest = std::make_tuple(mindist, QuarantineDirection::W);
         }
         return closest;
     }
@@ -154,7 +154,8 @@ public:
               num_years,
               std::make_tuple(
                   false,
-                  std::make_tuple(std::numeric_limits<double>::max(), Direction::None)))
+                  std::make_tuple(
+                      std::numeric_limits<double>::max(), QuarantineDirection::None)))
     {
         quarantine_boundary(quarantine_areas);
     }
@@ -171,8 +172,8 @@ public:
         const IntegerRaster& quarantine_areas,
         unsigned simulation_year)
     {
-        DistDir min_dist_dir =
-            std::make_tuple(std::numeric_limits<double>::max(), Direction::None);
+        DistDir min_dist_dir = std::make_tuple(
+            std::numeric_limits<double>::max(), QuarantineDirection::None);
         for (int i = 0; i < height_; i++) {
             for (int j = 0; j < width_; j++) {
                 if (!infected(i, j))
@@ -180,11 +181,11 @@ public:
                 int area = quarantine_areas(i, j);
                 if (area == 0) {
                     escape_dist_dirs.at(simulation_year) = std::make_tuple(
-                        true, std::make_tuple(std::nan(""), Direction::None));
+                        true, std::make_tuple(std::nan(""), QuarantineDirection::None));
                     return;
                 }
                 double dist;
-                Direction dir;
+                QuarantineDirection dir;
                 int bindex = boundary_id_idx_map[area];
                 std::tie(dist, dir) = closest_direction(i, j, boundaries.at(bindex));
                 if (dist < std::get<0>(min_dist_dir)) {
@@ -236,7 +237,7 @@ std::vector<double> distance_to_quarantine(
     bool escape;
     DistDir distdir;
     double dist;
-    Direction dir;
+    QuarantineDirection dir;
     std::vector<double> distances;
     for (const auto& item : escape_infos) {
         std::tie(escape, distdir) = item.yearly_escape_info(simulation_year);

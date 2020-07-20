@@ -56,6 +56,7 @@ int test_with_reduced_stochasticity()
     config.model_type = "SI";
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
+    config.use_quarantine = true;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -84,8 +85,12 @@ int test_with_reduced_stochasticity()
     config.ns_res = 1;
     unsigned rate_num_years =
         get_number_of_scheduled_actions(config.spread_rate_schedule());
+    unsigned quarantine_num_years =
+        get_number_of_scheduled_actions(config.quarantine_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_years);
+    QuarantineEscape<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, quarantine_num_years);
 
     auto expected_dispersers = config.reproductive_rate * infected;
 
@@ -107,7 +112,9 @@ int test_with_reduced_stochasticity()
         treatments,
         zeros,
         outside_dispersers,
-        spread_rate);
+        spread_rate,
+        quarantine,
+        zeros);
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
