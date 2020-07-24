@@ -181,7 +181,7 @@ public:
         return get_number_of_scheduled_actions(spread_rate_schedule_);
     }
 
-    unsigned quarantine_num_years()
+    unsigned quarantine_num_steps()
     {
         if (!use_quarantine)
             throw std::logic_error(

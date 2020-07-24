@@ -85,12 +85,12 @@ int test_with_reduced_stochasticity()
     config.ns_res = 1;
     unsigned rate_num_years =
         get_number_of_scheduled_actions(config.spread_rate_schedule());
-    unsigned quarantine_num_years =
+    unsigned quarantine_num_steps =
         get_number_of_scheduled_actions(config.quarantine_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_years);
     QuarantineEscape<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, quarantine_num_years);
+        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
 
     auto expected_dispersers = config.reproductive_rate * infected;
 

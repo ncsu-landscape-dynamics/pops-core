@@ -100,30 +100,51 @@ int test_quarantine()
         err++;
     }
 
-    std::vector<double> d1 = distance_to_quarantine(runs, 0);
-    std::vector<double> d2 = distance_to_quarantine(runs, 1);
-    std::vector<double> d3 = distance_to_quarantine(runs, 2);
-    if (!(d1.at(0) == 10 && d1.at(1) == 0)) {
+    std::vector<DistDir> d1 = distance_direction_to_quarantine(runs, 0);
+    std::vector<DistDir> d2 = distance_direction_to_quarantine(runs, 1);
+    std::vector<DistDir> d3 = distance_direction_to_quarantine(runs, 2);
+    if (!(std::get<0>(d1.at(0)) == 10 && std::get<0>(d1.at(1)) == 0)) {
         std::cout << "Distance to quarantine boundary fails" << std::endl;
-        std::cout << d1.at(0) << " " << d1.at(1) << std::endl;
+        std::cout << std::get<0>(d1.at(0)) << " " << std::get<0>(d1.at(1)) << std::endl;
         err++;
     }
-    if (!(d2.at(0) == 10 && d2.at(1) == 0)) {
+    if (!(std::get<0>(d2.at(0)) == 10 && std::get<0>(d2.at(1)) == 0)) {
         std::cout << "Distance to quarantine boundary fails" << std::endl;
-        std::cout << d2.at(0) << " " << d2.at(1) << std::endl;
+        std::cout << std::get<0>(d2.at(0)) << " " << std::get<0>(d2.at(1)) << std::endl;
         err++;
     }
-    if (!(d3.at(0) == 0 && std::isnan(d3.at(1)))) {
+    if (!(std::get<0>(d3.at(0)) == 0 && std::isnan(std::get<0>(d3.at(1))))) {
         std::cout << "Distance to quarantine boundary fails" << std::endl;
-        std::cout << d3.at(0) << " " << d3.at(1) << std::endl;
+        std::cout << std::get<0>(d3.at(0)) << " " << std::isnan(std::get<0>(d3.at(1)))
+                  << std::endl;
         err++;
     }
 
-    // just test calling the function
-    std::string output = write_quarantine_escape(runs, 3, 2000);
-    if (output.empty())
+    std::string output = write_quarantine_escape(runs, 3);
+    std::string reference =
+        "step,escape_probability,dist0,dir0,dist1,dir1\n"
+        "0,0.0,10.0,0,0.0,0\n"
+        "1,0.0,10.0,0,0.0,0\n"
+        "2,0.5,0.0,180,,\n";
+    if (output != reference) {
+        std::cout << output;
+        std::cout << reference;
         err++;
+    }
 
+    if (!(!runs[0].escaped(0) && runs[1].escaped(2))) {
+        std::cout << "Escaped fails" << std::endl;
+        err++;
+    }
+    if (!(runs[0].distance(0) == 10 && std::isnan(runs[1].distance(2)))) {
+        std::cout << "Distance fails" << std::endl;
+        err++;
+    }
+    if (!(runs[0].direction(0) == QuarantineDirection::N
+          && runs[1].direction(2) == QuarantineDirection::None)) {
+        std::cout << "Direction fails" << std::endl;
+        err++;
+    }
     return err;
 }
 
