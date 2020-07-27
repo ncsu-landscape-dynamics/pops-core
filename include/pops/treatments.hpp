@@ -223,7 +223,7 @@ public:
     {
         for (int i = 0; i < infected.rows(); i++)
             for (int j = 0; j < infected.cols(); j++) {
-                int infected_resistant;
+                int infected_resistant = 0;
                 int susceptible_resistant = susceptible(i, j) * this->map_(i, j);
                 int current_resistant = resistant(i, j);
                 if (this->application_ == TreatmentApplication::Ratio) {
