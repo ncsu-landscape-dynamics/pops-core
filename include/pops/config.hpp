@@ -70,7 +70,10 @@ public:
     bool use_mortality{false};
     double mortality_rate{0};
     int first_mortality_year{0};  // TODO: document that it starts at 1, not 0
+    // Quarantine
     bool use_quarantine{false};
+    std::string quarantine_frequency;
+    unsigned quarantine_frequency_n;
 
     std::string output_frequency;
     unsigned output_frequency_n;
@@ -88,7 +91,9 @@ public:
                 scheduler_.schedule_action_yearly(lethal_temperature_month, 1);
         spread_rate_schedule_ = scheduler_.schedule_action_end_of_year();
         if (use_quarantine)
-            quarantine_schedule_ = scheduler_.schedule_action_end_of_year();
+            quarantine_schedule_ = output_schedule_from_string(
+                scheduler_, quarantine_frequency, quarantine_frequency_n);
+        ;
         schedules_created_ = true;
     }
 

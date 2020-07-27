@@ -57,6 +57,8 @@ int test_with_reduced_stochasticity()
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
     config.use_quarantine = true;
+    config.quarantine_frequency = "year";
+    config.quarantine_frequency_n = 1;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
