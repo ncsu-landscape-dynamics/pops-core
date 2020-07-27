@@ -83,15 +83,15 @@ public:
         scheduler_ = Scheduler(date_start_, date_end_, step_unit_, step_num_units_);
         spread_schedule_ =
             scheduler_.schedule_spread(Season(season_start_month_, season_end_month_));
-        output_schedule_ = output_schedule_from_string(
-            scheduler_, output_frequency, output_frequency_n);
+        output_schedule_ =
+            schedule_from_string(scheduler_, output_frequency, output_frequency_n);
         mortality_schedule_ = scheduler_.schedule_action_end_of_year();
         if (use_lethal_temperature)
             lethal_schedule_ =
                 scheduler_.schedule_action_yearly(lethal_temperature_month, 1);
         spread_rate_schedule_ = scheduler_.schedule_action_end_of_year();
         if (use_quarantine)
-            quarantine_schedule_ = output_schedule_from_string(
+            quarantine_schedule_ = schedule_from_string(
                 scheduler_, quarantine_frequency, quarantine_frequency_n);
         ;
         schedules_created_ = true;
