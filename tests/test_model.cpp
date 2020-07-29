@@ -133,12 +133,235 @@ int test_with_reduced_stochasticity()
     }
     return 0;
 }
+int test_deterministic()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts = susceptible;
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
+    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    Config config;
+    config.weather = false;
+    config.reproductive_rate = 2;
+    config.generate_stochasticity = false;
+    config.establishment_stochasticity = false;
+    config.movement_stochasticity = false;
+    config.movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    config.movement_schedule = {1, 1};
+
+    // We want everything to establish.
+    config.establishment_probability = 1;
+    config.natural_kernel_type = "cauchy";
+    config.natural_direction = "none";
+    config.natural_scale = 0.9;
+    config.anthro_scale = 0.9;
+    config.dispersal_percentage = 0.9;
+    config.natural_kappa = 0;
+    config.anthro_kappa = 0;
+
+    config.use_anthropogenic_kernel = false;
+    config.random_seed = 42;
+    config.rows = infected.rows();
+    config.cols = infected.cols();
+    config.model_type = "SI";
+    config.latency_period_steps = 0;
+    config.use_lethal_temperature = false;
+
+    config.set_date_start(2020, 1, 1);
+    config.set_date_end(2021, 12, 31);
+    config.set_step_unit(StepUnit::Month);
+    config.set_step_num_units(1);
+    config.create_schedules();
+
+    config.deterministic = true;
+
+    int weather_step = 0;
+    unsigned num_mortality_years = config.num_mortality_years();
+    std::vector<Raster<int>> mortality_tracker(
+        num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
+
+    Raster<int> died(infected.rows(), infected.cols(), 0);
+    std::vector<Raster<int>> empty_integer;
+    std::vector<Raster<double>> empty_float;
+    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    config.use_treatments = false;
+    config.ew_res = 30;
+    config.ns_res = 30;
+    unsigned rate_num_years =
+        get_number_of_scheduled_actions(config.spread_rate_schedule());
+    SpreadRate<Raster<int>> spread_rate(
+        infected, config.ew_res, config.ns_res, rate_num_years);
+
+    auto expected_dispersers = config.reproductive_rate * infected;
+
+    int step = 0;
+
+    Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
+    model.run_step(
+        step++,
+        weather_step,
+        infected,
+        susceptible,
+        total_hosts,
+        dispersers,
+        empty_integer,
+        mortality_tracker,
+        died,
+        empty_float,
+        empty_float,
+        treatments,
+        zeros,
+        outside_dispersers,
+        spread_rate);
+    if (dispersers != expected_dispersers) {
+        cout << "deterministic: dispersers (actual, expected):\n"
+             << dispersers << "  !=\n"
+             << expected_dispersers << "\n";
+        return 1;
+    }
+    if (!outside_dispersers.empty()) {
+        cout << "deterministic: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be none\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "deterministic: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker[0] != expected_mortality_tracker) {
+        cout << "deterministic: mortality tracker (actual, expected):\n"
+             << mortality_tracker[0] << "  !=\n"
+             << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+int test_deterministic_exponential()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts = susceptible;
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+
+    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    Config config;
+    config.weather = false;
+    config.reproductive_rate = 2;
+    config.generate_stochasticity = false;
+    config.establishment_stochasticity = false;
+    config.movement_stochasticity = false;
+    config.movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    config.movement_schedule = {1, 1};
+
+    // We want everything to establish.
+    config.establishment_probability = 1;
+    config.natural_kernel_type = "exponential";
+    config.natural_direction = "none";
+    config.natural_scale = 1;
+    config.anthro_scale = 1;
+    config.natural_kappa = 0;
+    config.anthro_kappa = 0;
+    config.dispersal_percentage = 0.99;
+    config.use_anthropogenic_kernel = false;
+    config.random_seed = 42;
+    config.rows = infected.rows();
+    config.cols = infected.cols();
+    config.model_type = "SI";
+    config.latency_period_steps = 0;
+    config.use_lethal_temperature = false;
+
+    config.set_date_start(2020, 1, 1);
+    config.set_date_end(2021, 12, 31);
+    config.set_step_unit(StepUnit::Month);
+    config.set_step_num_units(1);
+    config.create_schedules();
+
+    config.deterministic = true;
+
+    int weather_step = 0;
+    unsigned num_mortality_years = config.num_mortality_years();
+    std::vector<Raster<int>> mortality_tracker(
+        num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
+
+    Raster<int> died(infected.rows(), infected.cols(), 0);
+    std::vector<Raster<int>> empty_integer;
+    std::vector<Raster<double>> empty_float;
+    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    config.use_treatments = false;
+    config.ew_res = 30;
+    config.ns_res = 30;
+    unsigned rate_num_years =
+        get_number_of_scheduled_actions(config.spread_rate_schedule());
+    SpreadRate<Raster<int>> spread_rate(
+        infected, config.ew_res, config.ns_res, rate_num_years);
+
+    auto expected_dispersers = config.reproductive_rate * infected;
+
+    int step = 0;
+
+    Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
+    model.run_step(
+        step++,
+        weather_step,
+        infected,
+        susceptible,
+        total_hosts,
+        dispersers,
+        empty_integer,
+        mortality_tracker,
+        died,
+        empty_float,
+        empty_float,
+        treatments,
+        zeros,
+        outside_dispersers,
+        spread_rate);
+    if (dispersers != expected_dispersers) {
+        cout << "deterministic exponential: dispersers (actual, expected):\n"
+             << dispersers << "  !=\n"
+             << expected_dispersers << "\n";
+        return 1;
+    }
+    if (!outside_dispersers.empty()) {
+        cout << "deterministic exponential: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be none\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "deterministic exponential: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker[0] != expected_mortality_tracker) {
+        cout << "deterministic exponential: mortality tracker (actual, expected):\n"
+             << mortality_tracker[0] << "  !=\n"
+             << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
 int main()
 {
     int ret = 0;
 
     ret += test_with_reduced_stochasticity();
+    ret += test_deterministic();
+    ret += test_deterministic_exponential();
+    std::cout << "Test model number of errors: " << ret << std::endl;
 
     return ret;
 }
