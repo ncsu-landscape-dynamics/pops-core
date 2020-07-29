@@ -71,7 +71,7 @@ public:
         int weather_step,  // TODO: this should be schedule (?)
         IntegerRaster& infected,
         IntegerRaster& susceptible,
-        IntegerRaster& total_plants,  // TODO: How it is with updating this?
+        IntegerRaster& total_hosts,  // TODO: How it is with updating this?
         IntegerRaster& dispersers,
         std::vector<IntegerRaster>& exposed,
         std::vector<IntegerRaster>& mortality_tracker,
@@ -147,7 +147,7 @@ public:
                 exposed,
                 infected,
                 mortality_tracker[mortality_simulation_year],
-                total_plants,
+                total_hosts,
                 outside_dispersers,
                 config_.weather,
                 weather_coefficients[weather_step],
@@ -158,7 +158,7 @@ public:
                     infected,
                     susceptible,
                     mortality_tracker[mortality_simulation_year],
-                    total_plants,
+                    total_hosts,
                     step,
                     config_.last_index,
                     config_.movements,
