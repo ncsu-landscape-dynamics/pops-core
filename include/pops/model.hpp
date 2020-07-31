@@ -83,7 +83,7 @@ public:
         IntegerRaster& resistant,
         std::vector<std::tuple<int, int>>& outside_dispersers,  // out
         SpreadRate<IntegerRaster>& spread_rate,  // out
-        std::vector<std::vector<int>> movements)
+        const std::vector<std::vector<int>> movements)
     {
         RadialDispersalKernel<IntegerRaster> natural_radial_kernel(
             config_.ew_res,
