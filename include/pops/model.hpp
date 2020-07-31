@@ -46,6 +46,7 @@ private:
     DeterministicNeighborDispersalKernel natural_neighbor_kernel;
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
     Simulation<IntegerRaster, FloatRaster, RasterIndex> simulation_;
+    unsigned last_index{0};
 
 public:
     Model(const Config& config)
@@ -81,8 +82,8 @@ public:
         Treatments<IntegerRaster, FloatRaster>& treatments,
         IntegerRaster& resistant,
         std::vector<std::tuple<int, int>>& outside_dispersers,  // out
-        SpreadRate<IntegerRaster>& spread_rate  // out
-    )
+        SpreadRate<IntegerRaster>& spread_rate,  // out
+        std::vector<std::vector<int>> movements)
     {
         RadialDispersalKernel<IntegerRaster> natural_radial_kernel(
             config_.ew_res,
@@ -154,14 +155,14 @@ public:
                 dispersal_kernel,
                 config_.establishment_probability);
             if (config_.use_movements) {
-                config_.last_index = simulation_.movement(
+                last_index = simulation_.movement(
                     infected,
                     susceptible,
                     mortality_tracker[mortality_simulation_year],
                     total_hosts,
                     step,
-                    config_.last_index,
-                    config_.movements,
+                    last_index,
+                    movements,
                     config_.movement_schedule);
             }
         }

@@ -88,6 +88,8 @@ int test_with_reduced_stochasticity()
         infected, config.ew_res, config.ns_res, rate_num_years);
 
     auto expected_dispersers = config.reproductive_rate * infected;
+    std::vector<std::vector<int>> movements = {
+        {0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
 
     int step = 0;
 
@@ -107,7 +109,8 @@ int test_with_reduced_stochasticity()
         treatments,
         zeros,
         outside_dispersers,
-        spread_rate);
+        spread_rate,
+        movements);
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
@@ -152,7 +155,8 @@ int test_deterministic()
     config.generate_stochasticity = false;
     config.establishment_stochasticity = false;
     config.movement_stochasticity = false;
-    config.movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    std::vector<std::vector<int>> movements = {
+        {0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     config.movement_schedule = {1, 1};
 
     // We want everything to establish.
@@ -218,7 +222,8 @@ int test_deterministic()
         treatments,
         zeros,
         outside_dispersers,
-        spread_rate);
+        spread_rate,
+        movements);
     if (dispersers != expected_dispersers) {
         cout << "deterministic: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
@@ -263,7 +268,8 @@ int test_deterministic_exponential()
     config.generate_stochasticity = false;
     config.establishment_stochasticity = false;
     config.movement_stochasticity = false;
-    config.movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    std::vector<std::vector<int>> movements = {
+        {0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     config.movement_schedule = {1, 1};
 
     // We want everything to establish.
@@ -328,7 +334,8 @@ int test_deterministic_exponential()
         treatments,
         zeros,
         outside_dispersers,
-        spread_rate);
+        spread_rate,
+        movements);
     if (dispersers != expected_dispersers) {
         cout << "deterministic exponential: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
