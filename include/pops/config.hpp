@@ -93,7 +93,6 @@ public:
         if (use_quarantine)
             quarantine_schedule_ = schedule_from_string(
                 scheduler_, quarantine_frequency, quarantine_frequency_n);
-        ;
         schedules_created_ = true;
     }
 
