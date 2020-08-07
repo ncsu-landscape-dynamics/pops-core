@@ -34,7 +34,26 @@ documents to make the process as seamless as possible.
 1. [PoPS Style Guide](contributing_docs/STYLE_GUIDE.md)
 1. [Contributor Guide](contributing_docs/CONTRIBUTING.md)
 
-## Main Functions
+## C++ API
+
+The stable API to be used in other projects includes the `pops::Model`
+and `pops::Config` classes and classes used in their API (for example,
+`pops::SpreadRate`).
+This API is changed only beween major versions or, if really needed,
+to fix serious issues in the released major version.
+
+Other classes and functions are part of the internal API and although
+you can use them in your project, you will need to follow the changes
+in the library more closely and update your code more often.
+
+If you are using the C++ API, we invite you to open an issue in this
+repository to tell us about it and we can both acknowledge you in this
+repo or elsewhere and discuss planned changes with you.
+
+## Core Functions
+
+If you are interested in reviewing the code, you may want to focus at
+the following core functions rather than the API.
 
 simulation.remove : removes the pest or pathogen from the infested hosts based on some environmental threshold (currently only temperature is accounted for).
 
