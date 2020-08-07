@@ -71,6 +71,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/spread_rate.hpp
         include/pops/date.hpp
         include/pops/scheduling.hpp
+        include/pops/quarantine.hpp
     )
 endif()
 
