@@ -12,29 +12,29 @@ subset enforced by Black and for C++ specific items by mix of LLVM and Qt.
 Formatting is managed by *clang-format* tool. You need to have version 10
 to produce results consistent with the current formatting.
 
-Run the formatting on all the files:
+Run the formatting on all the files in the top directory:
 
 ```sh
-clang-format -i *.cpp *.hpp
+clang-format -i include/*/*.hpp tests/*.cpp
 ```
 
 If you have other versions of *clang-format* than 10, use:
 
 ```sh
-clang-format-10 -i *.cpp *.hpp
+clang-format-10 -i include/*/*.hpp tests/*.cpp
 ```
 
 If it is hard for your to get clang-format or the version 10 directly,
 build a Docker image using:
 
 ```sh
-docker build -t jsharpe/clang-format-lint-action "https://github.com/jsharpe/clang-format-lint-action.git#clang-format10"
+docker build -t doozyx/clang-format-lint-action "github.com/DoozyX/clang-format-lint-action"
 ```
 
-Then run the formatting using a Docker container:
+Then run the formatting using a Docker container in the top directory:
 
 ```sh
-docker run --rm --workdir /src -v $(pwd):/src --entrypoint /clang-format/clang-format10 jsharpe/clang-format-lint-action -i *.hpp *.cpp
+docker run --rm --workdir /src -v $(pwd):/src --entrypoint /clang-format/clang-format10 doozyx/clang-format-lint-action -i include/*/*.hpp tests/*.cpp
 ```
 
 #### Functions and methods

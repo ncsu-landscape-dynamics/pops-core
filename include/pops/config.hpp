@@ -43,6 +43,8 @@ public:
     // Reduced stochasticity
     bool generate_stochasticity{true};
     bool establishment_stochasticity{true};
+    bool movement_stochasticity{true};
+    bool deterministic{false};
     double establishment_probability{0};
     // Temperature
     bool use_lethal_temperature{false};
@@ -74,7 +76,10 @@ public:
     bool use_quarantine{false};
     std::string quarantine_frequency;
     unsigned quarantine_frequency_n;
-
+    // Movements
+    bool use_movements{false};
+    std::vector<unsigned> movement_schedule;
+    double dispersal_percentage{0.99};
     std::string output_frequency;
     unsigned output_frequency_n;
 
