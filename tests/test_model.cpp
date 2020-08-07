@@ -185,6 +185,7 @@ int test_deterministic()
     config.model_type = "SI";
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
+    config.use_quarantine = false;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -210,6 +211,7 @@ int test_deterministic()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_years);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     auto expected_dispersers = config.reproductive_rate * infected;
 
@@ -232,6 +234,8 @@ int test_deterministic()
         zeros,
         outside_dispersers,
         spread_rate,
+        quarantine,
+        zeros,
         movements);
     if (dispersers != expected_dispersers) {
         cout << "deterministic: dispersers (actual, expected):\n"
@@ -297,6 +301,7 @@ int test_deterministic_exponential()
     config.model_type = "SI";
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
+    config.use_quarantine = false;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -322,6 +327,7 @@ int test_deterministic_exponential()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_years);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     auto expected_dispersers = config.reproductive_rate * infected;
 
@@ -344,6 +350,8 @@ int test_deterministic_exponential()
         zeros,
         outside_dispersers,
         spread_rate,
+        quarantine,
+        zeros,
         movements);
     if (dispersers != expected_dispersers) {
         cout << "deterministic exponential: dispersers (actual, expected):\n"
