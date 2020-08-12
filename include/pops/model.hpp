@@ -187,7 +187,7 @@ public:
             // remove exposed class when treatment is applied
             if (model_type == ModelType::SusceptibleExposedInfected && managed) {
                 for (unsigned exp_index = 0; exp_index < exposed.size(); exp_index++){
-                    treatments.manage_mortality(current_index, exposed[exp_index]);
+                    treatments.manage_mortality(step, exposed[exp_index]);
                 }
             }
         }
