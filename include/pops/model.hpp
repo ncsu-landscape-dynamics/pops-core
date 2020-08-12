@@ -188,7 +188,7 @@ public:
             if (model_type_from_string(config_.model_type)
                     == ModelType::SusceptibleExposedInfected
                 && managed) {
-                for (unsigned exp_index = 0; exp_index < exposed.size(); exp_index++){
+                for (unsigned exp_index = 0; exp_index < exposed.size(); exp_index++) {
                     treatments.manage_mortality(step, exposed[exp_index]);
                 }
             }
