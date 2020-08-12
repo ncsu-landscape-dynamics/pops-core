@@ -184,6 +184,12 @@ public:
                     }
                 }
             }
+            // remove exposed class when treatment is applied
+            if (model_type == ModelType::SusceptibleExposedInfected && managed) {
+                for (unsigned exp_index = 0; exp_index < exposed.size(); exp_index++){
+                    treatments.manage_mortality(current_index, exposed[exp_index]);
+                }
+            }
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
             // only run to the current year of simulation

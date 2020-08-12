@@ -4,6 +4,10 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2020-08-12
+- Exposed class now being removed with treatments
+  * Added exposed class treatments to model class
+
 ## 2020-05-15 - Reducing stochasticity
 
 ### Added
