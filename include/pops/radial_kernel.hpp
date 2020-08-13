@@ -21,6 +21,10 @@
 
 #include "deterministic_kernel.hpp"
 #include "kernel_types.hpp"
+#include "hyperbolic_secant_kernel.hpp"
+#include "power_law_kernel.hpp"
+#include "logistic_kernel.hpp"
+#include "exponential_power_kernel.hpp"
 
 #include <cmath>
 #include <map>
@@ -175,6 +179,14 @@ protected:
     DispersalKernelType dispersal_kernel_type_;
     std::cauchy_distribution<double> cauchy_distribution;
     std::exponential_distribution<double> exponential_distribution;
+    std::weibull_distribution<double> weibull_distribution;
+    std::normal_distribution<double> normal_distribution;
+    std::lognormal_distribution<double> lognormal_distribution;
+    PowerLawKernel power_law_distribution;
+    HyperbolicSecantKernel hyperbolic_secant_distribution;
+    std::gamma_distribution<double> gamma_distribution;
+    ExponentialPowerKernel exponential_power_distribution;
+    LogisticKernel logistic_distribution;
     bool deterministic_;
     DeterministicDispersalKernel<IntegerRaster> deterministic_kernel;
     von_mises_distribution von_mises;
@@ -189,7 +201,8 @@ public:
         double dispersal_direction_kappa = 0,
         bool deterministic = false,
         const IntegerRaster& dispersers = {{0}},
-        double dispersal_percentage = 0.99)
+        double dispersal_percentage = 0.99,
+        double locator = 1)
         : east_west_resolution(ew_res),
           north_south_resolution(ns_res),
           dispersal_kernel_type_(dispersal_kernel),
@@ -199,6 +212,14 @@ public:
           // When lambda is higher, exponential gives less higher values,
           // so we do multiplicative inverse to behave like cauchy.
           exponential_distribution(1.0 / distance_scale),
+          weibull_distribution(distance_scale, locator),
+          normal_distribution(distance_scale, locator),
+          lognormal_distribution(distance_scale, locator),
+          power_law_distribution(distance_scale, locator),
+          hyperbolic_secant_distribution(distance_scale, locator),
+          gamma_distribution(distance_scale, locator),
+          exponential_power_distribution(distance_scale, locator),
+          logistic_distribution(distance_scale, locator),
           deterministic_(deterministic),
           deterministic_kernel(
               dispersal_kernel,
@@ -206,7 +227,8 @@ public:
               dispersal_percentage,
               ew_res,
               ns_res,
-              distance_scale),
+              distance_scale,
+              locator),
           // if no wind, then kappa is 0
           // TODO: change these two computations to standalone inline
           // functions (dir to rad and adjust kappa)
@@ -239,6 +261,30 @@ public:
         else if (dispersal_kernel_type_ == DispersalKernelType::Exponential) {
             distance = std::abs(exponential_distribution(generator));
         }
+        else if (dispersal_kernel_type_ == DispersalKernelType::Weibull) {
+            distance = std::abs(weibull_distribution(generator));
+        }
+        else if (dispersal_kernel_type_ == DispersalKernelType::Normal) {
+            distance = std::abs(normal_distribution(generator));
+        }
+        else if (dispersal_kernel_type_ == DispersalKernelType::LogNormal) {
+            distance = std::abs(lognormal_distribution(generator));
+        }
+        else if (dispersal_kernel_type_ == DispersalKernelType::PowerLaw) {
+            distance = std::abs(power_law_distribution.random(generator));
+        }
+        else if (dispersal_kernel_type_ == DispersalKernelType::HyperbolicSecant) {
+            distance = std::abs(hyperbolic_secant_distribution.random(generator));
+        }
+        else if (dispersal_kernel_type_ == DispersalKernelType::Gamma) {
+            distance = std::abs(gamma_distribution(generator));
+        }
+        else if (dispersal_kernel_type_ == DispersalKernelType::Logistic) {
+            distance = std::abs(exponential_power_distribution.random(generator));
+        }
+        else if (dispersal_kernel_type_ == DispersalKernelType::Logistic) {
+            distance = std::abs(logistic_distribution.random(generator));
+        }
         else {
             // TODO: move this to constructor (fail fast)
             // not all allowed kernels will/are supported by this class
@@ -261,7 +307,16 @@ public:
     static bool supports_kernel(const DispersalKernelType type)
     {
         static const std::array<DispersalKernelType, 2> supports = {
-            DispersalKernelType::Cauchy, DispersalKernelType::Exponential};
+            DispersalKernelType::Cauchy,
+            DispersalKernelType::Exponential,
+            DispersalKernelType::Weibull,
+            DispersalKernelType::Normal,
+            DispersalKernelType::LogNormal,
+            DispersalKernelType::PowerLaw,
+            DispersalKernelType::HyperbolicSecant,
+            DispersalKernelType::Gamma,
+            DispersalKernelType::ExponentialPower,
+            DispersalKernelType::Logistic};
         auto it = std::find(supports.cbegin(), supports.cend(), type);
         return it != supports.cend();
     }

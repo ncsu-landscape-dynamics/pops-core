@@ -56,6 +56,14 @@ enum class DispersalKernelType
     Exponential,  //!< Exponential dispersal kernel
     Uniform,  //!< Random uniform dispersal kernel
     DeterministicNeighbor,  //!< Deterministic immediate neighbor dispersal kernel
+    PowerLaw,  //!< Power law dispersal kernel
+    HyperbolicSecant,  //!< Hyperbolic secant dispersal kernel
+    Gamma,  //!< Gamma dispersal kernel
+    ExponentialPower,  //!< Exponential power dispersal kernel
+    Weibull,  //!< Weibull dispersal kernel
+    Normal,  //!< Normal dispersal kernel
+    LogNormal,  //!< Log-normal dispersal kernel
+    Logistic,  //!< Logistic dispersal kernel
     None,  //!< No dispersal kernel (no spread)
 };
 
@@ -74,6 +82,22 @@ inline DispersalKernelType kernel_type_from_string(const std::string& text)
         return DispersalKernelType::Uniform;
     else if (text == "deterministic-neighbor" || text == "deterministic_neighbor")
         return DispersalKernelType::DeterministicNeighbor;
+    else if (text == "power law" || text == "power-law")
+        return DispersalKernelType::PowerLaw;
+    else if (text == "hyperbolic secant" || text == "hyperbolic-secant")
+        return DispersalKernelType::HyperbolicSecant;
+    else if (text == "gamma")
+        return DispersalKernelType::Gamma;
+    else if (text == "exponential power" || text == "exponential-power")
+        return DispersalKernelType::ExponentialPower;
+    else if (text == "weibull")
+        return DispersalKernelType::Weibull;
+    else if (text == "normal")
+        return DispersalKernelType::Normal;
+    else if (text == "log normal" || text == "log-normal")
+        return DispersalKernelType::LogNormal;
+    else if (text == "logistic")
+        return DispersalKernelType::Logistic;
     else if (text == "none" || text == "None" || text == "NONE" || text.empty())
         return DispersalKernelType::None;
     else
