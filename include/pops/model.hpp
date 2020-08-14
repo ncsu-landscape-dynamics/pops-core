@@ -171,7 +171,8 @@ public:
         }
         // treatments
         if (config_.use_treatments) {
-            bool managed = treatments.manage(step, infected, susceptible, resistant);
+            bool managed =
+                treatments.manage(step, infected, exposed, susceptible, resistant);
             if (managed && config_.use_mortality) {
                 // same conditions as the mortality code below
                 // TODO: make the mortality timing available as a separate function in
@@ -182,14 +183,6 @@ public:
                     for (int age = 0; age <= max_index; age++) {
                         treatments.manage_mortality(step, mortality_tracker[age]);
                     }
-                }
-            }
-            // remove exposed class when treatment is applied
-            if (model_type_from_string(config_.model_type)
-                    == ModelType::SusceptibleExposedInfected
-                && managed) {
-                for (unsigned exp_index = 0; exp_index < exposed.size(); exp_index++) {
-                    treatments.manage_mortality(step, exposed[exp_index]);
                 }
             }
         }
