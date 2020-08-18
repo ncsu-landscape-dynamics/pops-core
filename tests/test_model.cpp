@@ -378,6 +378,261 @@ int test_deterministic_exponential()
     }
     return 0;
 }
+template<typename T>
+void print_vector(const std::vector<T>& v)
+{
+    for (auto i : v) {
+        cout << i;
+    }
+    cout << "\n";
+}
+
+int test_model_sei_deterministic()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> susceptible = {{95, 100, 100}, {100, 95, 100}, {100, 0, 98}};
+    Raster<int> total_hosts = susceptible;
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    Config config;
+    config.reproductive_rate = 1;
+    config.generate_stochasticity = false;
+    config.establishment_stochasticity = false;
+    config.movement_stochasticity = false;
+
+    // We want everything to establish.
+    config.establishment_probability = 1;
+    config.natural_kernel_type = "cauchy";
+    config.natural_direction = "none";
+    config.natural_scale = 0.9;
+    config.anthro_scale = 0.9;
+    config.dispersal_percentage = 0.9;
+    config.natural_kappa = 0;
+    config.anthro_kappa = 0;
+
+    config.use_anthropogenic_kernel = false;
+    config.random_seed = 42;
+    config.rows = infected.rows();
+    config.cols = infected.cols();
+    config.model_type = "SEI";
+    config.latency_period_steps = 11;
+    config.use_lethal_temperature = false;
+    config.use_quarantine = false;
+
+    config.set_date_start(2020, 1, 1);
+    config.set_date_end(2020, 12, 31);
+    config.set_step_unit(StepUnit::Month);
+    config.set_step_num_units(1);
+    config.create_schedules();
+
+    config.deterministic = true;
+
+    std::vector<std::vector<int>> movements;
+
+    int weather_step = 0;
+    unsigned num_mortality_years = config.num_mortality_years();
+    std::vector<Raster<int>> mortality_tracker(
+        num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
+
+    Raster<int> died(infected.rows(), infected.cols(), 0);
+    int exposed_size = 0;
+    if (config.latency_period_steps)
+        exposed_size = config.latency_period_steps + 1;
+    std::vector<Raster<int>> exposed(
+        exposed_size, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<double>> empty_float;
+    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    config.use_treatments = false;
+    config.ew_res = 30;
+    config.ns_res = 30;
+    unsigned rate_num_years =
+        get_number_of_scheduled_actions(config.spread_rate_schedule());
+    SpreadRate<Raster<int>> spread_rate(
+        infected, config.ew_res, config.ns_res, rate_num_years);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+
+    // There should be still the original number of infected when dispersers are
+    // created.
+    auto expected_dispersers = config.reproductive_rate * infected;
+    // One E to I transition should happen.
+    auto expected_infected = config.reproductive_rate * infected + infected;
+
+    Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
+    for (unsigned int step = 0; step < config.scheduler().get_num_steps(); ++step) {
+        model.run_step(
+            step,
+            weather_step,
+            infected,
+            susceptible,
+            total_hosts,
+            dispersers,
+            exposed,
+            mortality_tracker,
+            died,
+            empty_float,
+            empty_float,
+            treatments,
+            zeros,
+            outside_dispersers,
+            spread_rate,
+            quarantine,
+            zeros,
+            movements);
+    }
+    if (dispersers != expected_dispersers) {
+        cout << "sei_deterministic: dispersers (actual, expected):\n"
+             << dispersers << "  !=\n"
+             << expected_dispersers << "\n";
+        return 1;
+    }
+    if (!outside_dispersers.empty()) {
+        cout << "sei_deterministic: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be none\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "sei_deterministic: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+int test_model_sei_deterministic_with_treatments()
+{
+    // Raster<int> infected = {{7, 0, 0}, {0, 50, 0}, {0, 0, 200}};
+    Raster<int> infected = {{5, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> susceptible = {{95, 100, 100}, {100, 95, 100}, {100, 0, 98}};
+    Raster<int> total_hosts = susceptible;
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    Config config;
+    config.reproductive_rate = 1;
+    config.generate_stochasticity = false;
+    config.establishment_stochasticity = false;
+    config.movement_stochasticity = false;
+
+    // We want everything to establish.
+    config.establishment_probability = 1;
+    config.natural_kernel_type = "cauchy";
+    config.natural_direction = "none";
+    config.natural_scale = 0.9;
+    config.anthro_scale = 0.9;
+    config.dispersal_percentage = 0.9;
+    config.natural_kappa = 0;
+    config.anthro_kappa = 0;
+
+    config.use_anthropogenic_kernel = false;
+    config.random_seed = 42;
+    config.rows = infected.rows();
+    config.cols = infected.cols();
+    config.model_type = "SEI";
+    config.latency_period_steps = 11;
+    config.use_lethal_temperature = false;
+    config.use_quarantine = false;
+
+    config.set_date_start(2020, 1, 1);
+    config.set_date_end(2020, 12, 31);
+    config.set_step_unit(StepUnit::Month);
+    config.set_step_num_units(1);
+    config.create_schedules();
+
+    config.deterministic = true;
+
+    std::vector<std::vector<int>> movements;
+
+    int weather_step = 0;
+    unsigned num_mortality_years = config.num_mortality_years();
+    std::vector<Raster<int>> mortality_tracker(
+        num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
+
+    Raster<int> died(infected.rows(), infected.cols(), 0);
+    int exposed_size = 0;
+    if (config.latency_period_steps)
+        exposed_size = config.latency_period_steps + 1;
+    std::vector<Raster<int>> exposed(
+        exposed_size, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<double>> empty_float;
+    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    Raster<double> simple_treatment = {{1, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    treatments.add_treatment(
+        simple_treatment, Date(2020, 1, 1), 0, TreatmentApplication::AllInfectedInCell);
+    Raster<double> pesticide_treatment = {{0, 0, 0}, {0, 0.5, 0}, {0, 0, 0}};
+    treatments.add_treatment(
+        pesticide_treatment, Date(2020, 1, 1), 365, TreatmentApplication::Ratio);
+    config.use_treatments = true;
+    config.ew_res = 30;
+    config.ns_res = 30;
+    unsigned rate_num_years =
+        get_number_of_scheduled_actions(config.spread_rate_schedule());
+    SpreadRate<Raster<int>> spread_rate(
+        infected, config.ew_res, config.ns_res, rate_num_years);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+
+    // There should be still the original number of infected when dispersers are
+    // created.
+    auto expected_dispersers = config.reproductive_rate * infected;
+    // One E to I transition should happen.
+    auto expected_infected = config.reproductive_rate * infected + infected;
+    // Apply treatment to expected results (assuming rate == 1)
+    // (modifying int with double is not allowed in Raster, so we have to be explicit)
+    // Remove infected
+    for (unsigned int row = 0; row < expected_infected.rows(); ++row)
+        for (unsigned int col = 0; col < expected_infected.rows(); ++col)
+            expected_infected(row, col) *= !simple_treatment(row, col);
+    // Reduced number of infected
+    // (assuming 1 infection (E to I) step completed, i.e. 1 initial state + 1 step)
+    for (unsigned int row = 0; row < expected_infected.rows(); ++row)
+        for (unsigned int col = 0; col < expected_infected.rows(); ++col)
+            if (pesticide_treatment(row, col) > 0)
+                expected_infected(row, col) =
+                    2 * pesticide_treatment(row, col) * infected(row, col);
+
+    Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
+    for (unsigned int step = 0; step < config.scheduler().get_num_steps(); ++step) {
+        model.run_step(
+            step,
+            weather_step,
+            infected,
+            susceptible,
+            total_hosts,
+            dispersers,
+            exposed,
+            mortality_tracker,
+            died,
+            empty_float,
+            empty_float,
+            treatments,
+            zeros,
+            outside_dispersers,
+            spread_rate,
+            quarantine,
+            zeros,
+            movements);
+        print_vector(exposed);
+        cout << infected << "\n";
+    }
+    if (!outside_dispersers.empty()) {
+        cout << "sei_deterministic_with_treatments: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be none\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "sei_deterministic_with_treatments: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    return 0;
+}
+
 int main()
 {
     int ret = 0;
@@ -385,6 +640,8 @@ int main()
     ret += test_with_reduced_stochasticity();
     ret += test_deterministic();
     ret += test_deterministic_exponential();
+    ret += test_model_sei_deterministic();
+    ret += test_model_sei_deterministic_with_treatments();
     std::cout << "Test model number of errors: " << ret << std::endl;
 
     return ret;

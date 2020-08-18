@@ -231,7 +231,7 @@ public:
 
     void apply_treatment(
         IntegerRaster& infected,
-        std::vector<IntegerRaster>& exposed,
+        std::vector<IntegerRaster>& exposed_vector,
         IntegerRaster& susceptible,
         IntegerRaster& resistant) override
     {
@@ -249,17 +249,16 @@ public:
                     infected_resistant = this->map_(i, j) ? infected(i, j) : 0;
                 }
                 infected(i, j) -= infected_resistant;
-                for (auto& raster : exposed) {
+                for (auto& exposed : exposed_vector) {
                     int exposed_resistant = 0;
                     if (this->application_ == TreatmentApplication::Ratio) {
-                        exposed_resistant =
-                            raster(i, j) - (raster(i, j) * this->map_(i, j));
+                        exposed_resistant = exposed(i, j) * this->map_(i, j);
                     }
                     else if (
                         this->application_ == TreatmentApplication::AllInfectedInCell) {
-                        exposed_resistant = this->map_(i, j) ? 0 : raster(i, j);
+                        exposed_resistant = this->map_(i, j) ? exposed(i, j) : 0;
                     }
-                    raster(i, j) -= exposed_resistant;
+                    exposed(i, j) -= exposed_resistant;
                     exposed_resistant_sum += exposed_resistant;
                 }
                 resistant(i, j) = infected_resistant + exposed_resistant_sum
