@@ -378,14 +378,6 @@ int test_deterministic_exponential()
     }
     return 0;
 }
-template<typename T>
-void print_vector(const std::vector<T>& v)
-{
-    for (auto i : v) {
-        cout << i;
-    }
-    cout << "\n";
-}
 
 int test_model_sei_deterministic()
 {
@@ -616,8 +608,6 @@ int test_model_sei_deterministic_with_treatments()
             quarantine,
             zeros,
             movements);
-        print_vector(exposed);
-        cout << infected << "\n";
     }
     if (!outside_dispersers.empty()) {
         cout << "sei_deterministic_with_treatments: There are outside_dispersers ("
