@@ -1,9 +1,9 @@
 # Works with X as minimum and tested through Y (X...Y)
 cmake_minimum_required(VERSION 3.11...3.13)
 
-project(PoPS
+project(pops-core
     VERSION 0.9
-    DESCRIPTION "PoPS (Pest or Pathogen Spread) Model C++ library"
+    DESCRIPTION "PoPS (Pest or Pathogen Spread) Model Core C++ library"
     LANGUAGES CXX)
 
 # Only do these if this is the main project (and not as add_subdirectory)

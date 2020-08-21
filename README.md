@@ -1,12 +1,23 @@
-# PoPS (Pest or Pathogen Spread) Model
+# PoPS Core - Pest or Pathogen Spread Model Core
 
-[![Build Status](https://travis-ci.org/ncsu-landscape-dynamics/PoPS.svg?branch=master)](https://travis-ci.org/ncsu-landscape-dynamics/PoPS)
+[![Build Status](https://travis-ci.org/ncsu-landscape-dynamics/pops-core.svg?branch=master)](https://travis-ci.org/ncsu-landscape-dynamics/pops-core)
 
-PoPS library
+PoPS Core is the core C++ library for the PoPS Model.
 
-PoPS (Pest or Pathogen Spread) is a C++ library for a stochastic spread model of pests and pathogens in forest and agricultural landscapes. It has been generalized and new features added but was originally developed for *Phytophthora ramorum* and the original version of the model was based on this reference paper: Ross K. Meentemeyer, Nik J. Cunniffe, Alex R. Cook, Joao A. N. Filipe, Richard D. Hunter, David M. Rizzo, and Christopher A. Gilligan 2011. Epidemiological modeling of invasion in heterogeneous landscapes: spread of sudden oak death in California (1990–2030). *Ecosphere* 2:art17. [http://dx.doi.org/10.1890/ES10-00192.1] (http://www.esajournals.org/doi/abs/10.1890/ES10-00192.1) 
+PoPS (Pest or Pathogen Spread) is a stochastic spread model of pests
+and pathogens in forest and agricultural landscapes.
+It is used for various pest, pathogens, and hosts.
+It was originally developed for *Phytophthora ramorum* and the original
+version of the model was written in R, later with Rcpp,
+and was based on this reference paper:
 
-PoPS is a header-only C++ library. It is using templates to be universal and it makes use of C++11 features, so C++11 is the minimal
+Ross K. Meentemeyer, Nik J. Cunniffe, Alex R. Cook, Joao A. N. Filipe, Richard D. Hunter, David M. Rizzo, and Christopher A. Gilligan 2011.
+Epidemiological modeling of invasion in heterogeneous landscapes: spread of sudden oak death in California (1990–2030).
+*Ecosphere* 2:art17. [https://doi.org/10.1890/ES10-00192.1]
+
+PoPS Core is a header-only C++ library.
+It is using templates for the main spatial data structures, i.e., rasters,
+to be universal and it makes use of C++11 features, so C++11 is the minimal
 required version.
 
 ## Contributing
@@ -27,11 +38,11 @@ Most bugs/issues will be found in the **master** branch as it is the branch bein
 
 When creating new features create a branch from **master** using the following syntax **feature/new_feature**. For example, we want to add a transportation network model for human assisted dispersal, the branch created would be named feature/transportation_network_model (or similar). New features will be merged into **master** once tested based on the priorities of our stakeholders first. Once new features are tested in R and Grass with the latest bug fixes and any other new features being included in the next major release we will merge them into **master** and create an official major release version (e.g. update from version 1.1 to version 2.0). 
 
-If you are interested in contributing to PoPS development and are not a core developer on the model, please take a look at following
+If you are interested in contributing to PoPS and are not a core developer on the model, please take a look at following
 documents to make the process as seamless as possible.
 
 1. [Contributor Code of Conduct](contributing_docs/CODE_OF_CONDUCT.md)
-1. [PoPS Style Guide](contributing_docs/STYLE_GUIDE.md)
+1. [PoPS Core Style Guide](contributing_docs/STYLE_GUIDE.md)
 1. [Contributor Guide](contributing_docs/CONTRIBUTING.md)
 
 ## C++ API
@@ -67,14 +78,11 @@ The custom date class is used to easily manage different time steps within the m
 
 ## Using the model
 
-The PoPS library can be used directly in a C++ program or through other
-programs. It is used in an experimental version of a GRASS GIS module
-called r.spread.pest.
+The PoPS Core library can be used directly in a C++ program or through other
+programs. It is used in R package called rpops and a GRASS GIS module
+called r.pops.spread.
 
 * https://github.com/ncsu-landscape-dynamics/r.pops.spread
-
-It is also used in the pops_model function in R.
-
 * https://github.com/ncsu-landscape-dynamics/rpops
 
 ## Integrating the library into your own project
@@ -88,20 +96,20 @@ Git supports inclusion of other repositories into your own code using
 a mechanism called submodules. In your repository, run:
 
 ```
-git submodule add https://github.com/ncsu-landscape-dynamics/PoPS pops
+git submodule add https://github.com/ncsu-landscape-dynamics/pops-core
 ```
 
-If you want a specific branch of the PoPS library. After adding the 
+If you want a specific branch of PoPS Core, after adding the
 PoPS submodule, run the following commands (with branch-name being
 the branch of the PoPS library you want to use):
 
 ```
-cd pops
+cd pops-core
 git checkout origin/branch-name
 ```
 
-The will create a directory called `pops` in your repository which will
-now contain all the files from this repository. You can use the two
+The will create a directory called `pops-core` in your repository which
+will now contain all the files from this repository. You can use the two
 following commands to see the changes to your repository:
 
 ```
@@ -116,14 +124,14 @@ the currently latest commit to PoPS library.
 You can now commit and push changes to your repository.
 
 When someone else clones our project, they need to run the two following
-commands to get the content of the `pops` directory:
+commands to get the content of the `pops-core` directory:
 
 ```
 git submodule init
 git submodule update
 ```
 
-Alternatively, the `pops` directory can be populated during cloning
+Alternatively, the `pops-core` directory can be populated during cloning
 when `git clone` is used with the `--recurse-submodules` parameter.
 
 If you want to update the specific PoPS commit your repository is using
@@ -173,12 +181,12 @@ your project since this a header-only library. However,
 if you are using CMake, you probably want to use the following approach.
 
 Assuming you added the directory as a submodule or a plain subdirectory
-called `PoPS` add these two following lines to your `CMakeLists.txt` file
+called `pops-core` add these two following lines to your `CMakeLists.txt` file
 (assuming you already have target called `your_target`):
 
 ```
-add_subdirectory(PoPS)
-target_link_libraries(your_target PRIVATE pops)
+add_subdirectory(pops-core)
+target_link_libraries(your_target PRIVATE pops-core)
 ```
 
 ## Testing the model in this repository using make (obsolete)

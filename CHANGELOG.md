@@ -4,7 +4,14 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## 2020-08-21
+
+- The C++ library project renamed from PoPS to PoPS Core.
+
 ## 2020-08-12
+
+### Fixed
+
 - Exposed class now being removed with treatments
   * Added exposed class treatments to model class
 
