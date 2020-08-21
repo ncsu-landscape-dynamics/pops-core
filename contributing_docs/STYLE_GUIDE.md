@@ -1,4 +1,7 @@
-# Contributing to PoPS
+# Contributing to PoPS Core
+
+This guide applies to PoPS Core (the C++ library), but also the
+C++ parts of the rpops R package.
 
 ## Style guide
 
