@@ -216,10 +216,14 @@ public:
 
     /** Moves hosts from one location to another
      *
+     * @note Note that unlike the other functions, here, *total_hosts*,
+     * i.e., number of hosts is required, not number of all hosts
+     * and non-host individuals.
+     *
      * @param infected Currently infected hosts
      * @param susceptible Currently susceptible hosts
      * @param mortality_tracker Hosts that are infected at a specific time step
-     * @param total_hosts total number of hosts
+     * @param total_hosts Total number of hosts
      * @param step the current step of the simulation
      * @param last_index the last index to not be used from movements
      * @param movements a vector of ints with row_from, col_from, row_to, col_to, and
@@ -366,6 +370,10 @@ public:
      * on the result, i.e. function returning
      * `std::make_tuple(row, column)` fulfills this requirement.
      *
+     * The *total_populations* can be total number of hosts in the basic case
+     * or it can be the total size of population of all relevant species
+     * both host and non-host if dilution effect should be applied.
+     *
      * If establishment stochasticity is disabled,
      * *establishment_probability* is used to decide whether or not
      * a disperser is established in a cell. Value 1 means that all
@@ -376,7 +384,7 @@ public:
      * @param[in,out] susceptible Susceptible hosts
      * @param[in,out] exposed_or_infected Exposed or infected hosts
      * @param[in,out] mortality_tracker Newly infected hosts (if applicable)
-     * @param[in] total_hosts All hosts in the area
+     * @param[in] total_populations All host and non-host individuals in the area
      * @param[in,out] outside_dispersers Dispersers escaping the rasters
      * @param weather Whether or not weather coefficients should be used
      * @param[in] weather_coefficient Weather coefficient for each location
@@ -393,7 +401,7 @@ public:
         IntegerRaster& susceptible,
         IntegerRaster& exposed_or_infected,
         IntegerRaster& mortality_tracker,
-        const IntegerRaster& total_hosts,
+        const IntegerRaster& total_populations,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         bool weather,
         const FloatRaster& weather_coefficient,
@@ -417,7 +425,8 @@ public:
                         }
                         if (susceptible(row, col) > 0) {
                             double probability_of_establishment =
-                                (double)(susceptible(row, col)) / total_hosts(row, col);
+                                (double)(susceptible(row, col))
+                                / total_populations(row, col);
                             double establishment_tester = 1 - establishment_probability;
                             if (establishment_stochasticity_)
                                 establishment_tester = distribution_uniform(generator_);
@@ -556,7 +565,7 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& infected,
         IntegerRaster& mortality_tracker,
-        const IntegerRaster& total_hosts,
+        const IntegerRaster& total_populations,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         bool weather,
         const FloatRaster& weather_coefficient,
@@ -574,7 +583,7 @@ public:
             susceptible,
             *infected_or_exposed,
             mortality_tracker,
-            total_hosts,
+            total_populations,
             outside_dispersers,
             weather,
             weather_coefficient,
