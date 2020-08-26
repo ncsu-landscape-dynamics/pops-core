@@ -68,12 +68,57 @@ public:
               config.movement_stochasticity)
     {}
 
+    /**
+     * @brief Run one step of the simulation.
+     *
+     * The *total_populations* can be total number of hosts in the basic case
+     * or it can be the total size of population of all relevant species
+     * both host and non-host if dilution effect should be applied.
+     * When movement is applied, *total_populations* needs to be only the
+     * total number of hosts because movement does not support non-host
+     * individuals.
+     *
+     * No treatment can be applied when movement is active because host movement does
+     * not support resistant hosts.
+     *
+     * *dispersers* is for internal use and for tracking dispersers creation.
+     * The input values are ignored and the output is not the current existing
+     * dispersers, but only the number of dispersers generated (and subsequently
+     * used) in this step. There are no dispersers in between simulation steps.
+     *
+     * @param step Step number in the simulation.
+     * @param[in,out] infected Infected hosts
+     * @param[in,out] susceptible Susceptible hosts
+     * @param[in,out] total_populations All host and non-host individuals in the area
+     * @param[out] dispersers Dispersing individuals (used internally)
+     * @param exposed[in,out] Exposed hosts (if SEI model is active)
+     * @param mortality_tracker[in,out] Mortality tracker used to generate *died*
+     * @param died[out] Infected hosts which died this step based on the mortality
+     * schedule
+     * @param temperatures[in] Vector of temperatures used to evaluate lethal
+     * temperature
+     * @param weather_coefficient[in] Weather coefficient
+     * @param treatments[in,out] Treatments to be applied (also tracks use of
+     * treatments)
+     * @param resistant[in,out] Resistant hosts (host temporarily removed from
+     * susceptable hosts)
+     * @param outside_dispersers[in,out] Dispersers escaping the rasters (adds to the
+     * vector)
+     * @param spread_rate[in,out] Spread rate tracker
+     * @param quarantine[in,out] Quarantine escape tracker
+     * @param quarantine_areas[in] Quarantine areas
+     * @param movements[in] Table of host movements
+     *
+     * @note The parameters roughly correspond to Simulation::disperse()
+     * and Simulation::disperse_and_infect() functions, so these can be used
+     * for further reference.
+     */
     void run_step(
         int step,
         int weather_step,  // TODO: this should be schedule (?)
         IntegerRaster& infected,
         IntegerRaster& susceptible,
-        IntegerRaster& total_hosts,  // TODO: How it is with updating this?
+        IntegerRaster& total_populations,
         IntegerRaster& dispersers,
         std::vector<IntegerRaster>& exposed,
         std::vector<IntegerRaster>& mortality_tracker,
@@ -151,7 +196,7 @@ public:
                 exposed,
                 infected,
                 mortality_tracker[mortality_simulation_year],
-                total_hosts,
+                total_populations,
                 outside_dispersers,
                 config_.weather,
                 weather_coefficients[weather_step],
@@ -162,7 +207,7 @@ public:
                     infected,
                     susceptible,
                     mortality_tracker[mortality_simulation_year],
-                    total_hosts,
+                    total_populations,
                     step,
                     last_index,
                     movements,
