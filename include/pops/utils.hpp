@@ -32,4 +32,4 @@
  */
 #define UNUSED(expr) (void)(expr)
 
-#endif // POPS_UTILS_HPP
+#endif  // POPS_UTILS_HPP
