@@ -567,13 +567,13 @@ int test_model_sei_deterministic_with_treatments()
     // Apply treatment to expected results (assuming rate == 1)
     // (modifying int with double is not allowed in Raster, so we have to be explicit)
     // Remove infected
-    for (unsigned int row = 0; row < expected_infected.rows(); ++row)
-        for (unsigned int col = 0; col < expected_infected.rows(); ++col)
+    for (int row = 0; row < expected_infected.rows(); ++row)
+        for (int col = 0; col < expected_infected.rows(); ++col)
             expected_infected(row, col) *= !simple_treatment(row, col);
     // Reduced number of infected
     // (assuming 1 infection (E to I) step completed, i.e. 1 initial state + 1 step)
-    for (unsigned int row = 0; row < expected_infected.rows(); ++row)
-        for (unsigned int col = 0; col < expected_infected.rows(); ++col)
+    for (int row = 0; row < expected_infected.rows(); ++row)
+        for (int col = 0; col < expected_infected.rows(); ++col)
             if (pesticide_treatment(row, col) > 0)
                 expected_infected(row, col) =
                     2 * pesticide_treatment(row, col) * infected(row, col);
