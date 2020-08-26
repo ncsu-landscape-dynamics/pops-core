@@ -97,7 +97,7 @@ public:
      * schedule
      * @param temperatures[in] Vector of temperatures used to evaluate lethal
      * temperature
-     * @param weather_coefficient[in] Weather coefficient
+     * @param weather_coefficient[in] Weather coefficient (for the current step)
      * @param treatments[in,out] Treatments to be applied (also tracks use of
      * treatments)
      * @param resistant[in,out] Resistant hosts (host temporarily removed from
