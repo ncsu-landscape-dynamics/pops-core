@@ -115,7 +115,6 @@ public:
      */
     void run_step(
         int step,
-        int weather_step,  // TODO: this should be schedule (?)
         IntegerRaster& infected,
         IntegerRaster& susceptible,
         IntegerRaster& total_populations,

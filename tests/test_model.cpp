@@ -66,7 +66,6 @@ int test_with_reduced_stochasticity()
     config.set_step_num_units(1);
     config.create_schedules();
 
-    int weather_step = 0;
     unsigned num_mortality_years = config.num_mortality_years();
     std::cerr << "num_mortality_years: " << num_mortality_years << "\n";
     std::vector<Raster<int>> mortality_tracker(
@@ -103,7 +102,6 @@ int test_with_reduced_stochasticity()
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     model.run_step(
         step++,
-        weather_step,
         infected,
         susceptible,
         total_hosts,
@@ -195,7 +193,6 @@ int test_deterministic()
 
     config.deterministic = true;
 
-    int weather_step = 0;
     unsigned num_mortality_years = config.num_mortality_years();
     std::vector<Raster<int>> mortality_tracker(
         num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
@@ -220,7 +217,6 @@ int test_deterministic()
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     model.run_step(
         step++,
-        weather_step,
         infected,
         susceptible,
         total_hosts,
@@ -311,7 +307,6 @@ int test_deterministic_exponential()
 
     config.deterministic = true;
 
-    int weather_step = 0;
     unsigned num_mortality_years = config.num_mortality_years();
     std::vector<Raster<int>> mortality_tracker(
         num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
@@ -336,7 +331,6 @@ int test_deterministic_exponential()
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     model.run_step(
         step++,
-        weather_step,
         infected,
         susceptible,
         total_hosts,
@@ -424,7 +418,6 @@ int test_model_sei_deterministic()
 
     std::vector<std::vector<int>> movements;
 
-    int weather_step = 0;
     unsigned num_mortality_years = config.num_mortality_years();
     std::vector<Raster<int>> mortality_tracker(
         num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
@@ -456,7 +449,6 @@ int test_model_sei_deterministic()
     for (unsigned int step = 0; step < config.scheduler().get_num_steps(); ++step) {
         model.run_step(
             step,
-            weather_step,
             infected,
             susceptible,
             total_hosts,
@@ -540,7 +532,6 @@ int test_model_sei_deterministic_with_treatments()
 
     std::vector<std::vector<int>> movements;
 
-    int weather_step = 0;
     unsigned num_mortality_years = config.num_mortality_years();
     std::vector<Raster<int>> mortality_tracker(
         num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
@@ -591,7 +582,6 @@ int test_model_sei_deterministic_with_treatments()
     for (unsigned int step = 0; step < config.scheduler().get_num_steps(); ++step) {
         model.run_step(
             step,
-            weather_step,
             infected,
             susceptible,
             total_hosts,
