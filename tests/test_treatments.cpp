@@ -440,7 +440,7 @@ int test_treat_app_from_string()
         treatment_app_enum_from_string("invalid_input");
         num_errors++;
     }
-    catch (std::invalid_argument) {
+    catch (std::invalid_argument&) {
         // OK
     }
     catch (...) {
