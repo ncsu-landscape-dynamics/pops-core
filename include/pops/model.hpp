@@ -81,7 +81,7 @@ public:
      * No treatment can be applied when movement is active because host movement does
      * not support resistant hosts.
      *
-     * *dispersers* is for intrnal use and for stracking dispersers creation.
+     * *dispersers* is for internal use and for tracking dispersers creation.
      * The input values are ignored and the output is not the current existing
      * dispersers, but only the number of dispersers generated (and subsequently
      * used) in this step. There are no dispersers in between simulation steps.
