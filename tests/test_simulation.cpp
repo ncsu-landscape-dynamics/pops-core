@@ -237,8 +237,8 @@ int exposed_state(
 {
     int ret = 0;
     Raster<int> zeros(exposed[0].rows(), exposed[0].cols(), 0);
-    for (int i = 0; i < exposed.size(); ++i) {
-        if (i >= int(exposed.size()) - step - 2 && i < exposed.size() - 1) {
+    for (unsigned int i = 0; i < exposed.size(); ++i) {
+        if (int(i) >= int(exposed.size()) - step - 2 && i < exposed.size() - 1) {
             if (exposed[i] != expected_exposed) {
                 cout << "SEI test exposed[" << i << "] (actual, expected):\n"
                      << exposed[i] << "  !=\n"

@@ -26,6 +26,8 @@
 #include <string>
 #include <stdexcept>
 
+#include "utils.hpp"
+
 namespace pops {
 
 /** Rotate elements in a container to the left by one
@@ -230,6 +232,8 @@ public:
      * num_hosts
      * @param movement_schedule a vector matching movements with the step at which the
      * movement from movements are applied
+     *
+     * @note Mortality and non-host individuals are not supported in movements.
      */
     unsigned movement(
         IntegerRaster& infected,
@@ -241,6 +245,7 @@ public:
         const std::vector<std::vector<int>>& movements,
         std::vector<unsigned> movement_schedule)
     {
+        UNUSED(mortality_tracker);  // Mortality is not supported by movements.
         for (unsigned i = last_index; i < movements.size(); i++) {
             auto moved = movements[i];
             unsigned move_schedule = movement_schedule[i];
