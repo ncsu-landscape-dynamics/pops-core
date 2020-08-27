@@ -97,7 +97,7 @@ public:
      * schedule
      * @param temperatures[in] Vector of temperatures used to evaluate lethal
      * temperature
-     * @param weather_coefficient[in] Weather coefficient
+     * @param weather_coefficient[in] Weather coefficient (for the current step)
      * @param treatments[in,out] Treatments to be applied (also tracks use of
      * treatments)
      * @param resistant[in,out] Resistant hosts (host temporarily removed from
@@ -115,7 +115,6 @@ public:
      */
     void run_step(
         int step,
-        int weather_step,  // TODO: this should be schedule (?)
         IntegerRaster& infected,
         IntegerRaster& susceptible,
         IntegerRaster& total_populations,
@@ -124,7 +123,7 @@ public:
         std::vector<IntegerRaster>& mortality_tracker,
         IntegerRaster& died,
         const std::vector<FloatRaster>& temperatures,
-        const std::vector<FloatRaster>& weather_coefficients,
+        const FloatRaster& weather_coefficient,
         Treatments<IntegerRaster, FloatRaster>& treatments,
         IntegerRaster& resistant,
         std::vector<std::tuple<int, int>>& outside_dispersers,  // out
@@ -186,7 +185,7 @@ public:
                 dispersers,
                 infected,
                 config_.weather,
-                weather_coefficients[weather_step],
+                weather_coefficient,
                 config_.reproductive_rate);
 
             simulation_.disperse_and_infect(
@@ -199,7 +198,7 @@ public:
                 total_populations,
                 outside_dispersers,
                 config_.weather,
-                weather_coefficients[weather_step],
+                weather_coefficient,
                 dispersal_kernel,
                 config_.establishment_probability);
             if (config_.use_movements) {
