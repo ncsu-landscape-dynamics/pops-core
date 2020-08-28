@@ -252,7 +252,7 @@ public:
                 mortality_tracker);
         }
         // compute spread rate
-        if (config.use_spreadrates && config_.spread_rate_schedule()[step]) {
+        if (config_.use_spreadrates && config_.spread_rate_schedule()[step]) {
             unsigned rates_step =
                 simulation_step_to_action_step(config_.spread_rate_schedule(), step);
             spread_rate.compute_step_spread_rate(infected, rates_step);
