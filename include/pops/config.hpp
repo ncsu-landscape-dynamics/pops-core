@@ -145,7 +145,7 @@ public:
     {
         if (!use_spreadrates)
             throw std::logic_error(
-                    "spread_rate_schedule() not available when use_spreadrates is false");
+                "spread_rate_schedule() not available when use_spreadrates is false");
         if (!schedules_created_)
             throw std::logic_error(
                 "Schedules were not created before calling spread_rate_schedule()");
@@ -192,6 +192,9 @@ public:
 
     unsigned rate_num_steps()
     {
+        if (!use_spreadrates)
+            throw std::logic_error(
+                "rate_num_steps() not available when use_spreadrates is false");
         if (!schedules_created_)
             throw std::logic_error(
                 "Schedules were not created before calling rate_num_steps()");
