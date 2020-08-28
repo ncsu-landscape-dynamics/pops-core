@@ -187,7 +187,9 @@ int test_deterministic()
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
     config.use_quarantine = false;
-    config.use_spreadrates = false;
+    config.use_spreadrates = true;
+    config.spreadrate_frequency = "year";
+    config.spreadrate_frequency_n = 1;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -302,7 +304,9 @@ int test_deterministic_exponential()
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
     config.use_quarantine = false;
-    config.use_spreadrates = false;
+    config.use_spreadrates = true;
+    config.spreadrate_frequency = "year";
+    config.spreadrate_frequency_n = 1;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -412,7 +416,9 @@ int test_model_sei_deterministic()
     config.latency_period_steps = 11;
     config.use_lethal_temperature = false;
     config.use_quarantine = false;
-    config.use_spreadrates = false;
+    config.use_spreadrates = true;
+    config.spreadrate_frequency = "year";
+    config.spreadrate_frequency_n = 1;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2020, 12, 31);
@@ -527,7 +533,9 @@ int test_model_sei_deterministic_with_treatments()
     config.latency_period_steps = 11;
     config.use_lethal_temperature = false;
     config.use_quarantine = false;
-    config.use_spreadrates = false;
+    config.use_spreadrates = true;
+    config.spreadrate_frequency = "year";
+    config.spreadrate_frequency_n = 1;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2020, 12, 31);
