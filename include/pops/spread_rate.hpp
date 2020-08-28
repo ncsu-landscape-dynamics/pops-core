@@ -182,7 +182,7 @@ public:
  * Checks if any rate is nan to not include it in the average.
  */
 template<typename Raster>
-BBoxFloat 
+BBoxFloat
 average_spread_rate(const std::vector<SpreadRate<Raster>>& rates, unsigned step)
 {
     // loop through stochastic runs
