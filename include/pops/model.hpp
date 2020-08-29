@@ -252,10 +252,10 @@ public:
                 mortality_tracker);
         }
         // compute spread rate
-        if (config_.spread_rate_schedule()[step]) {
-            unsigned simulation_year =
+        if (config_.use_spreadrates && config_.spread_rate_schedule()[step]) {
+            unsigned rates_step =
                 simulation_step_to_action_step(config_.spread_rate_schedule(), step);
-            spread_rate.compute_yearly_spread_rate(infected, simulation_year);
+            spread_rate.compute_step_spread_rate(infected, rates_step);
         }
         // compute quarantine escape
         if (config_.use_quarantine && config_.quarantine_schedule()[step]) {

@@ -59,6 +59,9 @@ int test_with_reduced_stochasticity()
     config.use_quarantine = true;
     config.quarantine_frequency = "year";
     config.quarantine_frequency_n = 1;
+    config.use_spreadrates = true;
+    config.spreadrate_frequency = "year";
+    config.spreadrate_frequency_n = 1;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -84,12 +87,12 @@ int test_with_reduced_stochasticity()
     config.use_treatments = false;
     config.ew_res = 1;
     config.ns_res = 1;
-    unsigned rate_num_years =
+    unsigned rate_num_steps =
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     unsigned quarantine_num_steps =
         get_number_of_scheduled_actions(config.quarantine_schedule());
     SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_years);
+        infected, config.ew_res, config.ns_res, rate_num_steps);
     QuarantineEscape<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, quarantine_num_steps);
 
@@ -184,6 +187,9 @@ int test_deterministic()
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
     config.use_quarantine = false;
+    config.use_spreadrates = true;
+    config.spreadrate_frequency = "year";
+    config.spreadrate_frequency_n = 1;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -204,10 +210,10 @@ int test_deterministic()
     config.use_treatments = false;
     config.ew_res = 30;
     config.ns_res = 30;
-    unsigned rate_num_years =
+    unsigned rate_num_steps =
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_years);
+        infected, config.ew_res, config.ns_res, rate_num_steps);
     QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     auto expected_dispersers = config.reproductive_rate * infected;
@@ -298,6 +304,9 @@ int test_deterministic_exponential()
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
     config.use_quarantine = false;
+    config.use_spreadrates = true;
+    config.spreadrate_frequency = "year";
+    config.spreadrate_frequency_n = 1;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -318,10 +327,10 @@ int test_deterministic_exponential()
     config.use_treatments = false;
     config.ew_res = 30;
     config.ns_res = 30;
-    unsigned rate_num_years =
+    unsigned rate_num_steps =
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_years);
+        infected, config.ew_res, config.ns_res, rate_num_steps);
     QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     auto expected_dispersers = config.reproductive_rate * infected;
@@ -407,6 +416,9 @@ int test_model_sei_deterministic()
     config.latency_period_steps = 11;
     config.use_lethal_temperature = false;
     config.use_quarantine = false;
+    config.use_spreadrates = true;
+    config.spreadrate_frequency = "year";
+    config.spreadrate_frequency_n = 1;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2020, 12, 31);
@@ -433,10 +445,10 @@ int test_model_sei_deterministic()
     config.use_treatments = false;
     config.ew_res = 30;
     config.ns_res = 30;
-    unsigned rate_num_years =
+    unsigned rate_num_steps =
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_years);
+        infected, config.ew_res, config.ns_res, rate_num_steps);
     QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     // There should be still the original number of infected when dispersers are
@@ -521,6 +533,9 @@ int test_model_sei_deterministic_with_treatments()
     config.latency_period_steps = 11;
     config.use_lethal_temperature = false;
     config.use_quarantine = false;
+    config.use_spreadrates = true;
+    config.spreadrate_frequency = "year";
+    config.spreadrate_frequency_n = 1;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2020, 12, 31);
@@ -553,10 +568,10 @@ int test_model_sei_deterministic_with_treatments()
     config.use_treatments = true;
     config.ew_res = 30;
     config.ns_res = 30;
-    unsigned rate_num_years =
+    unsigned rate_num_steps =
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_years);
+        infected, config.ew_res, config.ns_res, rate_num_steps);
     QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     // There should be still the original number of infected when dispersers are
