@@ -17,6 +17,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: sudo apt-get install doxygen graphviz
     - name: Configure
       run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
     - name: Build
