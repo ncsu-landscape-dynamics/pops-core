@@ -12,8 +12,10 @@ addons:
 
 # build code for test, test, and create documentation
 script:
-  - make && make test
-  - make doc
+  - cmake -S . -B build
+  - cmake --build build
+  - cmake --build build --target test
+  - cmake --build build --target docs
 
 deploy:
   provider: pages
