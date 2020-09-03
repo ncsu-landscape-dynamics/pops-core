@@ -1,0 +1,29 @@
+name: Deploy gh-pages
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build-deploy:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: sudo apt-get install doxygen graphviz
+    - name: Configure
+      run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
+    - name: Build
+      run: cmake --build build
+    - name: Documentation build test
+      run: cmake --build build --target docs
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: build/html
+        force_orphan: true
