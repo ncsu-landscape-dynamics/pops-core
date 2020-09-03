@@ -10,6 +10,9 @@ addons:
       - doxygen
       - graphviz
 
+before_script:
+  - cmake --version
+
 # build code for test, test, and create documentation
 script:
   - mkdir build
