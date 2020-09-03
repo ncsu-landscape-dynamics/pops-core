@@ -141,10 +141,19 @@ to the latest one, you the following command:
 git submodule update --remote
 ```
 
-## Compiling and testing using CMake
+## Compile and test
 
-Configure the project and use build directory for configure and build
-outputs:
+Here we are assuming that you use Linux command line or equivalent
+and you have CMake and C++ compiler installed.
+We are testing with GNU GCC with (`g++`) and GNU make (`make`),
+but many of other tools supported by CMake should work too.
+See CMake documentation for different ways of compiling.
+
+First download the source code (as a ZIP file and unpack it or use Git
+to get it from the Git repository).
+
+Configure the project and use directory called `build` for configure and
+build outputs:
 
 ```
 cmake -S . -B build
@@ -156,17 +165,29 @@ Build the project:
 cmake --build build
 ```
 
-Run tests:
+The library itself does not need compilation since it is header only
+(it is compiled later with your project), but this compiled several
+test programs.
+
+To run these tests:
 
 ```
 cmake --build build --target test
 ```
 
-Create documentation:
+If something is wrong, this will generate error messages.
+Note that not all tests are not fully automatic, so in couple cases
+this only testing if the code is running and not crashing
+(you will need to examine the source code to see the details).
+
+Additionally, create documentation using the following (_Doxygen_ required):
 
 ```
 cmake --build build --target docs
 ```
+
+The HTML documentation will appear in the `html` subdirectory of `build`
+directory. Open the file called `index.html` to access it in a web browser.
 
 Optionally, to remove the build directory when you are done, use:
 
@@ -188,42 +209,6 @@ called `pops-core` add these two following lines to your `CMakeLists.txt` file
 add_subdirectory(pops-core)
 target_link_libraries(your_target PRIVATE pops-core)
 ```
-
-## Testing the model in this repository using make (obsolete)
-
-*This will be removed in the future in favor of CMake builds.*
-
-Here we are assuming that you use Linux command line or equivalent,
-i.e., you have `make` (e.g. GNU make) and GNU GCC with `g++`
-(or something compatible with the same command line interface).
-If you don't have it, you may need to modify the `Makefile` or configure
-your system.
-
-First download the source code (as a ZIP file and unpack it or use Git
-to get it from the Git repository).
-
-Then compile the code:
-
-    make
-
-The library itself does not need compilation since it is header only
-(it is compiled later with your project), but this compiles several
-test programs.
-
-Finally, run the tests:
-
-    make test
-
-This will generate some test output, to see if all was right, you will
-need to examine the source code. The tests are not fully automatic
-and currently cover only the bare minimum.
-
-Additionally, if you have Doxygen, to generate documentation run:
-
-    make doc
-
-The HTML documentation will appear in the `html` directory. Open the
-file called `index.html` to access it in a web browser.
 
 ## Authors
 
