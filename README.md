@@ -22,7 +22,7 @@ required version.
 
 ## Contributing
 
-This section is designed to clarify the branch structure of this repository and where new features and bug fixes should go.
+This section is designed to clarify the branch structure and versioning of this repository (and interface repositories) and general naming of new features and bug fix branches, especially those that are take longer to develope.
 
 ### Branch Structure
 
@@ -32,11 +32,11 @@ This section is designed to clarify the branch structure of this repository and 
 
 ### Bug Fixes
 
-Most bugs/issues will be found in the **master** branch as it is the branch being used in the R package and Grass Module. Thus bug fixes should be merged into **master** once tested on both R and Grass. Bug fixes should be released as minor versions (e.g. if major release is 1.0 then the first bug fix would be released as version 1.1).
+Most bugs/issues will be found in the **master** branch as it is the branch being used in the R package and Grass Module. Thus bug fixes should be merged into **master** once tested on both R and Grass. Bug fixes should be released as minor versions (e.g. if major release is 1.0 then the first bug fix would be released as version 1.1 and both R and Grass would be updated to 1.1.0). If a bug is found in one of the interfaces (R package or Grass Module) that doesn't require a change to PoPS Core then these repositories should be updated indepentantly and maintain a patch release 1.0.x (e.g. if the current version of the R package is 1.1.0 and Grass Module is 1.1.0 and a bug is found in the R package then the R package version becomes 1.1.1 while the Grass version is 1.1.0).
 
 ### New Features
 
-When creating new features create a branch from **master** using the following syntax **feature/new_feature**. For example, we want to add a transportation network model for human assisted dispersal, the branch created would be named feature/transportation_network_model (or similar). New features will be merged into **master** once tested based on the priorities of our stakeholders first. Once new features are tested in R and Grass with the latest bug fixes and any other new features being included in the next major release we will merge them into **master** and create an official major release version (e.g. update from version 1.1 to version 2.0). 
+When creating new features create a branch from **master** using the following syntax **feature/new_feature**. For example, we want to add a transportation network model for human assisted dispersal, the branch created would be named feature/transportation_network_model (or similar). New features will be merged into **master** once tested based on the priorities of our stakeholders first. Once new features are tested in R and Grass with the latest bug fixes and any other new features being included in the next major release we will merge them into **master** and create an official major release version (e.g. update from version 1.1 to version 2.0 and the R package and Grass Module are updated to 2.0.0). 
 
 If you are interested in contributing to PoPS and are not a core developer on the model, please take a look at following
 documents to make the process as seamless as possible.
