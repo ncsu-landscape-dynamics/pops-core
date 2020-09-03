@@ -22,7 +22,7 @@ required version.
 
 ## Contributing
 
-This section is designed to clarify the branch structure and versioning of this repository (and interface repositories) and general naming of new features and bug fix branches, especially those that are take longer to develope.
+This section is designed to clarify the branch structure and versioning of this repository (and interface repositories) and general naming of new features and bug fix branches, especially those that are take longer to develop.
 
 ### Branch Structure
 
