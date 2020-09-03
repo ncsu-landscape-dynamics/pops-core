@@ -17,9 +17,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: configure
+    - name: Configure
       run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
-    - name: build
+    - name: Build
       run: cmake --build build
-    - name: test
+    - name: Test
       run: env CTEST_OUTPUT_ON_FAILURE=1 cmake --build build --target test
+    - name: Documentation build test
+      run: cmake --build build --target docs
