@@ -24,17 +24,18 @@
 namespace pops {
 
 using std::pow;
+using std::tan;
 
 /*! Dispersal kernel for log secant
  */
-class HyperbolicSecantKernel
+class CauchyKernel
 {
 protected:
     double s;
     std::cauchy_distribution<double> cauchy_distribution;
 
 public:
-    ExponentialPowerKernel(double unused, double ss) : s(ss), cauchy_distribution(s) {}
+    CauchyKernel(double ss, double unused) : s(ss), cauchy_distribution(0, s) {}
 
     template<class Generator>
     double random(Generator& generator)

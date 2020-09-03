@@ -23,18 +23,19 @@
 
 namespace pops {
 
-using std::pow;
+using std::cosh;
+using std::tan;
+using std::log;
 
 /*! Dispersal kernel for log secant
  */
 class HyperbolicSecantKernel
 {
 protected:
-    double mu;
     double sigma;
 
 public:
-    HyperbolicSecantKernel(double m, double s) : mu(m), sigma(s) {}
+    HyperbolicSecantKernel(double s, double unused) : sigma(s) {}
 
     template<class Generator>
     double random(Generator& generator)
@@ -55,10 +56,10 @@ public:
         if (x <= 0 || sigma == 0) {
             return 0;
         }
-        if (mu == 0 && sigma == 1) {
+        if (sigma == 1) {
             return 0.5 * (1 / cosh((M_PI * x) / 2));
         }
-        return (1 / (2 * sigma)) * (1 / cosh((M_PI * (x - mu)) / (2 * sigma)));
+        return (1.0 / (2 * sigma)) * (1 / cosh((M_PI * x) / (2 * sigma)));
     }
 
     double icdf(double x)
@@ -66,10 +67,10 @@ public:
         if (x <= 0 || sigma == 0) {
             return 0;
         }
-        if (mu == 0 && sigma == 1) {
+        if (sigma == 1) {
             return (2.0 / M_PI) * log(tan(M_PI / 2.0 * x));
         }
-        return ((log(tan((x * M_PI) / 2.0)) * (2.0 * sigma)) / M_PI) + mu;
+        return ((log(tan((x * M_PI) / 2.0)) * (2.0 * sigma)) / M_PI);
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()

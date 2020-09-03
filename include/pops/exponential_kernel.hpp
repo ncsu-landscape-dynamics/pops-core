@@ -23,7 +23,8 @@
 
 namespace pops {
 
-using std::pow;
+using std::exp;
+using std::log;
 
 /*! Dispersal kernel for Exponential distribution
  */
@@ -34,7 +35,7 @@ protected:
     std::exponential_distribution<double> exponential_distribution;
 
 public:
-    ExponentialKernel(double unused, double b)
+    ExponentialKernel(double b, double unused)
         : beta(b), exponential_distribution(1.0 / beta)
     {}
 

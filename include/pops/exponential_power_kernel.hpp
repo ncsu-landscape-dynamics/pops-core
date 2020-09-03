@@ -17,7 +17,6 @@
 #define POPS_EXPONENTIAL_POWER_KERNEL_HPP
 
 #include "kernel_types.hpp"
-#include "deterministic_kernel.hpp"
 #include "gamma_kernel.hpp"
 #include "raster.hpp"
 
@@ -26,6 +25,7 @@
 namespace pops {
 
 using std::pow;
+using std::exp;
 
 /*! Dispersal kernel for exponential power distribution
  */
@@ -60,7 +60,7 @@ public:
 
     double icdf(double x)
     {
-        GammaDistribution gamma_distribution(1.0 / beta, 1.0 / pow(alpha, beta));
+        GammaKernel gamma_distribution(1.0 / beta, 1.0 / pow(alpha, beta));
         double gamma = gamma_distribution.icdf(2 * std::abs(x - 0.5));
         return (x - 0.5) * pow(gamma, 1.0 / beta);
     }

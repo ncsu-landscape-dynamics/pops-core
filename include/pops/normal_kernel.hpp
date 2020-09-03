@@ -24,31 +24,20 @@
 namespace pops {
 
 using std::pow;
-
-//  0.147 used for a relative error of about 2*10^-3
-//  equation for approximation for erfinv from
-//  "A handy approximation for the error function and its inverse" by Sergei Winitzki
-float inv_erf(float x)
-{
-    float sign = (x < 0) ? -1.0f : 1.0f;
-
-    float b = 2 / (M_PI * 0.147) + 0.5f * log(1 - pow(x, 2));
-
-    return (sign * sqrt(-b + sqrt(pow(b, 2) - (1 / (0.147) * log(1 - pow(x, 2))))));
-}
+using std::exp;
+using std::log;
+using std::sqrt;
 
 /*! Dispersal kernel for log secant
  */
 class NormalKernel
 {
 protected:
-    double mu;
     double sigma;
     std::normal_distribution<double> normal_distribution;
 
 public:
-    NormalKernel(double m, double s) : mu(m), sigma(s), normal_distribution(sigma, mu)
-    {}
+    NormalKernel(double s, double unused) : sigma(s), normal_distribution(0.0, sigma) {}
 
     template<class Generator>
     double random(Generator& generator)
@@ -58,10 +47,10 @@ public:
 
     double pdf(double x)
     {
-        if (mu == 0 || sigma == 1) {
+        if (sigma == 1) {
             return 1 / (sqrt(2 * M_PI)) * exp(-0.5 * pow(x, 2));
         }
-        return 1 / (sigma * sqrt(2 * M_PI)) * exp(-0.5 * pow((x - mu) / sigma, 2));
+        return 1 / (sigma * sqrt(2 * M_PI)) * exp(-0.5 * pow(x / sigma, 2));
     }
 
     double icdf(double x)
@@ -69,7 +58,18 @@ public:
         if (x <= 0) {
             return 0;
         }
-        return mu + (sigma * std::sqrt(2) * (inv_erf((2 * x) - 1)));
+        // inverse error function
+        //  0.147 used for a relative error of about 2*10^-3
+        //  equation for approximation for erfinv from
+        //  "A handy approximation for the error function and its inverse" by Sergei
+        //  Winitzki
+        double y = (2 * x) - 1;
+        float sign = (y < 0) ? -1.0f : 1.0f;
+        float b = 2 / (M_PI * 0.147) + 0.5f * log(1 - pow(y, 2));
+        double inverf =
+            (sign * sqrt(-b + sqrt(pow(b, 2) - (1 / (0.147) * log(1 - pow(y, 2))))));
+
+        return sigma * std::sqrt(2) * inverf;
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()

@@ -28,6 +28,7 @@
 #include <pops/hyperbolic_secant_kernel.hpp>
 #include <pops/logistic_kernel.hpp>
 #include <pops/exponential_power_kernel.hpp>
+#include <pops/gamma_kernel.hpp>
 #include <pops/deterministic_kernel.hpp>
 #include <iostream>
 #include <fstream>
@@ -75,7 +76,6 @@ int test_power_law_rng()
 int test_hyperbolic_secant_rng()
 {
     std::default_random_engine generator;
-    double mu_ = 1.0;
     double sigma_ = 2.0;
     // HyperbolicSecantDistributionRandom logsech(1.0, 2.0);
     // std::cout << "Hyperbolic secant random: " << logsech.random(generator) << "\n";
@@ -91,7 +91,7 @@ int test_hyperbolic_secant_rng()
 
         // get random value from a uniform distribution and use it
         // to get a random value from the distribution
-        double y = ((log(tan((x * M_PI) / 2.0)) * (2.0 * sigma_)) / M_PI) + mu_;
+        double y = ((log(tan((x * M_PI) / 2.0)) * (2.0 * sigma_)) / M_PI);
         file << x << "," << y << ",\n";
     }
     file.close();
@@ -100,7 +100,6 @@ int test_hyperbolic_secant_rng()
 int test_logistic_rng()
 {
     std::default_random_engine generator;
-    double mu_ = 1.0;
     double s_ = 2.0;
     std::ofstream file;
     file.open("testing_logistic.csv");
@@ -112,7 +111,7 @@ int test_logistic_rng()
 
         // get random value from a uniform distribution and use it
         // to get a random value from the distribution
-        double y = mu_ + s_ * log(x / (1 - x));
+        double y = s_ * log(x / (1 - x));
         file << x << "," << y << ",\n";
     }
     file.close();
@@ -131,7 +130,7 @@ int test_exponential_power_rng()
     std::uniform_real_distribution<double> distribution(0.0, 1.0);
     for (int i = 0; i < 10000; i++) {
         double x = distribution(generator);
-        GammaDistribution gamma_distribution(1.0 / beta_, 1.0 / pow(alpha_, beta_));
+        GammaKernel gamma_distribution(1.0 / beta_, 1.0 / pow(alpha_, beta_));
         double gamma = gamma_distribution.icdf(2 * std::abs(x - 0.5));
         double y = (x - 0.5) * pow(gamma, 1.0 / beta_);
         file << x << "," << y << ",\n";

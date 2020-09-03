@@ -21,6 +21,16 @@
 
 #include "raster.hpp"
 #include "kernel_types.hpp"
+#include "hyperbolic_secant_kernel.hpp"
+#include "logistic_kernel.hpp"
+#include "exponential_power_kernel.hpp"
+#include "exponential_kernel.hpp"
+#include "cauchy_kernel.hpp"
+#include "gamma_kernel.hpp"
+#include "lognormal_kernel.hpp"
+#include "normal_kernel.hpp"
+#include "weibull_kernel.hpp"
+#include "power_law_kernel.hpp"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -38,419 +48,6 @@ using std::log;
 using std::ceil;
 using std::abs;
 using std::sqrt;
-
-//  0.147 used for a relative error of about 2*10^-3
-//  equation for approximation for erfinv from
-//  "A handy approximation for the error function and its inverse" by Sergei Winitzki
-float inv_erf(float x)
-{
-    float sign = (x < 0) ? -1.0f : 1.0f;
-
-    float b = 2 / (M_PI * 0.147) + 0.5f * log(1 - pow(x, 2));
-
-    return (sign * sqrt(-b + sqrt(pow(b, 2) - (1 / (0.147) * log(1 - pow(x, 2))))));
-}
-
-/*!
- * Cauchy distribution
- * Includes probability density function and inverse cumulative distribution function
- * pdf returns the probability that the variate has the value x
- * icdf returns the upper range that encompasses x percent of the distribution (e.g for
- * 99% input .99)
- */
-class CauchyDistribution
-{
-public:
-    CauchyDistribution(double scale) : s(scale) {}
-
-    double pdf(double x)
-    {
-        return 1 / ((s * M_PI) * (1 + (pow(x / s, 2))));
-    }
-    // Inverse cdf (quantile function)
-    double icdf(double x)
-    {
-        return s * tan(M_PI * (x - 0.5));
-    }
-
-private:
-    // scale parameter - 1 for standard
-    double s;
-};
-
-/*!
- * Exponential distribution
- * Includes probability density function and inverse cumulative distribution function
- * pdf returns the probability that the variate has the value x
- * icdf returns the upper range that encompasses x percent of the distribution (e.g for
- * 99% input 0.99)
- */
-class ExponentialDistribution
-{
-public:
-    ExponentialDistribution(double scale) : beta(scale) {}
-    // assumes mu is 0 which is traditionally accepted
-    double pdf(double x)
-    {
-        return (1 / beta) * (exp(-x / beta));
-    }
-    // Inverse cdf (quantile function)
-    double icdf(double x)
-    {
-        if (beta == 1) {
-            return -log(1 - x);
-        }
-        else {
-            return -beta * log(1 - x);
-        }
-    }
-
-private:
-    // scale parameter - 1 for standard
-    // equal to 1/lambda
-    double beta;
-};
-/*!
- * Log-Normal distribution
- * Includes probability density function and cumulative distribution function
- * pdf returns the probability that the variate has the value x
- * cdf returns the upper range that encompasses x percent of the distribution (e.g
- * for 99% input 0.99)
- */
-class LogNormalDistribution
-{
-public:
-    LogNormalDistribution(double scale, double locator) : mu(scale), sigma(locator) {}
-
-    double pdf(double x)
-    {
-        if (x <= 0 || sigma == 0) {
-            return 0;
-        }
-        return (1 / x) * (1 / (sigma * sqrt(2 * M_PI)))
-               * exp(-(pow(log(x) - mu, 2)) / (2 * pow(sigma, 2)));
-    }
-
-    double icdf(double x)
-    {
-        if (x <= 0) {
-            return 0;
-        }
-        return exp(mu + sqrt(2 * pow(sigma, 2)) * inv_erf((2 * x) - 1));
-        // double z = 0.0;
-        // double count = 0.0;
-        // while ( z < x ) {
-        //    count += 0.5;
-        //    z = 0.5 * std::erfc(-(log(count) - mu) / (sigma * sqrt(2)));
-        //}
-        // return count;
-    }
-
-private:
-    double sigma;  // standard deviation
-    double mu;  // mean
-};
-/*!
- * Gamma distribution
- * Includes probability density function and cumulative distribution function
- * pdf returns the probability that the variate has the value x
- * cdf returns the upper range that encompasses x percent of the distribution (e.g for
- * 99% input 0.99)
- */
-class GammaDistribution
-{
-public:
-    GammaDistribution(double scale, double locator) : alpha(scale), theta(locator) {}
-
-    double pdf(double x)
-    {
-        if (x < 0 || alpha < 0 || theta < 0) {
-            return 0;
-        }
-        return 1.0 / (std::tgamma(alpha) * pow(theta, alpha)) * pow(x, (alpha - 1))
-               * exp(-x / theta);
-    }
-
-    double cdf(double x)
-    {
-        double sum = 0.0;
-        double beta = 1.0 / theta;
-        for (int i = 0; i < alpha; i++) {
-            // tgamma = (i-1)! used since c++ has no factorial in std lib
-            sum += pow(beta * x, i) / std::tgamma(i + 1);
-        }
-        return 1 - sum * exp(-beta * x);
-    }
-
-    // there is no known closed-form solution
-    // R and MatLab use an iterative approach (Newton's method)
-    double icdf(double x)
-    {
-        // pick starting approximation using lognormal icdf
-        LogNormalDistribution lognormal(0, 1);
-        double guess = lognormal.icdf(x);
-        // TODO add cdf function
-        double check = cdf(guess);
-        double numiterations = 500;  // will need to adjust this
-        double precision = 0.001;  // will need to adjust this
-        for (int i = 0; i < numiterations; i++) {
-            if (check < (x - precision) || check > (x + precision)) {
-                double dif = check - x;
-                // if dif is positive guess is greater than needed
-                // if dif is negative guess is less than needed
-                double past_guess = guess;
-                double derivative = (check - x) / pdf(guess);
-                // limit size of next guess
-                guess = std::max(guess / 10, std::min(guess * 10, guess - derivative));
-                check = cdf(guess);
-                // Check if we went to far and need to backtrack
-                for (int j = 0; j < 10; j++) {
-                    if (std::abs(dif) < std::abs(check - x)) {
-                        past_guess = guess;
-                        guess = (guess + past_guess) / 2.0;
-                        check = cdf(guess);
-                    }
-                }
-            }
-            else {
-                return guess;
-            }
-        }
-        // TODO error message
-        std::cout << "unable to find solution to gamma icdf(" << x << ")\n";
-        return -1;
-    }
-
-private:
-    double alpha;  // scale
-    double theta;  // shape
-};
-
-/*!
- * Exponential Power distribution
- * Includes probability density function and cumulative distribution function
- * pdf returns the probability that the variate has the value x
- * icdf returns the upper range that encompasses x percent of the distribution (e.g
- * for 99% input 0.99)
- */
-class ExponentialPowerDistribution
-{
-public:
-    ExponentialPowerDistribution(double scale, double locator)
-        : alpha(scale), beta(locator)
-    {}
-
-    double pdf(double x)
-    {
-        if (beta == 0) {
-            return 0;
-        }
-        return (beta / (2 * alpha * std::tgamma(1.0 / beta)))
-               * pow(exp(-x / alpha), beta);
-    }
-
-    double icdf(double x)
-    {
-        GammaDistribution gamma_distribution(1.0 / beta, 1.0 / pow(alpha, beta));
-        double gamma = gamma_distribution.icdf(2 * std::abs(x - 0.5));
-        return (x - 0.5) * pow(gamma, 1.0 / beta);
-    }
-
-private:
-    double alpha;  // scale
-    double beta;  // shape
-};
-/*!
- * Weibull distribution
- * Includes probability density function and cumulative distribution function
- * pdf returns the probability that the variate has the value x
- * icdf returns the upper range that encompasses x percent of the distribution (e.g
- * for 99% input 0.99)
- */
-class WeibullDistribution
-{
-public:
-    WeibullDistribution(double scale, double locator) : b(scale), a(locator) {}
-
-    double pdf(double x)
-    {
-        if (x < 0 || b <= 0 || a < 0) {
-            return 0;
-        }
-        // Note: If the value inside exp() is too large it returns zero
-        // any a >= 2 returns zero
-        return ((a / b) * pow(x / b, a - 1) * exp(-pow(x / b, a)));
-    }
-
-    double icdf(double x)
-    {
-        if (x < 0 || x >= 1 || b <= 0 || a < 0) {
-            return 0;
-        }
-        return a * pow(-(log(1 - x)), (1.0 / b));
-    }
-
-private:
-    double a;  // shape
-    double b;  // scale
-};
-
-/*!
- * Normal distribution
- * Includes probability density function and cumulative distribution function
- * pdf returns the probability that the variate has the value x
- * icdf returns the upper range that encompasses x percent of the distribution (e.g
- * for 99% input 0.99)
- */
-class NormalDistribution
-{
-public:
-    NormalDistribution(double scale, double locator) : mu(scale), sigma(locator) {}
-
-    double pdf(double x)
-    {
-        if (mu == 0 || sigma == 1) {
-            return 1 / (sqrt(2 * M_PI)) * exp(-0.5 * pow(x, 2));
-        }
-        return 1 / (sigma * sqrt(2 * M_PI)) * exp(-0.5 * pow((x - mu) / sigma, 2));
-    }
-
-    double icdf(double x)
-    {
-        if (x <= 0) {
-            return 0;
-        }
-        return mu + (sigma * std::sqrt(2) * (inv_erf((2 * x) - 1)));
-        // double z = 0.0;
-        // double count = 0.0;
-        // while ( z < x ) {
-        //    count += 0.5;
-        //    z = 0.5 * (1 + std::erf((count - mu) / (sigma * sqrt(2))));
-        //}
-        // return count;
-    }
-
-private:
-    double sigma;  // standard deviation
-    double mu;  // mean
-};
-
-/*!
- * Power law distribution
- * Includes probability density function and cumulative distribution function
- * pdf returns the probability that the variate has the value x
- * cdf returns the upper range that encompasses x percent of the distribution (e.g
- * for 99% input 0.99)
- */
-class PowerLawDistribution
-{
-public:
-    PowerLawDistribution(double scale, double locator) : alpha(scale), xmin(locator) {}
-
-    // Should only work with alpha > 1
-    // Since power law begins at 1 the distribution the center
-    // square in the prob matrix is always 0 - should maybe shift the results?
-    double pdf(double x)
-    {
-        if (x <= 0 || xmin == 0 || alpha <= 1.0) {
-            return 0;
-        }
-        return ((alpha - 1.0) / xmin) * pow(x / xmin, -alpha);
-    }
-
-    double icdf(double x)
-    {
-        if (x <= 0 || xmin == 0 || alpha <= 1.0) {
-            return 0;
-        }
-        return pow(x, (1.0 / (-alpha + 1.0))) * xmin;
-    }
-
-private:
-    double alpha;
-    double xmin;
-};
-
-// Note: Can't find anything called log-hyperbolic secant
-/*!
- * Hyperbolic Secant distribution
- * Includes probability density function and cumulative distribution function
- * pdf returns the probability that the variate has the value x
- * cdf returns the upper range that encompasses x percent of the distribution (e.g
- * for 99% input 0.99)
- */
-class HyperbolicSecantDistribution
-{
-public:
-    HyperbolicSecantDistribution(double scale, double locator)
-        : mu(scale), sigma(locator)
-    {}
-
-    double pdf(double x)
-    {
-        if (x <= 0 || sigma == 0) {
-            return 0;
-        }
-        if (mu == 0 && sigma == 1) {
-            return 0.5 * (1 / cosh((M_PI * x) / 2));
-        }
-        return (1 / (2 * sigma)) * (1 / cosh((M_PI * (x - mu)) / (2 * sigma)));
-    }
-
-    double icdf(double x)
-    {
-        if (x <= 0 || sigma == 0) {
-            return 0;
-        }
-        if (mu == 0 && sigma == 1) {
-            return (2 / M_PI) * log(tan(M_PI / 2 * x));
-        }
-        return ((log(tan((x * M_PI) / 2)) * (2 * sigma)) / M_PI) + mu;
-    }
-
-private:
-    double mu;  //
-    double sigma;  //
-};
-
-/*!
- * Logistic distribution
- * Includes probability density function and cumulative distribution function
- * pdf returns the probability that the variate has the value x
- * cdf returns the upper range that encompasses x percent of the distribution (e.g
- * for 99% input 0.99)
- */
-class LogisticDistribution
-{
-public:
-    LogisticDistribution(double scale, double locator) : mu(scale), s(locator) {}
-
-    double pdf(double x)
-    {
-        if (x < 0 || s == 0) {
-            return 0;
-        }
-        if (mu == 0 && s == 1) {
-            return exp(-x) / pow(1 + exp(-x), 2);
-        }
-        return (exp(-(x - mu) / s)) / (s * pow(1 + exp(-(x - mu) / s), 2));
-    }
-
-    double icdf(double x)
-    {
-        if (x <= 0 || s == 0) {
-            return 0;
-        }
-        if (mu == 0 && s == 1) {
-            return log(x / (1 - x));
-        }
-        return mu + (s * log(x / (1 - x)));
-    }
-
-private:
-    double mu;  //
-    double s;  //
-};
 
 /*!
  * Dispersal kernel for deterministic spread to cell with highest probability of
@@ -482,16 +79,16 @@ protected:
     double max_distance{0};
     Raster<double> probability;
     Raster<double> probability_copy;
-    CauchyDistribution cauchy;
-    ExponentialDistribution exponential;
-    WeibullDistribution weibull;
-    LogNormalDistribution logNormal;
-    NormalDistribution normal;
-    HyperbolicSecantDistribution hyperbolicSecant;
-    PowerLawDistribution powerLaw;
-    GammaDistribution gamma;
-    ExponentialPowerDistribution exponentialPower;
-    LogisticDistribution logistic;
+    CauchyKernel cauchy;
+    ExponentialKernel exponential;
+    WeibullKernel weibull;
+    LogNormalKernel logNormal;
+    NormalKernel normal;
+    HyperbolicSecantKernel hyperbolicSecant;
+    PowerLawKernel powerLaw;
+    GammaKernel gamma;
+    ExponentialPowerKernel exponentialPower;
+    LogisticKernel logistic;
 
     DispersalKernelType kernel_type_;
     double proportion_of_dispersers;
@@ -508,18 +105,18 @@ public:
         double ew_res,
         double ns_res,
         double distance_scale,
-        double locator)
+        double shape = 1.0)
         : dispersers_(dispersers),
-          cauchy(distance_scale),
-          exponential(distance_scale),
-          weibull(distance_scale, locator),
-          logNormal(distance_scale, locator),
-          normal(distance_scale, locator),
-          hyperbolicSecant(distance_scale, locator),
-          powerLaw(distance_scale, locator),
-          logistic(distance_scale, locator),
-          gamma(distance_scale, locator),
-          exponentialPower(distance_scale, locator),
+          cauchy(distance_scale, 0),
+          exponential(distance_scale, 0),
+          weibull(distance_scale, shape),
+          logNormal(distance_scale, 0),
+          normal(distance_scale, 0),
+          hyperbolicSecant(distance_scale, 0),
+          powerLaw(distance_scale, shape),
+          logistic(distance_scale, 0),
+          gamma(distance_scale, shape),
+          exponentialPower(distance_scale, shape),
           kernel_type_(dispersal_kernel),
           east_west_resolution(ew_res),
           north_south_resolution(ns_res)
@@ -669,6 +266,28 @@ public:
 
         // return values in terms of actual location
         return std::make_tuple(row + row_movement, col + col_movement);
+    }
+
+    /*! Returns true if the kernel class support a given kernel type
+     *
+     * \warning This function is experimental and may be removed or
+     * changed at any time.
+     */
+    static bool supports_kernel(const DispersalKernelType type)
+    {
+        static const std::array<DispersalKernelType, 2> supports = {
+            DispersalKernelType::Cauchy,
+            DispersalKernelType::Exponential,
+            DispersalKernelType::Weibull,
+            DispersalKernelType::Normal,
+            DispersalKernelType::LogNormal,
+            DispersalKernelType::PowerLaw,
+            DispersalKernelType::HyperbolicSecant,
+            DispersalKernelType::Gamma,
+            DispersalKernelType::ExponentialPower,
+            DispersalKernelType::Logistic};
+        auto it = std::find(supports.cbegin(), supports.cend(), type);
+        return it != supports.cend();
     }
 };
 

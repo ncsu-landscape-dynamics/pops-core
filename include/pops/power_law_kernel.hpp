@@ -17,7 +17,6 @@
 #define POPS_POWER_LAW_KERNEL_HPP
 
 #include "kernel_types.hpp"
-#include "deterministic_kernel.hpp"
 #include "raster.hpp"
 
 #include <random>
@@ -43,6 +42,10 @@ public:
         std::uniform_real_distribution<double> distribution(0.0, 1.0);
         double x = distribution(generator);
         // return pow(x, (1.0 / (-alpha_ + 1.0))) * xmin_;
+        // since distribution is 0 to 1 xmin needs to be greater than 0
+        if (xmin <= 0) {
+            xmin = 0.01;
+        }
         return icdf(x);
     }
 

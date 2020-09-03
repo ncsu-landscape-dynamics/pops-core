@@ -18,12 +18,14 @@
 
 #include "kernel_types.hpp"
 #include "raster.hpp"
+#include "lognormal_kernel.hpp"
 
 #include <random>
 
 namespace pops {
 
 using std::pow;
+using std::exp;
 
 /*! Dispersal kernel for log secant
  */
@@ -70,7 +72,7 @@ public:
     double icdf(double x)
     {
         // pick starting approximation using lognormal icdf
-        LogNormalDistribution lognormal(0, 1);
+        LogNormalKernel lognormal(0, 1);
         double guess = lognormal.icdf(x);
         // TODO add cdf function
         double check = cdf(guess);

@@ -24,17 +24,17 @@
 namespace pops {
 
 using std::pow;
-
+using std::exp;
+using std::log;
 /*! Dispersal kernel for log secant
  */
 class LogisticKernel
 {
 protected:
-    double mu;
     double s;
 
 public:
-    LogisticKernel(double m, double ss) : mu(m), s(ss) {}
+    LogisticKernel(double scale, double unused) : s(scale) {}
 
     template<class Generator>
     double random(Generator& generator)
@@ -55,10 +55,10 @@ public:
         if (x < 0 || s == 0) {
             return 0;
         }
-        if (mu == 0 && s == 1) {
+        if (s == 1) {
             return exp(-x) / pow(1 + exp(-x), 2);
         }
-        return (exp(-(x - mu) / s)) / (s * pow(1 + exp(-(x - mu) / s), 2));
+        return (exp(-x / s)) / (s * pow(1 + exp(-x / s), 2));
     }
 
     double icdf(double x)
@@ -66,10 +66,7 @@ public:
         if (x <= 0 || s == 0) {
             return 0;
         }
-        if (mu == 0 && s == 1) {
-            return log(x / (1.0 - x));
-        }
-        return mu + (s * log(x / (1.0 - x)));
+        return s * log(x / (1.0 - x));
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()

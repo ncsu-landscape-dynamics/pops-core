@@ -23,7 +23,9 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <pops/radial_kernel.hpp>
+#include <pops/deterministic_kernel.hpp>
+#include <pops/cauchy_kernel.hpp>
+#include <pops/exponential_kernel.hpp>
 #include <pops/simulation.hpp>
 
 using std::string;
@@ -72,16 +74,8 @@ int test_with_cauchy_deterministic_kernel()
              << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::Cauchy,
-        0.9,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.9);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Cauchy, dispersers, 0.9, 30, 30, 0.9);
     // using a smaller scale value since the test raster is so small
     simulation.disperse(
         dispersers,
@@ -154,16 +148,8 @@ int test_with_exponential_deterministic_kernel()
              << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::Exponential,
-        1.0,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.99);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Exponential, dispersers, 0.99, 30, 30, 1.0);
 
     s2.disperse(
         dispersers,
@@ -236,17 +222,8 @@ int test_with_weibull_deterministic_kernel()
              << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::Weibull,
-        1.0,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.99,
-        1.0);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Weibull, dispersers, 0.99, 30, 30, 1.0, 1.0);
 
     s2.disperse(
         dispersers,
@@ -290,8 +267,8 @@ int test_with_log_normal_deterministic_kernel()
     Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
-    Raster<int> expected_mortality_tracker = {{1, 4, 1}, {4, 0, 0}, {0, 0, 0}};
-    Raster<int> expected_infected = {{6, 4, 1}, {4, 5, 0}, {0, 0, 2}};
+    Raster<int> expected_mortality_tracker = {{0, 5, 0}, {5, 0, 0}, {0, 0, 0}};
+    Raster<int> expected_infected = {{5, 5, 0}, {5, 5, 0}, {0, 0, 2}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
@@ -318,17 +295,8 @@ int test_with_log_normal_deterministic_kernel()
              << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::LogNormal,
-        0.1,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.99,
-        1.0);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::LogNormal, dispersers, 0.99, 30, 30, 0.1);
 
     s2.disperse(
         dispersers,
@@ -401,17 +369,8 @@ int test_with_normal_deterministic_kernel()
              << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::Normal,
-        1.0,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.99,
-        2);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Normal, dispersers, 0.99, 30, 30, 1.0);
 
     s2.disperse(
         dispersers,
@@ -484,17 +443,8 @@ int test_with_hyperbolic_secant_deterministic_kernel()
             << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::HyperbolicSecant,
-        1.0,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.99,
-        2);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::HyperbolicSecant, dispersers, 0.99, 30, 30, 1.0);
 
     s2.disperse(
         dispersers,
@@ -567,17 +517,8 @@ int test_with_power_law_deterministic_kernel()
              << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::PowerLaw,
-        1.5,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.99,
-        2);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::PowerLaw, dispersers, 0.99, 30, 30, 1.5, 2);
 
     s2.disperse(
         dispersers,
@@ -648,17 +589,8 @@ int test_with_logistic_deterministic_kernel()
              << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::Logistic,
-        1.5,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.99,
-        2);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Logistic, dispersers, 0.99, 30, 30, 1.5);
 
     s2.disperse(
         dispersers,
@@ -729,17 +661,8 @@ int test_with_gamma_deterministic_kernel()
              << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::Gamma,
-        1.5,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.9,
-        0.5);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Gamma, dispersers, 0.9, 30, 30, 1.5, 0.5);
 
     s2.disperse(
         dispersers,
@@ -812,17 +735,8 @@ int test_with_exponential_power_deterministic_kernel()
             << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::ExponentialPower,
-        1.5,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.9,
-        0.5);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::ExponentialPower, dispersers, 0.9, 30, 30, 1.5, 0.5);
 
     s2.disperse(
         dispersers,
@@ -860,7 +774,7 @@ int test_cauchy_distribution_functions()
 {
     // testing cauchy pdf & icdf
     double scale = 0.001;  // rounding to thousands place
-    CauchyDistribution cauchy(1.0);
+    CauchyKernel cauchy(1.0, 0);
     double probability = (int)(cauchy.pdf(5) / scale) * scale;
     double probability_ref = 0.012;
     if (probability != probability_ref) {
@@ -875,7 +789,7 @@ int test_cauchy_distribution_functions()
              << "\n";
         return 1;
     }
-    CauchyDistribution cauchy1(1.5);
+    CauchyKernel cauchy1(1.5, 0);
     probability_ref = 0.017;
     probability = (int)(cauchy1.pdf(5) / scale) * scale;
     if (probability != probability_ref) {
@@ -897,7 +811,7 @@ int test_exponential_distribution_functions()
 {
     double scale = 0.001;  // rounding to thousands place
     // testing exponential pdf & icdf
-    ExponentialDistribution exponential(1.0);
+    ExponentialKernel exponential(1.0, 0);
     double probability = (int)(exponential.pdf(1) / scale) * scale;
     double probability_ref = 0.367;
     if (probability != probability_ref) {
@@ -912,7 +826,7 @@ int test_exponential_distribution_functions()
              << "\n";
         return 1;
     }
-    ExponentialDistribution exponential2(1.5);
+    ExponentialKernel exponential2(1.5, 0);
     probability = (int)(exponential2.pdf(1) / scale) * scale;
     probability_ref = 0.342;
     if (probability != probability_ref) {

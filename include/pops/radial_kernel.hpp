@@ -19,12 +19,17 @@
 #ifndef POPS_RADIAL_KERNEL_HPP
 #define POPS_RADIAL_KERNEL_HPP
 
-#include "deterministic_kernel.hpp"
 #include "kernel_types.hpp"
 #include "hyperbolic_secant_kernel.hpp"
-#include "power_law_kernel.hpp"
 #include "logistic_kernel.hpp"
 #include "exponential_power_kernel.hpp"
+#include "exponential_kernel.hpp"
+#include "cauchy_kernel.hpp"
+#include "gamma_kernel.hpp"
+#include "lognormal_kernel.hpp"
+#include "normal_kernel.hpp"
+#include "weibull_kernel.hpp"
+#include "power_law_kernel.hpp"
 
 #include <cmath>
 #include <map>
@@ -177,18 +182,16 @@ protected:
     // the north-south resolution of the pixel
     double north_south_resolution;
     DispersalKernelType dispersal_kernel_type_;
-    std::cauchy_distribution<double> cauchy_distribution;
-    std::exponential_distribution<double> exponential_distribution;
-    std::weibull_distribution<double> weibull_distribution;
-    std::normal_distribution<double> normal_distribution;
-    std::lognormal_distribution<double> lognormal_distribution;
+    CauchyKernel cauchy_distribution;
+    ExponentialKernel exponential_distribution;
+    WeibullKernel weibull_distribution;
+    NormalKernel normal_distribution;
+    LogNormalKernel lognormal_distribution;
     PowerLawKernel power_law_distribution;
     HyperbolicSecantKernel hyperbolic_secant_distribution;
-    std::gamma_distribution<double> gamma_distribution;
+    GammaKernel gamma_distribution;
     ExponentialPowerKernel exponential_power_distribution;
     LogisticKernel logistic_distribution;
-    bool deterministic_;
-    DeterministicDispersalKernel<IntegerRaster> deterministic_kernel;
     von_mises_distribution von_mises;
 
 public:
@@ -199,36 +202,26 @@ public:
         double distance_scale,
         Direction dispersal_direction = Direction::None,
         double dispersal_direction_kappa = 0,
-        bool deterministic = false,
         const IntegerRaster& dispersers = {{0}},
         double dispersal_percentage = 0.99,
-        double locator = 1)
+        double shape = 1)
         : east_west_resolution(ew_res),
           north_south_resolution(ns_res),
           dispersal_kernel_type_(dispersal_kernel),
           // Here we initialize all distributions,
           // although we won't use all of them.
-          cauchy_distribution(0.0, distance_scale),
+          cauchy_distribution(distance_scale, 0.0),
           // When lambda is higher, exponential gives less higher values,
           // so we do multiplicative inverse to behave like cauchy.
-          exponential_distribution(1.0 / distance_scale),
-          weibull_distribution(distance_scale, locator),
-          normal_distribution(distance_scale, locator),
-          lognormal_distribution(distance_scale, locator),
-          power_law_distribution(distance_scale, locator),
-          hyperbolic_secant_distribution(distance_scale, locator),
-          gamma_distribution(distance_scale, locator),
-          exponential_power_distribution(distance_scale, locator),
-          logistic_distribution(distance_scale, locator),
-          deterministic_(deterministic),
-          deterministic_kernel(
-              dispersal_kernel,
-              dispersers,
-              dispersal_percentage,
-              ew_res,
-              ns_res,
-              distance_scale,
-              locator),
+          exponential_distribution(distance_scale, 0),
+          weibull_distribution(distance_scale, shape),
+          normal_distribution(distance_scale, shape),
+          lognormal_distribution(distance_scale, shape),
+          power_law_distribution(distance_scale, shape),
+          hyperbolic_secant_distribution(distance_scale, shape),
+          gamma_distribution(distance_scale, shape),
+          exponential_power_distribution(distance_scale, shape),
+          logistic_distribution(distance_scale, shape),
           // if no wind, then kappa is 0
           // TODO: change these two computations to standalone inline
           // functions (dir to rad and adjust kappa)
@@ -248,27 +241,24 @@ public:
     template<typename Generator>
     std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
-        if (deterministic_) {
-            return deterministic_kernel(generator, row, col);
-        }
         double distance = 0;
         double theta = 0;
         // switch between the supported kernels
         // generate the distance from cauchy distribution or cauchy mixture distribution
         if (dispersal_kernel_type_ == DispersalKernelType::Cauchy) {
-            distance = std::abs(cauchy_distribution(generator));
+            distance = std::abs(cauchy_distribution.random(generator));
         }
         else if (dispersal_kernel_type_ == DispersalKernelType::Exponential) {
-            distance = std::abs(exponential_distribution(generator));
+            distance = std::abs(exponential_distribution.random(generator));
         }
         else if (dispersal_kernel_type_ == DispersalKernelType::Weibull) {
-            distance = std::abs(weibull_distribution(generator));
+            distance = std::abs(weibull_distribution.random(generator));
         }
         else if (dispersal_kernel_type_ == DispersalKernelType::Normal) {
-            distance = std::abs(normal_distribution(generator));
+            distance = std::abs(normal_distribution.random(generator));
         }
         else if (dispersal_kernel_type_ == DispersalKernelType::LogNormal) {
-            distance = std::abs(lognormal_distribution(generator));
+            distance = std::abs(lognormal_distribution.random(generator));
         }
         else if (dispersal_kernel_type_ == DispersalKernelType::PowerLaw) {
             distance = std::abs(power_law_distribution.random(generator));
@@ -277,7 +267,7 @@ public:
             distance = std::abs(hyperbolic_secant_distribution.random(generator));
         }
         else if (dispersal_kernel_type_ == DispersalKernelType::Gamma) {
-            distance = std::abs(gamma_distribution(generator));
+            distance = std::abs(gamma_distribution.random(generator));
         }
         else if (dispersal_kernel_type_ == DispersalKernelType::Logistic) {
             distance = std::abs(exponential_power_distribution.random(generator));

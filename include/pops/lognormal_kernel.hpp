@@ -24,6 +24,9 @@
 namespace pops {
 
 using std::pow;
+using std::exp;
+using std::log;
+using std::sqrt;
 
 //  0.147 used for a relative error of about 2*10^-3
 //  equation for approximation for erfinv from
@@ -42,13 +45,12 @@ float inv_erf(float x)
 class LogNormalKernel
 {
 protected:
-    double mu;
     double sigma;
     std::lognormal_distribution<double> lognormal_distribution;
 
 public:
-    LogNormalKernel(double m, double s)
-        : mu(m), sigma(s), lognormal_distribution(sigma, mu)
+    LogNormalKernel(double s, double unused)
+        : sigma(s), lognormal_distribution(0.0, sigma)
     {}
 
     template<class Generator>
@@ -63,7 +65,7 @@ public:
             return 0;
         }
         return (1 / x) * (1 / (sigma * sqrt(2 * M_PI)))
-               * exp(-(pow(log(x) - mu, 2)) / (2 * pow(sigma, 2)));
+               * exp(-(pow(log(x), 2)) / (2 * pow(sigma, 2)));
     }
 
     double icdf(double x)
@@ -71,7 +73,7 @@ public:
         if (x <= 0) {
             return 0;
         }
-        return exp(mu + sqrt(2 * pow(sigma, 2)) * inv_erf((2 * x) - 1));
+        return exp(sqrt(2 * pow(sigma, 2)) * inv_erf((2 * x) - 1));
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()

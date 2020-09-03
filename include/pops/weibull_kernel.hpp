@@ -24,6 +24,8 @@
 namespace pops {
 
 using std::pow;
+using std::exp;
+using std::log;
 
 /*! Dispersal kernel for log secant
  */
