@@ -9,16 +9,48 @@ and pathogens in forest and agricultural landscapes.
 It is used for various pest, pathogens, and hosts.
 It was originally developed for *Phytophthora ramorum* and the original
 version of the model was written in R, later with Rcpp,
-and was based on this reference paper:
-
-Ross K. Meentemeyer, Nik J. Cunniffe, Alex R. Cook, Joao A. N. Filipe, Richard D. Hunter, David M. Rizzo, and Christopher A. Gilligan 2011.
-Epidemiological modeling of invasion in heterogeneous landscapes: spread of sudden oak death in California (1990–2030).
-*Ecosphere* 2:art17. [https://doi.org/10.1890/ES10-00192.1]
+and was based on Meentemeyer (2011) paper.
 
 PoPS Core is a header-only C++ library.
 It is using templates for the main spatial data structures, i.e., rasters,
 to be universal and it makes use of C++11 features, so C++11 is the minimal
 required version.
+
+## How to cite
+
+If you use this software or code, please cite the following papers:
+
+* Ross K. Meentemeyer, Nik J. Cunniffe, Alex R. Cook, Joao A. N. Filipe,
+  Richard D. Hunter, David M. Rizzo, and Christopher A. Gilligan, 2011.
+  Epidemiological modeling of invasion in heterogeneous landscapes:
+  spread of sudden oak death in California (1990–2030).
+  *Ecosphere* 2:art17.
+  [DOI: 10.1890/ES10-00192.1](https://doi.org/10.1890/ES10-00192.1)
+
+* Tonini, Francesco, Douglas Shoemaker, Anna Petrasova, Brendan Harmon,
+  Vaclav Petras, Richard C. Cobb, Helena Mitasova,
+  and Ross K. Meentemeyer, 2017.
+  Tangible geospatial modeling for collaborative solutions
+  to invasive species management.
+  *Environmental Modelling & Software* 92: 176-188.
+  [DOI: 10.1016/j.envsoft.2017.02.020](https://doi.org/10.1016/j.envsoft.2017.02.020)
+
+In case you are using the automatic management feature in rpops or the
+steering version of r.pops.spread (from the branch steering), please
+cite also:
+
+* Petrasova, A., Gaydos, D.A., Petras, V., Jones, C.M., Mitasova, H. and
+  Meentemeyer, R.K., 2020.
+  Geospatial simulation steering for adaptive management.
+  *Environmental Modelling & Software* 133: 104801.
+  [DOI: 10.1016/j.envsoft.2020.104801](https://doi.org/10.1016/j.envsoft.2020.104801)
+
+In addition to citing the above paper, we also encourage you to
+reference, link, and/or acknowledge specific version of the software
+you are using for example:
+
+* *We have used rpops R package version 1.0.0 from
+  <https://github.com/ncsu-landscape-dynamics/rpops>*.
 
 ## Contributing
 
@@ -210,16 +242,27 @@ add_subdirectory(pops-core)
 target_link_libraries(your_target PRIVATE pops-core)
 ```
 
-## Authors
+## Authors and contributors
 
-* Vaclav Petras (raster handling, critical temperature, library, ...)
-* Anna Petrasova (single species simulation)
-* Chris Jones (rename, SEID, ...)
+### Authors
 
-## Previous Contributors
+_(alphabetical order)_
 
-* Francesco Tonini (original R version)
-* Zexi Chen (initial C++ version)
+* Chris Jones
+* Margaret Lawrimore
+* Vaclav Petras
+* Anna Petrasova
+
+### Previous contributors
+
+_(alphabetical order)_
+
+* Zexi Chen
+* Devon Gaydos
+* Francesco Tonini
+
+See Git commit history, GitHub insights, or CHANGELOG.md file (if present)
+for details about contributions.
 
 ## License
 
