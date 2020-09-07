@@ -61,7 +61,6 @@ int test_with_reduced_stochasticity()
     config.spreadrate_frequency_n = 1;
     config.natural_scale = 0.9;
     config.anthro_scale = 0.9;
-    
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);

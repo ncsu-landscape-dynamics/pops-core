@@ -65,21 +65,21 @@ int test_spread_rate()
         {0, 0, 0, 0, 0}};
 
     SpreadRate<Raster<int>> spread_rate(infected, 10, 10, 3);
-    spread_rate.compute_yearly_spread_rate(infected1, 0);
-    spread_rate.compute_yearly_spread_rate(infected2, 1);
-    spread_rate.compute_yearly_spread_rate(infected3, 2);
+    spread_rate.compute_step_spread_rate(infected1, 0);
+    spread_rate.compute_step_spread_rate(infected2, 1);
+    spread_rate.compute_step_spread_rate(infected3, 2);
     double n, s, e, w;
-    std::tie(n, s, e, w) = spread_rate.yearly_rate(0);
+    std::tie(n, s, e, w) = spread_rate.step_rate(0);
     if (!(n == 0 && s == 0 && e == 10 && w == 10)) {
         std::cout << "spread rate for year 1 fails" << std::endl;
         err++;
     }
-    std::tie(n, s, e, w) = spread_rate.yearly_rate(1);
+    std::tie(n, s, e, w) = spread_rate.step_rate(1);
     if (!(n == 10 && s == 10 && e == 0 && w == 10)) {
         std::cout << "spread rate for year 1 fails" << std::endl;
         err++;
     }
-    std::tie(n, s, e, w) = spread_rate.yearly_rate(2);
+    std::tie(n, s, e, w) = spread_rate.step_rate(2);
     if (!(n == 0 && s == -10 && e == 10 && std::isnan(w))) {
         std::cout << "spread rate for year 1 fails" << std::endl;
         err++;

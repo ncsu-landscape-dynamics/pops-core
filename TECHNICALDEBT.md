@@ -42,7 +42,6 @@ optionally linked in an entry.
 ### Fix
 
 - Add return code to raster class template test.
-- Resolve the `-Wsign-compare` warnings.
 
 ## 2019-08-11 - Dispersal kernel rewrite
 
@@ -110,7 +109,6 @@ optionally linked in an entry.
 - Even after the upgrade to Raster class, there are still some legacy
   method names and integers instead of doubles (but does not influence
   computations).
-- Numerous sign-compare warnings.
 - Spelling in the code and comments.
 
 ## 2018-06-13 - Spotted Lanternfly

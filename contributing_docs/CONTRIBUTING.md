@@ -1,12 +1,12 @@
-# Contributing to PoPS development from outside of core development team.
+# Contributing to PoPS Core from outside of core development team.
 
-The goal of this guide is to help you get up and contributing to PoPS and/or rPoPS as quickly as possible. The guide is divided into two main pieces:
+The goal of this guide is to help you get up and contributing to PoPS Core and/or rPoPS as quickly as possible. The guide is divided into two main pieces:
 
 1. Filing a bug report or feature request in an issue.
 1. Suggesting a change via a pull request.
 
-Please note that 'PoPS is released with a [Contributor Code of Conduct](contributing/CODE_OF_CONDUCT.md). By contributing to this project, 
-you agree to abide by its terms.
+Please note that PoPS Core and rPoPS are released with a [Contributor Code of Conduct](contributing/CODE_OF_CONDUCT.md).
+By contributing to this project, you agree to abide by its terms.
 
 ## Issues
 
@@ -30,13 +30,13 @@ example reproducible: required packages, data, code.
 
 ## Pull 
 
-To contribute a change to PoPS or rPoPS, follow these steps:
+To contribute a change to PoPS Core or rPoPS, follow these steps:
 
 1. Create a branch in git and make your changes.
 1. Push branch to github and issue pull request (PR) if new feature add to a feature/new_feature branch.
 1. Discuss the pull request.
 1. Iterate until either we accept the PR or decide that it's not
-   a good fit for PoPS.
+   a good fit for this project.
 
 Each of these steps are described in more detail below. This might feel 
 overwhelming the first time you get set up, but it gets easier with practice. 
@@ -46,7 +46,7 @@ overwhelming the first time you get set up, but it gets easier with practice.
       In parentheses, reference your github user name and this issue:
       `(@ChrisJones687, #1234)`
 * [ ] Check pull request only includes relevant changes.
-* [ ] Use the [PoPS style guide](contributing_docs/STYLE_GUIDE.md).
+* [ ] Use the [PoPS Core style guide](contributing_docs/STYLE_GUIDE.md).
 * [ ] Update documentation to reflect your changes
 * [ ] Add test (if a new feature or a bug fix that needs a new test)
 * [ ] Add minimal example if new function in R.
@@ -71,14 +71,14 @@ Pull requests will be evaluated against a seven point checklist:
     multiple changes that depend on each other, start with the first one
     and don't submit any others until the first one has been processed.
 
-1.  __Use PoPS coding style__. Please follow the
-    [PoPS style guide](contributing/STYLE_GUIDE.md). Maintaining
+1.  __Use PoPS Core coding style__. Please follow the
+    [PoPS Core style guide](contributing/STYLE_GUIDE.md). Maintaining
     a consistent style across the whole code base makes it much easier to
-    jump into the code. If you're modifying existing PoPS code that
+    jump into the code. If you're modifying existing code that
     doesn't follow the style guide, a separate pull request to fix the
     style would be greatly appreciated.
 
-1.  If you're adding new parameters or a new function to the r package, you'll also need
+1.  If you're adding new parameters or a new function to the R package, you'll also need
     to document them with [roxygen](https://github.com/klutometis/roxygen).
     Make sure to re-run `devtools::document()` on the code before submitting.
 

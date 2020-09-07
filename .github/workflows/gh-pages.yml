@@ -1,19 +1,14 @@
-name: CMake build and test
+name: Deploy gh-pages
 
 on:
-- push
-- pull_request
+  push:
+    branches:
+    - master
 
 jobs:
-  build-ubuntu:
+  build-deploy:
 
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os:
-        - ubuntu-16.04
-        - ubuntu-18.04
-        - ubuntu-20.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v1
@@ -23,7 +18,12 @@ jobs:
       run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
     - name: Build
       run: cmake --build build
-    - name: Test
-      run: env CTEST_OUTPUT_ON_FAILURE=1 cmake --build build --target test
     - name: Documentation build test
       run: cmake --build build --target docs
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: build/html
+        force_orphan: true

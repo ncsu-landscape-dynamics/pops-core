@@ -15,16 +15,23 @@ jobs:
       run: |
         sudo apt-get update -qq
         sudo apt-get install -y -qq valgrind
+    - name: Configure
+      run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
     - name: Build
-      run: make
+      run: cmake --build build
+    - name: Build and run tests
+      run: cmake --build build --target test
+    - name: Add tests to path
+      run: |
+        echo "::add-path::$(pwd)/build/tests/"
     - name: Memcheck
       run: |
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_date
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_deterministic
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_model
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_raster
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_scheduling
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_simulation
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_spread_rate
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_statistics
-        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./test_treatments
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_date
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_deterministic
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_model
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_raster
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_scheduling
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_simulation
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_spread_rate
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_statistics
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_treatments
