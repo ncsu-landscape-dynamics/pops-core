@@ -21,6 +21,7 @@
 
 #include "raster.hpp"
 #include "kernel_types.hpp"
+#include "utils.hpp"
 #include "hyperbolic_secant_kernel.hpp"
 #include "logistic_kernel.hpp"
 #include "exponential_power_kernel.hpp"
@@ -218,6 +219,7 @@ public:
     template<class Generator>
     std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
+        UNUSED(generator);  // Deterministic does not need random numbers.
         if (kernel_type_ != DispersalKernelType::Cauchy
             && kernel_type_ != DispersalKernelType::Exponential
             && kernel_type_ != DispersalKernelType::Weibull
