@@ -116,7 +116,7 @@ public:
           map_(map),
           application_(treatment_application)
     {}
-    unsigned get_start() overide
+    unsigned get_start() override
     {
         return start_step_;
     }
