@@ -1,5 +1,5 @@
 /*
- * PoPS model - random uniform dispersal kernel
+ * PoPS model - log normal dispersal kernel
  *
  * Copyright (C) 2015-2020 by the authors.
  *
@@ -28,19 +28,8 @@ using std::exp;
 using std::log;
 using std::sqrt;
 
-//  0.147 used for a relative error of about 2*10^-3
-//  equation for approximation for erfinv from
-//  "A handy approximation for the error function and its inverse" by Sergei Winitzki
-float inv_erf(float x)
-{
-    float sign = (x < 0) ? -1.0f : 1.0f;
-
-    float b = 2 / (M_PI * 0.147) + 0.5f * log(1 - pow(x, 2));
-
-    return (sign * sqrt(-b + sqrt(pow(b, 2) - (1 / (0.147) * log(1 - pow(x, 2))))));
-}
-
-/*! Dispersal kernel for log secant
+/*! Dispersal kernel for log normal distribution
+ *  class utilized by RadialKernel and DeterministicKernel
  */
 class LogNormalKernel
 {
@@ -53,12 +42,24 @@ public:
         : sigma(s), lognormal_distribution(0.0, sigma)
     {}
 
+    /*!
+     *  Returns random value from log normal distribution
+     *  Used by RadialKernel to determine location of spread
+     *  @param generator uniform random number generator
+     *  @return value from log normal distribution
+     */
     template<class Generator>
     double random(Generator& generator)
     {
         return std::abs(lognormal_distribution(generator));
     }
 
+    /*!
+     *  Log normal probability density function
+     *  Used by DeterministicKernel to determine location of spread
+     *  @param x point within same space of distribution
+     *  @return relative likelihood that a random variable would equal x
+     */
     double pdf(double x)
     {
         if (x <= 0 || sigma == 0) {
@@ -68,12 +69,27 @@ public:
                * exp(-(pow(log(x), 2)) / (2 * pow(sigma, 2)));
     }
 
+    /*!
+     *  Log normal inverse cumulative distribution (quantile) function
+     *  Used by DeterministicKernel to determine maximum distance of spread
+     *  @param x proportion of the distribution
+     *  @return value in distribution that is less than or equal to probability (x)
+     *  @note uses approximation for inverse error function from "A handy
+     *    approximation for the error function and its inverse"  by Sergei Winitzki
+     */
     double icdf(double x)
     {
         if (x <= 0) {
             return 0;
         }
-        return exp(sqrt(2 * pow(sigma, 2)) * inv_erf((2 * x) - 1));
+        //  approximation for inverse error function
+        double y = (2 * x) - 1;
+        float sign = (y < 0) ? -1.0f : 1.0f;
+        //  0.147 used for a relative error of about 2*10^-3
+        float b = 2 / (M_PI * 0.147) + 0.5f * log(1 - pow(y, 2));
+        double inverf =
+            (sign * sqrt(-b + sqrt(pow(b, 2) - (1 / (0.147) * log(1 - pow(y, 2))))));
+        return exp(sqrt(2 * pow(sigma, 2)) * inverf);
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()

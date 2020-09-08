@@ -1,5 +1,5 @@
 /*
- * PoPS model - random uniform dispersal kernel
+ * PoPS model - exponential dispersal kernel
  *
  * Copyright (C) 2015-2020 by the authors.
  *
@@ -26,7 +26,8 @@ namespace pops {
 using std::exp;
 using std::log;
 
-/*! Dispersal kernel for Exponential distribution
+/*! Dispersal kernel for exponential distribution
+ *  class utilized by RadialKernel and DeterministicKernel
  */
 class ExponentialKernel
 {
@@ -39,18 +40,35 @@ public:
         : beta(b), exponential_distribution(1.0 / beta)
     {}
 
+    /*!
+     *  Returns random value from exponential distribution
+     *  Used by RadialKernel to determine location of spread
+     *  @param generator uniform random number generator
+     *  @return value from exponential distribution
+     */
     template<class Generator>
     double random(Generator& generator)
     {
         return std::abs(exponential_distribution(generator));
     }
 
-    // assumes mu is 0 which is traditionally accepted
+    /*!
+     *  Exponential probability density function
+     *  Used by DeterministicKernel to determine location of spread
+     *  @param x point within same space of distribution
+     *  @return relative likelihood that a random variable would equal x
+     */
     double pdf(double x)
     {
         return (1 / beta) * (exp(-x / beta));
     }
-    // Inverse cdf (quantile function)
+
+    /*!
+     *  Exponential inverse cumulative distribution (quantile) function
+     *  Used by DeterministicKernel to determine maximum distance of spread
+     *  @param x proportion of the distribution
+     *  @return value in distribution that is less than or equal to probability (x)
+     */
     double icdf(double x)
     {
         if (beta == 1) {

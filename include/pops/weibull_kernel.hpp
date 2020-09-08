@@ -1,5 +1,5 @@
 /*
- * PoPS model - random uniform dispersal kernel
+ * PoPS model - weibull dispersal kernel
  *
  * Copyright (C) 2015-2020 by the authors.
  *
@@ -27,7 +27,8 @@ using std::pow;
 using std::exp;
 using std::log;
 
-/*! Dispersal kernel for log secant
+/*! Dispersal kernel for weibull distribution
+ *  class utilized by RadialKernel and DeterministicKernel
  */
 class WeibullKernel
 {
@@ -39,12 +40,24 @@ protected:
 public:
     WeibullKernel(double a1, double b1) : a(a1), b(b1), weibull_distribution(a, b) {}
 
+    /*!
+     *  Returns random value from weibull distribution
+     *  Used by RadialKernel to determine location of spread
+     *  @param generator uniform random number generator
+     *  @return value from weibull distribution
+     */
     template<class Generator>
     double random(Generator& generator)
     {
         return std::abs(weibull_distribution(generator));
     }
 
+    /*!
+     *  Weibull probability density function
+     *  Used by DeterministicKernel to determine location of spread
+     *  @param x point within same space of distribution
+     *  @return relative likelihood that a random variable would equal x
+     */
     double pdf(double x)
     {
         if (x < 0 || b <= 0 || a < 0) {
@@ -55,6 +68,12 @@ public:
         return ((a / b) * pow(x / b, a - 1) * exp(-pow(x / b, a)));
     }
 
+    /*!
+     *  Weibull inverse cumulative distribution (quantile) function
+     *  Used by DeterministicKernel to determine maximum distance of spread
+     *  @param x proportion of the distribution
+     *  @return value in distribution that is less than or equal to probability (x)
+     */
     double icdf(double x)
     {
         if (x < 0 || x >= 1 || b <= 0 || a < 0) {

@@ -1,5 +1,5 @@
 /*
- * PoPS model - random uniform dispersal kernel
+ * PoPS model - power law dispersal kernel
  *
  * Copyright (C) 2015-2020 by the authors.
  *
@@ -26,6 +26,7 @@ namespace pops {
 using std::pow;
 
 /*! Dispersal kernel for power law distribution
+ *  class utilized by RadialKernel and DeterministicKernel
  */
 class PowerLawKernel
 {
@@ -36,6 +37,12 @@ protected:
 public:
     PowerLawKernel(double xm, double a) : xmin(xm), alpha(a) {}
 
+    /*!
+     *  Returns random value from power law distribution
+     *  Used by RadialKernel to determine location of spread
+     *  @param generator uniform random number generator
+     *  @return value from power law distribution
+     */
     template<class Generator>
     double random(Generator& generator)
     {
@@ -49,9 +56,13 @@ public:
         return icdf(x);
     }
 
-    // Should only work with alpha > 1
-    // Since power law begins at 1 the distribution the center
-    // square in the prob matrix is always 0 - should maybe shift the results?
+    /*!
+     *  Power law probability density function
+     *  Used by DeterministicKernel to determine location of spread
+     *  @param x point within same space of distribution
+     *  @return relative likelihood that a random variable would equal x
+     *  @note only works with alpha < 1 so center square in matrix is always zero
+     */
     double pdf(double x)
     {
         if (x <= 0 || xmin == 0 || alpha <= 1.0) {
@@ -60,6 +71,12 @@ public:
         return ((alpha - 1.0) / xmin) * pow(x / xmin, -alpha);
     }
 
+    /*!
+     *  Power law inverse cumulative distribution (quantile) function
+     *  Used by DeterministicKernel to determine maximum distance of spread
+     *  @param x proportion of the distribution
+     *  @return value in distribution that is less than or equal to probability (x)
+     */
     double icdf(double x)
     {
         if (x <= 0 || xmin == 0 || alpha <= 1.0) {

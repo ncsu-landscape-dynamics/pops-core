@@ -1,5 +1,5 @@
 /*
- * PoPS model - random uniform dispersal kernel
+ * PoPS model - normal dispersal kernel
  *
  * Copyright (C) 2015-2020 by the authors.
  *
@@ -28,7 +28,8 @@ using std::exp;
 using std::log;
 using std::sqrt;
 
-/*! Dispersal kernel for log secant
+/*! Dispersal kernel for normal distribution
+ *  class utilized by RadialKernel and DeterministicKernel
  */
 class NormalKernel
 {
@@ -39,12 +40,24 @@ protected:
 public:
     NormalKernel(double s, double unused) : sigma(s), normal_distribution(0.0, sigma) {}
 
+    /*!
+     *  Returns random value from normal distribution
+     *  Used by RadialKernel to determine location of spread
+     *  @param generator uniform random number generator
+     *  @return value from normal distribution
+     */
     template<class Generator>
     double random(Generator& generator)
     {
         return std::abs(normal_distribution(generator));
     }
 
+    /*!
+     *  Normal probability density function
+     *  Used by DeterministicKernel to determine location of spread
+     *  @param x point within same space of distribution
+     *  @return relative likelihood that a random variable would equal x
+     */
     double pdf(double x)
     {
         if (sigma == 1) {
@@ -53,18 +66,23 @@ public:
         return 1 / (sigma * sqrt(2 * M_PI)) * exp(-0.5 * pow(x / sigma, 2));
     }
 
+    /*!
+     *  Normal inverse cumulative distribution (quantile) function
+     *  Used by DeterministicKernel to determine maximum distance of spread
+     *  @param x proportion of the distribution
+     *  @return value in distribution that is less than or equal to probability (x)
+     *  @note uses approximation for inverse error function from "A handy
+     *    approximation for the error function and its inverse"  by Sergei Winitzki
+     */
     double icdf(double x)
     {
         if (x <= 0) {
             return 0;
         }
-        // inverse error function
-        //  0.147 used for a relative error of about 2*10^-3
-        //  equation for approximation for erfinv from
-        //  "A handy approximation for the error function and its inverse" by Sergei
-        //  Winitzki
+        //  approximation for inverse error function
         double y = (2 * x) - 1;
         float sign = (y < 0) ? -1.0f : 1.0f;
+        //  0.147 used for a relative error of about 2*10^-3
         float b = 2 / (M_PI * 0.147) + 0.5f * log(1 - pow(y, 2));
         double inverf =
             (sign * sqrt(-b + sqrt(pow(b, 2) - (1 / (0.147) * log(1 - pow(y, 2))))));

@@ -1,5 +1,5 @@
 /*
- * PoPS model - random uniform dispersal kernel
+ * PoPS model - gamma dispersal kernel
  *
  * Copyright (C) 2015-2020 by the authors.
  *
@@ -27,7 +27,8 @@ namespace pops {
 using std::pow;
 using std::exp;
 
-/*! Dispersal kernel for log secant
+/*! Dispersal kernel for gamma distribution
+ *  class utilized by RadialKernel and DeterministicKernel
  */
 class GammaKernel
 {
@@ -41,12 +42,24 @@ public:
         : alpha(a), theta(t), gamma_distribution(alpha, 1.0 / theta)
     {}
 
+    /*!
+     *  Returns random value from gamma distribution
+     *  Used by RadialKernel to determine location of spread
+     *  @param generator uniform random number generator
+     *  @return value from gamma distribution
+     */
     template<class Generator>
     double random(Generator& generator)
     {
         return std::abs(gamma_distribution(generator));
     }
 
+    /*!
+     *  Gamma probability density function
+     *  Used by DeterministicKernel to determine location of spread
+     *  @param x point within same space of distribution
+     *  @return relative likelihood that a random variable would equal x
+     */
     double pdf(double x)
     {
         if (x < 0 || alpha < 0 || theta < 0) {
@@ -56,6 +69,11 @@ public:
                * exp(-x / theta);
     }
 
+    /*!
+     *  Gamma cumulative distribution function used by gamma icdf
+     *  @param x value in distribution
+     *  @return probability of x
+     */
     double cdf(double x)
     {
         double sum = 0.0;
@@ -67,8 +85,14 @@ public:
         return 1 - sum * exp(-beta * x);
     }
 
-    // there is no known closed-form solution
-    // R and MatLab use an iterative approach (Newton's method)
+    /*!
+     *  Gamma inverse cumulative distribution (quantile) function
+     *  Used by DeterministicKernel to determine maximum distance of spread
+     *  @param x proportion of the distribution
+     *  @return value in distribution that is less than or equal to probability (x)
+     *  @note there is no known closed-form solution for Gamma icdf, used Newton's
+     * method
+     */
     double icdf(double x)
     {
         // pick starting approximation using lognormal icdf

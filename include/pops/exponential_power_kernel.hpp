@@ -1,5 +1,5 @@
 /*
- * PoPS model - random uniform dispersal kernel
+ * PoPS model - exponential dispersal kernel
  *
  * Copyright (C) 2015-2020 by the authors.
  *
@@ -28,6 +28,7 @@ using std::pow;
 using std::exp;
 
 /*! Dispersal kernel for exponential power distribution
+ *  class utilized by RadialKernel and DeterministicKernel
  */
 class ExponentialPowerKernel
 {
@@ -38,17 +39,26 @@ protected:
 public:
     ExponentialPowerKernel(double a, double b) : alpha(a), beta(b) {}
 
+    /*!
+     *  Returns random value from exponential power distribution
+     *  Used by RadialKernel to determine location of spread
+     *  @param generator uniform random number generator
+     *  @return value from exponential power distribution
+     */
     template<class Generator>
     double random(Generator& generator)
     {
         std::uniform_real_distribution<double> distribution(0.0, 1.0);
         double x = distribution(generator);
-        // GammaDistribution gamma_distribution(1.0 / beta_, 1.0 / pow(alpha_, beta_));
-        // double gamma = gamma_distribution.icdf(2 * std::abs(x - 0.5));
-        // return (x - 0.5) * pow(gamma, 1.0 / beta_);
         return icdf(x);
     }
 
+    /*!
+     *  Exponential Power probability density function
+     *  Used by DeterministicKernel to determine location of spread
+     *  @param x point within same space of distribution
+     *  @return relative likelihood that a random variable would equal x
+     */
     double pdf(double x)
     {
         if (beta == 0) {
@@ -58,6 +68,12 @@ public:
                * pow(exp(-x / alpha), beta);
     }
 
+    /*!
+     *  Exponential Power inverse cumulative distribution (quantile) function
+     *  Used by DeterministicKernel to determine maximum distance of spread
+     *  @param x proportion of the distribution
+     *  @return value in distribution that is less than or equal to probability (x)
+     */
     double icdf(double x)
     {
         GammaKernel gamma_distribution(1.0 / beta, 1.0 / pow(alpha, beta));

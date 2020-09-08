@@ -1,5 +1,5 @@
 /*
- * PoPS model - random uniform dispersal kernel
+ * PoPS model - cauchy dispersal kernel
  *
  * Copyright (C) 2015-2020 by the authors.
  *
@@ -26,7 +26,8 @@ namespace pops {
 using std::pow;
 using std::tan;
 
-/*! Dispersal kernel for log secant
+/*! Dispersal kernel for cauchy distribution
+ *  class utilized by RadialKernel and DeterministicKernel
  */
 class CauchyKernel
 {
@@ -37,21 +38,40 @@ protected:
 public:
     CauchyKernel(double ss, double unused) : s(ss), cauchy_distribution(0, s) {}
 
+    /*!
+     *  Returns random value from cauchy distribution
+     *  Used by RadialKernel to determine location of spread
+     *  @param generator uniform random number generator
+     *  @return value from cauchy distribution
+     */
     template<class Generator>
     double random(Generator& generator)
     {
         return std::abs(cauchy_distribution(generator));
     }
 
+    /*!
+     *  Cauchy probability density function
+     *  Used by DeterministicKernel to determine location of spread
+     *  @param x point within same space of distribution
+     *  @return relative likelihood that a random variable would equal x
+     */
     double pdf(double x)
     {
         return 1 / ((s * M_PI) * (1 + (pow(x / s, 2))));
     }
-    // Inverse cdf (quantile function)
+
+    /*!
+     *  Cauchy inverse cumulative distribution (quantile) function
+     *  Used by DeterministicKernel to determine maximum distance of spread
+     *  @param x proportion of the distribution
+     *  @return value in distribution that is less than or equal to probability (x)
+     */
     double icdf(double x)
     {
         return s * tan(M_PI * (x - 0.5));
     }
+
     /*! \copydoc RadialDispersalKernel::supports_kernel()
      */
     static bool supports_kernel(const DispersalKernelType type)

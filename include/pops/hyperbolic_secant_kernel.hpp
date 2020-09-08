@@ -1,5 +1,5 @@
 /*
- * PoPS model - random uniform dispersal kernel
+ * PoPS model - hyperbolic secant dispersal kernel
  *
  * Copyright (C) 2015-2020 by the authors.
  *
@@ -27,7 +27,8 @@ using std::cosh;
 using std::tan;
 using std::log;
 
-/*! Dispersal kernel for log secant
+/*! Dispersal kernel for hyperbolic secant
+ *  class utilized by RadialKernel and DeterministicKernel
  */
 class HyperbolicSecantKernel
 {
@@ -37,6 +38,12 @@ protected:
 public:
     HyperbolicSecantKernel(double s, double unused) : sigma(s) {}
 
+    /*!
+     *  Returns random value from hyperbolic secant distribution
+     *  Used by RadialKernel to determine location of spread
+     *  @param generator uniform random number generator
+     *  @return value from hyperbolic secant distribution
+     */
     template<class Generator>
     double random(Generator& generator)
     {
@@ -51,6 +58,12 @@ public:
         return icdf(x);
     }
 
+    /*!
+     *  Hyperbolic secant probability density function
+     *  Used by DeterministicKernel to determine location of spread
+     *  @param x point within same space of distribution
+     *  @return relative likelihood that a random variable would equal x
+     */
     double pdf(double x)
     {
         if (x <= 0 || sigma == 0) {
@@ -62,6 +75,12 @@ public:
         return (1.0 / (2 * sigma)) * (1 / cosh((M_PI * x) / (2 * sigma)));
     }
 
+    /*!
+     *  Hyperbolic secant inverse cumulative distribution (quantile) function
+     *  Used by DeterministicKernel to determine maximum distance of spread
+     *  @param x proportion of the distribution
+     *  @return value in distribution that is less than or equal to probability (x)
+     */
     double icdf(double x)
     {
         if (x <= 0 || sigma == 0) {
