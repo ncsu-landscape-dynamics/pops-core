@@ -116,11 +116,11 @@ public:
           map_(map),
           application_(treatment_application)
     {}
-    unsigned get_start() overide;
+    unsigned get_start() overide
     {
         return start_step_;
     }
-    unsigned get_end() override;
+    unsigned get_end() override
     {
         return end_step_;
     }
