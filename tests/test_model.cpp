@@ -44,7 +44,7 @@ int test_with_reduced_stochasticity()
     config.establishment_stochasticity = false;
     // We want everything to establish.
     config.establishment_probability = 1;
-    config.natural_kernel_type = "deterministic_neighbor";
+    config.natural_kernel_type = "deterministic neighbor";
     config.natural_direction = "E";
     config.use_anthropogenic_kernel = false;
     config.random_seed = 42;
