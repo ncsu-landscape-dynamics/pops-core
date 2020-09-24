@@ -96,7 +96,7 @@ public:
     double icdf(double x)
     {
         // pick starting approximation using lognormal icdf
-        LogNormalKernel lognormal(0, 1);
+        LogNormalKernel lognormal(1);
         double guess = lognormal.icdf(x);
         // TODO add cdf function
         double check = cdf(guess);
