@@ -36,9 +36,7 @@ protected:
     std::exponential_distribution<double> exponential_distribution;
 
 public:
-    ExponentialKernel(double b, double unused)
-        : beta(b), exponential_distribution(1.0 / beta)
-    {}
+    ExponentialKernel(double b) : beta(b), exponential_distribution(1.0 / beta) {}
 
     /*!
      *  Returns random value from exponential distribution

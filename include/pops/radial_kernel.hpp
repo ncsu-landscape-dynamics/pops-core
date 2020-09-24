@@ -210,18 +210,18 @@ public:
           dispersal_kernel_type_(dispersal_kernel),
           // Here we initialize all distributions,
           // although we won't use all of them.
-          cauchy_distribution(distance_scale, 0.0),
+          cauchy_distribution(distance_scale),
           // When lambda is higher, exponential gives less higher values,
           // so we do multiplicative inverse to behave like cauchy.
-          exponential_distribution(distance_scale, 0),
+          exponential_distribution(distance_scale),
           weibull_distribution(distance_scale, shape),
-          normal_distribution(distance_scale, shape),
-          lognormal_distribution(distance_scale, shape),
+          normal_distribution(distance_scale),
+          lognormal_distribution(distance_scale),
           power_law_distribution(distance_scale, shape),
-          hyperbolic_secant_distribution(distance_scale, shape),
+          hyperbolic_secant_distribution(distance_scale),
           gamma_distribution(distance_scale, shape),
           exponential_power_distribution(distance_scale, shape),
-          logistic_distribution(distance_scale, shape),
+          logistic_distribution(distance_scale),
           // if no wind, then kappa is 0
           // TODO: change these two computations to standalone inline
           // functions (dir to rad and adjust kappa)

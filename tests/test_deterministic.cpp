@@ -774,7 +774,7 @@ int test_cauchy_distribution_functions()
 {
     // testing cauchy pdf & icdf
     double scale = 0.001;  // rounding to thousands place
-    CauchyKernel cauchy(1.0, 0);
+    CauchyKernel cauchy(1.0);
     double probability = (int)(cauchy.pdf(5) / scale) * scale;
     double probability_ref = 0.012;
     if (probability != probability_ref) {
@@ -789,7 +789,7 @@ int test_cauchy_distribution_functions()
              << "\n";
         return 1;
     }
-    CauchyKernel cauchy1(1.5, 0);
+    CauchyKernel cauchy1(1.5);
     probability_ref = 0.017;
     probability = (int)(cauchy1.pdf(5) / scale) * scale;
     if (probability != probability_ref) {
@@ -811,7 +811,7 @@ int test_exponential_distribution_functions()
 {
     double scale = 0.001;  // rounding to thousands place
     // testing exponential pdf & icdf
-    ExponentialKernel exponential(1.0, 0);
+    ExponentialKernel exponential(1.0);
     double probability = (int)(exponential.pdf(1) / scale) * scale;
     double probability_ref = 0.367;
     if (probability != probability_ref) {
@@ -826,7 +826,7 @@ int test_exponential_distribution_functions()
              << "\n";
         return 1;
     }
-    ExponentialKernel exponential2(1.5, 0);
+    ExponentialKernel exponential2(1.5);
     probability = (int)(exponential2.pdf(1) / scale) * scale;
     probability_ref = 0.342;
     if (probability != probability_ref) {

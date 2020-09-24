@@ -36,7 +36,7 @@ protected:
     double sigma;
 
 public:
-    HyperbolicSecantKernel(double s, double unused) : sigma(s) {}
+    HyperbolicSecantKernel(double s) : sigma(s) {}
 
     /*!
      *  Returns random value from hyperbolic secant distribution

@@ -35,7 +35,7 @@ protected:
     double s;
 
 public:
-    LogisticKernel(double scale, double unused) : s(scale) {}
+    LogisticKernel(double scale) : s(scale) {}
 
     /*!
      *  Returns random value from logistic distribution

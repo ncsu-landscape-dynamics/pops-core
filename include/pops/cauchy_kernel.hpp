@@ -36,7 +36,7 @@ protected:
     std::cauchy_distribution<double> cauchy_distribution;
 
 public:
-    CauchyKernel(double ss, double unused) : s(ss), cauchy_distribution(0, s) {}
+    CauchyKernel(double ss) : s(ss), cauchy_distribution(0, s) {}
 
     /*!
      *  Returns random value from cauchy distribution

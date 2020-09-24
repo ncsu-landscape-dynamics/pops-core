@@ -38,9 +38,7 @@ protected:
     std::lognormal_distribution<double> lognormal_distribution;
 
 public:
-    LogNormalKernel(double s, double unused)
-        : sigma(s), lognormal_distribution(0.0, sigma)
-    {}
+    LogNormalKernel(double s) : sigma(s), lognormal_distribution(0.0, sigma) {}
 
     /*!
      *  Returns random value from log normal distribution

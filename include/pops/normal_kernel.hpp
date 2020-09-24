@@ -38,7 +38,7 @@ protected:
     std::normal_distribution<double> normal_distribution;
 
 public:
-    NormalKernel(double s, double unused) : sigma(s), normal_distribution(0.0, sigma) {}
+    NormalKernel(double s) : sigma(s), normal_distribution(0.0, sigma) {}
 
     /*!
      *  Returns random value from normal distribution
