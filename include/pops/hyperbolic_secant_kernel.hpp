@@ -66,7 +66,7 @@ public:
      */
     double pdf(double x)
     {
-        if (sigma == 0) {
+        if (x <= 0 || sigma == 0) {
             return 0;
         }
         if (sigma == 1) {
@@ -83,7 +83,7 @@ public:
      */
     double icdf(double x)
     {
-        if (x <= 0 || x >= 1 || sigma == 0) {
+        if (x <= 0 || sigma == 0) {
             return 0;
         }
         if (sigma == 1) {
