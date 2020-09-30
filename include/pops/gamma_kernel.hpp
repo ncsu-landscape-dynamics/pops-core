@@ -62,7 +62,7 @@ public:
      */
     double pdf(double x)
     {
-        if (x < 0 || alpha < 0 || theta < 0) {
+        if (x < 0 || alpha < 0 || theta <= 0) {
             return 0;
         }
         return 1.0 / (std::tgamma(alpha) * pow(theta, alpha)) * pow(x, (alpha - 1))
@@ -76,6 +76,9 @@ public:
      */
     double cdf(double x)
     {
+        if (theta == 0) {
+            return 0;
+        }
         double sum = 0.0;
         double beta = 1.0 / theta;
         for (int i = 0; i < alpha; i++) {
@@ -95,6 +98,9 @@ public:
      */
     double icdf(double x)
     {
+        if (x <= 0 || x >= 1) {
+            return 0;
+        }
         // pick starting approximation using lognormal icdf
         LogNormalKernel lognormal(1);
         double guess = lognormal.icdf(x);
@@ -128,13 +134,6 @@ public:
         // TODO error message
         std::cout << "unable to find solution to gamma icdf(" << x << ")\n";
         return -1;
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        return type == DispersalKernelType::Gamma;
     }
 };
 

@@ -61,7 +61,7 @@ public:
      */
     double pdf(double x)
     {
-        if (beta == 0) {
+        if (alpha == 0 || beta == 0) {
             return 0;
         }
         return (beta / (2 * alpha * std::tgamma(1.0 / beta)))
@@ -76,16 +76,12 @@ public:
      */
     double icdf(double x)
     {
+        if (beta == 0 || x <= 0 || x >= 1) {
+            return 0;
+        }
         GammaKernel gamma_distribution(1.0 / beta, 1.0 / pow(alpha, beta));
         double gamma = gamma_distribution.icdf(2 * std::abs(x - 0.5));
         return (x - 0.5) * pow(gamma, 1.0 / beta);
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        return type == DispersalKernelType::ExponentialPower;
     }
 };
 

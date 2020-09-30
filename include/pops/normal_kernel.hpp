@@ -60,6 +60,9 @@ public:
      */
     double pdf(double x)
     {
+        if (sigma == 0) {
+            return 0;
+        }
         if (sigma == 1) {
             return 1 / (sqrt(2 * M_PI)) * exp(-0.5 * pow(x, 2));
         }
@@ -76,7 +79,7 @@ public:
      */
     double icdf(double x)
     {
-        if (x <= 0) {
+        if (x <= 0 || x >= 1) {
             return 0;
         }
         //  approximation for inverse error function
@@ -88,13 +91,6 @@ public:
             (sign * sqrt(-b + sqrt(pow(b, 2) - (1 / (0.147) * log(1 - pow(y, 2))))));
 
         return sigma * std::sqrt(2) * inverf;
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        return type == DispersalKernelType::Normal;
     }
 };
 

@@ -69,14 +69,10 @@ public:
      */
     double icdf(double x)
     {
+        if (x <= 0 || x >= 1) {
+            return 0;
+        }
         return s * tan(M_PI * (x - 0.5));
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        return type == DispersalKernelType::Cauchy;
     }
 };
 

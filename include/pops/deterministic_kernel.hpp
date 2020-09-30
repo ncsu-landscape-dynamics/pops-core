@@ -83,12 +83,12 @@ protected:
     CauchyKernel cauchy;
     ExponentialKernel exponential;
     WeibullKernel weibull;
-    LogNormalKernel logNormal;
+    LogNormalKernel log_normal;
     NormalKernel normal;
-    HyperbolicSecantKernel hyperbolicSecant;
-    PowerLawKernel powerLaw;
+    HyperbolicSecantKernel hyperbolic_secant;
+    PowerLawKernel power_law;
     GammaKernel gamma;
-    ExponentialPowerKernel exponentialPower;
+    ExponentialPowerKernel exponential_power;
     LogisticKernel logistic;
 
     DispersalKernelType kernel_type_;
@@ -111,13 +111,13 @@ public:
           cauchy(distance_scale),
           exponential(distance_scale),
           weibull(distance_scale, shape),
-          logNormal(distance_scale),
+          log_normal(distance_scale),
           normal(distance_scale),
-          hyperbolicSecant(distance_scale),
-          powerLaw(distance_scale, shape),
+          hyperbolic_secant(distance_scale),
+          power_law(distance_scale, shape),
           logistic(distance_scale),
           gamma(distance_scale, shape),
-          exponentialPower(distance_scale, shape),
+          exponential_power(distance_scale, shape),
           kernel_type_(dispersal_kernel),
           east_west_resolution(ew_res),
           north_south_resolution(ns_res)
@@ -138,13 +138,13 @@ public:
             max_distance = normal.icdf(dispersal_percentage);
         }
         else if (kernel_type_ == DispersalKernelType::LogNormal) {
-            max_distance = logNormal.icdf(dispersal_percentage);
+            max_distance = log_normal.icdf(dispersal_percentage);
         }
         else if (kernel_type_ == DispersalKernelType::HyperbolicSecant) {
-            max_distance = hyperbolicSecant.icdf(dispersal_percentage);
+            max_distance = hyperbolic_secant.icdf(dispersal_percentage);
         }
         else if (kernel_type_ == DispersalKernelType::PowerLaw) {
-            max_distance = powerLaw.icdf(dispersal_percentage);
+            max_distance = power_law.icdf(dispersal_percentage);
         }
         else if (kernel_type_ == DispersalKernelType::Logistic) {
             max_distance = logistic.icdf(dispersal_percentage);
@@ -153,7 +153,7 @@ public:
             max_distance = gamma.icdf(dispersal_percentage);
         }
         else if (kernel_type_ == DispersalKernelType::ExponentialPower) {
-            max_distance = exponentialPower.icdf(dispersal_percentage);
+            max_distance = exponential_power.icdf(dispersal_percentage);
         }
         number_of_columns = ceil(max_distance / east_west_resolution) * 2 + 1;
         number_of_rows = ceil(max_distance / north_south_resolution) * 2 + 1;
@@ -182,13 +182,13 @@ public:
                     probability(i, j) = abs(normal.pdf(distance_to_center));
                 }
                 else if (kernel_type_ == DispersalKernelType::LogNormal) {
-                    probability(i, j) = abs(logNormal.pdf(distance_to_center));
+                    probability(i, j) = abs(log_normal.pdf(distance_to_center));
                 }
                 else if (kernel_type_ == DispersalKernelType::PowerLaw) {
-                    probability(i, j) = abs(powerLaw.pdf(distance_to_center));
+                    probability(i, j) = abs(power_law.pdf(distance_to_center));
                 }
                 else if (kernel_type_ == DispersalKernelType::HyperbolicSecant) {
-                    probability(i, j) = abs(hyperbolicSecant.pdf(distance_to_center));
+                    probability(i, j) = abs(hyperbolic_secant.pdf(distance_to_center));
                 }
                 else if (kernel_type_ == DispersalKernelType::Logistic) {
                     probability(i, j) = abs(logistic.pdf(distance_to_center));
@@ -197,7 +197,7 @@ public:
                     probability(i, j) = abs(gamma.pdf(distance_to_center));
                 }
                 else if (kernel_type_ == DispersalKernelType::ExponentialPower) {
-                    probability(i, j) = abs(exponentialPower.pdf(distance_to_center));
+                    probability(i, j) = abs(exponential_power.pdf(distance_to_center));
                 }
                 sum += probability(i, j);
             }
@@ -277,7 +277,7 @@ public:
      */
     static bool supports_kernel(const DispersalKernelType type)
     {
-        static const std::array<DispersalKernelType, 2> supports = {
+        static const std::array<DispersalKernelType, 10> supports = {
             DispersalKernelType::Cauchy,
             DispersalKernelType::Exponential,
             DispersalKernelType::Weibull,

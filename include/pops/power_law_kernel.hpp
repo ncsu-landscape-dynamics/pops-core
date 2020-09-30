@@ -48,10 +48,9 @@ public:
     {
         std::uniform_real_distribution<double> distribution(0.0, 1.0);
         double x = distribution(generator);
-        // return pow(x, (1.0 / (-alpha_ + 1.0))) * xmin_;
         // since distribution is 0 to 1 xmin needs to be greater than 0
         if (xmin <= 0) {
-            xmin = 0.01;
+            return 0;
         }
         return icdf(x);
     }
@@ -79,17 +78,10 @@ public:
      */
     double icdf(double x)
     {
-        if (x <= 0 || xmin == 0 || alpha <= 1.0) {
+        if (x <= 0 || x >= 1 || xmin == 0 || alpha <= 1.0) {
             return 0;
         }
         return pow(x, (1.0 / (-alpha + 1.0))) * xmin;
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        return type == DispersalKernelType::PowerLaw;
     }
 };
 

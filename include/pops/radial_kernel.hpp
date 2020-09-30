@@ -296,7 +296,7 @@ public:
      */
     static bool supports_kernel(const DispersalKernelType type)
     {
-        static const std::array<DispersalKernelType, 2> supports = {
+        static const std::array<DispersalKernelType, 10> supports = {
             DispersalKernelType::Cauchy,
             DispersalKernelType::Exponential,
             DispersalKernelType::Weibull,

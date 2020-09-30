@@ -48,12 +48,6 @@ public:
     {
         std::uniform_real_distribution<double> distribution(0.0, 1.0);
         double x = distribution(generator);
-        // get random value from a uniform distribution and use it
-        // to get a random value from the distribution
-        // if (mu_ == 0 && s_ == 1) {
-        //    return log(x / (1 - x));
-        //}
-        // return mu_ + s_ * log(x / (1 - x));
         return icdf(x);
     }
 
@@ -65,7 +59,7 @@ public:
      */
     double pdf(double x)
     {
-        if (x < 0 || s == 0) {
+        if (s == 0) {
             return 0;
         }
         if (s == 1) {
@@ -82,17 +76,10 @@ public:
      */
     double icdf(double x)
     {
-        if (x <= 0 || s == 0) {
+        if (x <= 0 || x >= 1 || s == 0) {
             return 0;
         }
         return s * log(x / (1.0 - x));
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        return type == DispersalKernelType::Logistic;
     }
 };
 

@@ -66,7 +66,7 @@ public:
      */
     double pdf(double x)
     {
-        if (x <= 0 || sigma == 0) {
+        if (sigma == 0) {
             return 0;
         }
         if (sigma == 1) {
@@ -83,20 +83,13 @@ public:
      */
     double icdf(double x)
     {
-        if (x <= 0 || sigma == 0) {
+        if (x <= 0 || x >= 1 || sigma == 0) {
             return 0;
         }
         if (sigma == 1) {
             return (2.0 / M_PI) * log(tan(M_PI / 2.0 * x));
         }
         return ((log(tan((x * M_PI) / 2.0)) * (2.0 * sigma)) / M_PI);
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        return type == DispersalKernelType::HyperbolicSecant;
     }
 };
 

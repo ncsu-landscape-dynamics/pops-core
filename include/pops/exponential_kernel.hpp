@@ -69,19 +69,15 @@ public:
      */
     double icdf(double x)
     {
+        if (x <= 0 || x >= 1) {
+            return 0;
+        }
         if (beta == 1) {
             return -log(1 - x);
         }
         else {
             return -beta * log(1 - x);
         }
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        return type == DispersalKernelType::Exponential;
     }
 };
 

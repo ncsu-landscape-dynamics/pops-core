@@ -60,7 +60,7 @@ public:
      */
     double pdf(double x)
     {
-        if (x < 0 || b <= 0 || a < 0) {
+        if (x < 0 || b == 0 || a < 0) {
             return 0;
         }
         // Note: If the value inside exp() is too large it returns zero
@@ -80,13 +80,6 @@ public:
             return 0;
         }
         return a * pow(-(log(1 - x)), (1.0 / b));
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        return type == DispersalKernelType::Weibull;
     }
 };
 

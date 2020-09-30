@@ -77,7 +77,7 @@ public:
      */
     double icdf(double x)
     {
-        if (x <= 0) {
+        if (x <= 0 || x >= 1) {
             return 0;
         }
         //  approximation for inverse error function
@@ -88,13 +88,6 @@ public:
         double inverf =
             (sign * sqrt(-b + sqrt(pow(b, 2) - (1 / (0.147) * log(1 - pow(y, 2))))));
         return exp(sqrt(2 * pow(sigma, 2)) * inverf);
-    }
-
-    /*! \copydoc RadialDispersalKernel::supports_kernel()
-     */
-    static bool supports_kernel(const DispersalKernelType type)
-    {
-        return type == DispersalKernelType::LogNormal;
     }
 };
 
