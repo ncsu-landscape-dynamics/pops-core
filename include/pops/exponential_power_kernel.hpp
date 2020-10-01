@@ -35,9 +35,17 @@ class ExponentialPowerKernel
 protected:
     double alpha;
     double beta;
+    std::uniform_real_distribution<double> distribution;
 
 public:
-    ExponentialPowerKernel(double a, double b) : alpha(a), beta(b) {}
+    ExponentialPowerKernel(double a, double b)
+        : alpha(a), beta(b), distribution(0.0, 1.0)
+    {
+        if (alpha <= 0 || beta <= 0) {
+            throw std::invalid_argument(
+                "alpha and beta must greater than or equal to 0");
+        }
+    }
 
     /*!
      *  Returns random value from exponential power distribution
@@ -48,7 +56,6 @@ public:
     template<class Generator>
     double random(Generator& generator)
     {
-        std::uniform_real_distribution<double> distribution(0.0, 1.0);
         double x = distribution(generator);
         return icdf(x);
     }
@@ -61,9 +68,6 @@ public:
      */
     double pdf(double x)
     {
-        if (alpha == 0 || beta == 0) {
-            return 0;
-        }
         return (beta / (2 * alpha * std::tgamma(1.0 / beta)))
                * pow(exp(-x / alpha), beta);
     }
@@ -76,8 +80,8 @@ public:
      */
     double icdf(double x)
     {
-        if (beta == 0 || x <= 0 || x >= 1) {
-            return 0;
+        if (x <= 0 || x >= 1) {
+            throw std::invalid_argument("icdf: x must be between 0.0 and 1.0");
         }
         GammaKernel gamma_distribution(1.0 / beta, 1.0 / pow(alpha, beta));
         double gamma = gamma_distribution.icdf(2 * std::abs(x - 0.5));

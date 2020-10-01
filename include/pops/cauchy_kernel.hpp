@@ -36,7 +36,12 @@ protected:
     std::cauchy_distribution<double> cauchy_distribution;
 
 public:
-    CauchyKernel(double ss) : s(ss), cauchy_distribution(0, s) {}
+    CauchyKernel(double scale) : s(scale), cauchy_distribution(0, s)
+    {
+        if (scale <= 0) {
+            throw std::invalid_argument("scale (s) must be greater than 0.0");
+        }
+    }
 
     /*!
      *  Returns random value from cauchy distribution
@@ -70,7 +75,7 @@ public:
     double icdf(double x)
     {
         if (x <= 0 || x >= 1) {
-            return 0;
+            throw std::invalid_argument("icdf: x must be between 0.0 and 1.0");
         }
         return s * tan(M_PI * (x - 0.5));
     }

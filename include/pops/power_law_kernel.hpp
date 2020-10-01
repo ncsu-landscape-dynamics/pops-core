@@ -33,9 +33,19 @@ class PowerLawKernel
 protected:
     double xmin;
     double alpha;
+    std::uniform_real_distribution<double> distribution;
 
 public:
-    PowerLawKernel(double xm, double a) : xmin(xm), alpha(a) {}
+    PowerLawKernel(double xm, double a) : xmin(xm), alpha(a), distribution(0.0, 1.0)
+    {
+        //         if (alpha < 1.0) {
+        //             throw std::invalid_argument("alpha must be greater than or equal
+        //             to 1.0");
+        //         }
+        if (xmin == 0) {
+            throw std::invalid_argument("xmin cannot equal 0.0");
+        }
+    }
 
     /*!
      *  Returns random value from power law distribution
@@ -46,12 +56,7 @@ public:
     template<class Generator>
     double random(Generator& generator)
     {
-        std::uniform_real_distribution<double> distribution(0.0, 1.0);
         double x = distribution(generator);
-        // since distribution is 0 to 1 xmin needs to be greater than 0
-        if (xmin <= 0) {
-            return 0;
-        }
         return icdf(x);
     }
 
@@ -64,8 +69,14 @@ public:
      */
     double pdf(double x)
     {
-        if (x <= 0 || xmin == 0 || alpha <= 1.0) {
-            return 0;
+        if (x < 0) {
+            throw std::invalid_argument("x cannot be less than 0.0");
+        }
+        // x = distance to center and is always 0 for the center cell
+        // so have to add xmin to account for minimum x values
+        x = x + xmin;
+        if (x < xmin) {
+            throw std::invalid_argument("x must be greater than or equal to xmin");
         }
         return ((alpha - 1.0) / xmin) * pow(x / xmin, -alpha);
     }
@@ -78,10 +89,10 @@ public:
      */
     double icdf(double x)
     {
-        if (x <= 0 || x >= 1 || xmin == 0 || alpha <= 1.0) {
-            return 0;
+        if (x <= 0 || x >= 1) {
+            throw std::invalid_argument("icdf: x must be between 0 and 1.0");
         }
-        return pow(x, (1.0 / (-alpha + 1.0))) * xmin;
+        return xmin * pow(x, (1.0 / (-alpha + 1.0)));
     }
 };
 

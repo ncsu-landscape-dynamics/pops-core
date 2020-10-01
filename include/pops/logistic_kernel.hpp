@@ -33,9 +33,15 @@ class LogisticKernel
 {
 protected:
     double s;
+    std::uniform_real_distribution<double> distribution;
 
 public:
-    LogisticKernel(double scale) : s(scale) {}
+    LogisticKernel(double scale) : s(scale), distribution(0.0, 1.0)
+    {
+        if (s <= 0) {
+            throw std::invalid_argument("scale (s) must be greater than 0.0");
+        }
+    }
 
     /*!
      *  Returns random value from logistic distribution
@@ -46,7 +52,6 @@ public:
     template<class Generator>
     double random(Generator& generator)
     {
-        std::uniform_real_distribution<double> distribution(0.0, 1.0);
         double x = distribution(generator);
         return icdf(x);
     }
@@ -59,9 +64,6 @@ public:
      */
     double pdf(double x)
     {
-        if (s == 0) {
-            return 0;
-        }
         if (s == 1) {
             return exp(-x) / pow(1 + exp(-x), 2);
         }
@@ -76,8 +78,8 @@ public:
      */
     double icdf(double x)
     {
-        if (x <= 0 || x >= 1 || s == 0) {
-            return 0;
+        if (x <= 0 || x >= 1) {
+            throw std::invalid_argument("icdf: x must be between 0.0 and 1.0");
         }
         return s * log(x / (1.0 - x));
     }

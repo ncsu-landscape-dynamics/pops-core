@@ -414,8 +414,8 @@ int test_with_hyperbolic_secant_deterministic_kernel()
     Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
-    Raster<int> expected_mortality_tracker = {{0, 5, 0}, {5, 0, 0}, {0, 0, 0}};
-    Raster<int> expected_infected = {{5, 5, 0}, {5, 5, 0}, {0, 0, 2}};
+    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
@@ -457,9 +457,9 @@ int test_with_hyperbolic_secant_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         establishment_probability);
-    if (outside_dispersers.size() != 8) {
+    if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel HyperbolicSecant: There are outside_dispersers ("
-             << outside_dispersers.size() << ") but there should be 8\n";
+             << outside_dispersers.size() << ") but there should be 0\n";
         return 1;
     }
     if (infected != expected_infected) {
@@ -489,8 +489,8 @@ int test_with_power_law_deterministic_kernel()
     Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
-    Raster<int> expected_mortality_tracker = {{1, 3, 1}, {3, 1, 0}, {1, 0, 1}};
-    Raster<int> expected_infected = {{6, 3, 1}, {3, 6, 0}, {1, 0, 3}};
+    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
@@ -531,9 +531,9 @@ int test_with_power_law_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         establishment_probability);
-    if (outside_dispersers.size() != 9) {
+    if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel PowerLaw: There are outside_dispersers ("
-             << outside_dispersers.size() << ") but there should be 9\n";
+             << outside_dispersers.size() << ") but there should be 0\n";
         return 1;
     }
     if (infected != expected_infected) {

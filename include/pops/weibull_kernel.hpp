@@ -38,7 +38,14 @@ protected:
     std::weibull_distribution<double> weibull_distribution;
 
 public:
-    WeibullKernel(double a1, double b1) : a(a1), b(b1), weibull_distribution(a, b) {}
+    WeibullKernel(double scale, double shape)
+        : a(shape), b(scale), weibull_distribution(a, b)
+    {
+        if (a <= 0 || b <= 0) {
+            throw std::invalid_argument(
+                "scale and shape parameters must be greater than zero");
+        }
+    }
 
     /*!
      *  Returns random value from weibull distribution
@@ -60,12 +67,12 @@ public:
      */
     double pdf(double x)
     {
-        if (x < 0 || b == 0 || a < 0) {
-            return 0;
+        if (x < 0) {
+            throw std::invalid_argument("x must be greater than or equal to 0.0");
         }
         // Note: If the value inside exp() is too large it returns zero
         // any a >= 2 returns zero
-        return ((a / b) * pow(x / b, a - 1) * exp(-pow(x / b, a)));
+        return (a / b) * pow(x / b, a - 1) * exp(-pow(x / b, a));
     }
 
     /*!
@@ -76,8 +83,8 @@ public:
      */
     double icdf(double x)
     {
-        if (x < 0 || x >= 1 || b <= 0 || a < 0) {
-            return 0;
+        if (x <= 0 || x >= 1) {
+            throw std::invalid_argument("icdf: x must be between 0 and 1.0");
         }
         return a * pow(-(log(1 - x)), (1.0 / b));
     }

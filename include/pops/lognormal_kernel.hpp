@@ -38,7 +38,12 @@ protected:
     std::lognormal_distribution<double> lognormal_distribution;
 
 public:
-    LogNormalKernel(double s) : sigma(s), lognormal_distribution(0.0, sigma) {}
+    LogNormalKernel(double s) : sigma(s), lognormal_distribution(0.0, sigma)
+    {
+        if (sigma <= 0) {
+            throw std::invalid_argument("sigma must be greater than 0.0");
+        }
+    }
 
     /*!
      *  Returns random value from log normal distribution
@@ -60,7 +65,10 @@ public:
      */
     double pdf(double x)
     {
-        if (x <= 0 || sigma == 0) {
+        if (x < 0) {
+            throw std::invalid_argument("x must be greater than or equal to 0.0");
+        }
+        if (x == 0) {
             return 0;
         }
         return (1 / x) * (1 / (sigma * sqrt(2 * M_PI)))
@@ -78,7 +86,7 @@ public:
     double icdf(double x)
     {
         if (x <= 0 || x >= 1) {
-            return 0;
+            throw std::invalid_argument("icdf: x must be between 0.0 and 1.0");
         }
         //  approximation for inverse error function
         double y = (2 * x) - 1;

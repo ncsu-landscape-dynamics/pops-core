@@ -38,7 +38,12 @@ protected:
     std::normal_distribution<double> normal_distribution;
 
 public:
-    NormalKernel(double s) : sigma(s), normal_distribution(0.0, sigma) {}
+    NormalKernel(double s) : sigma(s), normal_distribution(0.0, sigma)
+    {
+        if (sigma == 0) {
+            throw std::invalid_argument("sigma cannot be zero");
+        }
+    }
 
     /*!
      *  Returns random value from normal distribution
@@ -60,13 +65,10 @@ public:
      */
     double pdf(double x)
     {
-        if (sigma == 0) {
-            return 0;
-        }
         if (sigma == 1) {
-            return 1 / (sqrt(2 * M_PI)) * exp(-0.5 * pow(x, 2));
+            return 1.0 / (sqrt(2 * M_PI)) * exp(-0.5 * pow(x, 2));
         }
-        return 1 / (sigma * sqrt(2 * M_PI)) * exp(-0.5 * pow(x / sigma, 2));
+        return 1.0 / (sigma * sqrt(2 * M_PI)) * exp(-0.5 * pow(x / sigma, 2));
     }
 
     /*!
@@ -80,15 +82,15 @@ public:
     double icdf(double x)
     {
         if (x <= 0 || x >= 1) {
-            return 0;
+            throw std::invalid_argument("icdf: x must be between 0.0 and 1.0");
         }
         //  approximation for inverse error function
         double y = (2 * x) - 1;
         float sign = (y < 0) ? -1.0f : 1.0f;
         //  0.147 used for a relative error of about 2*10^-3
-        float b = 2 / (M_PI * 0.147) + 0.5f * log(1 - pow(y, 2));
+        float b = 2.0 / (M_PI * 0.147) + 0.5f * log(1 - pow(y, 2));
         double inverf =
-            (sign * sqrt(-b + sqrt(pow(b, 2) - (1 / (0.147) * log(1 - pow(y, 2))))));
+            (sign * sqrt(-b + sqrt(pow(b, 2) - (1.0 / (0.147) * log(1 - pow(y, 2))))));
 
         return sigma * std::sqrt(2) * inverf;
     }

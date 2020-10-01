@@ -36,7 +36,12 @@ protected:
     std::exponential_distribution<double> exponential_distribution;
 
 public:
-    ExponentialKernel(double b) : beta(b), exponential_distribution(1.0 / beta) {}
+    ExponentialKernel(double b) : beta(b), exponential_distribution(1.0 / beta)
+    {
+        if (beta <= 0) {
+            throw std::invalid_argument("beta must be greater than 0.0");
+        }
+    }
 
     /*!
      *  Returns random value from exponential distribution
@@ -58,7 +63,10 @@ public:
      */
     double pdf(double x)
     {
-        return (1 / beta) * (exp(-x / beta));
+        if (x < 0) {
+            throw std::invalid_argument("x must be greater than or equal to zero");
+        }
+        return (1.0 / beta) * (exp(-x / beta));
     }
 
     /*!
@@ -70,10 +78,7 @@ public:
     double icdf(double x)
     {
         if (x <= 0 || x >= 1) {
-            return 0;
-        }
-        if (beta == 1) {
-            return -log(1 - x);
+            throw std::invalid_argument("icdf: x must be between 0.0 and 1.0");
         }
         else {
             return -beta * log(1 - x);

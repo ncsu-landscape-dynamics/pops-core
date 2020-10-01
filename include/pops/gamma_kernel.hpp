@@ -40,7 +40,12 @@ protected:
 public:
     GammaKernel(double a, double t)
         : alpha(a), theta(t), gamma_distribution(alpha, 1.0 / theta)
-    {}
+    {
+        if (alpha <= 0 || theta <= 0) {
+            throw std::invalid_argument(
+                "alpha and theta must greater than or equal to 0");
+        }
+    }
 
     /*!
      *  Returns random value from gamma distribution
@@ -62,8 +67,8 @@ public:
      */
     double pdf(double x)
     {
-        if (x < 0 || alpha < 0 || theta <= 0) {
-            return 0;
+        if (x < 0) {
+            throw std::invalid_argument("x must greater than or equal to 0");
         }
         return 1.0 / (std::tgamma(alpha) * pow(theta, alpha)) * pow(x, (alpha - 1))
                * exp(-x / theta);
@@ -76,9 +81,6 @@ public:
      */
     double cdf(double x)
     {
-        if (theta == 0) {
-            return 0;
-        }
         double sum = 0.0;
         double beta = 1.0 / theta;
         for (int i = 0; i < alpha; i++) {
@@ -99,7 +101,7 @@ public:
     double icdf(double x)
     {
         if (x <= 0 || x >= 1) {
-            return 0;
+            throw std::invalid_argument("icdf: x must be between 0.0 and 1.0");
         }
         // pick starting approximation using lognormal icdf
         LogNormalKernel lognormal(1);
@@ -131,8 +133,7 @@ public:
                 return guess;
             }
         }
-        // TODO error message
-        std::cout << "unable to find solution to gamma icdf(" << x << ")\n";
+        throw std::invalid_argument("unable to find solution to gamma icdf ");
         return -1;
     }
 };

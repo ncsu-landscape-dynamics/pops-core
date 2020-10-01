@@ -34,9 +34,15 @@ class HyperbolicSecantKernel
 {
 protected:
     double sigma;
+    std::uniform_real_distribution<double> distribution;
 
 public:
-    HyperbolicSecantKernel(double s) : sigma(s) {}
+    HyperbolicSecantKernel(double s) : sigma(s), distribution(0.0, 1.0)
+    {
+        if (s == 0) {
+            throw std::invalid_argument("s cannot be 0.0");
+        }
+    }
 
     /*!
      *  Returns random value from hyperbolic secant distribution
@@ -47,14 +53,7 @@ public:
     template<class Generator>
     double random(Generator& generator)
     {
-        std::uniform_real_distribution<double> distribution(0.0, 1.0);
         double x = distribution(generator);
-        // get random value from a uniform distribution and use it
-        // to get a random value from the distribution
-        // if (mu_ != 0 && sigma_ != 1) {
-        //    return ((log(tan((x * M_PI) / 2.0)) * (2.0 * sigma_)) / M_PI) + mu_;
-        //}
-        // return (2 / M_PI) * log(tan(M_PI / 2 * x));
         return icdf(x);
     }
 
@@ -66,11 +65,8 @@ public:
      */
     double pdf(double x)
     {
-        if (x <= 0 || sigma == 0) {
-            return 0;
-        }
         if (sigma == 1) {
-            return 0.5 * (1 / cosh((M_PI * x) / 2));
+            return 0.5 * (1.0 / cosh((M_PI * x) / 2));
         }
         return (1.0 / (2 * sigma)) * (1 / cosh((M_PI * x) / (2 * sigma)));
     }
@@ -83,8 +79,8 @@ public:
      */
     double icdf(double x)
     {
-        if (x <= 0 || sigma == 0) {
-            return 0;
+        if (x <= 0 || x >= 1) {
+            throw std::invalid_argument("icdf: x must be between 0.0 and 1.0");
         }
         if (sigma == 1) {
             return (2.0 / M_PI) * log(tan(M_PI / 2.0 * x));
