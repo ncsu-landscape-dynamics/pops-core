@@ -70,8 +70,7 @@ private:
      * If there is no infection, sets -1 to all directions.
      */
     BBoxInt infection_boundary(
-        const Raster& raster,
-        const std::vector<std::vector<int>>& spatial_indices)
+        const Raster& raster, const std::vector<std::vector<int>>& spatial_indices)
     {
         int n = height - 1;
         int s = 0;

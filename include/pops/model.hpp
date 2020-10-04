@@ -130,7 +130,8 @@ public:
         SpreadRate<IntegerRaster>& spread_rate,  // out
         QuarantineEscape<IntegerRaster>& quarantine,  // out
         const IntegerRaster& quarantine_areas,
-        const std::vector<std::vector<int>> movements)
+        const std::vector<std::vector<int>> movements,
+        const std::vector<std::vector<int>>& spatial_indices)
     {
         RadialDispersalKernel<IntegerRaster> natural_radial_kernel(
             config_.ew_res,
@@ -216,7 +217,7 @@ public:
         // treatments
         if (config_.use_treatments) {
             bool managed =
-                treatments.manage(step, infected, exposed, susceptible, resistant);
+                treatments.manage(step, infected, exposed, susceptible, resistant, spatial_indices);
             if (managed && config_.use_mortality) {
                 // same conditions as the mortality code below
                 // TODO: make the mortality timing available as a separate function in
@@ -225,7 +226,7 @@ public:
                     auto max_index =
                         mortality_simulation_year - (config_.first_mortality_year - 1);
                     for (int age = 0; age <= max_index; age++) {
-                        treatments.manage_mortality(step, mortality_tracker[age]);
+                        treatments.manage_mortality(step, mortality_tracker[age], spatial_indices);
                     }
                 }
             }
