@@ -24,8 +24,7 @@ namespace pops {
  */
 template<typename IntegerRaster>
 unsigned sum_of_infected(
-    const IntegerRaster& infected, const std::vector<std::vector<int>>& spatial_indices
-)
+    const IntegerRaster& infected, const std::vector<std::vector<int>>& spatial_indices)
 {
     unsigned sum = 0;
     for (unsigned i = 0; i < spatial_indices.size(); i++) {
