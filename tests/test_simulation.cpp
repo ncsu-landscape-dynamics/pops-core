@@ -523,7 +523,8 @@ int test_SI_versus_SEI0()
             outside_dispersers_1,
             weather,
             weather_coefficient,
-            kernel);
+            kernel,
+            spatial_indices);
         simulation_SI_2.disperse(
             dispersers,
             susceptible_2,
@@ -533,7 +534,8 @@ int test_SI_versus_SEI0()
             outside_dispersers_2,
             weather,
             weather_coefficient,
-            kernel);
+            kernel,
+            spatial_indices);
         simulation_SEI0.disperse_and_infect(
             step,
             dispersers,
@@ -545,7 +547,8 @@ int test_SI_versus_SEI0()
             outside_dispersers_3,
             weather,
             weather_coefficient,
-            kernel);
+            kernel,
+            spatial_indices);
         ret += disperse_and_infect_postcondition(step, exposed);
         if (infected_2 != infected_1) {
             cout
@@ -596,7 +599,7 @@ int test_calling_all_functions()
     std::vector<unsigned> movement_schedule = {1, 1};
     Simulation<Raster<int>, Raster<double>> simulation(
         seed, infected.rows(), infected.cols());
-    simulation.remove(infected, susceptible, temperature, lethal_temperature);
+    simulation.remove(infected, susceptible, temperature, lethal_temperature, spatial_indices);
     simulation.generate(
         dispersers,
         infected,
