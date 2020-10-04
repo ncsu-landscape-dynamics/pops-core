@@ -40,8 +40,7 @@ int test_with_reduced_stochasticity()
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
     auto expected_infected = expected_mortality_tracker + infected;
 
-    std::vector<std::vector<int>> spatial_indices = {
-        {0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
