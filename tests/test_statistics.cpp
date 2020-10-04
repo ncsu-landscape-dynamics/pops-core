@@ -38,7 +38,7 @@ int test_sum()
         {0, 0, 5, 0, 0},
         {0, 0, 0, 0, 0}};
 
-    unsigned sum = sum_of_infected(infected);
+    unsigned sum = sum_of_infected(infected, spatial_indices);
 
     if (sum != 32) {
         std::cout << "sum fails" << std::endl;
@@ -58,7 +58,12 @@ int test_area()
         {0, 0, 5, 0, 0},
         {0, 0, 0, 0, 0}};
 
-    double area = area_of_infected(infected, 0.5, 1);
+    const std::vector<std::vector<int>> spatial_indices = {
+        {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
+        {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
+        {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
+
+    double area = area_of_infected(infected, 0.5, 1, spatial_indices);
 
     if (area != 2) {
         std::cout << "area fails" << std::endl;
