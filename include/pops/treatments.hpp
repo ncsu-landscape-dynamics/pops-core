@@ -305,17 +305,17 @@ public:
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
         const std::vector<std::vector<int>>& spatial_indices) override
-        {
-            for (unsigned i = 0; i < spatial_indices.size(); i++) {
-                auto spatial_index = spatial_indices[i];
-                int row_index = spatial_index[0];
-                int col_index = spatial_index[1];
-                if (this->map_(row_index, col_index) > 0) {
-                    susceptible(row_index, col_index) += resistant(row_index, col_index);
-                    resistant(row_index, col_index) = 0;
-                }
+    {
+        for (unsigned i = 0; i < spatial_indices.size(); i++) {
+            auto spatial_index = spatial_indices[i];
+            int row_index = spatial_index[0];
+            int col_index = spatial_index[1];
+            if (this->map_(row_index, col_index) > 0) {
+                susceptible(row_index, col_index) += resistant(row_index, col_index);
+                resistant(row_index, col_index) = 0;
             }
         }
+    }
 };
 
 /*!
