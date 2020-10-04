@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
     double mortality_rate = 0.50;
     int current_year = 2018;
     int first_mortality_year = 2018;
+    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     Simulation<Raster<int>, Raster<double>> simulation(42, infected, ew_res, ns_res);
     simulation.mortality(
         infected,
@@ -59,7 +60,8 @@ int main(int argc, char* argv[])
         current_year,
         first_mortality_year,
         mortality,
-        mortality_tracker_vector) cout
+        mortality_tracker_vector,
+        spatial_indices) cout
         << mortality << endl;
     return 0;
 }

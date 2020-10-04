@@ -86,6 +86,8 @@ int test_with_neighbor_kernel()
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
     auto expected_infected = expected_mortality_tracker + infected;
 
+    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     bool weather = false;
@@ -104,7 +106,8 @@ int test_with_neighbor_kernel()
         outside_dispersers,
         weather,
         weather_coefficient,
-        kernel);
+        kernel,
+        spatial_indices);
     if (!outside_dispersers.empty()) {
         cout << "There are outside_dispersers (" << outside_dispersers.size()
              << ") but there should be none\n";
@@ -140,6 +143,8 @@ int test_with_reduced_stochasticity()
 
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
     auto expected_infected = expected_mortality_tracker + infected;
+
+    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
@@ -179,7 +184,8 @@ int test_with_reduced_stochasticity()
         weather,
         weather_coefficient,
         kernel,
-        establishment_probability);
+        establishment_probability,
+        spatial_indices);
     if (!outside_dispersers.empty()) {
         cout << "reduced_stochasticity: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be none\n";
@@ -281,6 +287,8 @@ int test_with_sei()
 
     Raster<int> expected_infected = infected;
     Raster<int> expected_exposed = {{0, 10}, {0, 0}};
+
+    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
@@ -469,6 +477,8 @@ int test_SI_versus_SEI0()
     auto rows = infected_1.rows();
     auto cols = infected_1.cols();
 
+    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+
     std::vector<std::tuple<int, int>> outside_dispersers_1;
     auto outside_dispersers_2 = outside_dispersers_1;
     auto outside_dispersers_3 = outside_dispersers_1;
@@ -570,6 +580,7 @@ int test_calling_all_functions()
     unsigned step = 1;
     unsigned last_index = 0;
     int seed = 42;
+    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
     Simulation<Raster<int>, Raster<double>> simulation(
