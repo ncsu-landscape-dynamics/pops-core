@@ -216,9 +216,8 @@ public:
         }
         // treatments
         if (config_.use_treatments) {
-            bool managed =
-                treatments.manage(
-                    step, infected, exposed, susceptible, resistant, spatial_indices);
+            bool managed = treatments.manage(
+                step, infected, exposed, susceptible, resistant, spatial_indices);
             if (managed && config_.use_mortality) {
                 // same conditions as the mortality code below
                 // TODO: make the mortality timing available as a separate function in
