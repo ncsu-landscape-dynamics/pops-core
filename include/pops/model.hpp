@@ -178,7 +178,8 @@ public:
                 infected,
                 susceptible,
                 temperatures[lethal_step],
-                config_.lethal_temperature);
+                config_.lethal_temperature,
+                spatial_indices);
         }
         // actual spread
         if (config_.spread_schedule()[step]) {
@@ -187,7 +188,8 @@ public:
                 infected,
                 config_.weather,
                 weather_coefficient,
-                config_.reproductive_rate);
+                config_.reproductive_rate,
+                spatial_indices);
 
             simulation_.disperse_and_infect(
                 step,
@@ -201,7 +203,8 @@ public:
                 config_.weather,
                 weather_coefficient,
                 dispersal_kernel,
-                config_.establishment_probability);
+                config_.establishment_probability,
+                spatial_indices);
             if (config_.use_movements) {
                 last_index = simulation_.movement(
                     infected,
@@ -251,7 +254,8 @@ public:
                 mortality_simulation_year,
                 config_.first_mortality_year - 1,
                 died,
-                mortality_tracker);
+                mortality_tracker,
+                spatial_indices);
         }
         // compute spread rate
         if (config_.use_spreadrates && config_.spread_rate_schedule()[step]) {
