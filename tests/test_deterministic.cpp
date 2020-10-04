@@ -49,7 +49,6 @@ int test_with_cauchy_deterministic_kernel()
     const std::vector<std::vector<int>> spatial_indices = {
         {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
 
-
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     bool weather = false;
@@ -143,7 +142,6 @@ int test_with_exponential_deterministic_kernel()
 
     const std::vector<std::vector<int>> spatial_indices = {
         {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
-
 
     bool weather = false;
     double reproductive_rate = 2;

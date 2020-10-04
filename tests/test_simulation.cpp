@@ -599,7 +599,8 @@ int test_calling_all_functions()
     std::vector<unsigned> movement_schedule = {1, 1};
     Simulation<Raster<int>, Raster<double>> simulation(
         seed, infected.rows(), infected.cols());
-    simulation.remove(infected, susceptible, temperature, lethal_temperature, spatial_indices);
+    simulation.remove(
+        infected, susceptible, temperature, lethal_temperature, spatial_indices);
     simulation.generate(
         dispersers,
         infected,
