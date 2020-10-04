@@ -262,7 +262,7 @@ public:
             unsigned action_step =
                 simulation_step_to_action_step(config_.quarantine_schedule(), step);
             quarantine.infection_escape_quarantine(
-                infected, quarantine_areas, action_step);
+                infected, quarantine_areas, action_step, spatial_indices);
         }
     }
 };
