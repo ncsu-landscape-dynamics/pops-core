@@ -42,7 +42,7 @@ int test_application_ratio()
     Raster<int> infected = {{1, 4}, {16, 40}};
     std::vector<Raster<int>> exposed;
 
-    const std::vector<std::vector<int>> spatial_indices = {
+    std::vector<std::vector<int>> spatial_indices = {
         {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
@@ -71,7 +71,7 @@ int test_application_all_inf()
     Raster<int> infected = {{1, 4}, {16, 40}};
     std::vector<Raster<int>> exposed;
 
-    const std::vector<std::vector<int>> spatial_indices = {
+    std::vector<std::vector<int>> spatial_indices = {
         {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
@@ -102,7 +102,7 @@ int test_application_ratio_pesticide()
     Raster<int> infected = {{1, 4}, {16, 40}};
     std::vector<Raster<int>> exposed;
 
-    const std::vector<std::vector<int>> spatial_indices = {
+    std::vector<std::vector<int>> spatial_indices = {
         {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
@@ -156,7 +156,7 @@ int test_application_all_inf_pesticide()
     Raster<int> infected = {{1, 4}, {16, 40}};
     std::vector<Raster<int>> exposed;
 
-    const std::vector<std::vector<int>> spatial_indices = {
+    std::vector<std::vector<int>> spatial_indices = {
         {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
@@ -214,7 +214,7 @@ int test_combination()
     Raster<int> infected = {{1, 4}, {16, 40}};
     std::vector<Raster<int>> exposed;
 
-    const std::vector<std::vector<int>> spatial_indices = {
+    std::vector<std::vector<int>> spatial_indices = {
         {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
@@ -281,7 +281,7 @@ int test_pesticide_temporal_overlap()
     Raster<int> infected = {{1, 4}, {16, 40}};
     std::vector<Raster<int>> exposed;
 
-    const std::vector<std::vector<int>> spatial_indices = {
+    std::vector<std::vector<int>> spatial_indices = {
         {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
@@ -357,7 +357,7 @@ int test_steering()
     Raster<int> infected = {{1, 4}, {16, 40}};
     std::vector<Raster<int>> exposed;
 
-    const std::vector<std::vector<int>> spatial_indices = {
+    std::vector<std::vector<int>> spatial_indices = {
         {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
@@ -429,7 +429,7 @@ int test_clear()
     Raster<int> infected = {{1, 4}, {16, 40}};
     std::vector<Raster<int>> exposed;
 
-    const std::vector<std::vector<int>> spatial_indices = {
+    std::vector<std::vector<int>> spatial_indices = {
         {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
