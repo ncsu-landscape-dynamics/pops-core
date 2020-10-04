@@ -216,7 +216,7 @@ public:
         }
     }
     void end_treatment(
-            IntegerRaster&, IntegerRaster&, const std::vector<std::vector<int>>&) override
+        IntegerRaster&, IntegerRaster&, const std::vector<std::vector<int>>&) override
     {
         return;
     }
@@ -287,14 +287,17 @@ public:
                                         * this->map_(row_index, col_index);
                 }
                 else if (
-                        this->application_ == TreatmentApplication::AllInfectedInCell) {
-                    exposed_resistant = this->map_(row_index, col_index) ? exposed(row_index, col_index) : 0;
+                    this->application_ == TreatmentApplication::AllInfectedInCell) {
+                    exposed_resistant = this->map_(row_index, col_index)
+                                            ? exposed(row_index, col_index)
+                                            : 0;
                 }
                 exposed(row_index, col_index) -= exposed_resistant;
                 exposed_resistant_sum += exposed_resistant;
             }
             resistant(row_index, col_index) = infected_resistant + exposed_resistant_sum
-                + susceptible_resistant + current_resistant;
+                                              + susceptible_resistant
+                                              + current_resistant;
             susceptible(row_index, col_index) -= susceptible_resistant;
         }
     }
