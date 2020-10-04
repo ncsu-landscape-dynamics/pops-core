@@ -225,7 +225,8 @@ int test_deterministic()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, spatial_indices);
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0, spatial_indices);
+    QuarantineEscape<Raster<int>> quarantine(
+            zeros, config.ew_res, config.ns_res, 0, spatial_indices);
 
     auto expected_dispersers = config.reproductive_rate * infected;
 
@@ -348,7 +349,8 @@ int test_deterministic_exponential()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, spatial_indices);
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0, spatial_indices);
+    QuarantineEscape<Raster<int>> quarantine(
+            zeros, config.ew_res, config.ns_res, 0, spatial_indices);
 
     auto expected_dispersers = config.reproductive_rate * infected;
 
@@ -472,7 +474,8 @@ int test_model_sei_deterministic()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, spatial_indices);
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0, spatial_indices);
+    QuarantineEscape<Raster<int>> quarantine(
+            zeros, config.ew_res, config.ns_res, 0, spatial_indices);
 
     // There should be still the original number of infected when dispersers are
     // created.
@@ -601,7 +604,8 @@ int test_model_sei_deterministic_with_treatments()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, spatial_indices);
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0, spatial_indices);
+    QuarantineEscape<Raster<int>> quarantine(
+            zeros, config.ew_res, config.ns_res, 0, spatial_indices);
 
     // There should be still the original number of infected when dispersers are
     // created.
