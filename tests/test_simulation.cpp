@@ -166,7 +166,12 @@ int test_with_reduced_stochasticity()
         establishment_stochasticity,
         movement_stochasticity);
     simulation.generate(
-        dispersers, infected, weather, weather_coefficient, reproductive_rate, spatial_indices);
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        spatial_indices);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
@@ -593,7 +598,12 @@ int test_calling_all_functions()
         seed, infected.rows(), infected.cols());
     simulation.remove(infected, susceptible, temperature, lethal_temperature);
     simulation.generate(
-        dispersers, infected, weather, weather_coefficient, reproductive_rate, spatial_indices);
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        spatial_indices);
     RadialDispersalKernel<Raster<int>> kernel(
         ew_res, ns_res, dispersal_kernel, short_distance_scale);
     simulation.movement(
