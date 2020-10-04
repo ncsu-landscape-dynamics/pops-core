@@ -24,6 +24,7 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <vector>
 #include <pops/raster.hpp>
 #include <pops/treatments.hpp>
 #include <pops/date.hpp>

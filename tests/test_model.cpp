@@ -23,6 +23,8 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <vector>
+
 #include <pops/model.hpp>
 
 using namespace pops;
