@@ -64,15 +64,15 @@ int test_spread_rate()
         {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}};
 
-    const std::vector<std::vector<int>> spatial_indices = {
+    const std::vector<std::vector<int>> suitable_cells = {
         {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
 
-    SpreadRate<Raster<int>> spread_rate(infected, 10, 10, 3, spatial_indices);
-    spread_rate.compute_step_spread_rate(infected1, 0, spatial_indices);
-    spread_rate.compute_step_spread_rate(infected2, 1, spatial_indices);
-    spread_rate.compute_step_spread_rate(infected3, 2, spatial_indices);
+    SpreadRate<Raster<int>> spread_rate(infected, 10, 10, 3, suitable_cells);
+    spread_rate.compute_step_spread_rate(infected1, 0, suitable_cells);
+    spread_rate.compute_step_spread_rate(infected2, 1, suitable_cells);
+    spread_rate.compute_step_spread_rate(infected3, 2, suitable_cells);
     double n, s, e, w;
     std::tie(n, s, e, w) = spread_rate.step_rate(0);
     if (!(n == 0 && s == 0 && e == 10 && w == 10)) {
