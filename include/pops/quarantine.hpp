@@ -191,8 +191,7 @@ public:
             double dist;
             QuarantineDirection dir;
             int bindex = boundary_id_idx_map[area];
-            std::tie(dist, dir) =
-                closest_direction(i, j, boundaries.at(bindex));
+            std::tie(dist, dir) = closest_direction(i, j, boundaries.at(bindex));
             if (dist < std::get<0>(min_dist_dir)) {
                 min_dist_dir = std::make_tuple(dist, dir);
             }
