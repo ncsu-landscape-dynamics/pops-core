@@ -144,8 +144,7 @@ public:
               num_steps,
               std::make_tuple(
                   false,
-                  std::make_tuple(
-                      std::numeric_limits<double>::max(), Direction::None)))
+                  std::make_tuple(std::numeric_limits<double>::max(), Direction::None)))
     {
         quarantine_boundary(quarantine_areas);
     }
@@ -162,8 +161,8 @@ public:
         const IntegerRaster& quarantine_areas,
         unsigned step)
     {
-        DistDir min_dist_dir = std::make_tuple(
-            std::numeric_limits<double>::max(), Direction::None);
+        DistDir min_dist_dir =
+            std::make_tuple(std::numeric_limits<double>::max(), Direction::None);
         for (int i = 0; i < height_; i++) {
             for (int j = 0; j < width_; j++) {
                 if (!infected(i, j))
