@@ -131,7 +131,7 @@ public:
         QuarantineEscape<IntegerRaster>& quarantine,  // out
         const IntegerRaster& quarantine_areas,
         const std::vector<std::vector<int>> movements,
-        const std::vector<std::vector<int>>& spatial_indices)
+        const std::vector<std::vector<int>>& suitable_cell)
     {
         RadialDispersalKernel<IntegerRaster> natural_radial_kernel(
             config_.ew_res,
@@ -179,7 +179,7 @@ public:
                 susceptible,
                 temperatures[lethal_step],
                 config_.lethal_temperature,
-                spatial_indices);
+                suitable_cell);
         }
         // actual spread
         if (config_.spread_schedule()[step]) {
@@ -189,7 +189,7 @@ public:
                 config_.weather,
                 weather_coefficient,
                 config_.reproductive_rate,
-                spatial_indices);
+                suitable_cell);
 
             simulation_.disperse_and_infect(
                 step,
@@ -203,7 +203,7 @@ public:
                 config_.weather,
                 weather_coefficient,
                 dispersal_kernel,
-                spatial_indices,
+                suitable_cell,
                 config_.establishment_probability);
             if (config_.use_movements) {
                 last_index = simulation_.movement(
@@ -220,7 +220,7 @@ public:
         // treatments
         if (config_.use_treatments) {
             bool managed = treatments.manage(
-                step, infected, exposed, susceptible, resistant, spatial_indices);
+                step, infected, exposed, susceptible, resistant, suitable_cell);
             if (managed && config_.use_mortality) {
                 // same conditions as the mortality code below
                 // TODO: make the mortality timing available as a separate function in
@@ -230,7 +230,7 @@ public:
                         mortality_simulation_year - (config_.first_mortality_year - 1);
                     for (int age = 0; age <= max_index; age++) {
                         treatments.manage_mortality(
-                            step, mortality_tracker[age], spatial_indices);
+                            step, mortality_tracker[age], suitable_cell);
                     }
                 }
             }
@@ -255,20 +255,20 @@ public:
                 config_.first_mortality_year - 1,
                 died,
                 mortality_tracker,
-                spatial_indices);
+                suitable_cell);
         }
         // compute spread rate
         if (config_.use_spreadrates && config_.spread_rate_schedule()[step]) {
             unsigned rates_step =
                 simulation_step_to_action_step(config_.spread_rate_schedule(), step);
-            spread_rate.compute_step_spread_rate(infected, rates_step, spatial_indices);
+            spread_rate.compute_step_spread_rate(infected, rates_step, suitable_cell);
         }
         // compute quarantine escape
         if (config_.use_quarantine && config_.quarantine_schedule()[step]) {
             unsigned action_step =
                 simulation_step_to_action_step(config_.quarantine_schedule(), step);
             quarantine.infection_escape_quarantine(
-                infected, quarantine_areas, action_step, spatial_indices);
+                infected, quarantine_areas, action_step, suitable_cell);
         }
     }
 };

@@ -417,23 +417,23 @@ int test_clear()
     unsigned n = scheduler.schedule_action_date(Date(2020, 6, 1));
     treatments.clear_after_step(n);
     n = scheduler.schedule_action_date(Date(2020, 1, 1));
-    num_actions += treatments.manage(
-        n, infected, exposed, susceptible, resistant, suitable_cells);
+    num_actions += 
+        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
-    num_actions += treatments.manage(
-        n, infected, exposed, susceptible, resistant, suitable_cells);
+    num_actions += 
+        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 5, 12));
-    num_actions += treatments.manage(
-        n, infected, exposed, susceptible, resistant, suitable_cells);
+    num_actions += 
+        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 1));
-    num_actions += treatments.manage(
-        n, infected, exposed, susceptible, resistant, suitable_cells);
+    num_actions += 
+        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 8));
-    num_actions += treatments.manage(
-        n, infected, exposed, susceptible, resistant, suitable_cells);
+    num_actions += 
+        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 15));
-    num_actions += treatments.manage(
-        n, infected, exposed, susceptible, resistant, suitable_cells);
+    num_actions += 
+        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
 
     Raster<int> treated = {{0, 5}, {9, 82}};
     Raster<int> inf_treated = {{0, 0}, {0, 0}};
