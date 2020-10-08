@@ -196,7 +196,7 @@ public:
                     raster(i, j) = this->map_(i, j) ? 0 : raster(i, j);
                 }
             }
-            susceptible(i, j) = 
+            susceptible(i, j) =
                 susceptible(i, j) - (susceptible(i, j) * this->map_(i, j));
         }
     }
@@ -251,8 +251,7 @@ public:
             int j = indices[1];
             int infected_resistant = 0;
             int exposed_resistant_sum = 0;
-            int susceptible_resistant =
-                susceptible(i, j) * this->map_(i, j);
+            int susceptible_resistant = susceptible(i, j) * this->map_(i, j);
             int current_resistant = resistant(i, j);
             if (this->application_ == TreatmentApplication::Ratio) {
                 infected_resistant = infected(i, j) * this->map_(i, j);
