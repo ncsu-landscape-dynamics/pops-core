@@ -32,4 +32,30 @@
  */
 #define UNUSED(expr) (void)(expr)
 
+#define M_PI 3.14159265358979323846
+#define PI M_PI
+
+typedef std::tuple<int, int, int, int> BBoxInt;
+typedef std::tuple<double, double, double, double> BBoxFloat;
+typedef std::tuple<bool, bool, bool, bool> BBoxBool;
+
+/*! Spread direction
+ *
+ * Spread, typically wind, direction.
+ * Values are in degrees and are used in computations.
+ * `None` means that there is no wind.
+ */
+enum class Direction
+{
+    N = 0,  //!< North
+    NE = 45,  //!< Northeast
+    E = 90,  //!< NEast
+    SE = 135,  //!< Southeast
+    S = 180,  //!< South
+    SW = 225,  //!< Southwest
+    W = 270,  //!< West
+    NW = 315,  //!< Northwest
+    None  //!< No direction (non-directional)
+};
+
 #endif  // POPS_UTILS_HPP

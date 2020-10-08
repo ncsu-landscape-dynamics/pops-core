@@ -23,13 +23,6 @@
 #include "kernel_types.hpp"
 #include "utils.hpp"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-#ifndef PI
-#define PI M_PI
-#endif
-
 namespace pops {
 
 using std::pow;

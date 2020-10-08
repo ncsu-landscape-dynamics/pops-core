@@ -22,10 +22,6 @@
 
 namespace pops {
 
-typedef std::tuple<int, int, int, int> BBoxInt;
-typedef std::tuple<double, double, double, double> BBoxFloat;
-typedef std::tuple<bool, bool, bool, bool> BBoxBool;
-
 /**
  * Class storing and computing step spread rate for one simulation.
  */

@@ -21,6 +21,7 @@
 
 #include "deterministic_kernel.hpp"
 #include "kernel_types.hpp"
+#include "utils.hpp"
 
 #include <cmath>
 #include <map>
@@ -29,15 +30,6 @@
 #include <random>
 #include <algorithm>
 #include <stdexcept>
-
-// PI is used in the code and M_PI is not guaranteed
-// fix it, but prefer the system definition
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-#ifndef PI
-#define PI M_PI
-#endif
 
 namespace pops {
 
@@ -94,25 +86,6 @@ private:
     double mu;
     double kappa;
     std::uniform_real_distribution<double> distribution;
-};
-
-/*! Spread direction
- *
- * Spread, typically wind, direction.
- * Values are in degrees and are used in computations.
- * `None` means that there is no wind.
- */
-enum class Direction
-{
-    N = 0,  //!< North
-    NE = 45,  //!< Northeast
-    E = 90,  //!< NEast
-    SE = 135,  //!< Southeast
-    S = 180,  //!< South
-    SW = 225,  //!< Southwest
-    W = 270,  //!< West
-    NW = 315,  //!< Northwest
-    None  //!< No direction (non-directional)
 };
 
 /*! Get a corresponding enum value for a string which direction.
