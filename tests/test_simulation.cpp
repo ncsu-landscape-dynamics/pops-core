@@ -86,7 +86,7 @@ int test_with_neighbor_kernel()
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
     auto expected_infected = expected_mortality_tracker + infected;
 
-    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    std::vector<std::vector<int>> suitable_cellss = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
@@ -107,7 +107,7 @@ int test_with_neighbor_kernel()
         weather,
         weather_coefficient,
         kernel,
-        spatial_indices);
+        suitable_cellss);
     if (!outside_dispersers.empty()) {
         cout << "There are outside_dispersers (" << outside_dispersers.size()
              << ") but there should be none\n";
@@ -144,7 +144,7 @@ int test_with_reduced_stochasticity()
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
     auto expected_infected = expected_mortality_tracker + infected;
 
-    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    std::vector<std::vector<int>> suitable_cellss = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
@@ -171,7 +171,7 @@ int test_with_reduced_stochasticity()
         weather,
         weather_coefficient,
         reproductive_rate,
-        spatial_indices);
+        suitable_cellss);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
@@ -189,7 +189,7 @@ int test_with_reduced_stochasticity()
         weather,
         weather_coefficient,
         kernel,
-        spatial_indices,
+        suitable_cellss,
         establishment_probability);
     if (!outside_dispersers.empty()) {
         cout << "reduced_stochasticity: There are outside_dispersers ("
@@ -293,7 +293,7 @@ int test_with_sei()
     Raster<int> expected_infected = infected;
     Raster<int> expected_exposed = {{0, 10}, {0, 0}};
 
-    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    std::vector<std::vector<int>> suitable_cellss = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
@@ -327,7 +327,7 @@ int test_with_sei()
         weather,
         weather_coefficient,
         kernel,
-        spatial_indices);
+        suitable_cellss);
     if (infected != expected_infected) {
         cout << "SEI test infected (actual, expected):\n"
              << infected << "  !=\n"
@@ -354,7 +354,7 @@ int test_with_sei()
         weather,
         weather_coefficient,
         kernel,
-        spatial_indices);
+        suitable_cellss);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -370,7 +370,7 @@ int test_with_sei()
         weather,
         weather_coefficient,
         kernel,
-        spatial_indices);
+        suitable_cellss);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -397,7 +397,7 @@ int test_with_sei()
         weather,
         weather_coefficient,
         kernel,
-        spatial_indices);
+        suitable_cellss);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -433,7 +433,7 @@ int test_with_sei()
         weather,
         weather_coefficient,
         kernel,
-        spatial_indices);
+        suitable_cellss);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -451,7 +451,7 @@ int test_with_sei()
             weather,
             weather_coefficient,
             kernel,
-            spatial_indices);
+            suitable_cellss);
         print_vector(exposed);
         cout << infected << "\n\n";
         ret += disperse_and_infect_postcondition(step, exposed);
@@ -488,7 +488,7 @@ int test_SI_versus_SEI0()
     auto rows = infected_1.rows();
     auto cols = infected_1.cols();
 
-    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    std::vector<std::vector<int>> suitable_cellss = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     std::vector<std::tuple<int, int>> outside_dispersers_1;
     auto outside_dispersers_2 = outside_dispersers_1;
@@ -524,7 +524,7 @@ int test_SI_versus_SEI0()
             weather,
             weather_coefficient,
             kernel,
-            spatial_indices);
+            suitable_cellss);
         simulation_SI_2.disperse(
             dispersers,
             susceptible_2,
@@ -535,7 +535,7 @@ int test_SI_versus_SEI0()
             weather,
             weather_coefficient,
             kernel,
-            spatial_indices);
+            suitable_cellss);
         simulation_SEI0.disperse_and_infect(
             step,
             dispersers,
@@ -548,7 +548,7 @@ int test_SI_versus_SEI0()
             weather,
             weather_coefficient,
             kernel,
-            spatial_indices);
+            suitable_cellss);
         ret += disperse_and_infect_postcondition(step, exposed);
         if (infected_2 != infected_1) {
             cout
@@ -594,20 +594,20 @@ int test_calling_all_functions()
     unsigned step = 1;
     unsigned last_index = 0;
     int seed = 42;
-    std::vector<std::vector<int>> spatial_indices = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    std::vector<std::vector<int>> suitable_cellss = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
     Simulation<Raster<int>, Raster<double>> simulation(
         seed, infected.rows(), infected.cols());
     simulation.remove(
-        infected, susceptible, temperature, lethal_temperature, spatial_indices);
+        infected, susceptible, temperature, lethal_temperature, suitable_cellss);
     simulation.generate(
         dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        spatial_indices);
+        suitable_cellss);
     RadialDispersalKernel<Raster<int>> kernel(
         ew_res, ns_res, dispersal_kernel, short_distance_scale);
     simulation.movement(
@@ -629,7 +629,7 @@ int test_calling_all_functions()
         weather,
         weather_coefficient,
         kernel,
-        spatial_indices);
+        suitable_cellss);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;
     return 0;
 }
