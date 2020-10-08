@@ -16,6 +16,8 @@
 #ifndef POPS_SPREAD_RATE_HPP
 #define POPS_SPREAD_RATE_HPP
 
+#include "utils.hpp"
+
 #include <tuple>
 #include <vector>
 #include <cmath>
