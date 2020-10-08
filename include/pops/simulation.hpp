@@ -208,8 +208,7 @@ public:
                 int j = indices[1];
                 for (int year_index = 0; year_index <= max_year_index; year_index++) {
                     int mortality_in_year_index = 0;
-                    if (mortality_tracker_vector[year_index](i, j)
-                        > 0) {
+                    if (mortality_tracker_vector[year_index](i, j) > 0) {
                         mortality_in_year_index =
                             mortality_rate * mortality_tracker_vector[year_index](i, j);
                         mortality_tracker_vector[year_index](i, j) -=
@@ -433,9 +432,7 @@ public:
             int j = indices[1];
             if (dispersers(i, j) > 0) {
                 for (int k = 0; k < dispersers(i, j); k++) {
-                    std::tie(row, col) =
-                        dispersal_kernel(generator_, i, j);
-
+                    std::tie(row, col) = dispersal_kernel(generator_, i, j);
                     if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                         // export dispersers dispersed outside of modeled area
                         outside_dispersers.emplace_back(std::make_tuple(row, col));
