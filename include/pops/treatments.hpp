@@ -137,13 +137,10 @@ public:
             int i = indices[0];
             int j = indices[1];
             if (application_ == TreatmentApplication::Ratio) {
-                infected(i, j) =
-                    infected(i, j)
-                    - (infected(i, j) * map_(i, j));
+                infected(i, j) = infected(i, j) - (infected(i, j) * map_(i, j));
             }
             else if (application_ == TreatmentApplication::AllInfectedInCell) {
-                infected(i, j) =
-                    map_(i, j) ? 0 : infected(i, j);
+                infected(i, j) = map_(i, j) ? 0 : infected(i, j);
             }
         }
     }
@@ -185,32 +182,22 @@ public:
             int i = indices[0];
             int j = indices[1];
             if (this->application_ == TreatmentApplication::Ratio) {
-                infected(i, j) = infected(i, j)
-                                                 - (infected(i, j)
-                                                    * this->map_(i, j));
+                infected(i, j) = infected(i, j) - (infected(i, j) * this->map_(i, j));
             }
             else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
-                infected(i, j) = this->map_(i, j)
-                                                     ? 0
-                                                     : infected(i, j);
+                infected(i, j) = this->map_(i, j) ? 0 : infected(i, j);
             }
             for (auto& raster : exposed) {
                 if (this->application_ == TreatmentApplication::Ratio) {
-                    raster(i, j) =
-                        raster(i, j)
-                        - (raster(i, j)
-                           * this->map_(i, j));
+                    raster(i, j) = raster(i, j) - (raster(i, j) * this->map_(i, j));
                 }
                 else if (
                     this->application_ == TreatmentApplication::AllInfectedInCell) {
-                    raster(i, j) = this->map_(i, j)
-                                                       ? 0
-                                                       : raster(i, j);
+                    raster(i, j) = this->map_(i, j) ? 0 : raster(i, j);
                 }
             }
-            susceptible(i, j) = susceptible(i, j)
-                                                - (susceptible(i, j)
-                                                   * this->map_(i, j));
+            susceptible(i, j) = 
+                susceptible(i, j) - (susceptible(i, j) * this->map_(i, j));
         }
     }
     void end_treatment(
@@ -268,33 +255,26 @@ public:
                 susceptible(i, j) * this->map_(i, j);
             int current_resistant = resistant(i, j);
             if (this->application_ == TreatmentApplication::Ratio) {
-                infected_resistant =
-                    infected(i, j) * this->map_(i, j);
+                infected_resistant = infected(i, j) * this->map_(i, j);
             }
             else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
-                infected_resistant = this->map_(i, j)
-                                         ? infected(i, j)
-                                         : 0;
+                infected_resistant = this->map_(i, j) ? infected(i, j) : 0;
             }
             infected(i, j) -= infected_resistant;
             for (auto& exposed : exposed_vector) {
                 int exposed_resistant = 0;
                 if (this->application_ == TreatmentApplication::Ratio) {
-                    exposed_resistant = exposed(i, j)
-                                        * this->map_(i, j);
+                    exposed_resistant = exposed(i, j) * this->map_(i, j);
                 }
                 else if (
                     this->application_ == TreatmentApplication::AllInfectedInCell) {
-                    exposed_resistant = this->map_(i, j)
-                                            ? exposed(i, j)
-                                            : 0;
+                    exposed_resistant = this->map_(i, j) ? exposed(i, j) : 0;
                 }
                 exposed(i, j) -= exposed_resistant;
                 exposed_resistant_sum += exposed_resistant;
             }
             resistant(i, j) = infected_resistant + exposed_resistant_sum
-                                              + susceptible_resistant
-                                              + current_resistant;
+                              + susceptible_resistant + current_resistant;
             susceptible(i, j) -= susceptible_resistant;
         }
     }
