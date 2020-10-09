@@ -160,13 +160,13 @@ int test_print_current_date()
     int num_errors = 0;
     Date d = Date("2000-03-01");
     d.subtract_days(2);
-    if (strcmp(d.print_current_date(), "2000-02-28") != 0) {
+    if (d.print_current_date().compare("2000-02-28") != 0) {
         num_errors++;
         cout << d << endl;
     }
     d = Date("2001-12-31");
     d.add_days(366);
-    if (strcmp(d.print_current_date(), "2003-01-01") != 0) {
+    if (d.print_current_date().compare("2003-01-01") != 0) {
         num_errors++;
         cout << d << endl;
     }
