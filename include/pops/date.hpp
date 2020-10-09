@@ -62,6 +62,7 @@ public:
     inline bool is_last_day_of_month();
     inline bool is_last_week_of_month();
     inline bool is_leap_year();
+    inline std::string print_current_date();
     int month() const
     {
         return month_;
@@ -441,6 +442,18 @@ int Date::weeks_from_date(Date start)
         start.increased_by_week();
     }
     return week - 1;
+}
+
+/*!
+ * Returns the current date as a string
+ * \param Date, current date
+ * \return String, current date as string
+ */
+std::string Date::print_current_date()
+{
+    std::string date = std::to_string(year_) + "-" + std::to_string(month_) + "-"
+                       + std::to_string(day_);
+    return date;
 }
 
 /*!

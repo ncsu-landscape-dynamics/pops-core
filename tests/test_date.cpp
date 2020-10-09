@@ -155,6 +155,24 @@ int test_subtract_days()
     return num_errors;
 }
 
+int test_print_current_date()
+{
+    int num_errors = 0;
+    Date d = Date("2000-03-01");
+    d.subtract_days(2);
+    if (strcmp(d.print_current_date(), "2000-02-28") != 0) {
+        num_errors++;
+        cout << d << endl;
+    }
+    d = Date("2001-12-31");
+    d.add_days(366);
+    if (strcmp(d.print_current_date(), "2003-01-01") != 0) {
+        num_errors++;
+        cout << d << endl;
+    }
+    return num_errors;
+}
+
 int main()
 {
     int num_errors = 0;
@@ -164,6 +182,7 @@ int main()
     num_errors += test_from_string();
     num_errors += test_add_days();
     num_errors += test_subtract_days();
+    num_errors += test_print_current_date();
     cout << "Test Date class: number of errors: " << num_errors << endl;
 
     return 0;
