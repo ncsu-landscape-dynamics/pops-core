@@ -453,16 +453,16 @@ std::string Date::to_string()
 {
     std::string date = std::to_string(year_) + "-";
     if (month_ < 10) {
-        std::string date = std::string date + "0" + std::to_string(month_) + "-";
+        date = date + "0" + std::to_string(month_) + "-";
     }
     else {
-        std::string date = std::string date + std::to_string(month_) + "-";
+        date = date + std::to_string(month_) + "-";
     }
     if (day_ < 10) {
-        std::string date = std::string date + "0" + std::to_string(day_);
+        date = date + "0" + std::to_string(day_);
     }
     else {
-        std::string date = std::string date + std::to_string(day_);
+        date = date + std::to_string(day_);
     }
     return date;
 }
