@@ -62,7 +62,7 @@ public:
     inline bool is_last_day_of_month();
     inline bool is_last_week_of_month();
     inline bool is_leap_year();
-    inline std::string current_date_to_string();
+    inline std::string to_string();
     int month() const
     {
         return month_;
