@@ -449,10 +449,21 @@ int Date::weeks_from_date(Date start)
  * \param Date, current date
  * \return String, current date as string
  */
-std::string Date::current_date_to_string()
+std::string Date::to_string()
 {
-    std::string date = std::to_string(year_) + "-" + std::to_string(month_) + "-"
-                       + std::to_string(day_);
+    std::string date = std::to_string(year_) + "-";
+    if (month_ < 10) {
+        std::string date = std::string date + "0" + std::to_string(month_) + "-";
+    }
+    else {
+        std::string date = std::string date + std::to_string(month_) + "-";
+    }
+    if (day_ < 10) {
+        std::string date = std::string date + "0" + std::to_string(day_);
+    }
+    else {
+        std::string date = std::string date + std::to_string(day_);
+    }
     return date;
 }
 
