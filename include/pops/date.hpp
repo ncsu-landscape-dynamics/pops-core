@@ -435,7 +435,6 @@ void Date::subtract_days(unsigned n)
  */
 int Date::weeks_from_date(Date start)
 {
-
     int week = 0;
     while (start <= *this) {
         week++;
@@ -446,6 +445,7 @@ int Date::weeks_from_date(Date start)
 
 /*!
  * Returns the current date as a string
+ * Will be replaced by C++20 format function
  * \param Date, current date
  * \return String, current date as string
  */
@@ -453,16 +453,16 @@ std::string Date::to_string()
 {
     std::string date = std::to_string(year_) + "-";
     if (month_ < 10) {
-        date = date + "0" + std::to_string(month_) + "-";
+        date += "0" + std::to_string(month_) + "-";
     }
     else {
-        date = date + std::to_string(month_) + "-";
+        date += std::to_string(month_) + "-";
     }
     if (day_ < 10) {
-        date = date + "0" + std::to_string(day_);
+        date += "0" + std::to_string(day_);
     }
     else {
-        date = date + std::to_string(day_);
+        date += std::to_string(day_);
     }
     return date;
 }
