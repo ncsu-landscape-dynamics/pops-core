@@ -46,6 +46,9 @@ int test_with_cauchy_deterministic_kernel()
     Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
+    const std::vector<std::vector<int>> suitable_cell = {
+        {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
+
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     bool weather = false;
@@ -64,7 +67,12 @@ int test_with_cauchy_deterministic_kernel()
         generate_stochasticity,
         establishment_stochasticity);
     simulation.generate(
-        dispersers, infected, weather, weather_coefficient, reproductive_rate);
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Cauchy: dispersers (actual, expected):\n"
@@ -93,6 +101,7 @@ int test_with_cauchy_deterministic_kernel()
         weather,
         weather_coefficient,
         deterministicKernel,
+        suitable_cell,
         establishment_probability);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Cauchy: There are outside_dispersers ("
@@ -131,6 +140,9 @@ int test_with_exponential_deterministic_kernel()
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
+    const std::vector<std::vector<int>> suitable_cell = {
+        {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
+
     bool weather = false;
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
@@ -146,7 +158,13 @@ int test_with_exponential_deterministic_kernel()
         0,
         generate_stochasticity,
         establishment_stochasticity);
-    s2.generate(dispersers, infected, weather, weather_coefficient, reproductive_rate);
+    s2.generate(
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Exponential: dispersers (actual, expected):\n"
@@ -175,6 +193,7 @@ int test_with_exponential_deterministic_kernel()
         weather,
         weather_coefficient,
         deterministicKernel,
+        suitable_cell,
         establishment_probability);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Exponential: There are outside_dispersers ("
