@@ -24,6 +24,7 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <vector>
 #include <pops/raster.hpp>
 #include <pops/quarantine.hpp>
 #include <pops/utils.hpp>
@@ -84,14 +85,19 @@ int test_quarantine()
         {0, 0, 1, 1, 0},
         {0, 0, 0, 0, 0}};
 
+    std::vector<std::vector<int>> suitable_cells = {
+        {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
+        {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
+        {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
+
     std::vector<QuarantineEscape<Raster<int>>> runs(
-        2, QuarantineEscape<Raster<int>>(areas, 10, 10, 3));
-    runs[0].infection_escape_quarantine(infection11, areas, 0);
-    runs[0].infection_escape_quarantine(infection12, areas, 1);
-    runs[0].infection_escape_quarantine(infection13, areas, 2);
-    runs[1].infection_escape_quarantine(infection21, areas, 0);
-    runs[1].infection_escape_quarantine(infection22, areas, 1);
-    runs[1].infection_escape_quarantine(infection23, areas, 2);
+        2, QuarantineEscape<Raster<int>>(areas, 10, 10, 3, suitable_cells));
+    runs[0].infection_escape_quarantine(infection11, areas, 0, suitable_cells);
+    runs[0].infection_escape_quarantine(infection12, areas, 1, suitable_cells);
+    runs[0].infection_escape_quarantine(infection13, areas, 2, suitable_cells);
+    runs[1].infection_escape_quarantine(infection21, areas, 0, suitable_cells);
+    runs[1].infection_escape_quarantine(infection22, areas, 1, suitable_cells);
+    runs[1].infection_escape_quarantine(infection23, areas, 2, suitable_cells);
     double p1 = quarantine_escape_probability(runs, 0);
     double p2 = quarantine_escape_probability(runs, 1);
     double p3 = quarantine_escape_probability(runs, 2);
