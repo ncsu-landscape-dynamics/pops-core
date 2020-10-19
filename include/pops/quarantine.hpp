@@ -167,7 +167,7 @@ public:
     {
 
         DistDir min_dist_dir = std::make_tuple(
-            std::numeric_limits<double>::max(), QuarantineDirection::None);
+            std::numeric_limits<double>::max(), Direction::None);
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
@@ -176,11 +176,11 @@ public:
             int area = quarantine_areas(i, j);
             if (area == 0) {
                 escape_dist_dirs.at(step) = std::make_tuple(
-                    true, std::make_tuple(std::nan(""), QuarantineDirection::None));
+                    true, std::make_tuple(std::nan(""), Direction::None));
                 return;
             }
             double dist;
-            QuarantineDirection dir;
+            Direction dir;
             int bindex = boundary_id_idx_map[area];
             std::tie(dist, dir) = closest_direction(i, j, boundaries.at(bindex));
             if (dist < std::get<0>(min_dist_dir)) {
