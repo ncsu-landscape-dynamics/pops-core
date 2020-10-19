@@ -166,8 +166,8 @@ public:
         const std::vector<std::vector<int>>& suitable_cells)
     {
 
-        DistDir min_dist_dir = std::make_tuple(
-            std::numeric_limits<double>::max(), Direction::None);
+        DistDir min_dist_dir =
+            std::make_tuple(std::numeric_limits<double>::max(), Direction::None);
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
