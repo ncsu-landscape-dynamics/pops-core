@@ -35,6 +35,8 @@
 #define M_PI 3.14159265358979323846
 #define PI M_PI
 
+#include <array>
+
 typedef std::tuple<int, int, int, int> BBoxInt;
 typedef std::tuple<double, double, double, double> BBoxFloat;
 typedef std::tuple<bool, bool, bool, bool> BBoxBool;
