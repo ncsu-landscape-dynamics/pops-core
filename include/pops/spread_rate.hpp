@@ -16,15 +16,13 @@
 #ifndef POPS_SPREAD_RATE_HPP
 #define POPS_SPREAD_RATE_HPP
 
+#include "utils.hpp"
+
 #include <tuple>
 #include <vector>
 #include <cmath>
 
 namespace pops {
-
-typedef std::tuple<int, int, int, int> BBoxInt;
-typedef std::tuple<double, double, double, double> BBoxFloat;
-typedef std::tuple<bool, bool, bool, bool> BBoxBool;
 
 /**
  * Class storing and computing step spread rate for one simulation.

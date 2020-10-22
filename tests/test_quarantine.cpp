@@ -27,6 +27,7 @@
 #include <vector>
 #include <pops/raster.hpp>
 #include <pops/quarantine.hpp>
+#include <pops/utils.hpp>
 
 using namespace pops;
 
@@ -146,8 +147,8 @@ int test_quarantine()
         std::cout << "Distance fails" << std::endl;
         err++;
     }
-    if (!(runs[0].direction(0) == QuarantineDirection::N
-          && runs[1].direction(2) == QuarantineDirection::None)) {
+    if (!(runs[0].direction(0) == Direction::N
+          && runs[1].direction(2) == Direction::None)) {
         std::cout << "Direction fails" << std::endl;
         err++;
     }

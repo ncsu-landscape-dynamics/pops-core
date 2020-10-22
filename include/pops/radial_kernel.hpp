@@ -20,6 +20,8 @@
 #define POPS_RADIAL_KERNEL_HPP
 
 #include "kernel_types.hpp"
+#include "utils.hpp"
+#include "von_mises_distribution.hpp"
 #include "hyperbolic_secant_kernel.hpp"
 #include "logistic_kernel.hpp"
 #include "exponential_power_kernel.hpp"
@@ -39,90 +41,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-// PI is used in the code and M_PI is not guaranteed
-// fix it, but prefer the system definition
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-#ifndef PI
-#define PI M_PI
-#endif
-
 namespace pops {
-
-// we need to bring sqrt to the namespace
-// otherwise only candidates are raster-related
-using std::sqrt;
-
-/*! Von Mises Distribution (Circular data distribution)
-
-    mu is the mean angle, expressed in radians between 0 and 2*pi,
-    and kappa is the concentration parameter, which must be greater
-    than or equal to zero. If kappa is equal to zero, this distribution
-    reduces to a uniform random angle over the range 0 to 2*pi.
-*/
-class von_mises_distribution
-{
-public:
-    von_mises_distribution(double mu, double kappa)
-        : mu(mu), kappa(kappa), distribution(0.0, 1.0)
-    {}
-    template<class Generator>
-    double operator()(Generator& generator)
-    {
-        double a, b, c, f, r, theta, u1, u2, u3, z;
-
-        if (kappa <= 1.e-06)
-            return 2 * PI * distribution(generator);
-
-        a = 1.0 + sqrt(1.0 + 4.0 * kappa * kappa);
-        b = (a - sqrt(2.0 * a)) / (2.0 * kappa);
-        r = (1.0 + b * b) / (2.0 * b);
-
-        while (true) {
-            u1 = distribution(generator);
-            z = cos(PI * u1);
-            f = (1.0 + r * z) / (r + z);
-            c = kappa * (r - f);
-            u2 = distribution(generator);
-            if (u2 <= c * (2.0 - c) || u2 < c * exp(1.0 - c))
-                break;
-        }
-
-        u3 = distribution(generator);
-        if (u3 > 0.5) {
-            theta = fmod(mu + acos(f), 2 * PI);
-        }
-        else {
-            theta = fmod(mu - acos(f), 2 * PI);
-        }
-        return theta;
-    }
-
-private:
-    double mu;
-    double kappa;
-    std::uniform_real_distribution<double> distribution;
-};
-
-/*! Spread direction
- *
- * Spread, typically wind, direction.
- * Values are in degrees and are used in computations.
- * `None` means that there is no wind.
- */
-enum class Direction
-{
-    N = 0,  //!< North
-    NE = 45,  //!< Northeast
-    E = 90,  //!< NEast
-    SE = 135,  //!< Southeast
-    S = 180,  //!< South
-    SW = 225,  //!< Southwest
-    W = 270,  //!< West
-    NW = 315,  //!< Northwest
-    None  //!< No direction (non-directional)
-};
 
 /*! Get a corresponding enum value for a string which direction.
  *
@@ -192,7 +111,7 @@ protected:
     GammaKernel gamma_distribution;
     ExponentialPowerKernel exponential_power_distribution;
     LogisticKernel logistic_distribution;
-    von_mises_distribution von_mises;
+    VonMisesDistribution von_mises;
 
 public:
     RadialDispersalKernel(
@@ -202,8 +121,6 @@ public:
         double distance_scale,
         Direction dispersal_direction = Direction::None,
         double dispersal_direction_kappa = 0,
-        const IntegerRaster& dispersers = {{0}},
-        double dispersal_percentage = 0.99,
         double shape = 1)
         : east_west_resolution(ew_res),
           north_south_resolution(ns_res),

@@ -33,13 +33,6 @@
 #include "weibull_kernel.hpp"
 #include "power_law_kernel.hpp"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-#ifndef PI
-#define PI M_PI
-#endif
-
 namespace pops {
 
 using std::pow;
@@ -87,9 +80,9 @@ protected:
     NormalKernel normal;
     HyperbolicSecantKernel hyperbolic_secant;
     PowerLawKernel power_law;
+    LogisticKernel logistic;
     GammaKernel gamma;
     ExponentialPowerKernel exponential_power;
-    LogisticKernel logistic;
 
     DispersalKernelType kernel_type_;
     double proportion_of_dispersers;

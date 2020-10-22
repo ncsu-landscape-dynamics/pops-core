@@ -16,6 +16,7 @@
 #ifndef POPS_CAUCHY_KERNEL_HPP
 #define POPS_CAUCHY_KERNEL_HPP
 
+#include "utils.hpp"
 #include "kernel_types.hpp"
 #include "raster.hpp"
 
