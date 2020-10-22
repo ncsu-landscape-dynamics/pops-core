@@ -40,6 +40,12 @@ Then run the formatting using a Docker container in the top directory:
 docker run --rm --workdir /src -v $(pwd):/src --entrypoint /clang-format/clang-format10 doozyx/clang-format-lint-action -i include/*/*.hpp tests/*.cpp
 ```
 
+#### Classes, variables, functions, and templates
+
+Use came case (CamelCase) for classes, e.g. `MyName`.
+Use underscores to separate words in variables and functions (snake_case), e.g. `my_name`.
+Do the same for function and class templates.
+
 #### Functions and methods
 
 Use underscores to separate words.
@@ -58,7 +64,7 @@ e.g. `empty()` versus `is_empty()`.
 #### Member variables
 
 Use trailing underscore, i.e. `name_`, or nothing, i.e. `name` for
-member variables. No special marking is nice
+member variables (attributes). No special marking is nice
 when used internally but not exposed to the outside
 world. However, if you need to distinguish a private member variable
 from a getter method or a function parameter name, use trailing
@@ -74,6 +80,11 @@ harder to read.
 The trailing underscore is the closest thing to Python's marking of
 private members.
 
+#### Use of auto
+
+Prefer `auto` for variables and explicit type specificiation for
+memeber variables.
+
 ### Documentation
 
 Don't document obvious things like in "this line assigns a variable"
@@ -82,3 +93,8 @@ or change the code, so point out some things which might be obvious to
 a C++ developer, but are unexpected coming from a different programming
 language, for example that a function parameter which is not a pointer
 or reference actually copies the whole object.
+
+Refer to templates as function templates and class templates,
+not template functions and template classes. In a strict C++ view,
+class template is *a template of a class* (or *for a class*), not an
+actual class (same for functions).
