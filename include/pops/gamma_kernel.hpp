@@ -96,7 +96,12 @@ public:
      *  @param x proportion of the distribution
      *  @return value in distribution that is less than or equal to probability (x)
      *  @note there is no known closed-form solution for Gamma icdf, used Newton's
-     * method
+     *  method
+     *  References:
+     *  Abramowitz, M. and Stegun, I.A. (1964) Handbook of Mathematical Functions,
+     *  Dover, New York, section 26.1.
+     *  Evans, M., Hastings, N., and Peacock, B. (1993) Statistical Distributions,
+     *  2nd ed., Wiley.
      */
     double icdf(double x)
     {
@@ -106,7 +111,6 @@ public:
         // pick starting approximation using lognormal icdf
         LogNormalKernel lognormal(1);
         double guess = lognormal.icdf(x);
-        // TODO add cdf function
         double check = cdf(guess);
         double numiterations = 500;  // will need to adjust this
         double precision = 0.001;  // will need to adjust this
