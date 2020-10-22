@@ -101,7 +101,6 @@ protected:
     // the north-south resolution of the pixel
     double north_south_resolution;
     DispersalKernelType dispersal_kernel_type_;
-    VonMisesDistribution von_mises;
     CauchyKernel cauchy_distribution;
     ExponentialKernel exponential_distribution;
     WeibullKernel weibull_distribution;
@@ -112,6 +111,7 @@ protected:
     GammaKernel gamma_distribution;
     ExponentialPowerKernel exponential_power_distribution;
     LogisticKernel logistic_distribution;
+    VonMisesDistribution von_mises;
 
 public:
     RadialDispersalKernel(
@@ -121,8 +121,6 @@ public:
         double distance_scale,
         Direction dispersal_direction = Direction::None,
         double dispersal_direction_kappa = 0,
-        const IntegerRaster& dispersers = {{0}},
-        double dispersal_percentage = 0.99,
         double shape = 1)
         : east_west_resolution(ew_res),
           north_south_resolution(ns_res),

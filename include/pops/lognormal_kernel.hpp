@@ -18,6 +18,7 @@
 
 #include "kernel_types.hpp"
 #include "raster.hpp"
+#include "utils.hpp"
 
 #include <random>
 

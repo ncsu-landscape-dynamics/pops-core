@@ -140,8 +140,6 @@ public:
             config_.natural_scale,
             direction_from_string(config_.natural_direction),
             config_.natural_kappa,
-            dispersers,
-            config_.dispersal_percentage,
             config_.shape);
         RadialDispersalKernel<IntegerRaster> anthro_radial_kernel(
             config_.ew_res,
@@ -150,8 +148,6 @@ public:
             config_.anthro_scale,
             direction_from_string(config_.anthro_direction),
             config_.anthro_kappa,
-            dispersers,
-            config_.dispersal_percentage,
             config_.shape);
         DeterministicDispersalKernel<IntegerRaster> natural_deterministic_kernel(
             natural_kernel,

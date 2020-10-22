@@ -80,9 +80,9 @@ protected:
     NormalKernel normal;
     HyperbolicSecantKernel hyperbolic_secant;
     PowerLawKernel power_law;
+    LogisticKernel logistic;
     GammaKernel gamma;
     ExponentialPowerKernel exponential_power;
-    LogisticKernel logistic;
 
     DispersalKernelType kernel_type_;
     double proportion_of_dispersers;
