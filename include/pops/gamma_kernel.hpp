@@ -93,15 +93,13 @@ public:
     /*!
      *  Gamma inverse cumulative distribution (quantile) function
      *  Used by DeterministicKernel to determine maximum distance of spread
-     *  @param x proportion of the distribution
-     *  @return value in distribution that is less than or equal to probability (x)
-     *  @note there is no known closed-form solution for Gamma icdf, used Newton's
-     *  method
-     *  References:
-     *  Abramowitz, M. and Stegun, I.A. (1964) Handbook of Mathematical Functions,
-     *  Dover, New York, section 26.1.
+     *  There is no known closed-form solution for Gamma icdf, used Newton's method
+     *  References include: Abramowitz, M. and Stegun, I.A. (1964) Handbook
+     *  of Mathematical Functions, Dover, New York, section 26.1.
      *  Evans, M., Hastings, N., and Peacock, B. (1993) Statistical Distributions,
      *  2nd ed., Wiley.
+     *  @param x proportion of the distribution
+     *  @return value in distribution that is less than or equal to probability (x)
      */
     double icdf(double x)
     {
