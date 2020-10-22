@@ -8,17 +8,14 @@
  * Authors: Vaclav Petras <wenzeslaus gmail com>
  *
  * This file is part of PoPS.
-
  * PoPS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * (at your option) any later version.
-
  * PoPS is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
-
  * You should have received a copy of the GNU General Public License
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
@@ -51,7 +48,7 @@ int test_with_reduced_stochasticity()
     config.establishment_stochasticity = false;
     // We want everything to establish.
     config.establishment_probability = 1;
-    config.natural_kernel_type = "deterministic_neighbor";
+    config.natural_kernel_type = "deterministic neighbor";
     config.natural_direction = "E";
     config.use_anthropogenic_kernel = false;
     config.random_seed = 42;
@@ -66,7 +63,8 @@ int test_with_reduced_stochasticity()
     config.use_spreadrates = true;
     config.spreadrate_frequency = "year";
     config.spreadrate_frequency_n = 1;
-
+    config.natural_scale = 0.9;
+    config.anthro_scale = 0.9;
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);

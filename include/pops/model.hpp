@@ -140,9 +140,9 @@ public:
             config_.natural_scale,
             direction_from_string(config_.natural_direction),
             config_.natural_kappa,
-            config_.deterministic,
             dispersers,
-            config_.dispersal_percentage);
+            config_.dispersal_percentage,
+            config_.shape);
         RadialDispersalKernel<IntegerRaster> anthro_radial_kernel(
             config_.ew_res,
             config_.ns_res,
@@ -150,19 +150,39 @@ public:
             config_.anthro_scale,
             direction_from_string(config_.anthro_direction),
             config_.anthro_kappa,
-            config_.deterministic,
             dispersers,
-            config_.dispersal_percentage);
+            config_.dispersal_percentage,
+            config_.shape);
+        DeterministicDispersalKernel<IntegerRaster> natural_deterministic_kernel(
+            natural_kernel,
+            dispersers,
+            config_.dispersal_percentage,
+            config_.ew_res,
+            config_.ns_res,
+            config_.natural_scale,
+            config_.shape);
+        DeterministicDispersalKernel<IntegerRaster> anthro_deterministic_kernel(
+            anthro_kernel,
+            dispersers,
+            config_.dispersal_percentage,
+            config_.ew_res,
+            config_.ns_res,
+            config_.anthro_scale,
+            config_.shape);
         SwitchDispersalKernel<IntegerRaster> natural_selectable_kernel(
             natural_kernel,
             natural_radial_kernel,
+            natural_deterministic_kernel,
             uniform_kernel,
-            natural_neighbor_kernel);
+            natural_neighbor_kernel,
+            config_.deterministic);
         SwitchDispersalKernel<IntegerRaster> anthro_selectable_kernel(
             anthro_kernel,
             anthro_radial_kernel,
+            anthro_deterministic_kernel,
             uniform_kernel,
-            anthro_neighbor_kernel);
+            anthro_neighbor_kernel,
+            config_.deterministic);
         DispersalKernel<IntegerRaster> dispersal_kernel(
             natural_selectable_kernel,
             anthro_selectable_kernel,
