@@ -72,6 +72,16 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/date.hpp
         include/pops/scheduling.hpp
         include/pops/quarantine.hpp
+        include/pops/power_law_kernel.hpp
+        include/pops/hyperbolic_secant_kernel.hpp
+        include/pops/logistic_kernel.hpp
+        include/pops/exponential_power_kernel.hpp
+        include/pops/exponential_kernel.hpp
+        include/pops/cauchy_kernel.hpp
+        include/pops/gamma_kernel.hpp
+        include/pops/lognormal_kernel.hpp
+        include/pops/normal_kernel.hpp
+        include/pops/weibull_kernel.hpp
     )
 endif()
 

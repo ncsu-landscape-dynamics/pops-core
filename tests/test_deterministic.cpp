@@ -23,7 +23,9 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <pops/radial_kernel.hpp>
+#include <pops/deterministic_kernel.hpp>
+#include <pops/cauchy_kernel.hpp>
+#include <pops/exponential_kernel.hpp>
 #include <pops/simulation.hpp>
 
 using std::string;
@@ -80,16 +82,8 @@ int test_with_cauchy_deterministic_kernel()
              << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::Cauchy,
-        0.9,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.9);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Cauchy, dispersers, 0.9, 30, 30, 0.9);
     // using a smaller scale value since the test raster is so small
     simulation.disperse(
         dispersers,
@@ -172,16 +166,8 @@ int test_with_exponential_deterministic_kernel()
              << expected_dispersers << "\n";
         return 1;
     }
-    RadialDispersalKernel<Raster<int>> deterministicKernel(
-        30,
-        30,
-        DispersalKernelType::Exponential,
-        1.0,
-        Direction::None,
-        0.0,
-        true,
-        dispersers,
-        0.99);
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Exponential, dispersers, 0.99, 30, 30, 1.0);
 
     s2.disperse(
         dispersers,
@@ -216,11 +202,678 @@ int test_with_exponential_deterministic_kernel()
     return 0;
 }
 
+int test_with_weibull_deterministic_kernel()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> mortality_tracker = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts = susceptible;
+    Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
+    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    std::vector<unsigned> movement_schedule = {1, 1};
+
+    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    const std::vector<std::vector<int>> suitable_cell = {
+        {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
+
+    bool weather = false;
+    double reproductive_rate = 2;
+    bool generate_stochasticity = false;
+    bool establishment_stochasticity = false;
+    // We want everything to establish.
+    double establishment_probability = 1;
+    Simulation<Raster<int>, Raster<double>> s2(
+        42,
+        infected.rows(),
+        infected.cols(),
+        model_type_from_string("SI"),
+        0,
+        generate_stochasticity,
+        establishment_stochasticity);
+    s2.generate(
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        suitable_cell);
+    auto expected_dispersers = reproductive_rate * infected;
+    if (dispersers != expected_dispersers) {
+        cout << "Deterministic Kernel Weibull: dispersers (actual, expected):\n"
+             << dispersers << "  !=\n"
+             << expected_dispersers << "\n";
+        return 1;
+    }
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Weibull, dispersers, 0.99, 30, 30, 1.0, 1.0);
+
+    s2.disperse(
+        dispersers,
+        susceptible,
+        infected,
+        mortality_tracker,
+        total_hosts,
+        outside_dispersers,
+        weather,
+        weather_coefficient,
+        deterministicKernel,
+        suitable_cell,
+        establishment_probability);
+    if (outside_dispersers.size() != 0) {
+        cout << "Deterministic Kernel Weibull: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be 0\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "Deterministic Kernel Weibull: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout << "Deterministic Kernel Weibull: mortality tracker (actual, expected):\n"
+             << mortality_tracker << "  !=\n"
+             << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+int test_with_log_normal_deterministic_kernel()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> mortality_tracker = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts = susceptible;
+    Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
+    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    std::vector<unsigned> movement_schedule = {1, 1};
+
+    Raster<int> expected_mortality_tracker = {{0, 5, 0}, {5, 0, 0}, {0, 0, 0}};
+    Raster<int> expected_infected = {{5, 5, 0}, {5, 5, 0}, {0, 0, 2}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    const std::vector<std::vector<int>> suitable_cell = {
+        {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
+
+    bool weather = false;
+    double reproductive_rate = 2;
+    bool generate_stochasticity = false;
+    bool establishment_stochasticity = false;
+    // We want everything to establish.
+    double establishment_probability = 1;
+    Simulation<Raster<int>, Raster<double>> s2(
+        42,
+        infected.rows(),
+        infected.cols(),
+        model_type_from_string("SI"),
+        0,
+        generate_stochasticity,
+        establishment_stochasticity);
+    s2.generate(
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        suitable_cell);
+    auto expected_dispersers = reproductive_rate * infected;
+    if (dispersers != expected_dispersers) {
+        cout << "Deterministic Kernel LogNormal: dispersers (actual, expected):\n"
+             << dispersers << "  !=\n"
+             << expected_dispersers << "\n";
+        return 1;
+    }
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::LogNormal, dispersers, 0.99, 30, 30, 0.1);
+
+    s2.disperse(
+        dispersers,
+        susceptible,
+        infected,
+        mortality_tracker,
+        total_hosts,
+        outside_dispersers,
+        weather,
+        weather_coefficient,
+        deterministicKernel,
+        suitable_cell,
+        establishment_probability);
+    if (outside_dispersers.size() != 8) {
+        cout << "Deterministic Kernel LogNormal: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be 8\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "Deterministic Kernel LogNormal: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout
+            << "Deterministic Kernel LogNormal: mortality tracker (actual, expected):\n"
+            << mortality_tracker << "  !=\n"
+            << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+int test_with_normal_deterministic_kernel()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> mortality_tracker = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts = susceptible;
+    Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
+    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    std::vector<unsigned> movement_schedule = {1, 1};
+
+    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    const std::vector<std::vector<int>> suitable_cell = {
+        {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
+
+    bool weather = false;
+    double reproductive_rate = 2;
+    bool generate_stochasticity = false;
+    bool establishment_stochasticity = false;
+    // We want everything to establish.
+    double establishment_probability = 1;
+    Simulation<Raster<int>, Raster<double>> s2(
+        42,
+        infected.rows(),
+        infected.cols(),
+        model_type_from_string("SI"),
+        0,
+        generate_stochasticity,
+        establishment_stochasticity);
+    s2.generate(
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        suitable_cell);
+    auto expected_dispersers = reproductive_rate * infected;
+    if (dispersers != expected_dispersers) {
+        cout << "Deterministic Kernel Normal: dispersers (actual, expected):\n"
+             << dispersers << "  !=\n"
+             << expected_dispersers << "\n";
+        return 1;
+    }
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Normal, dispersers, 0.99, 30, 30, 1.0);
+
+    s2.disperse(
+        dispersers,
+        susceptible,
+        infected,
+        mortality_tracker,
+        total_hosts,
+        outside_dispersers,
+        weather,
+        weather_coefficient,
+        deterministicKernel,
+        suitable_cell,
+        establishment_probability);
+    if (outside_dispersers.size() != 0) {
+        cout << "Deterministic Kernel Normal: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be 0\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "Deterministic Kernel Normal: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout << "Deterministic Kernel Normal: mortality tracker (actual, expected):\n"
+             << mortality_tracker << "  !=\n"
+             << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+int test_with_hyperbolic_secant_deterministic_kernel()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> mortality_tracker = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts = susceptible;
+    Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
+    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    std::vector<unsigned> movement_schedule = {1, 1};
+
+    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    const std::vector<std::vector<int>> suitable_cell = {
+        {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
+
+    bool weather = false;
+    double reproductive_rate = 2;
+    bool generate_stochasticity = false;
+    bool establishment_stochasticity = false;
+    // We want everything to establish.
+    double establishment_probability = 1;
+    Simulation<Raster<int>, Raster<double>> s2(
+        42,
+        infected.rows(),
+        infected.cols(),
+        model_type_from_string("SI"),
+        0,
+        generate_stochasticity,
+        establishment_stochasticity);
+    s2.generate(
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        suitable_cell);
+    auto expected_dispersers = reproductive_rate * infected;
+    if (dispersers != expected_dispersers) {
+        cout
+            << "Deterministic Kernel HyperbolicSecant: dispersers (actual, expected):\n"
+            << dispersers << "  !=\n"
+            << expected_dispersers << "\n";
+        return 1;
+    }
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::HyperbolicSecant, dispersers, 0.99, 30, 30, 1.0);
+
+    s2.disperse(
+        dispersers,
+        susceptible,
+        infected,
+        mortality_tracker,
+        total_hosts,
+        outside_dispersers,
+        weather,
+        weather_coefficient,
+        deterministicKernel,
+        suitable_cell,
+        establishment_probability);
+    if (outside_dispersers.size() != 0) {
+        cout << "Deterministic Kernel HyperbolicSecant: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be 0\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "Deterministic Kernel HyperbolicSecant: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout
+            << "Deterministic Kernel HyperbolicSecant: mortality tracker (actual, expected):\n"
+            << mortality_tracker << "  !=\n"
+            << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+int test_with_power_law_deterministic_kernel()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> mortality_tracker = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts = susceptible;
+    Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
+    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    std::vector<unsigned> movement_schedule = {1, 1};
+
+    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    const std::vector<std::vector<int>> suitable_cell = {
+        {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
+
+    bool weather = false;
+    double reproductive_rate = 2;
+    bool generate_stochasticity = false;
+    bool establishment_stochasticity = false;
+    // We want everything to establish.
+    double establishment_probability = 1;
+    Simulation<Raster<int>, Raster<double>> s2(
+        42,
+        infected.rows(),
+        infected.cols(),
+        model_type_from_string("SI"),
+        0,
+        generate_stochasticity,
+        establishment_stochasticity);
+    s2.generate(
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        suitable_cell);
+    auto expected_dispersers = reproductive_rate * infected;
+    if (dispersers != expected_dispersers) {
+        cout << "Deterministic Kernel PowerLaw: dispersers (actual, expected):\n"
+             << dispersers << "  !=\n"
+             << expected_dispersers << "\n";
+        return 1;
+    }
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::PowerLaw, dispersers, 0.99, 30, 30, 1.5, 2);
+
+    s2.disperse(
+        dispersers,
+        susceptible,
+        infected,
+        mortality_tracker,
+        total_hosts,
+        outside_dispersers,
+        weather,
+        weather_coefficient,
+        deterministicKernel,
+        suitable_cell,
+        establishment_probability);
+    if (outside_dispersers.size() != 0) {
+        cout << "Deterministic Kernel PowerLaw: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be 0\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "Deterministic Kernel PowerLaw: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout << "Deterministic Kernel PowerLaw: mortality tracker (actual, expected):\n"
+             << mortality_tracker << "  !=\n"
+             << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+int test_with_logistic_deterministic_kernel()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> mortality_tracker = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts = susceptible;
+    Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
+    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    std::vector<unsigned> movement_schedule = {1, 1};
+
+    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    const std::vector<std::vector<int>> suitable_cell = {
+        {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
+
+    bool weather = false;
+    double reproductive_rate = 2;
+    bool generate_stochasticity = false;
+    bool establishment_stochasticity = false;
+    // We want everything to establish.
+    double establishment_probability = 1;
+    Simulation<Raster<int>, Raster<double>> s2(
+        42,
+        infected.rows(),
+        infected.cols(),
+        model_type_from_string("SI"),
+        0,
+        generate_stochasticity,
+        establishment_stochasticity);
+    s2.generate(
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        suitable_cell);
+    auto expected_dispersers = reproductive_rate * infected;
+    if (dispersers != expected_dispersers) {
+        cout << "Deterministic Kernel Logistic: dispersers (actual, expected):\n"
+             << dispersers << "  !=\n"
+             << expected_dispersers << "\n";
+        return 1;
+    }
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Logistic, dispersers, 0.99, 30, 30, 1.5);
+
+    s2.disperse(
+        dispersers,
+        susceptible,
+        infected,
+        mortality_tracker,
+        total_hosts,
+        outside_dispersers,
+        weather,
+        weather_coefficient,
+        deterministicKernel,
+        suitable_cell,
+        establishment_probability);
+    if (outside_dispersers.size() != 0) {
+        cout << "Deterministic Kernel Logistic: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be 0\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "Deterministic Kernel Logistic: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout << "Deterministic Kernel Logistic: mortality tracker (actual, expected):\n"
+             << mortality_tracker << "  !=\n"
+             << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+int test_with_gamma_deterministic_kernel()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> mortality_tracker = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts = susceptible;
+    Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
+    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    std::vector<unsigned> movement_schedule = {1, 1};
+
+    Raster<int> expected_mortality_tracker = {{0, 5, 0}, {5, 0, 0}, {0, 0, 0}};
+    Raster<int> expected_infected = {{5, 5, 0}, {5, 5, 0}, {0, 0, 2}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    const std::vector<std::vector<int>> suitable_cell = {
+        {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
+
+    bool weather = false;
+    double reproductive_rate = 2;
+    bool generate_stochasticity = false;
+    bool establishment_stochasticity = false;
+    // We want everything to establish.
+    double establishment_probability = 1;
+    Simulation<Raster<int>, Raster<double>> s2(
+        42,
+        infected.rows(),
+        infected.cols(),
+        model_type_from_string("SI"),
+        0,
+        generate_stochasticity,
+        establishment_stochasticity);
+    s2.generate(
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        suitable_cell);
+    auto expected_dispersers = reproductive_rate * infected;
+    if (dispersers != expected_dispersers) {
+        cout << "Deterministic Kernel Gamma: dispersers (actual, expected):\n"
+             << dispersers << "  !=\n"
+             << expected_dispersers << "\n";
+        return 1;
+    }
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::Gamma, dispersers, 0.9, 30, 30, 1.5, 0.5);
+
+    s2.disperse(
+        dispersers,
+        susceptible,
+        infected,
+        mortality_tracker,
+        total_hosts,
+        outside_dispersers,
+        weather,
+        weather_coefficient,
+        deterministicKernel,
+        suitable_cell,
+        establishment_probability);
+    if (outside_dispersers.size() != 8) {
+        cout << "Deterministic Kernel Gamma: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be 8\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "Deterministic Kernel Gamma: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout << "Deterministic Kernel Gamma: mortality tracker (actual, expected):\n"
+             << mortality_tracker << "  !=\n"
+             << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+int test_with_exponential_power_deterministic_kernel()
+{
+    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+    Raster<int> mortality_tracker = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts = susceptible;
+    Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
+    Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
+    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    std::vector<unsigned> movement_schedule = {1, 1};
+
+    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
+
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    const std::vector<std::vector<int>> suitable_cell = {
+        {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
+
+    bool weather = false;
+    double reproductive_rate = 2;
+    bool generate_stochasticity = false;
+    bool establishment_stochasticity = false;
+    // We want everything to establish.
+    double establishment_probability = 1;
+    Simulation<Raster<int>, Raster<double>> s2(
+        42,
+        infected.rows(),
+        infected.cols(),
+        model_type_from_string("SI"),
+        0,
+        generate_stochasticity,
+        establishment_stochasticity);
+    s2.generate(
+        dispersers,
+        infected,
+        weather,
+        weather_coefficient,
+        reproductive_rate,
+        suitable_cell);
+    auto expected_dispersers = reproductive_rate * infected;
+    if (dispersers != expected_dispersers) {
+        cout
+            << "Deterministic Kernel Exponential Power: dispersers (actual, expected):\n"
+            << dispersers << "  !=\n"
+            << expected_dispersers << "\n";
+        return 1;
+    }
+    DeterministicDispersalKernel<Raster<int>> deterministicKernel(
+        DispersalKernelType::ExponentialPower, dispersers, 0.9, 30, 30, 1.5, 0.5);
+
+    s2.disperse(
+        dispersers,
+        susceptible,
+        infected,
+        mortality_tracker,
+        total_hosts,
+        outside_dispersers,
+        weather,
+        weather_coefficient,
+        deterministicKernel,
+        suitable_cell,
+        establishment_probability);
+    if (outside_dispersers.size() != 0) {
+        cout << "Deterministic Kernel Exponential Power: There are outside_dispersers ("
+             << outside_dispersers.size() << ") but there should be 0\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "Deterministic Kernel Exponential Power: infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (mortality_tracker != expected_mortality_tracker) {
+        cout
+            << "Deterministic Kernel Exponential Power: mortality tracker (actual, expected):\n"
+            << mortality_tracker << "  !=\n"
+            << expected_mortality_tracker << "\n";
+        return 1;
+    }
+    return 0;
+}
+
 int test_cauchy_distribution_functions()
 {
     // testing cauchy pdf & icdf
     double scale = 0.001;  // rounding to thousands place
-    CauchyDistribution cauchy(1.0);
+    CauchyKernel cauchy(1.0);
     double probability = (int)(cauchy.pdf(5) / scale) * scale;
     double probability_ref = 0.012;
     if (probability != probability_ref) {
@@ -235,7 +888,7 @@ int test_cauchy_distribution_functions()
              << "\n";
         return 1;
     }
-    CauchyDistribution cauchy1(1.5);
+    CauchyKernel cauchy1(1.5);
     probability_ref = 0.017;
     probability = (int)(cauchy1.pdf(5) / scale) * scale;
     if (probability != probability_ref) {
@@ -257,7 +910,7 @@ int test_exponential_distribution_functions()
 {
     double scale = 0.001;  // rounding to thousands place
     // testing exponential pdf & icdf
-    ExponentialDistribution exponential(1.0);
+    ExponentialKernel exponential(1.0);
     double probability = (int)(exponential.pdf(1) / scale) * scale;
     double probability_ref = 0.367;
     if (probability != probability_ref) {
@@ -272,7 +925,7 @@ int test_exponential_distribution_functions()
              << "\n";
         return 1;
     }
-    ExponentialDistribution exponential2(1.5);
+    ExponentialKernel exponential2(1.5);
     probability = (int)(exponential2.pdf(1) / scale) * scale;
     probability_ref = 0.342;
     if (probability != probability_ref) {
@@ -298,6 +951,14 @@ int main()
     ret += test_with_cauchy_deterministic_kernel();
     ret += test_cauchy_distribution_functions();
     ret += test_exponential_distribution_functions();
+    ret += test_with_weibull_deterministic_kernel();
+    ret += test_with_log_normal_deterministic_kernel();
+    ret += test_with_normal_deterministic_kernel();
+    ret += test_with_hyperbolic_secant_deterministic_kernel();
+    ret += test_with_power_law_deterministic_kernel();
+    ret += test_with_logistic_deterministic_kernel();
+    ret += test_with_gamma_deterministic_kernel();
+    ret += test_with_exponential_power_deterministic_kernel();
 
     std::cout << "Test deterministic number of errors: " << ret << std::endl;
     return ret;
