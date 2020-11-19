@@ -23,7 +23,7 @@ jobs:
       run: cmake --build build --target test
     - name: Add tests to path
       run: |
-        echo "::add-path::$(pwd)/build/tests/"
+        echo "$(pwd)/build/tests/" >> $GITHUB_PATH
     - name: Memcheck
       run: |
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_date
