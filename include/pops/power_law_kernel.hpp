@@ -92,7 +92,7 @@ public:
         if (x <= 0 || x >= 1) {
             throw std::invalid_argument("icdf: x must be between 0 and 1.0");
         }
-        return xmin * pow(x, (1.0 / (-alpha + 1.0)));
+        return pow(x / xmin, (-alpha + 1.0));
     }
 };
 
