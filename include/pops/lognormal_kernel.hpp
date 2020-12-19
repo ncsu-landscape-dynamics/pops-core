@@ -72,8 +72,8 @@ public:
         if (x == 0) {
             return 0;
         }
-        return (1 / x) * (1 / (sigma * sqrt(2 * M_PI)))
-               * exp(-(pow(log(x), 2)) / (2 * pow(sigma, 2)));
+        return (1 / (x * sigma * sqrt(2 * M_PI)))
+               * exp((pow(log(x), 2)) / (2 * pow(sigma, 2)));
     }
 
     /*!
