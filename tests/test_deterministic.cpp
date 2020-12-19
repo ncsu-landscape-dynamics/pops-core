@@ -26,6 +26,9 @@
 #include <pops/deterministic_kernel.hpp>
 #include <pops/cauchy_kernel.hpp>
 #include <pops/exponential_kernel.hpp>
+#include <pops/exponential_power_kernel.hpp>
+#include <pops/lognormal_kernel.hpp>
+#include <pops/gamma_kernel.hpp>
 #include <pops/simulation.hpp>
 
 using std::string;
@@ -57,6 +60,7 @@ int test_with_cauchy_deterministic_kernel()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     // Cauchy
@@ -67,7 +71,8 @@ int test_with_cauchy_deterministic_kernel()
         model_type_from_string("SI"),
         0,
         generate_stochasticity,
-        establishment_stochasticity);
+        establishment_stochasticity,
+        movement_stochasticity);
     simulation.generate(
         dispersers,
         infected,
@@ -141,6 +146,7 @@ int test_with_exponential_deterministic_kernel()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     // Exponential
@@ -151,7 +157,8 @@ int test_with_exponential_deterministic_kernel()
         model_type_from_string("SI"),
         0,
         generate_stochasticity,
-        establishment_stochasticity);
+        establishment_stochasticity,
+        movement_stochasticity);
     s2.generate(
         dispersers,
         infected,
@@ -226,6 +233,7 @@ int test_with_weibull_deterministic_kernel()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     Simulation<Raster<int>, Raster<double>> s2(
@@ -235,7 +243,8 @@ int test_with_weibull_deterministic_kernel()
         model_type_from_string("SI"),
         0,
         generate_stochasticity,
-        establishment_stochasticity);
+        establishment_stochasticity,
+        movement_stochasticity);
     s2.generate(
         dispersers,
         infected,
@@ -309,6 +318,7 @@ int test_with_log_normal_deterministic_kernel()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     Simulation<Raster<int>, Raster<double>> s2(
@@ -318,7 +328,8 @@ int test_with_log_normal_deterministic_kernel()
         model_type_from_string("SI"),
         0,
         generate_stochasticity,
-        establishment_stochasticity);
+        establishment_stochasticity,
+        movement_stochasticity);
     s2.generate(
         dispersers,
         infected,
@@ -393,6 +404,7 @@ int test_with_normal_deterministic_kernel()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     Simulation<Raster<int>, Raster<double>> s2(
@@ -402,7 +414,8 @@ int test_with_normal_deterministic_kernel()
         model_type_from_string("SI"),
         0,
         generate_stochasticity,
-        establishment_stochasticity);
+        establishment_stochasticity,
+        movement_stochasticity);
     s2.generate(
         dispersers,
         infected,
@@ -476,6 +489,7 @@ int test_with_hyperbolic_secant_deterministic_kernel()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     Simulation<Raster<int>, Raster<double>> s2(
@@ -485,7 +499,8 @@ int test_with_hyperbolic_secant_deterministic_kernel()
         model_type_from_string("SI"),
         0,
         generate_stochasticity,
-        establishment_stochasticity);
+        establishment_stochasticity,
+        movement_stochasticity);
     s2.generate(
         dispersers,
         infected,
@@ -561,6 +576,7 @@ int test_with_power_law_deterministic_kernel()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     Simulation<Raster<int>, Raster<double>> s2(
@@ -570,7 +586,8 @@ int test_with_power_law_deterministic_kernel()
         model_type_from_string("SI"),
         0,
         generate_stochasticity,
-        establishment_stochasticity);
+        establishment_stochasticity,
+        movement_stochasticity);
     s2.generate(
         dispersers,
         infected,
@@ -643,6 +660,7 @@ int test_with_logistic_deterministic_kernel()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     Simulation<Raster<int>, Raster<double>> s2(
@@ -652,7 +670,8 @@ int test_with_logistic_deterministic_kernel()
         model_type_from_string("SI"),
         0,
         generate_stochasticity,
-        establishment_stochasticity);
+        establishment_stochasticity,
+        movement_stochasticity);
     s2.generate(
         dispersers,
         infected,
@@ -725,6 +744,7 @@ int test_with_gamma_deterministic_kernel()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     Simulation<Raster<int>, Raster<double>> s2(
@@ -734,7 +754,8 @@ int test_with_gamma_deterministic_kernel()
         model_type_from_string("SI"),
         0,
         generate_stochasticity,
-        establishment_stochasticity);
+        establishment_stochasticity,
+        movement_stochasticity);
     s2.generate(
         dispersers,
         infected,
@@ -808,6 +829,7 @@ int test_with_exponential_power_deterministic_kernel()
     double reproductive_rate = 2;
     bool generate_stochasticity = false;
     bool establishment_stochasticity = false;
+    bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
     Simulation<Raster<int>, Raster<double>> s2(
@@ -817,7 +839,8 @@ int test_with_exponential_power_deterministic_kernel()
         model_type_from_string("SI"),
         0,
         generate_stochasticity,
-        establishment_stochasticity);
+        establishment_stochasticity,
+        movement_stochasticity);
     s2.generate(
         dispersers,
         infected,
@@ -943,10 +966,79 @@ int test_exponential_distribution_functions()
     return 0;
 }
 
+int test_gamma_distribution_functions()
+{
+    cout << "Gamma\n";
+    double x = 0.1;
+    for (double a = 0.1; a < 30; a += 5) {
+        for (double t = 0.1; t < 30; t += 5) {
+            x = 0.1;
+            for (double icdf_x = 0.1; icdf_x < 1; icdf_x += 0.1) {
+                // testing gamma pdf & icdf
+                cout << "alpha = " << a << " theta = " << t << " x = " << x << '\n';
+                GammaKernel gamma(a, t);
+                double probability = gamma.pdf(x);
+                cout << " pdf = " << probability << '\n';
+                double icdf = -11;
+                try {
+                    icdf = gamma.icdf(icdf_x);
+                }
+                catch (const std::invalid_argument& ia) {
+                    std::cerr << "Invalid argument: " << ia.what() << "x = " << x
+                              << " alpha = " << a << " theta = " << t << '\n';
+                }
+                cout << " icdf = " << icdf << "\n";
+                x += 5;
+            }
+        }
+    }
+    return 1;
+}
+
+int test_exponential_power_distribution_functions()
+{
+    cout << "Exponential Power\n";
+    for (double a = 0.1; a < 30; a += 5) {
+        for (double b = 0.5; b < 5; b += 1) {
+            for (double x = 0.1; x < 1; x += 0.1) {
+                // testing gamma pdf & icdf
+                ExponentialPowerKernel ep(a, b);
+                cout << "alpha = " << a << " beta = " << b << " x = " << x;
+                double probability = ep.pdf(x);
+                cout << " pdf = " << probability;
+                double icdf = ep.icdf(x);
+                cout << " icdf = " << icdf << "\n";
+            }
+        }
+    }
+    return 1;
+}
+
+int test_log_normal_distribution_functions()
+{
+    cout << "Log Normal\n";
+    double x = 0;
+    for (double s = 0.1; s < 10; s += 1) {
+        x = 0;
+        for (double icdf_x = 0.1; icdf_x < 1; icdf_x += 0.1) {
+            // testing gamma pdf & icdf
+            LogNormalKernel ln(s);
+            cout << "sigma = " << s << " x = " << x;
+            double probability = ln.pdf(x);
+            cout << " pdf = " << probability << " icdf x = " << icdf_x;
+            double icdf = ln.icdf(icdf_x);
+            cout << " icdf = " << icdf << "\n";
+            x += 0.25;
+        }
+    }
+    return 1;
+}
+
 int main()
 {
     int ret = 0;
 
+    ret += test_log_normal_distribution_functions();
     ret += test_with_exponential_deterministic_kernel();
     ret += test_with_cauchy_deterministic_kernel();
     ret += test_cauchy_distribution_functions();
@@ -959,6 +1051,8 @@ int main()
     ret += test_with_logistic_deterministic_kernel();
     ret += test_with_gamma_deterministic_kernel();
     ret += test_with_exponential_power_deterministic_kernel();
+    // ret += test_gamma_distribution_functions();
+    // ret += test_exponential_power_distribution_functions();
 
     std::cout << "Test deterministic number of errors: " << ret << std::endl;
     return ret;

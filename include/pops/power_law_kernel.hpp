@@ -31,12 +31,12 @@ using std::pow;
 class PowerLawKernel
 {
 protected:
-    double xmin;
     double alpha;
+    double xmin;
     std::uniform_real_distribution<double> distribution;
 
 public:
-    PowerLawKernel(double xm, double a) : xmin(xm), alpha(a), distribution(0.0, 1.0)
+    PowerLawKernel(double a, double xm) : alpha(a), xmin(xm), distribution(0.0, 1.0)
     {
         //         if (alpha < 1.0) {
         //             throw std::invalid_argument("alpha must be greater than or equal

@@ -69,7 +69,7 @@ public:
     double pdf(double x)
     {
         return (beta / (2 * alpha * std::tgamma(1.0 / beta)))
-               * pow(exp(-x / alpha), beta);
+               * exp(-pow(x / alpha, beta));
     }
 
     /*!
@@ -82,6 +82,9 @@ public:
     {
         if (x <= 0 || x >= 1) {
             throw std::invalid_argument("icdf: x must be between 0.0 and 1.0");
+        }
+        if (x == 0.5) {
+            return 0;
         }
         GammaKernel gamma_distribution(1.0 / beta, 1.0 / pow(alpha, beta));
         double gamma = gamma_distribution.icdf(2 * std::abs(x - 0.5));

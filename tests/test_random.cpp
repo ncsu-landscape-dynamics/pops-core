@@ -61,10 +61,11 @@ int test_power_law_rng()
 
     double alpha = 1.5;
     double xmin = 0.01;
+    PowerLawKernel power_law_distribution(alpha, xmin);
     std::uniform_real_distribution<double> distribution(0.1, 1.0);
     for (int i = 0; i < 10000; i++) {
         double x = distribution(generator);
-        double y = pow(x, (1.0 / (-alpha + 1.0))) * xmin;
+        double y = power_law_distribution.icdf(x);
         file << x << "," << y << ",\n";
     }
 
@@ -81,6 +82,7 @@ int test_hyperbolic_secant_rng()
     // std::cout << "Hyperbolic secant random: " << logsech.random(generator) << "\n";
     // Pulling code out of hyperbolic_secant_kernel to test here to be able to save the
     // value produced by the rng
+    HyperbolicSecantKernel hyperbolic_secant_distribution(sigma_);
     std::ofstream file;
     file.open("testing_secant.csv");
     file << "x,y,\n";
@@ -88,10 +90,9 @@ int test_hyperbolic_secant_rng()
     std::uniform_real_distribution<double> distribution(0.0, 1.0);
     for (int i = 0; i < 10000; i++) {
         double x = distribution(generator);
-
         // get random value from a uniform distribution and use it
         // to get a random value from the distribution
-        double y = ((log(tan((x * M_PI) / 2.0)) * (2.0 * sigma_)) / M_PI);
+        double y = hyperbolic_secant_distribution.icdf(x);
         file << x << "," << y << ",\n";
     }
     file.close();
@@ -101,6 +102,7 @@ int test_logistic_rng()
 {
     std::default_random_engine generator;
     double s_ = 2.0;
+    LogisticKernel logistic_distribution(s_);
     std::ofstream file;
     file.open("testing_logistic.csv");
     file << "x,y,\n";
@@ -111,7 +113,7 @@ int test_logistic_rng()
 
         // get random value from a uniform distribution and use it
         // to get a random value from the distribution
-        double y = s_ * log(x / (1 - x));
+        double y = logistic_distribution.icdf(x);
         file << x << "," << y << ",\n";
     }
     file.close();
@@ -123,6 +125,7 @@ int test_exponential_power_rng()
     std::default_random_engine generator;
     double alpha_ = 1.5;
     double beta_ = 0.5;
+    ExponentialPowerKernel exponential_power_distribution(alpha_, beta_);
     std::ofstream file;
     file.open("testing_exponential_power.csv");
     file << "x,y,\n";
@@ -130,9 +133,26 @@ int test_exponential_power_rng()
     std::uniform_real_distribution<double> distribution(0.0, 1.0);
     for (int i = 0; i < 10000; i++) {
         double x = distribution(generator);
-        GammaKernel gamma_distribution(1.0 / beta_, 1.0 / pow(alpha_, beta_));
-        double gamma = gamma_distribution.icdf(2 * std::abs(x - 0.5));
-        double y = (x - 0.5) * pow(gamma, 1.0 / beta_);
+        double y = exponential_power_distribution.icdf(x);
+        file << x << "," << y << ",\n";
+    }
+    file.close();
+    return 0;
+}
+
+int test_gamma()
+{
+    std::default_random_engine generator;
+    double alpha_ = 1.5;
+    double theta_ = 0.5;
+    GammaKernel gamma_distribution(alpha_, theta_);
+    std::ofstream file;
+    file.open("testing_gamma.csv");
+    file << "x,y,\n";
+    std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    for (int i = 0; i < 10000; i++) {
+        double x = distribution(generator);
+        double y = gamma_distribution.icdf(x);
         file << x << "," << y << ",\n";
     }
     file.close();
@@ -146,6 +166,7 @@ int main()
     ret += test_hyperbolic_secant_rng();
     ret += test_logistic_rng();
     ret += test_exponential_power_rng();
+    ret += test_gamma();
 
     std::cout << "Test deterministic number of errors: " << ret << std::endl;
     return ret;
