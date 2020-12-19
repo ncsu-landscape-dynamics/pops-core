@@ -89,7 +89,7 @@ public:
         if (x <= 0 || x >= 1) {
             throw std::invalid_argument("icdf: x must be between 0.0 and 1.0");
         }
-        (1 / 2) * erfc(-(log(x) / (sqrt(2) * sigma)))
+        (1 / 2) * erfc(-(log(x) / (sqrt(2) * sigma)));
     }
 };
 
