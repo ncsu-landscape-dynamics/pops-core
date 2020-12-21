@@ -124,16 +124,13 @@ public:
                 check = cdf(guess);
                 // Check if we went to far and need to backtrack
                 int count = 0;
-                while (std::abs(dif) < std::abs(check - x)) {
+                bool run = TRUE;
+                while ((std::abs(dif) < std::abs(check - x)) && run) {
                     guess = (guess + past_guess) / 2.0;
                     check = cdf(guess);
                     count++;
                     if (count > 20) {
-                        std::cerr << "x = " << x << " check = " << check
-                                  << " past guess = " << past_guess
-                                  << " guess = " << guess << "\n";
-                        throw std::invalid_argument("got too far off in gamma icdf ");
-                        return -1;
+                        run = FALSE;
                     }
                 }
             }
@@ -141,7 +138,6 @@ public:
                 return guess;
             }
         }
-        std::cerr << "x = " << x << " check = " << check << "\n";
         throw std::invalid_argument("unable to find solution to gamma icdf ");
         return -1;
     }

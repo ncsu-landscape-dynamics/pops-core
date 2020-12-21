@@ -998,23 +998,22 @@ int test_gamma_distribution_functions()
 int test_exponential_power_distribution_functions()
 {
     cout << "Exponential Power\n";
-    double a = 1;
     double x = 0;
-    // for (double a = 0.1; a < 30; a += 5) {
-    for (double b = 0.5; b < 5; b += 1) {
-        x = 0;
-        for (double icdf_x = 0.1; icdf_x < 1; icdf_x += 0.1) {
-            // testing gamma pdf & icdf
-            ExponentialPowerKernel ep(a, b);
-            cout << "alpha = " << a << " beta = " << b << " x = " << x;
-            double probability = ep.pdf(x);
-            cout << " pdf = " << probability << " icdf x = " << icdf_x;
-            double icdf = ep.icdf(icdf_x);
-            cout << " icdf = " << icdf << "\n";
-            x += 0.50;
+    for (double a = 1; a < 5; a += 1) {
+        for (double b = 0.5; b < 5; b += 1) {
+            x = 0;
+            for (double icdf_x = 0.1; icdf_x < 1; icdf_x += 0.1) {
+                // testing gamma pdf & icdf
+                ExponentialPowerKernel ep(a, b);
+                cout << "alpha = " << a << " beta = " << b << " x = " << x;
+                double probability = ep.pdf(x);
+                cout << " pdf = " << probability << " icdf x = " << icdf_x;
+                double icdf = ep.icdf(icdf_x);
+                cout << " icdf = " << icdf << "\n";
+                x += 0.50;
+            }
         }
     }
-    //  }
     return 1;
 }
 
@@ -1042,7 +1041,7 @@ int main()
 {
     int ret = 0;
 
-    ret += test_exponential_power_distribution_functions();
+    ret += test_gamma_distribution_functions();
     ret += test_with_exponential_deterministic_kernel();
     ret += test_with_cauchy_deterministic_kernel();
     ret += test_cauchy_distribution_functions();
@@ -1055,7 +1054,7 @@ int main()
     ret += test_with_logistic_deterministic_kernel();
     ret += test_with_gamma_deterministic_kernel();
     ret += test_with_exponential_power_deterministic_kernel();
-    // ret += test_gamma_distribution_functions();
+    // ret += test_exponential_power_distribution_functions();
     // ret += test_log_normal_distribution_functions();
 
     std::cout << "Test deterministic number of errors: " << ret << std::endl;
