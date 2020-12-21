@@ -563,8 +563,8 @@ int test_with_power_law_deterministic_kernel()
     Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
-    Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
-    Raster<int> expected_infected = {{14, 0, 0}, {0, 15, 0}, {0, 0, 4}};
+    Raster<int> expected_mortality_tracker = {{9, 1, 0}, {0, 9, 0}, {0, 0, 2}};
+    Raster<int> expected_infected = {{14, 1, 0}, {0, 14, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
