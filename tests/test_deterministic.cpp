@@ -1038,6 +1038,7 @@ int main()
 {
     int ret = 0;
 
+    ret += test_exponential_power_distribution_functions();
     ret += test_with_exponential_deterministic_kernel();
     ret += test_with_cauchy_deterministic_kernel();
     ret += test_cauchy_distribution_functions();
@@ -1051,7 +1052,6 @@ int main()
     ret += test_with_gamma_deterministic_kernel();
     ret += test_with_exponential_power_deterministic_kernel();
     // ret += test_gamma_distribution_functions();
-    // ret += test_exponential_power_distribution_functions();
     // ret += test_log_normal_distribution_functions();
 
     std::cout << "Test deterministic number of errors: " << ret << std::endl;
