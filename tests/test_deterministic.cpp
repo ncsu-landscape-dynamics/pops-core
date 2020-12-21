@@ -998,19 +998,20 @@ int test_gamma_distribution_functions()
 int test_exponential_power_distribution_functions()
 {
     cout << "Exponential Power\n";
-    for (double a = 0.1; a < 30; a += 5) {
-        for (double b = 0.5; b < 5; b += 1) {
-            for (double x = 0.1; x < 1; x += 0.1) {
-                // testing gamma pdf & icdf
-                ExponentialPowerKernel ep(a, b);
-                cout << "alpha = " << a << " beta = " << b << " x = " << x;
-                double probability = ep.pdf(x);
-                cout << " pdf = " << probability;
-                double icdf = ep.icdf(x);
-                cout << " icdf = " << icdf << "\n";
-            }
+    double a = 1;
+    // for (double a = 0.1; a < 30; a += 5) {
+    for (double b = 0.5; b < 5; b += 1) {
+        for (double x = 0.1; x < 3; x += 0.5) {
+            // testing gamma pdf & icdf
+            ExponentialPowerKernel ep(a, b);
+            cout << "alpha = " << a << " beta = " << b << " x = " << x;
+            double probability = ep.pdf(x);
+            cout << " pdf = " << probability;
+            double icdf = ep.icdf(x);
+            cout << " icdf = " << icdf << "\n";
         }
     }
+    //  }
     return 1;
 }
 
