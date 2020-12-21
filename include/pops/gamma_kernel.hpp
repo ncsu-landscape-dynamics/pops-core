@@ -124,13 +124,13 @@ public:
                 check = cdf(guess);
                 // Check if we went to far and need to backtrack
                 int count = 0;
-                bool run = TRUE;
+                bool run = true;
                 while ((std::abs(dif) < std::abs(check - x)) && run) {
                     guess = (guess + past_guess) / 2.0;
                     check = cdf(guess);
                     count++;
                     if (count > 20) {
-                        run = FALSE;
+                        run = false;
                     }
                 }
             }
