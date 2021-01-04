@@ -134,7 +134,7 @@ public:
           weibull_distribution(distance_scale, shape),
           normal_distribution(distance_scale),
           lognormal_distribution(distance_scale),
-          power_law_distribution(shape, distance_scale),
+          power_law_distribution(distance_scale, shape),
           hyperbolic_secant_distribution(distance_scale),
           gamma_distribution(distance_scale, shape),
           exponential_power_distribution(distance_scale, shape),
