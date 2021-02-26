@@ -101,7 +101,7 @@ public:
      * @param treatments[in,out] Treatments to be applied (also tracks use of
      * treatments)
      * @param resistant[in,out] Resistant hosts (host temporarily removed from
-     * susceptable hosts)
+     * susceptible hosts)
      * @param outside_dispersers[in,out] Dispersers escaping the rasters (adds to the
      * vector)
      * @param spread_rate[in,out] Spread rate tracker
@@ -186,7 +186,7 @@ public:
             config_.percent_natural_dispersal);
         int mortality_simulation_year =
             simulation_step_to_action_step(config_.mortality_schedule(), step);
-        // removal of dispersers due to lethal tempearture
+        // removal of dispersers due to lethal temperatures
         if (config_.use_lethal_temperature && config_.lethal_schedule()[step]) {
             int lethal_step =
                 simulation_step_to_action_step(config_.lethal_schedule(), step);
