@@ -221,6 +221,17 @@ public:
                 dispersal_kernel,
                 suitable_cells,
                 config_.establishment_probability);
+            if (config_.unit_movements) {
+                simulation_.move_units(
+                    susceptible,
+                    infected,
+                    total_populations,
+                    outside_dispersers,
+                    anthro_selectable_kernel,
+                    suitable_cells,
+                    config_.too_many_units,
+                    config_.leaving_units_ratio);
+            }
             if (config_.use_movements) {
                 last_index = simulation_.movement(
                     infected,
