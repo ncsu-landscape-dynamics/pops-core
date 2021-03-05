@@ -86,9 +86,9 @@ public:
     bool use_spreadrates{true};
     std::string spreadrate_frequency;
     unsigned spreadrate_frequency_n;
-    bool unit_movements{false};
-    double too_many_units{0};
-    double leaving_units_ratio{0};
+    bool pest_overpopulation_movements{false};
+    double overpopulation_percentage{0};
+    double leaving_percentage{0};
 
     void create_schedules()
     {
