@@ -1,12 +1,12 @@
 #ifdef POPS_TEST
 
 /*
- * Simple compilation test for the PoPS quarantine class.
+ * Test of overpopulation-based movement of pest.
  *
- * Copyright (C) 2020 by the authors.
+ * Copyright (C) 2021 by the authors.
  *
- * Authors: Anna Petrasova <akratoc gmail com>
- *          Vaclav Petras <wenzeslaus gmail com>
+ * Authors: Vaclav Petras <wenzeslaus gmail com>
+ *
  *
  * This file is part of PoPS.
 
@@ -55,8 +55,8 @@ int test_infected_arrive()
     Simulation<Raster<int>, Raster<double>> simulation(
         seed, infected.rows(), infected.cols());
     DeterministicNeighborDispersalKernel kernel{Direction::E};
-    double too_many_units = 0.75;
-    double leaving_units_ratio = 0.5;
+    double overpopulation_percentage = 0.75;
+    double leaving_percentage = 0.5;
     simulation.move_overpopulated_pests(
         susceptible,
         infected,
@@ -64,8 +64,8 @@ int test_infected_arrive()
         outside_dispersers,
         kernel,
         suitable_cells,
-        too_many_units,
-        leaving_units_ratio);
+        overpopulation_percentage,
+        leaving_percentage);
     int ret = 0;
     Raster<int> expected_infected = {{8, 8}, {0, 0}};
     if (expected_infected != infected) {
@@ -84,8 +84,8 @@ int test_infected_arrive()
         outside_dispersers,
         kernel,
         suitable_cells,
-        too_many_units,
-        leaving_units_ratio);
+        overpopulation_percentage,
+        leaving_percentage);
     expected_infected = {{8, 4}, {0, 0}};
     if (expected_infected != infected) {
         std::cerr << "Unexpected infected: \n" << infected << "\n";

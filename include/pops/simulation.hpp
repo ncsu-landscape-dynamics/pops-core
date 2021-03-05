@@ -522,27 +522,27 @@ public:
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
-            int original_units = infected(i, j);
+            int original_count = infected(i, j);
             // No move with only one infected host (one unit).
-            if (original_units <= 1)
+            if (original_count <= 1)
                 continue;
-            int available_units = total_hosts(i, j);
             // r = I / (I + S)
             // r = I / (I + S + E_1 + E_2 + ...)
-            double ratio = original_units / double(available_units);
+            double ratio = original_count / double(total_hosts(i, j));
             if (ratio >= overpopulation_percentage) {
                 int row;
                 int col;
                 std::tie(row, col) = dispersal_kernel(generator_, i, j);
-                // for leaving_units_ratio == 0.5
-                // 2 infected -> 1 moved
-                // 3 infected -> 1 moved
-                int units_leaving = original_units * leaving_percentage;
-                susceptible(i, j) += units_leaving;
-                infected(i, j) -= units_leaving;
+                // for leaving_percentage == 0.5
+                // 2 infected -> 1 leaving
+                // 3 infected -> 1 leaving
+                int leaving = original_count * leaving_percentage;
+                susceptible(i, j) += leaving;
+                infected(i, j) -= leaving;
                 if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                     // Collect units dispersed outside of modeled area.
-                    for (int unit = 0; unit < units_leaving; ++unit)
+                    outside_dispersers.reserve(outside_dispersers.size() + leaving);
+                    for (int pest = 0; pest < leaving; ++pest)
                         outside_dispersers.emplace_back(row, col);
                     continue;
                 }
@@ -551,18 +551,18 @@ public:
                 // possibly triggering another move.
                 // So, instead, we just collect them and apply later. (The pest is in
                 // the air when in the moves vector.)
-                moves.push_back(Move({row, col, units_leaving}));
+                moves.push_back(Move({row, col, leaving}));
             }
         }
         // Perform the moves to target cells.
         for (const auto& move : moves) {
             RasterIndex row = move.row;
             RasterIndex col = move.col;
-            int units_leaving = move.count;
+            int leaving = move.count;
             // The target cell can accept all.
-            if (susceptible(row, col) >= units_leaving) {
-                susceptible(row, col) -= units_leaving;
-                infected(row, col) += units_leaving;
+            if (susceptible(row, col) >= leaving) {
+                susceptible(row, col) -= leaving;
+                infected(row, col) += leaving;
             }
             // More units than the target cell can accept.
             // This can happen if there is simply not enough S hosts to accomodate all
@@ -570,9 +570,9 @@ public:
             // same target cell and there is not enough S hosts to accomodate all of
             // them. The pests just disappear in both cases.
             else {
-                units_leaving = susceptible(row, col);
-                susceptible(row, col) -= units_leaving;
-                infected(row, col) += units_leaving;
+                leaving = susceptible(row, col);
+                susceptible(row, col) -= leaving;
+                infected(row, col) += leaving;
             }
         }
     }
