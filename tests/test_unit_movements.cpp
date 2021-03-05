@@ -57,7 +57,7 @@ int test_infected_arrive()
     DeterministicNeighborDispersalKernel kernel{Direction::E};
     double too_many_units = 0.75;
     double leaving_units_ratio = 0.5;
-    simulation.move_units(
+    simulation.move_overpopulated_pests(
         susceptible,
         infected,
         total_hosts,
@@ -77,7 +77,7 @@ int test_infected_arrive()
                   << "\n";
         ret += 1;
     }
-    simulation.move_units(
+    simulation.move_overpopulated_pests(
         susceptible,
         infected,
         total_hosts,

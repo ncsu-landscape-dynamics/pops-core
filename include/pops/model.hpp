@@ -222,7 +222,7 @@ public:
                 suitable_cells,
                 config_.establishment_probability);
             if (config_.unit_movements) {
-                simulation_.move_units(
+                simulation_.move_overpopulated_pests(
                     susceptible,
                     infected,
                     total_populations,

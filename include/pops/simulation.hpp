@@ -490,8 +490,9 @@ public:
      * @param[in] total_hosts All hosts
      * @param[in,out] outside_dispersers Dispersers escaping the rasters
      * @param dispersal_kernel Dispersal kernel to move dispersers (units)
-     * @param too_many_units
-     * @param leaving_units_ratio
+     * @param overpopulation_percentage Percentage of occupied hosts when the cell is
+     *        considered to be overpopulated
+     * @param leaving_percentage Percentage of units leaving an overpopulated cell
      *
      * @note Exposed hosts are considered as not counting towards total number of units,
      *       i.e., *total_host* is assumed to be S + E in SEI model.
@@ -499,15 +500,15 @@ public:
      *       are not modified while the infected are.
      */
     template<typename DispersalKernel>
-    void move_units(
+    void move_overpopulated_pests(
         IntegerRaster& susceptible,
         IntegerRaster& infected,
         const IntegerRaster& total_hosts,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         DispersalKernel& dispersal_kernel,
         const std::vector<std::vector<int>>& suitable_cells,
-        double too_many_units,
-        double leaving_units_ratio)
+        double overpopulation_percentage,
+        double leaving_percentage)
     {
         struct Move
         {
@@ -529,14 +530,14 @@ public:
             // r = I / (I + S)
             // r = I / (I + S + E_1 + E_2 + ...)
             double ratio = original_units / double(available_units);
-            if (ratio >= too_many_units) {
+            if (ratio >= overpopulation_percentage) {
                 int row;
                 int col;
                 std::tie(row, col) = dispersal_kernel(generator_, i, j);
                 // for leaving_units_ratio == 0.5
                 // 2 infected -> 1 moved
                 // 3 infected -> 1 moved
-                int units_leaving = original_units * leaving_units_ratio;
+                int units_leaving = original_units * leaving_percentage;
                 susceptible(i, j) += units_leaving;
                 infected(i, j) -= units_leaving;
                 if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
