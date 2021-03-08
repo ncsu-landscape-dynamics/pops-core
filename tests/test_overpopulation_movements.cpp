@@ -122,7 +122,12 @@ int test_model()
     config.random_seed = 0;
     config.model_type = "SI";
     config.natural_kernel_type = "cauchy";
+    config.natural_scale = 0.1;
+    // We are not using anthropo kernel in standard disperser spread, but it is used by
+    // overpopulation movements.
+    config.use_anthropogenic_kernel = false;
     config.anthro_kernel_type = "cauchy";
+    config.anthro_scale = 0.1;
     config.ew_res = 30;
     config.ns_res = 30;
     config.use_overpopulation_movements = true;
