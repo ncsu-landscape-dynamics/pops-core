@@ -149,8 +149,9 @@ public:
             max_distance = exponential_power.icdf(dispersal_percentage);
         }
         else {
-            throw std::runtime_error(
-                "Unknown DispersalKernelType value in DeterministicDispersalKernel");
+            // We allow a kernel object to be incomplete when it won't be further used.
+            // The invalid state is checked later, in this case using the kernel type.
+            return;
         }
         number_of_columns = ceil(max_distance / east_west_resolution) * 2 + 1;
         number_of_rows = ceil(max_distance / north_south_resolution) * 2 + 1;
