@@ -148,6 +148,10 @@ public:
         else if (kernel_type_ == DispersalKernelType::ExponentialPower) {
             max_distance = exponential_power.icdf(dispersal_percentage);
         }
+        else {
+            throw std::runtime_error(
+                "Unknown DispersalKernelType value in DeterministicDispersalKernel");
+        }
         number_of_columns = ceil(max_distance / east_west_resolution) * 2 + 1;
         number_of_rows = ceil(max_distance / north_south_resolution) * 2 + 1;
         Raster<double> prob_size(number_of_rows, number_of_columns, 0);
