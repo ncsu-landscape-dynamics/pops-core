@@ -221,7 +221,7 @@ public:
                 dispersal_kernel,
                 suitable_cells,
                 config_.establishment_probability);
-            if (config_.pest_overpopulation_movements) {
+            if (config_.use_overpopulation_movements) {
                 simulation_.move_overpopulated_pests(
                     susceptible,
                     infected,
