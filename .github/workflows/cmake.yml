@@ -16,8 +16,8 @@ jobs:
         - ubuntu-18.04
         - ubuntu-20.04
         cxx:
-        - gcc
-        - clang
+        - g++
+        - clang++
       fail-fast: false
 
     steps:
