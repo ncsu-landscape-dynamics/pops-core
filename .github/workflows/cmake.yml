@@ -7,6 +7,7 @@ on:
 jobs:
   build-ubuntu:
 
+    name: ${{ matrix.os }} - ${{ matrix.cxx }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -14,6 +15,9 @@ jobs:
         - ubuntu-16.04
         - ubuntu-18.04
         - ubuntu-20.04
+        cxx:
+        - g++
+        - clang++
       fail-fast: false
 
     steps:
@@ -21,7 +25,12 @@ jobs:
     - name: Install dependencies
       run: sudo apt-get install doxygen graphviz
     - name: Configure
-      run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
+      run: |
+        mkdir build && cd build && \
+          cmake \
+          -D CMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+          -D CMAKE_BUILD_TYPE=Release \
+          ..
     - name: Build
       run: cmake --build build
     - name: Test
