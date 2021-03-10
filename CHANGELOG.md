@@ -4,6 +4,13 @@ All notable changes to this project should be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## Next release
+
+### Added
+
+- Pest pest movement based on overpopulation (Vaclav Petras)
+  * When cell contains too many pests, pests leave and move to a different cell.
+
 ## 2020-08-27 - Version 1 preparations
 
 ### Changed
