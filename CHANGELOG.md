@@ -330,5 +330,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Copy of GDAL code was removed from the repository, using system GDAL
   includes now. (Vaclav Petras)
 
-[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/olivierlacan/keep-a-changelog/releases/tag/v1.0.0
+[unreleased]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/ncsu-landscape-dynamics/pops-core/releases/tag/v1.0.0
