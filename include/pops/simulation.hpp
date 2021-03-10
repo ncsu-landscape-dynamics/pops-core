@@ -476,10 +476,10 @@ public:
      * to a different location. Number of infected/infested hosts is considered to be
      * the number of units of pests in a raster cell.
      *
-     * The movement happens in two stages. First, all the leaving pests are identified and
-     * removed from the source cells. Second, the move to the target cells is performed.
-     * This means that even if the resulting number of pests in the target cell
-     * is considered too high, it is left as is and the move is performed the next
+     * The movement happens in two stages. First, all the leaving pests are identified
+     * and removed from the source cells. Second, the move to the target cells is
+     * performed. This means that even if the resulting number of pests in the target
+     * cell is considered too high, it is left as is and the move is performed the next
      * time this function is called.
      *
      * If the pests (pest population) cannot be accommodated in the target cell due to
