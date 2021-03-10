@@ -2,14 +2,49 @@
 
 All notable changes to this project should be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/).
+The _Unreleased_ section should become the release once the release is ready
+and the text can be used as part of the release description.
+The pre-release historical sections are using dates and topics as section
+headings instead of release numbers.
 
-## Next release
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+with an additional rule that interfaces to the core library follow the same numbering
+although they are in separate repositories, so increasing version number there
+increases version here although there is no specific tag or release for that in
+this repository.
+
+## [Unreleased]
 
 ### Added
 
 - Pest pest movement based on overpopulation (Vaclav Petras)
   * When cell contains too many pests, pests leave and move to a different cell.
+
+## 1.0.2 - 2020-10-09
+
+- Patch release of rpops
+
+## 1.0.1 - 2020-09-11
+
+- Patch release of r.pops.spread
+
+## [1.0.0] - 2020-09-10
+
+- Susceptible-infected (SI) and susceptible-exposed-infected (SEI) host phases,
+- Host mortality tracking,
+- Host removal and pesticide application treatments,
+- Host resistance based on pesticide application treatments,
+- Treatments applied only to a ratio of hosts,
+- Seasonal spread limited to certain months,
+- Limited host movement (experimental),
+- Yearly pest removal based on lethal temperature,
+- Two different dispersal kernels (natural and anthropogenic),
+- Cauchy and exponential radial dispersal kernels,
+- Reduced stochasticity options and deterministic versions of kernels,
+- Spread rate measurement,
+- Quarantine and study area escape measurements,
+- C++ API centered around two classes: pops::Model and pops::Config.
 
 ## 2020-08-27 - Version 1 preparations
 
@@ -306,3 +341,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
   (Vaclav Petras)
 - Copy of GDAL code was removed from the repository, using system GDAL
   includes now. (Vaclav Petras)
+
+[unreleased]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/ncsu-landscape-dynamics/pops-core/tree/v1.0.0
