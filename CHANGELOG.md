@@ -8,7 +8,11 @@ The pre-release historical sections are using dates and topics as section
 headings instead of release numbers.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+with an additional rule that interfaces to the core library follow the same numbering
+although they are in separate repositories, so increasing version number there
+increases version here although there is no specific tag or release for that in
+this repository.
 
 ## [Unreleased]
 
@@ -16,6 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Pest pest movement based on overpopulation (Vaclav Petras)
   * When cell contains too many pests, pests leave and move to a different cell.
+
+## 1.0.2 - 2020-10-09
+
+- Patch release of rpops
+
+## 1.0.1 - 2020-09-11
+
+- Patch release of r.pops.spread
 
 ## [1.0.0] - 2020-09-10
 
