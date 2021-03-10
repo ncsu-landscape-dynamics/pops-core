@@ -470,20 +470,20 @@ public:
         }
     }
 
-    /** Move overflowing units of pests to other hosts.
+    /** Move overflowing pest population to other hosts.
      *
-     * When the number of pests (units of pests) is too high, part of them moves
-     * to a different location. Number of infected hosts is considered to be the number
-     * of units of pests in a raster cell.
+     * When the number of pests (pest population) is too high, part of them moves
+     * to a different location. Number of infected/infested hosts is considered to be
+     * the number of units of pests in a raster cell.
      *
-     * The moving happens in two stages. First, all the leaving units are identified and
+     * The movement happens in two stages. First, all the leaving pests are identified and
      * removed from the source cells. Second, the move to the target cells is performed.
-     * This means that even if the resulting number of units in the target cell is
-     * what is considered too high, it is left as is and the move is performed next
+     * This means that even if the resulting number of pests in the target cell
+     * is considered too high, it is left as is and the move is performed the next
      * time this function is called.
      *
-     * If the pests (units of pests) cannot be accommodated in the target cell due to
-     * the insufficient number of susceptible hosts, the excessive pests disappear.
+     * If the pests (pest population) cannot be accommodated in the target cell due to
+     * the insufficient number of susceptible hosts, the excessive pests die.
      *
      * @param[in,out] susceptible Susceptible hosts
      * @param[in,out] infected Infected hosts
@@ -492,9 +492,9 @@ public:
      * @param dispersal_kernel Dispersal kernel to move dispersers (units)
      * @param overpopulation_percentage Percentage of occupied hosts when the cell is
      *        considered to be overpopulated
-     * @param leaving_percentage Percentage of units leaving an overpopulated cell
+     * @param leaving_percentage Percentage pests leaving an overpopulated cell
      *
-     * @note Exposed hosts are considered as not counting towards total number of units,
+     * @note Exposed hosts do not count towards total number of units,
      *       i.e., *total_host* is assumed to be S + E in SEI model.
      * @note Mortality is not supported by this function, i.e., the mortality rasters
      *       are not modified while the infected are.
