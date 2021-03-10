@@ -221,6 +221,17 @@ public:
                 dispersal_kernel,
                 suitable_cells,
                 config_.establishment_probability);
+            if (config_.use_overpopulation_movements) {
+                simulation_.move_overpopulated_pests(
+                    susceptible,
+                    infected,
+                    total_populations,
+                    outside_dispersers,
+                    anthro_selectable_kernel,
+                    suitable_cells,
+                    config_.overpopulation_percentage,
+                    config_.leaving_percentage);
+            }
             if (config_.use_movements) {
                 last_index = simulation_.movement(
                     infected,
