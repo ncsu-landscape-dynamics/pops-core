@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pest pest movement based on overpopulation (Vaclav Petras)
   * When cell contains too many pests, pests leave and move to a different cell.
 
-## [1.0.0] - 2017-06-20
+## [1.0.0] - 2020-09-10
 
 - Susceptible-infected (SI) and susceptible-exposed-infected (SEI) host phases,
 - Host mortality tracking,
