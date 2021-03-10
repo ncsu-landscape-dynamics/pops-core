@@ -343,4 +343,4 @@ this repository.
   includes now. (Vaclav Petras)
 
 [unreleased]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/ncsu-landscape-dynamics/pops-core/releases/tag/v1.0.0
+[1.0.0]: https://github.com/ncsu-landscape-dynamics/pops-core/tree/v1.0.1
