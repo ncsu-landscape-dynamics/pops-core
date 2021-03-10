@@ -474,7 +474,7 @@ public:
      *
      * When the number of pests (pest population) is too high, part of them moves
      * to a different location. Number of infected/infested hosts is considered to be
-     * the number of units of pests in a raster cell.
+     * the number of pests (groups of pest) in a raster cell.
      *
      * The movement happens in two stages. First, all the leaving pests are identified
      * and removed from the source cells. Second, the move to the target cells is
@@ -489,12 +489,12 @@ public:
      * @param[in,out] infected Infected hosts
      * @param[in] total_hosts All hosts
      * @param[in,out] outside_dispersers Dispersers escaping the rasters
-     * @param dispersal_kernel Dispersal kernel to move dispersers (units)
+     * @param dispersal_kernel Dispersal kernel to move dispersers (pests)
      * @param overpopulation_percentage Percentage of occupied hosts when the cell is
      *        considered to be overpopulated
      * @param leaving_percentage Percentage pests leaving an overpopulated cell
      *
-     * @note Exposed hosts do not count towards total number of units,
+     * @note Exposed hosts do not count towards total number of pest,
      *       i.e., *total_host* is assumed to be S + E in SEI model.
      * @note Mortality is not supported by this function, i.e., the mortality rasters
      *       are not modified while the infected are.
@@ -540,7 +540,7 @@ public:
                 susceptible(i, j) += leaving;
                 infected(i, j) -= leaving;
                 if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
-                    // Collect units dispersed outside of modeled area.
+                    // Collect pests dispersed outside of modeled area.
                     outside_dispersers.reserve(outside_dispersers.size() + leaving);
                     for (int pest = 0; pest < leaving; ++pest)
                         outside_dispersers.emplace_back(row, col);
@@ -564,7 +564,7 @@ public:
                 susceptible(row, col) -= leaving;
                 infected(row, col) += leaving;
             }
-            // More units than the target cell can accept.
+            // More pests than the target cell can accept.
             // This can happen if there is simply not enough S hosts to accomodate all
             // the pests moving from the source or if multiple sources end up in the
             // same target cell and there is not enough S hosts to accomodate all of
