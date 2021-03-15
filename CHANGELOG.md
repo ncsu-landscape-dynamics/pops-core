@@ -23,11 +23,11 @@ this repository.
 
 ## [1.0.2] - 2020-10-09
 
-- [Patch release of rpops](https://github.com/ncsu-landscape-dynamics/rpops/releases/tag/v1.0.2)
+- [Patch release of rpops](https://github.com/ncsu-landscape-dynamics/rpops/releases/tag/v1.0.2) (no changes in pops-core)
 
 ## [1.0.1] - 2020-09-11
 
-- [Patch release of r.pops.spread](https://github.com/ncsu-landscape-dynamics/r.pops.spread/releases/tag/v1.0.1)
+- [Patch release of r.pops.spread](https://github.com/ncsu-landscape-dynamics/r.pops.spread/releases/tag/v1.0.1) (no changes in pops-core)
 
 ## [1.0.0] - 2020-09-10
 
@@ -342,7 +342,7 @@ this repository.
 - Copy of GDAL code was removed from the repository, using system GDAL
   includes now. (Vaclav Petras)
 
-[unreleased]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.2...HEAD
 [1.0.2]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/ncsu-landscape-dynamics/pops-core/tree/v1.0.0
