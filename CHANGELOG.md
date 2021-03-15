@@ -21,11 +21,11 @@ this repository.
 - Pest pest movement based on overpopulation (Vaclav Petras)
   * When cell contains too many pests, pests leave and move to a different cell.
 
-## 1.0.2 - 2020-10-09
+## [1.0.2] - 2020-10-09
 
 - [Patch release of rpops](https://github.com/ncsu-landscape-dynamics/rpops/releases/tag/v1.0.2)
 
-## 1.0.1 - 2020-09-11
+## [1.0.1] - 2020-09-11
 
 - [Patch release of r.pops.spread](https://github.com/ncsu-landscape-dynamics/r.pops.spread/releases/tag/v1.0.1)
 
