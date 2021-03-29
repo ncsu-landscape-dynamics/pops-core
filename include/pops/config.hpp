@@ -89,6 +89,7 @@ public:
     bool use_overpopulation_movements{false};
     double overpopulation_percentage{0};
     double leaving_percentage{0};
+    double leaving_scale_coefficient{1};
 
     void create_schedules()
     {
