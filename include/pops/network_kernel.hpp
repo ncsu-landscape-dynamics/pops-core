@@ -30,8 +30,24 @@ public:
     std::tuple<int, int>
     time_to_row_col(int row, int col, double time, Generator& generator)
     {
+        // The trouble is when there is no node here, but we are already made decision
+        // to use this kernel.
         auto node_id = get_node(row, col);
-        next_node(node_id, generator);
+        while (time > 0) {
+            auto next_node_id = next_node(node_id, generator);
+            auto segment = get_segment(node_id, next_node_id);
+            // nodes may need special handling
+            for (auto cell : segment) {
+                time -= get_travel_time(cell);
+                if (time <= 0) {
+                    return get_row_col(cell);
+                    // Given the while condition, this subsequently ends the while loop
+                    // as well.
+                    // break;
+                }
+            }
+            node_id = next_node_id;
+        }
     }
 };
 
