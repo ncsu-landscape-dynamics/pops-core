@@ -123,16 +123,13 @@ int test_model()
     config.model_type = "SI";
     config.natural_kernel_type = "cauchy";
     config.natural_scale = 0.1;
-    // We are not using anthropo kernel in standard disperser spread, but it is used by
-    // overpopulation movements.
-    config.use_anthropogenic_kernel = false;
-    config.anthro_kernel_type = "cauchy";
-    config.anthro_scale = 0.1;
+    config.anthro_scale = config.natural_scale;  // Unused, but we need to set it.
     config.ew_res = 30;
     config.ns_res = 30;
     config.use_overpopulation_movements = true;
     config.overpopulation_percentage = 0.5;
     config.leaving_percentage = 0.75;
+    config.leaving_scale_coefficient = 1;
     config.create_schedules();
     // More reference data
     auto leaving = infected(0, 0) * config.leaving_percentage;
