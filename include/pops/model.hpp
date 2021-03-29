@@ -85,7 +85,7 @@ protected:
             config_.ew_res,
             config_.ns_res,
             natural_kernel,
-            config_.natural_scale * config_.leaving_scale,
+            config_.natural_scale * config_.leaving_scale_coefficient,
             direction_from_string(config_.natural_direction),
             config_.natural_kappa,
             config_.shape);
@@ -95,7 +95,7 @@ protected:
             config_.dispersal_percentage,
             config_.ew_res,
             config_.ns_res,
-            config_.natural_scale * config_.leaving_scale,
+            config_.natural_scale * config_.leaving_scale_coefficient,
             config_.shape);
         SwitchDispersalKernel<IntegerRaster> selectable_kernel(
             natural_kernel,
