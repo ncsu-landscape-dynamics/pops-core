@@ -58,13 +58,13 @@ public:
     // Kernels
     std::string natural_kernel_type;
     double natural_scale{0};
-    std::string natural_direction{""};
+    std::string natural_direction;
     double natural_kappa{0};
     bool use_anthropogenic_kernel{false};
     double percent_natural_dispersal{1};
     std::string anthro_kernel_type;
     double anthro_scale{0};
-    std::string anthro_direction{""};
+    std::string anthro_direction;
     double anthro_kappa{0};
     double shape{1.0};
     // Treatments
