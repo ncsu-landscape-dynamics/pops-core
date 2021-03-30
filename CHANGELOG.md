@@ -18,7 +18,7 @@ this repository.
 
 ### Added
 
-- Pest pest movement based on overpopulation (Vaclav Petras)
+- Pest movement based on overpopulation (Vaclav Petras)
   * When cell contains too many pests, pests leave and move to a different cell.
 
 ## [1.0.2] - 2020-10-09
