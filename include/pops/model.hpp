@@ -49,6 +49,14 @@ protected:
     Simulation<IntegerRaster, FloatRaster, RasterIndex> simulation_;
     unsigned last_index{0};
 
+    /**
+     * @brief Build natural kernel
+     *
+     * Kernel parameters are taken from the configuration.
+     *
+     * @param dispersers The current dispersers (for deterministic kernel)
+     * @return Created kernel
+     */
     SwitchDispersalKernel<IntegerRaster>
     build_natural_kernel(const IntegerRaster& dispersers)
     {
@@ -78,6 +86,16 @@ protected:
         return selectable_kernel;
     }
 
+    /**
+     * @brief Build overpopulation movement kernel
+     *
+     * Same as the natural kernel. The natural kernel parameters are used,
+     * but the scale for radial and deterministic kernel is multiplied
+     * by the leaving scale coefficient.
+     *
+     * @param dispersers The current dispersers (for deterministic kernel)
+     * @return Created kernel
+     */
     SwitchDispersalKernel<IntegerRaster>
     build_overpopulation_movement_kernel(const IntegerRaster& dispersers)
     {
@@ -107,6 +125,15 @@ protected:
         return selectable_kernel;
     }
 
+    /**
+     * @brief Build anthropogenic kernel
+     *
+     * Same structure as the natural kernel, but the parameters are for anthropogenic
+     * kernel when available.
+     *
+     * @param dispersers The current dispersers (for deterministic kernel)
+     * @return Created kernel
+     */
     SwitchDispersalKernel<IntegerRaster>
     build_anthro_kernel(const IntegerRaster& dispersers)
     {
