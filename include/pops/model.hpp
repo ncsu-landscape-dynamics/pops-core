@@ -50,15 +50,15 @@ protected:
     unsigned last_index{0};
 
     /**
-     * @brief Build natural kernel
+     * @brief Create natural kernel
      *
      * Kernel parameters are taken from the configuration.
      *
-     * @param dispersers The current dispersers (for deterministic kernel)
+     * @param dispersers The disperser raster (reference, for deterministic kernel)
      * @return Created kernel
      */
     SwitchDispersalKernel<IntegerRaster>
-    build_natural_kernel(const IntegerRaster& dispersers)
+    create_natural_kernel(const IntegerRaster& dispersers)
     {
         RadialDispersalKernel<IntegerRaster> radial_kernel(
             config_.ew_res,
@@ -87,17 +87,17 @@ protected:
     }
 
     /**
-     * @brief Build overpopulation movement kernel
+     * @brief Create overpopulation movement kernel
      *
      * Same as the natural kernel. The natural kernel parameters are used,
      * but the scale for radial and deterministic kernel is multiplied
      * by the leaving scale coefficient.
      *
-     * @param dispersers The current dispersers (for deterministic kernel)
+     * @param dispersers The disperser raster (reference, for deterministic kernel)
      * @return Created kernel
      */
     SwitchDispersalKernel<IntegerRaster>
-    build_overpopulation_movement_kernel(const IntegerRaster& dispersers)
+    create_overpopulation_movement_kernel(const IntegerRaster& dispersers)
     {
         RadialDispersalKernel<IntegerRaster> radial_kernel(
             config_.ew_res,
@@ -126,16 +126,16 @@ protected:
     }
 
     /**
-     * @brief Build anthropogenic kernel
+     * @brief Create anthropogenic kernel
      *
      * Same structure as the natural kernel, but the parameters are for anthropogenic
      * kernel when available.
      *
-     * @param dispersers The current dispersers (for deterministic kernel)
+     * @param dispersers The disperser raster (reference, for deterministic kernel)
      * @return Created kernel
      */
     SwitchDispersalKernel<IntegerRaster>
-    build_anthro_kernel(const IntegerRaster& dispersers)
+    create_anthro_kernel(const IntegerRaster& dispersers)
     {
         RadialDispersalKernel<IntegerRaster> radial_kernel(
             config_.ew_res,
