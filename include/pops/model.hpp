@@ -247,13 +247,6 @@ public:
         const std::vector<std::vector<int>> movements,
         const std::vector<std::vector<int>>& suitable_cells)
     {
-
-        DispersalKernel<IntegerRaster> dispersal_kernel(
-            build_natural_kernel(dispersers),
-            build_anthro_kernel(dispersers),
-            config_.use_anthropogenic_kernel,
-            config_.percent_natural_dispersal);
-        auto overpopulation_kernel = build_overpopulation_movement_kernel(dispersers);
         int mortality_simulation_year =
             simulation_step_to_action_step(config_.mortality_schedule(), step);
         // removal of dispersers due to lethal temperatures
@@ -276,6 +269,14 @@ public:
                 weather_coefficient,
                 config_.reproductive_rate,
                 suitable_cells);
+
+            DispersalKernel<IntegerRaster> dispersal_kernel(
+                create_natural_kernel(dispersers),
+                create_anthro_kernel(dispersers),
+                config_.use_anthropogenic_kernel,
+                config_.percent_natural_dispersal);
+            auto overpopulation_kernel =
+                create_overpopulation_movement_kernel(dispersers);
 
             simulation_.disperse_and_infect(
                 step,
