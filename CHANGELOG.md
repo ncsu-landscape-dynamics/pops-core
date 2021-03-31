@@ -18,8 +18,15 @@ this repository.
 
 ### Added
 
-- Pest pest movement based on overpopulation (Vaclav Petras)
+- Pest movement based on overpopulation (Vaclav Petras)
   * When cell contains too many pests, pests leave and move to a different cell.
+
+### Changed
+- Model class internal attributes and functions are now protected instead of private
+  to allow derived classes to access them for greater flexibility.
+- Model class kernels are now created and returned by protected functions.
+- Config class has now more defaults and subsequent setup now consistently fails when
+  required values were not set.
 
 ## [1.0.2] - 2020-10-09
 
