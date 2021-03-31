@@ -23,7 +23,7 @@ this repository.
 
 ### Changed
 - Model class internal attributes and functions are now protected instead of private
-  to allow derived classes access them to for greater flexibility.
+  to allow derived classes to access them for greater flexibility.
 - Model class kernels are now created and returned by protected functions.
 - Config class has now more defaults and subsequent setup now consistently fails when
   required values were not set.
