@@ -17,6 +17,7 @@
 #define POPS_NETWORK_KERNEL_HPP
 
 #include "kernel_types.hpp"
+#include "raster.hpp"
 
 #include <random>
 
@@ -26,6 +27,29 @@ class Network
 {
 protected:
 public:
+    using NodeId = int;
+    using NodeMatrix = Raster<NodeId>;
+
+    std::vector<NodeId> candidate_nodes_from_node_matrix()
+    {
+        std::vector<NodeId> nodes;
+        for (int col = 0; col < node_matrix.cols(); ++col) {
+            auto node = node_matrix(node, col);
+            if (node > 0)
+                nodes.push_back(node);
+        }
+        return nodes;
+    }
+
+    template<typename Generator>
+    NodeId next_node(NodeId start, Generator& generator)
+    {
+        auto nodes = candidate_nodes_from_node_matrix(start);
+        auto num_nodes = nodes.size();
+        std::uniform_int_distribution<> dist(0, num_nodes - 1);
+        auto index = dist();
+        return nodes[index];
+    }
     template<typename Generator>
     std::tuple<int, int>
     time_to_row_col(int row, int col, double time, Generator& generator)
