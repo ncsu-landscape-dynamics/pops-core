@@ -103,12 +103,6 @@ public:
             else
                 throw std::runtime_error("Network: No nodes within the extend");
         }
-        auto max_node_id = *std::max_element(node_ids.begin(), node_ids.end());
-        // We store one row and col more and use node ids as indices because we waste
-        // row/col here and there anyway when the ids are not sequential.
-        // TODO: Probably better expressed as sparse matrix/associative array.
-        node_matrix_ = NodeMatrix(max_node_id + 1, max_node_id + 1, false);
-
         while (std::getline(segment_stream, line)) {
             std::istringstream line_stream{line};
             char delimeter{','};
@@ -129,8 +123,7 @@ public:
             // We don't know which way the nodes are ordered, so instead of checking
             // the order, we create a symmetric matrix since we allocated the memory
             // anyway.
-            node_matrix_(node_1_id, node_2_id) = true;
-            node_matrix_(node_2_id, node_1_id) = true;
+            node_matrix_.emplace(node_1_id, node_2_id);
             std::istringstream segment_stream{segment_text};
             char in_cell_delimeter{';'};
             std::string x_coord_text;
@@ -144,9 +137,11 @@ public:
     std::vector<NodeId> candidate_nodes_from_node_matrix(NodeId node)
     {
         std::vector<NodeId> nodes;
-        for (NodeId col = 0; col < node_matrix_.cols(); ++col) {
-            if (node_matrix_(node, col))
-                nodes.push_back(col);
+        for (const auto& item : node_matrix_) {
+            if (item.first == node)
+                nodes.push_back(item.second);
+            else if (item.second == node)
+                nodes.push_back(item.first);
         }
         return nodes;
     }
@@ -207,21 +202,33 @@ public:
     std::map<std::string, int> collect_stats()
     {
         std::map<std::string, int> stats;
-        std::set<NodeId> unique_node_ids;
-        std::vector<NodeId> all_node_ids;
+        std::set<NodeId> node_ids;
         for (auto item : nodes_by_row_col_) {
             for (auto node_id : item.second) {
-                unique_node_ids.insert(node_id);
-                all_node_ids.push_back(node_id);
+                node_ids.insert(node_id);
             }
         }
-        stats["num_unique_nodes"] = unique_node_ids.size();
-        stats["num_all_nodes"] = all_node_ids.size();
+        stats["num_nodes"] = node_ids.size();
+        stats["num_segments"] = node_matrix_.size();
+        std::set<NodeId> nodes_with_segments;
+        for (const auto& item : node_matrix_) {
+            nodes_with_segments.insert(item.first);
+            nodes_with_segments.insert(item.second);
+        }
+        stats["num_nodes_with_segments"] = nodes_with_segments.size();
+        int num_standalone_nodes = 0;
+        for (NodeId node_id : node_ids) {
+            if (nodes_with_segments.find(node_id) == nodes_with_segments.end()) {
+                stats["standalone_node_" + std::to_string(++num_standalone_nodes)] =
+                    node_id;
+            }
+        }
+        stats["num_standalone_nodes"] = num_standalone_nodes;
         return stats;
     }
 
 protected:
-    using NodeMatrix = Raster<bool, NodeId>;
+    using NodeMatrix = std::set<std::pair<NodeId, NodeId>>;
 
     BBox<double> bbox_;
     double ew_res_;
