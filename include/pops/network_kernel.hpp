@@ -18,25 +18,135 @@
 
 #include "kernel_types.hpp"
 #include "raster.hpp"
+#include "utils.hpp"
 
+#include <set>
 #include <random>
+#include <string>
+#include <sstream>
+#include <map>
+#include <vector>
 
 namespace pops {
 
+template<typename RasterIndex>
 class Network
 {
-protected:
 public:
     using NodeId = int;
-    using NodeMatrix = Raster<NodeId>;
 
-    std::vector<NodeId> candidate_nodes_from_node_matrix()
+    Network(BBox<double> bbox, double ew_res, double ns_res)
+        : bbox_(bbox), ew_res_(ew_res), ns_res_(ns_res)
+    {}
+
+    std::pair<RasterIndex, RasterIndex> xy_to_row_col(double x, double y)
+    {
+        // TODO: implement
+        return {100 * y, 100 * x};
+    }
+
+    std::pair<RasterIndex, RasterIndex>
+    xy_to_row_col(const std::string& x, const std::string& y)
+    {
+        return xy_to_row_col(std::stod(x), std::stod(y));
+    }
+
+    NodeId node_id_from_text(const std::string& text)
+    {
+        return std::stoi(text);
+    }
+
+    bool out_of_bbox(double x, double y)
+    {
+        return x > bbox_.east || x < bbox_.west || y > bbox_.north || y < bbox_.south;
+    }
+
+    /**
+     *
+     * std::string node_file, std::string segment_file
+     * std::ifstream node_stream{node_file};
+     */
+    template<typename InputStream>
+    void load(
+        InputStream& node_stream, InputStream& segment_stream, bool allow_empty = false)
+    {
+        std::string line;
+        std::set<NodeId> node_ids;
+        std::map<NodeId, std::pair<double, double>> node_coords;
+        while (std::getline(node_stream, line)) {
+            std::stringstream line_stream{line};
+            char delimeter{','};
+            std::string node_text;
+            std::getline(line_stream, node_text, delimeter);
+            std::string x_coord_text;
+            std::getline(line_stream, x_coord_text, delimeter);
+            std::string y_coord_text;
+            std::getline(line_stream, y_coord_text, delimeter);
+            RasterIndex row;
+            RasterIndex col;
+            double x = std::stod(x_coord_text);
+            double y = std::stod(y_coord_text);
+            // Cut to extend
+            if (out_of_bbox(x, y))
+                continue;
+            std::tie(row, col) = xy_to_row_col(x_coord_text, y_coord_text);
+            NodeId node_id = node_id_from_text(node_text);
+            if (node_id < 1) {
+                std::runtime_error("Node ID must be greater than zero");
+            }
+            nodes_by_row_col_[std::make_pair(row, col)].insert(node_id);
+            node_ids.insert(node_id);
+        }
+        if (node_ids.empty()) {
+            if (allow_empty)
+                return;
+            else
+                throw std::runtime_error("Network: No nodes within the extend");
+        }
+        auto max_node_id = *std::max_element(node_ids.begin(), node_ids.end());
+        // We store one row and col more and use node ids as indices because we waste
+        // row/col here and there anyway when the ids are not sequential.
+        // TODO: Probably better expressed as sparse matrix/associative array.
+        node_matrix_ = NodeMatrix(max_node_id + 1, max_node_id + 1, false);
+
+        while (std::getline(segment_stream, line)) {
+            std::stringstream line_stream{line};
+            char delimeter{','};
+            std::string node_1_text;
+            std::getline(line_stream, node_1_text, delimeter);
+            std::string node_2_text;
+            std::getline(line_stream, node_2_text, delimeter);
+            auto node_1_id = node_id_from_text(node_1_text);
+            auto node_2_id = node_id_from_text(node_2_text);
+            // If either end nodes of the segment is not in the extent, skip it.
+            // TODO: Part of the segment may still be out, so that needs to be checked.
+            // Replace by contains for C++20.
+            if (node_ids.find(node_1_id) == node_ids.end()
+                || node_ids.find(node_2_id) == node_ids.end())
+                continue;
+            std::string segment_text;
+            std::getline(line_stream, segment_text, delimeter);
+            // We don't know which way the nodes are ordered, so instead of checking
+            // the order, we create a symmetric matrix since we allocated the memory
+            // anyway.
+            node_matrix_(node_1_id, node_2_id) = true;
+            node_matrix_(node_2_id, node_1_id) = true;
+            std::stringstream segment_stream{segment_text};
+            char in_cell_delimeter{';'};
+            std::string x_coord_text;
+            std::string y_coord_text;
+            while (std::getline(segment_stream, x_coord_text, in_cell_delimeter)
+                   && std::getline(segment_stream, y_coord_text, in_cell_delimeter)) {
+            }
+        }
+    }
+
+    std::vector<NodeId> candidate_nodes_from_node_matrix(NodeId node)
     {
         std::vector<NodeId> nodes;
-        for (int col = 0; col < node_matrix.cols(); ++col) {
-            auto node = node_matrix(node, col);
-            if (node > 0)
-                nodes.push_back(node);
+        for (NodeId col = 0; col < node_matrix_.cols(); ++col) {
+            if (node_matrix_(node, col))
+                nodes.push_back(col);
         }
         return nodes;
     }
@@ -46,17 +156,37 @@ public:
     {
         auto nodes = candidate_nodes_from_node_matrix(start);
         auto num_nodes = nodes.size();
-        std::uniform_int_distribution<> dist(0, num_nodes - 1);
-        auto index = dist();
+        std::uniform_int_distribution<size_t> dist(0, num_nodes - 1);
+        auto index = dist(generator);
         return nodes[index];
     }
+
+    std::set<NodeId> get_nodes_at(RasterIndex row, RasterIndex col) const
+    {
+        // return nodes_by_row_col_.at(std::make_pair(row, col));
+        auto it = nodes_by_row_col_.find(std::make_pair(row, col));
+        if (it != nodes_by_row_col_.end())
+            return it->second;
+        return std::set<NodeId>();
+    }
+
+    bool has_node_at(RasterIndex row, RasterIndex col) const
+    {
+        // Replace by contains in C++20.
+        // return nodes_by_row_col_.count(std::make_pair(row, col)) > 0;
+        auto it = nodes_by_row_col_.find(std::make_pair(row, col));
+        if (it == nodes_by_row_col_.end())
+            return false;
+        return true;
+    }
+
     template<typename Generator>
-    std::tuple<int, int>
-    time_to_row_col(int row, int col, double time, Generator& generator)
+    std::tuple<int, int> time_to_row_col(
+        RasterIndex start_row, RasterIndex start_col, double time, Generator& generator)
     {
         // The trouble is when there is no node here, but we are already made decision
         // to use this kernel.
-        auto node_id = get_node(row, col);
+        auto node_id = get_node(start_row, start_col);
         while (time > 0) {
             auto next_node_id = next_node(node_id, generator);
             auto segment = get_segment(node_id, next_node_id);
@@ -73,6 +203,31 @@ public:
             node_id = next_node_id;
         }
     }
+
+    std::map<std::string, int> collect_stats()
+    {
+        std::map<std::string, int> stats;
+        std::set<NodeId> unique_node_ids;
+        std::vector<NodeId> all_node_ids;
+        for (auto item : nodes_by_row_col_) {
+            for (auto node_id : item.second) {
+                unique_node_ids.insert(node_id);
+                all_node_ids.push_back(node_id);
+            }
+        }
+        stats["num_unique_nodes"] = unique_node_ids.size();
+        stats["num_all_nodes"] = all_node_ids.size();
+        return stats;
+    }
+
+protected:
+    using NodeMatrix = Raster<bool, NodeId>;
+
+    BBox<double> bbox_;
+    double ew_res_;
+    double ns_res_;
+    std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;
+    NodeMatrix node_matrix_;
 };
 
 /*! Dispersal kernel for random uniform dispersal over the whole
@@ -86,13 +241,14 @@ public:
  */
 class NetworkDispersalKernel
 {
-protected:
-    Network network_;
-    std::uniform_real_distribution<> time_distribution;
-
 public:
-    NetworkDispersalKernel(Network& network)
-        : row_max_(row_max), col_max_(col_max), time_distribution(0, row_max)
+    // Other kernels don't have it as a template paramater now, so we just define it
+    // to have it for the network definition.
+    using RasterIndex = int;
+
+    NetworkDispersalKernel(
+        Network<RasterIndex>& network, double min_time, double max_time)
+        : network_(network), time_distribution_(min_time, max_time)
     {}
 
     /*! \copybrief RadialDispersalKernel::operator()()
@@ -101,10 +257,15 @@ public:
     template<typename Generator>
     std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
-        double time = time_distribution(generator);
+        double time = time_distribution_(generator);
         std::tie(row, col) = network_.time_to_row_col(row, col, time, generator);
 
         return std::make_tuple(row, col);
+    }
+
+    bool is_cell_eligible(int row, int col)
+    {
+        return network_.has_node_at(row, col);
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()
@@ -113,6 +274,10 @@ public:
     {
         return type == DispersalKernelType::Network;
     }
+
+protected:
+    Network<RasterIndex>& network_;
+    std::uniform_real_distribution<double> time_distribution_;
 };
 
 }  // namespace pops

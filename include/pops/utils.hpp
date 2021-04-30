@@ -41,6 +41,16 @@ typedef std::tuple<int, int, int, int> BBoxInt;
 typedef std::tuple<double, double, double, double> BBoxFloat;
 typedef std::tuple<bool, bool, bool, bool> BBoxBool;
 
+// C++20 NumericType
+template<typename Number>
+struct BBox
+{
+    Number north;
+    Number south;
+    Number east;
+    Number west;
+};
+
 /*! Spread direction
  *
  * Spread, typically wind, direction.
