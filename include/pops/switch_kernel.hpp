@@ -21,6 +21,7 @@
 #include "uniform_kernel.hpp"
 #include "neighbor_kernel.hpp"
 #include "kernel_types.hpp"
+#include "utils.hpp"
 
 namespace pops {
 
@@ -81,6 +82,14 @@ public:
         else {
             return radial_kernel_(generator, row, col);
         }
+    }
+
+    bool is_cell_eligible(int row, int col)
+    {
+        UNUSED(row);
+        UNUSED(col);
+        // TODO: delegate this to individual sub-kernels
+        return true;
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()
