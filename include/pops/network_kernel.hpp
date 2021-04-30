@@ -74,7 +74,7 @@ public:
         std::set<NodeId> node_ids;
         std::map<NodeId, std::pair<double, double>> node_coords;
         while (std::getline(node_stream, line)) {
-            std::stringstream line_stream{line};
+            std::istringstream line_stream{line};
             char delimeter{','};
             std::string node_text;
             std::getline(line_stream, node_text, delimeter);
@@ -110,7 +110,7 @@ public:
         node_matrix_ = NodeMatrix(max_node_id + 1, max_node_id + 1, false);
 
         while (std::getline(segment_stream, line)) {
-            std::stringstream line_stream{line};
+            std::istringstream line_stream{line};
             char delimeter{','};
             std::string node_1_text;
             std::getline(line_stream, node_1_text, delimeter);
@@ -131,7 +131,7 @@ public:
             // anyway.
             node_matrix_(node_1_id, node_2_id) = true;
             node_matrix_(node_2_id, node_1_id) = true;
-            std::stringstream segment_stream{segment_text};
+            std::istringstream segment_stream{segment_text};
             char in_cell_delimeter{';'};
             std::string x_coord_text;
             std::string y_coord_text;
