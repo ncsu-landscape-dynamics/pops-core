@@ -20,6 +20,9 @@ this repository.
 
 - Pest movement based on overpopulation (Vaclav Petras)
   * When cell contains too many pests, pests leave and move to a different cell.
+- Total hosts added to run_step (Chris Jones)
+  * Allows overpopulations to be based on total_hosts rather than total_populations
+  * Allows movement to be based on total_hosts rather than total_populations
 
 ### Changed
 - Model class internal attributes and functions are now protected instead of private
