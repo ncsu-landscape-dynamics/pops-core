@@ -107,6 +107,7 @@ int test_model()
     Raster<int> infected = {{60, 0, 0}, {0, 10, 0}, {0, 0, 2}};
     Raster<int> susceptible = {{40, 100, 100}, {100, 90, 100}, {100, 0, 98}};
     auto total_hosts = infected + susceptible;
+    Raster<int> total_populations = {{100, 100, 100}, {100, 100, 100}, {100, 100, 100}};
     // Reference data (to be modified later)
     auto expected_infected = infected;
     auto expected_susceptible = susceptible;
@@ -148,6 +149,7 @@ int test_model()
         1,
         infected,
         susceptible,
+        total_populations,
         total_hosts,
         dispersers,
         empty_ints,

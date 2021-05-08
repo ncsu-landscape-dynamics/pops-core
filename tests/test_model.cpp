@@ -31,7 +31,8 @@ int test_with_reduced_stochasticity()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
     Raster<int> susceptible = {{10, 20}, {14, 15}};
-    Raster<int> total_hosts = susceptible;
+    Raster<int> total_hosts = {{15, 20}, {14, 15}};
+    Raster<int> total_populations = {{20, 20}, {20, 20}};
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
@@ -109,6 +110,7 @@ int test_with_reduced_stochasticity()
         step++,
         infected,
         susceptible,
+        total_populations,
         total_hosts,
         dispersers,
         empty_integer,
@@ -153,7 +155,8 @@ int test_deterministic()
 {
     Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
     Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
-    Raster<int> total_hosts = susceptible;
+    Raster<int> total_hosts = susceptible + infected;
+    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
     Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
@@ -232,6 +235,7 @@ int test_deterministic()
         step++,
         infected,
         susceptible,
+        total_populations,
         total_hosts,
         dispersers,
         empty_integer,
@@ -276,7 +280,8 @@ int test_deterministic_exponential()
 {
     Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
     Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
-    Raster<int> total_hosts = susceptible;
+    Raster<int> total_hosts = susceptible + infected;
+    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
     Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
@@ -354,6 +359,7 @@ int test_deterministic_exponential()
         step++,
         infected,
         susceptible,
+        total_populations,
         total_hosts,
         dispersers,
         empty_integer,
@@ -399,7 +405,8 @@ int test_model_sei_deterministic()
 {
     Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
     Raster<int> susceptible = {{95, 100, 100}, {100, 95, 100}, {100, 0, 98}};
-    Raster<int> total_hosts = susceptible;
+    Raster<int> total_hosts = susceptible + infected;
+    Raster<int> total_populations = {{100, 100, 100}, {100, 100, 100}, {100, 100, 100}};
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
     Raster<int> dispersers(infected.rows(), infected.cols());
@@ -480,6 +487,7 @@ int test_model_sei_deterministic()
             step,
             infected,
             susceptible,
+            total_populations,
             total_hosts,
             dispersers,
             exposed,
@@ -521,7 +529,8 @@ int test_model_sei_deterministic_with_treatments()
     // Raster<int> infected = {{7, 0, 0}, {0, 50, 0}, {0, 0, 200}};
     Raster<int> infected = {{5, 0, 0}, {0, 10, 0}, {0, 0, 2}};
     Raster<int> susceptible = {{95, 100, 100}, {100, 95, 100}, {100, 0, 98}};
-    Raster<int> total_hosts = susceptible;
+    Raster<int> total_hosts = susceptible + infected;
+    Raster<int> total_populations = {{100, 100, 100}, {100, 100, 100}, {100, 100, 100}};
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
     Raster<int> dispersers(infected.rows(), infected.cols());
@@ -621,6 +630,7 @@ int test_model_sei_deterministic_with_treatments()
             step,
             infected,
             susceptible,
+            total_populations,
             total_hosts,
             dispersers,
             exposed,
