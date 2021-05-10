@@ -35,6 +35,7 @@ class Network
 {
 public:
     using NodeId = int;
+    using Statistics = std::map<std::string, int>;
 
     Network(BBox<double> bbox, double ew_res, double ns_res)
         : bbox_(bbox), ew_res_(ew_res), ns_res_(ns_res)
@@ -53,12 +54,12 @@ public:
         return xy_to_row_col(std::stod(x), std::stod(y));
     }
 
-    NodeId node_id_from_text(const std::string& text)
+    NodeId node_id_from_text(const std::string& text) const
     {
         return std::stoi(text);
     }
 
-    bool out_of_bbox(double x, double y)
+    bool out_of_bbox(double x, double y) const
     {
         return x > bbox_.east || x < bbox_.west || y > bbox_.north || y < bbox_.south;
     }
@@ -83,7 +84,7 @@ public:
         load_segments(segment_stream, node_ids);
     }
 
-    std::vector<NodeId> candidate_nodes_from_node_matrix(NodeId node)
+    std::vector<NodeId> candidate_nodes_from_node_matrix(NodeId node) const
     {
         std::vector<NodeId> nodes;
         for (const auto& item : node_matrix_) {
@@ -96,7 +97,7 @@ public:
     }
 
     template<typename Generator>
-    NodeId next_node(NodeId start, Generator& generator)
+    NodeId next_node(NodeId start, Generator& generator) const
     {
         auto nodes = candidate_nodes_from_node_matrix(start);
         auto num_nodes = nodes.size();
@@ -126,7 +127,10 @@ public:
 
     template<typename Generator>
     std::tuple<int, int> time_to_row_col(
-        RasterIndex start_row, RasterIndex start_col, double time, Generator& generator)
+        RasterIndex start_row,
+        RasterIndex start_col,
+        double time,
+        Generator& generator) const
     {
         // The trouble is when there is no node here, but we are already made decision
         // to use this kernel.
@@ -148,7 +152,7 @@ public:
         }
     }
 
-    std::map<std::string, int> collect_stats()
+    Statistics collect_statistics() const
     {
         std::map<std::string, int> stats;
         std::set<NodeId> node_ids;

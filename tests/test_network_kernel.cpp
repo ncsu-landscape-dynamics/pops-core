@@ -176,7 +176,7 @@ int create_network_from_files(int argc, char** argv)
     network.load(node_stream, segment_stream);
 
     if (show_stats) {
-        auto stats = network.collect_stats();
+        auto stats = network.collect_statistics();
         for (const auto& item : stats) {
             std::cout << item.first << ": " << item.second << "\n";
         }
