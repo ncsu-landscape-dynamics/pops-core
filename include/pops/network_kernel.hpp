@@ -180,6 +180,26 @@ public:
         return stats;
     }
 
+    template<typename OutputStream>
+    void dump_yaml(OutputStream& stream) const
+    {
+        stream << "network:\n";
+        stream << "  edges:\n";
+        for (const auto& item : node_matrix_) {
+            stream << "    - [" << item.first << ", " << item.second << "]\n";
+        }
+        stream << "  nodes:\n";
+        for (const auto& item : nodes_by_row_col_) {
+            auto row = item.first.first;
+            auto col = item.first.second;
+            for (const auto& node_id : item.second) {
+                stream << "    - id: " << node_id << "\n";
+                stream << "      row: " << row << "\n";
+                stream << "      col: " << col << "\n";
+            }
+        }
+    }
+
 protected:
     template<typename InputStream>
     void load_nodes(InputStream& stream, std::set<NodeId>& node_ids)

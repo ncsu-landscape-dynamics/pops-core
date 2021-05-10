@@ -91,6 +91,10 @@ int test_create_network()
         {"num_standalone_nodes", 0}};
     ret += compare_network_statistics(expected_stats, network.collect_statistics());
 
+    if (ret) {
+        network.dump_yaml(std::cerr);
+    }
+
     return ret;
 }
 
