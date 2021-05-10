@@ -25,6 +25,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <cmath>
 #include <vector>
 
 namespace pops {
@@ -39,14 +40,15 @@ public:
         : bbox_(bbox), ew_res_(ew_res), ns_res_(ns_res)
     {}
 
-    std::pair<RasterIndex, RasterIndex> xy_to_row_col(double x, double y)
+    std::pair<RasterIndex, RasterIndex> xy_to_row_col(double x, double y) const
     {
-        // TODO: implement
-        return {100 * y, 100 * x};
+        double col = (x - bbox_.west) / ew_res_;
+        double row = (bbox_.north - y) / ns_res_;
+        return {std::floor(row), std::floor(col)};
     }
 
     std::pair<RasterIndex, RasterIndex>
-    xy_to_row_col(const std::string& x, const std::string& y)
+    xy_to_row_col(const std::string& x, const std::string& y) const
     {
         return xy_to_row_col(std::stod(x), std::stod(y));
     }
