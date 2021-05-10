@@ -70,68 +70,15 @@ public:
     void load(
         InputStream& node_stream, InputStream& segment_stream, bool allow_empty = false)
     {
-        std::string line;
         std::set<NodeId> node_ids;
-        std::map<NodeId, std::pair<double, double>> node_coords;
-        while (std::getline(node_stream, line)) {
-            std::istringstream line_stream{line};
-            char delimeter{','};
-            std::string node_text;
-            std::getline(line_stream, node_text, delimeter);
-            std::string x_coord_text;
-            std::getline(line_stream, x_coord_text, delimeter);
-            std::string y_coord_text;
-            std::getline(line_stream, y_coord_text, delimeter);
-            RasterIndex row;
-            RasterIndex col;
-            double x = std::stod(x_coord_text);
-            double y = std::stod(y_coord_text);
-            // Cut to extend
-            if (out_of_bbox(x, y))
-                continue;
-            std::tie(row, col) = xy_to_row_col(x_coord_text, y_coord_text);
-            NodeId node_id = node_id_from_text(node_text);
-            if (node_id < 1) {
-                std::runtime_error("Node ID must be greater than zero");
-            }
-            nodes_by_row_col_[std::make_pair(row, col)].insert(node_id);
-            node_ids.insert(node_id);
-        }
+        load_nodes(node_stream, node_ids);
         if (node_ids.empty()) {
             if (allow_empty)
                 return;
             else
                 throw std::runtime_error("Network: No nodes within the extend");
         }
-        while (std::getline(segment_stream, line)) {
-            std::istringstream line_stream{line};
-            char delimeter{','};
-            std::string node_1_text;
-            std::getline(line_stream, node_1_text, delimeter);
-            std::string node_2_text;
-            std::getline(line_stream, node_2_text, delimeter);
-            auto node_1_id = node_id_from_text(node_1_text);
-            auto node_2_id = node_id_from_text(node_2_text);
-            // If either end nodes of the segment is not in the extent, skip it.
-            // TODO: Part of the segment may still be out, so that needs to be checked.
-            // Replace by contains for C++20.
-            if (node_ids.find(node_1_id) == node_ids.end()
-                || node_ids.find(node_2_id) == node_ids.end())
-                continue;
-            std::string segment_text;
-            std::getline(line_stream, segment_text, delimeter);
-            // We don't know which way the nodes are ordered, so instead of checking
-            // the order, we create a symmetric matrix since we allocated the memory
-            // anyway.
-            node_matrix_.emplace(node_1_id, node_2_id);
-            std::istringstream segment_stream{segment_text};
-            char in_cell_delimeter{';'};
-            std::string x_coord_text;
-            std::string y_coord_text;
-            while (std::getline(segment_stream, x_coord_text, in_cell_delimeter)
-                   && std::getline(segment_stream, y_coord_text, in_cell_delimeter)) {
-            }
-        }
+        load_segments(segment_stream, node_ids);
     }
 
     std::vector<NodeId> candidate_nodes_from_node_matrix(NodeId node)
@@ -228,13 +175,91 @@ public:
     }
 
 protected:
+    template<typename InputStream>
+    void load_nodes(InputStream& stream, std::set<NodeId>& node_ids)
+    {
+        std::string line;
+        while (std::getline(stream, line)) {
+            std::istringstream line_stream{line};
+            char delimeter{','};
+            std::string node_text;
+            std::getline(line_stream, node_text, delimeter);
+            std::string x_coord_text;
+            std::getline(line_stream, x_coord_text, delimeter);
+            std::string y_coord_text;
+            std::getline(line_stream, y_coord_text, delimeter);
+            RasterIndex row;
+            RasterIndex col;
+            double x = std::stod(x_coord_text);
+            double y = std::stod(y_coord_text);
+            // Cut to extend
+            if (out_of_bbox(x, y))
+                continue;
+            std::tie(row, col) = xy_to_row_col(x_coord_text, y_coord_text);
+            NodeId node_id = node_id_from_text(node_text);
+            if (node_id < 1) {
+                std::runtime_error("Node ID must be greater than zero");
+            }
+            nodes_by_row_col_[std::make_pair(row, col)].insert(node_id);
+            node_ids.insert(node_id);
+        }
+    }
+
+    template<typename InputStream>
+    void load_segments(InputStream& stream, const std::set<NodeId>& node_ids)
+    {
+        std::string line;
+        while (std::getline(stream, line)) {
+            std::istringstream line_stream{line};
+            char delimeter{','};
+            std::string node_1_text;
+            std::getline(line_stream, node_1_text, delimeter);
+            std::string node_2_text;
+            std::getline(line_stream, node_2_text, delimeter);
+            auto node_1_id = node_id_from_text(node_1_text);
+            auto node_2_id = node_id_from_text(node_2_text);
+            // If either end nodes of the segment is not in the extent, skip it.
+            // TODO: Part of the segment may still be out, so that needs to be checked.
+            // Replace by contains for C++20.
+            if (node_ids.find(node_1_id) == node_ids.end()
+                || node_ids.find(node_2_id) == node_ids.end())
+                continue;
+            if (node_1_id == node_2_id) {
+                std::runtime_error(
+                    std::string("Segment cannot begin and end with the same node: ")
+                    + node_1_text + " " + node_2_text);
+            }
+            std::string segment_text;
+            std::getline(line_stream, segment_text, delimeter);
+            // We don't know which way the nodes are ordered, so instead of checking
+            // the order, we create a symmetric matrix since we allocated the memory
+            // anyway.
+            node_matrix_.emplace(node_1_id, node_2_id);
+            std::istringstream segment_stream{segment_text};
+            char in_cell_delimeter{';'};
+            std::string x_coord_text;
+            std::string y_coord_text;
+            Segment segment;
+            while (std::getline(segment_stream, x_coord_text, in_cell_delimeter)
+                   && std::getline(segment_stream, y_coord_text, in_cell_delimeter)) {
+                // TODO: convert to row, col already here?
+                segment.emplace_back(std::stod(x_coord_text), std::stod(y_coord_text));
+            }
+            segments_by_nodes_.emplace(
+                std::make_pair(node_1_id, node_2_id), std::move(segment));
+        }
+    }
+
     using NodeMatrix = std::set<std::pair<NodeId, NodeId>>;
+    using Segment = std::vector<std::pair<double, double>>;
+    using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
 
     BBox<double> bbox_;
     double ew_res_;
     double ns_res_;
     std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;
     NodeMatrix node_matrix_;
+    SegmentsByNodes segments_by_nodes_;
 };
 
 /*! Dispersal kernel for random uniform dispersal over the whole
