@@ -74,7 +74,7 @@ public:
     std::string mortality_frequency;
     unsigned mortality_frequency_n;
     double mortality_rate{0};
-    int first_mortality_year{0};  // TODO: document that it starts at 1, not 0
+    int mortality_time_lag{0};  // TODO: document that it starts at 1, not 0
     // Quarantine
     bool use_quarantine{false};
     std::string quarantine_frequency;

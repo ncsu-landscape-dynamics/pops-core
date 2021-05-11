@@ -327,14 +327,12 @@ public:
                 // same conditions as the mortality code below
                 // TODO: make the mortality timing available as a separate function in
                 // the library or simply go over all valid cohorts
-                if (mortality_simulation_year >= config_.first_mortality_year - 1) {
                     auto max_index =
-                        mortality_simulation_year - (config_.first_mortality_year - 1);
+                        mortality_tracker.size - config_.mortality_time_lag;
                     for (int age = 0; age <= max_index; age++) {
                         treatments.manage_mortality(
                             step, mortality_tracker[age], suitable_cells);
                     }
-                }
             }
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
@@ -353,8 +351,7 @@ public:
             simulation_.mortality(
                 infected,
                 config_.mortality_rate,
-                mortality_simulation_year,
-                config_.first_mortality_year - 1,
+                config_.mortality_time_lag,
                 died,
                 mortality_tracker,
                 suitable_cells);
