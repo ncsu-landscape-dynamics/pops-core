@@ -190,38 +190,54 @@ public:
         }
     }
 
+    /** kills infected hosts based on mortality rate and timing
+     *
+     * @param infected Currently infected hosts
+     * @param mortality_rate percent of infected hosts that die each time period
+     * @param mortality_time_lag time lag prior to mortality beginning
+     * @param died dead hosts during time step
+     * @param mortality_tracker_vector vector of matrices for tracking infected
+     * host infection over time.
+     * @param suitable_cells used to run model only where host are known to occur
+     */
     void mortality(
         IntegerRaster& infected,
         double mortality_rate,
-        int current_year,
-        int first_mortality_year,
-        IntegerRaster& mortality,
-        std::vector<IntegerRaster>& mortality_tracker_vector,
+        int mortality_time_lag,
+        IntegerRaster& died,
+        std::vector<IntegerRaster>& mortality_tracker,
         const std::vector<std::vector<int>>& suitable_cells)
     {
-        if (current_year >= (first_mortality_year)) {
-            int mortality_current_year = 0;
-            int max_year_index = current_year - first_mortality_year;
 
-            for (auto indices : suitable_cells) {
-                int i = indices[0];
-                int j = indices[1];
-                for (int year_index = 0; year_index <= max_year_index; year_index++) {
-                    int mortality_in_year_index = 0;
-                    if (mortality_tracker_vector[year_index](i, j) > 0) {
-                        mortality_in_year_index =
-                            mortality_rate * mortality_tracker_vector[year_index](i, j);
-                        mortality_tracker_vector[year_index](i, j) -=
-                            mortality_in_year_index;
-                        mortality(i, j) += mortality_in_year_index;
-                        mortality_current_year += mortality_in_year_index;
-                        if (infected(i, j) > 0) {
-                            infected(i, j) -= mortality_in_year_index;
-                        }
+        int mortality_current_step = 0;
+        int max_index = mortality_tracker_vector.size() - mortality_time_lag;
+
+        for (auto indices : suitable_cells) {
+            int i = indices[0];
+            int j = indices[1];
+            for (int index = 0; index <= max_index; index++) {
+                int mortality_in_index = 0;
+                if (mortality_tracker_vector[index](i, j) > 0) {
+                    if (index == 0) {
+                        mortality_in_index =
+                        mortality_tracker_vector[index](i, j);
+                    }
+                    else {
+                        mortality_in_index =
+                        mortality_rate * mortality_tracker_vector[index](i, j);
+                    }
+
+                    mortality_tracker_vector[index](i, j) -= mortality_in_index;
+                    died(i, j) += mortality_in_index;
+                    mortality_current_step += mortality_in_index;
+                    if (infected(i, j) > 0) {
+                        infected(i, j) -= mortality_in_index;
                     }
                 }
             }
         }
+
+        rotate_left_by_one(mortality_tracker_vector);
     }
 
     /** Moves hosts from one location to another
