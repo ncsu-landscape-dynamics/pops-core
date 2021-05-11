@@ -219,12 +219,11 @@ public:
                 int mortality_in_index = 0;
                 if (mortality_tracker_vector[index](i, j) > 0) {
                     if (index == 0) {
-                        mortality_in_index =
-                        mortality_tracker_vector[index](i, j);
+                        mortality_in_index = mortality_tracker_vector[index](i, j);
                     }
                     else {
                         mortality_in_index =
-                        mortality_rate * mortality_tracker_vector[index](i, j);
+                            mortality_rate * mortality_tracker_vector[index](i, j);
                     }
 
                     mortality_tracker_vector[index](i, j) -= mortality_in_index;

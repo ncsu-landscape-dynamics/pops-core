@@ -101,8 +101,8 @@ public:
         output_schedule_ =
             schedule_from_string(scheduler_, output_frequency, output_frequency_n);
         if (use_mortality)
-            mortality_schedule_ =
-                schedule_from_string(scheduler_, mortality_frequency, mortality_frequency_n);
+            mortality_schedule_ = schedule_from_string(
+                scheduler_, mortality_frequency, mortality_frequency_n);
         if (use_lethal_temperature)
             lethal_schedule_ =
                 scheduler_.schedule_action_yearly(lethal_temperature_month, 1);
