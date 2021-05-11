@@ -287,7 +287,7 @@ public:
                 susceptible,
                 exposed,
                 infected,
-                mortality_tracker[mortality_simulation_year],
+                mortality_tracker.back(),
                 total_populations,
                 outside_dispersers,
                 config_.weather,
@@ -307,10 +307,11 @@ public:
                     config_.leaving_percentage);
             }
             if (config_.use_movements) {
+                // to do fix movements to use entire mortality tracker
                 last_index = simulation_.movement(
                     infected,
                     susceptible,
-                    mortality_tracker[mortality_simulation_year],
+                    mortality_tracker.back(),
                     total_hosts,
                     step,
                     last_index,
