@@ -205,7 +205,7 @@ public:
         double mortality_rate,
         int mortality_time_lag,
         IntegerRaster& died,
-        std::vector<IntegerRaster>& mortality_tracker,
+        std::vector<IntegerRaster>& mortality_tracker_vector,
         const std::vector<std::vector<int>>& suitable_cells)
     {
 
