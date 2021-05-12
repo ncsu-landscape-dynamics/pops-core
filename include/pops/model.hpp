@@ -326,12 +326,12 @@ public:
                 // same conditions as the mortality code below
                 // TODO: make the mortality timing available as a separate function in
                 // the library or simply go over all valid cohorts
-                    auto max_index =
-                        mortality_tracker.size() - config_.mortality_time_lag;
-                    for (int age = 0; age <= max_index; age++) {
-                        treatments.manage_mortality(
-                            step, mortality_tracker[age], suitable_cells);
-                    }
+                auto max_index =
+                    mortality_tracker.size() - config_.mortality_time_lag;
+                for (int age = 0; age <= max_index; age++) {
+                    treatments.manage_mortality(
+                        step, mortality_tracker[age], suitable_cells);
+                }
             }
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
