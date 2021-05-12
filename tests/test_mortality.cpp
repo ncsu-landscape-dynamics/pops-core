@@ -45,7 +45,7 @@ using namespace pops;
 int test_mortality()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
-    Raster<int> mortality_tracker = {{{3, 0}, {0, 0}}, {{2, 0}, {0, 0}}};
+    std::vector<Raster<int>> mortality_tracker = {{{3, 0}, {0, 0}}, {{2, 0}, {0, 0}}};
     Raster<int> died = {{0, 0}, {0, 0}};
     Raster<int> expected_died = {{4, 0}, {0, 0}};
     int ew_res = 30;
