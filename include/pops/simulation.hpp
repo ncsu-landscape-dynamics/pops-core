@@ -232,9 +232,10 @@ public:
      *
      * @param infected Currently infected hosts
      * @param susceptible Currently susceptible hosts
-     * @param mortality_tracker Hosts that are infected at a specific time step
+     * @param mortality_tracker_vector Hosts that are infected at a specific time step
      * @param total_hosts All host individuals in the area. Is equal to
-     * infected + exposed + susceptible in the cell.s
+     * infected + exposed + susceptible in the cell.
+     * @param total_exposed Total exposed in all exposed cohorts
      * @param step the current step of the simulation
      * @param last_index the last index to not be used from movements
      * @param movements a vector of ints with row_from, col_from, row_to, col_to, and
@@ -247,8 +248,9 @@ public:
     unsigned movement(
         IntegerRaster& infected,
         IntegerRaster& susceptible,
-        IntegerRaster& mortality_tracker,
+        std::vector<IntegerRaster>& mortality_tracker_vector,
         IntegerRaster& total_hosts,
+        IntegerRaster& total_exposed,
         unsigned step,
         unsigned last_index,
         const std::vector<std::vector<int>>& movements,
@@ -399,8 +401,9 @@ public:
      * @param[in,out] susceptible Susceptible hosts
      * @param[in,out] exposed_or_infected Exposed or infected hosts
      * @param[in,out] mortality_tracker Newly infected hosts (if applicable)
+     * @param[in, out] total_exposed Total exposed in all exposed cohorts
      * @param[in] total_populations All host and non-host individuals in the area
-     * @param[in,out] outside_dispersers Dispersers escaping the rasters
+     * @param[in,out] outside_dispersers Dispersers escaping the raster
      * @param weather Whether or not weather coefficients should be used
      * @param[in] weather_coefficient Weather coefficient for each location
      * @param dispersal_kernel Dispersal kernel to move dispersers
@@ -417,6 +420,7 @@ public:
         IntegerRaster& exposed_or_infected,
         IntegerRaster& mortality_tracker,
         const IntegerRaster& total_populations,
+        IntegerRaster& total_exposed,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         bool weather,
         const FloatRaster& weather_coefficient,
@@ -457,7 +461,7 @@ public:
                             }
                             else if (
                                 model_type_ == ModelType::SusceptibleExposedInfected) {
-                                // no-op
+                                total_exposed(row, col) += 1;
                             }
                             else {
                                 throw std::runtime_error(
@@ -619,12 +623,14 @@ public:
      * @param exposed Vector of exposed hosts
      * @param infected Infected hosts
      * @param mortality_tracker Newly infected hosts
+     * @param total_exposed Total exposed in all exposed cohorts
      */
     void infect_exposed(
         unsigned step,
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& infected,
-        IntegerRaster& mortality_tracker)
+        IntegerRaster& mortality_tracker,
+        IntegerRaster& total_exposed)
     {
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
             if (step >= latency_period_) {
@@ -633,6 +639,7 @@ public:
                 // Move hosts to infected raster
                 infected += oldest;
                 mortality_tracker += oldest;
+                total_exposed -= oldest;
                 // Reset the raster
                 // (hosts moved from the raster)
                 oldest.fill(0);
@@ -706,6 +713,7 @@ public:
             *infected_or_exposed,
             mortality_tracker,
             total_populations,
+            total_exposed,
             outside_dispersers,
             weather,
             weather_coefficient,
