@@ -193,6 +193,7 @@ public:
     /** kills infected hosts based on mortality rate and timing
      *
      * @param infected Currently infected hosts
+     * @param total_hosts All hosts
      * @param mortality_rate percent of infected hosts that die each time period
      * @param mortality_time_lag time lag prior to mortality beginning
      * @param died dead hosts during time step
@@ -202,6 +203,7 @@ public:
      */
     void mortality(
         IntegerRaster& infected,
+        IntegerRaster& total_hosts,
         double mortality_rate,
         int mortality_time_lag,
         IntegerRaster& died,
@@ -225,12 +227,14 @@ public:
                         mortality_in_index =
                             mortality_rate * mortality_tracker_vector[index](i, j);
                     }
-
                     mortality_tracker_vector[index](i, j) -= mortality_in_index;
                     died(i, j) += mortality_in_index;
                     mortality_current_step += mortality_in_index;
                     if (infected(i, j) > 0) {
                         infected(i, j) -= mortality_in_index;
+                    }
+                    if (total_hosts(i, j) > 0) {
+                        total_hosts(i, j) -= mortality_in_index;
                     }
                 }
             }

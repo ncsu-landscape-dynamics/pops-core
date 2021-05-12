@@ -45,9 +45,12 @@ using namespace pops;
 int test_mortality()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
+    Raster<int> total_hosts = {{10, 5}, {5, 3}};
     std::vector<Raster<int>> mortality_tracker = {{{3, 0}, {0, 0}}, {{2, 0}, {0, 0}}};
     Raster<int> died = {{0, 0}, {0, 0}};
     Raster<int> expected_died = {{4, 0}, {0, 0}};
+    Raster<int> expected_infected = {{1, 0}, {0, 0}};
+    Raster<int> expected_total_hosts = {{6, 5}, {5, 3}};
     int ew_res = 30;
     int ns_res = 30;
     double mortality_rate = 0.50;
@@ -57,15 +60,28 @@ int test_mortality()
         42, infected.rows(), infected.cols());
     simulation.mortality(
         infected,
+        total_hosts,
         mortality_rate,
         mortality_time_lag,
         died,
         mortality_tracker,
         suitable_cells);
     if (died != expected_died) {
-        cout << "Died (actual, expected):\n"
+        cout << "died (actual, expected):\n"
              << died << "  !=\n"
              << expected_died << "\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (total_hosts != expected_total_hosts) {
+        cout << "total_hosts (actual, expected):\n"
+             << total_hosts << "  !=\n"
+             << expected_total_hosts << "\n";
         return 1;
     }
     return 0;

@@ -337,6 +337,7 @@ public:
             // TODO: died.zero(); should be done by the caller if needed, document!
             simulation_.mortality(
                 infected,
+                total_hosts,
                 config_.mortality_rate,
                 config_.mortality_time_lag,
                 died,
