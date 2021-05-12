@@ -8,11 +8,12 @@ The pre-release historical sections are using dates and topics as section
 headings instead of release numbers.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
-with an additional rule that interfaces to the core library follow the same numbering
+and this project loosely adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+API changes which require small adjustments in code can be introduced in minor
+versions. Interfaces to the core library follow the same numbering
 although they are in separate repositories, so increasing version number there
-increases version here although there is no specific tag or release for that in
-this repository.
+increases version here and a new tag is created this repository.
 
 ## [Unreleased]
 
