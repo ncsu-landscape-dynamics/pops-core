@@ -207,6 +207,9 @@ int test_deterministic()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
+    config.use_mortality = true;
+    config.mortality_frequency = "year";
+    config.mortality_frequency_n = 1;
     config.create_schedules();
 
     config.deterministic = true;
@@ -331,6 +334,9 @@ int test_deterministic_exponential()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
+    config.use_mortality = true;
+    config.mortality_frequency = "year";
+    config.mortality_frequency_n = 1;
     config.create_schedules();
 
     config.deterministic = true;
@@ -450,6 +456,9 @@ int test_model_sei_deterministic()
     config.set_date_end(2020, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
+    config.use_mortality = true;
+    config.mortality_frequency = "year";
+    config.mortality_frequency_n = 1;
     config.create_schedules();
 
     config.deterministic = true;
@@ -574,6 +583,9 @@ int test_model_sei_deterministic_with_treatments()
     config.set_date_end(2020, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
+    config.use_mortality = true;
+    config.mortality_frequency = "year";
+    config.mortality_frequency_n = 1;
     config.create_schedules();
 
     config.deterministic = true;
