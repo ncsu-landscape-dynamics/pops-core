@@ -324,7 +324,7 @@ public:
                 step, infected, exposed, susceptible, resistant, suitable_cells);
             if (managed && config_.use_mortality) {
                 // treatments apply to all mortality tracker cohorts
-                int max_index = mortality_tracker.size();
+                int max_index = mortality_tracker.size() - 1;
                 for (int age = 0; age <= max_index; age++) {
                     treatments.manage_mortality(
                         step, mortality_tracker[age], suitable_cells);
@@ -332,17 +332,8 @@ public:
             }
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
-            // only run to the current year of simulation
-            // (first year is 0):
-            //   max index == sim year
-            // reduced by first time when trees start dying
-            // (counted from 1: first year == 1)
-            // e.g. for sim year 3, year dying 4, max index is 0
-            //   max index = sim year - (dying year - 1)
-            // index is negative before we reach the year
-            // (so we can skip these years)
-            // sim year - (dying year - 1) < 0
-            // sim year < dying year - 1
+            // expectation is that mortality tracker is of length ()1/mortality_rate
+            // + mortality_time_lag).
             // TODO: died.zero(); should be done by the caller if needed, document!
             simulation_.mortality(
                 infected,

@@ -210,7 +210,7 @@ public:
     {
 
         int mortality_current_step = 0;
-        int max_index = mortality_tracker_vector.size() - mortality_time_lag;
+        int max_index = mortality_tracker_vector.size() - mortality_time_lag - 1;
 
         for (auto indices : suitable_cells) {
             int i = indices[0];
