@@ -1,5 +1,6 @@
 #include <fstream>
 #include <regex>
+#include <random>
 
 #include <pops/network_kernel.hpp>
 
@@ -46,6 +47,48 @@ int compare_network_statistics(
     return ret;
 }
 
+int test_travel_network()
+{
+    int ret = 0;
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{
+        bbox,
+        1,
+        1,
+        1,
+    };
+    std::stringstream node_stream{
+        "1,22.0,7.0\n"
+        "2,27.0,6.0\n"
+        "3,21.0,1.0\n"
+        "8,28.0,3.0\n"};
+    std::stringstream segment_stream{
+        "1,2,22.0;7.0;22.7;7.5;23.5;8.0;24.3;8.5;25.0;9.0;25.8;9.0;26.6;9.0;27.4;9.0;28.2;9.0;29.0;9.0;29.0;8.0;29.0;7.0;29.0;6.0;29.0;5.0;29.0;4.0;29.0;3.0;29.0;2.0;29.0;1.0;28.3;1.3;27.5;1.5;26.8;1.8;26.0;2.0;26.2;2.8;26.4;3.6;26.6;4.4;26.8;5.2;27.0;6.0\n"
+        "3,8,21.0;1.0;21.2;1.9;21.3;2.7;21.4;3.6;21.6;4.4;21.7;5.3;21.9;6.1;22.0;7.0;22.8;6.8;23.7;6.7;24.5;6.5;25.3;6.3;26.2;6.1;27.0;6.0;27.3;5.2;27.5;4.5;27.8;3.7;28.0;3.0\n"};
+    network.load(node_stream, segment_stream);
+
+    std::random_device generator;
+    double time = 9;
+    int start_row = 9;
+    int start_col = 1;
+    if (!network.has_node_at(start_row, start_col)) {
+        std::cerr << "Expected node at " << start_row << ", " << start_col << "\n";
+        network.dump_yaml(std::cerr);
+        ret += 1;
+    }
+    int end_row;
+    int end_col;
+    std::tie(end_row, end_col) = network.travel(start_row, start_col, time, generator);
+    std::cerr << "from (" << start_row << ", " << start_col << ") to (" << end_row
+              << ", " << end_col << ") in " << time << "\n";
+    network.dump_yaml(std::cerr);
+    return ret;
+}
+
 int test_create_network()
 {
     int ret = 0;
@@ -54,11 +97,7 @@ int test_create_network()
     bbox.south = 30;
     bbox.east = -70;
     bbox.west = -80;
-    Network<int> network{
-        bbox,
-        0.01,
-        0.01,
-    };
+    Network<int> network{bbox, 0.01, 0.01, 42};
     if (network.has_node_at(1, 1)) {
         std::cerr << "Empty network should not have a node at any cell\n";
         ret += 1;
@@ -180,7 +219,7 @@ int create_network_from_files(int argc, char** argv)
     double nsres = std::stod(config["nsres"]);
     double ewres = std::stod(config["ewres"]);
 
-    Network<int> network(bbox, nsres, ewres);
+    Network<int> network(bbox, nsres, ewres, 42);
     network.load(node_stream, segment_stream);
 
     if (show_stats) {
@@ -201,6 +240,7 @@ int run_tests()
     int ret = 0;
 
     ret += test_create_network();
+    ret += test_travel_network();
 
     if (ret)
         std::cerr << "Number of errors in the network kernel test: " << ret << "\n";

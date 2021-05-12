@@ -37,8 +37,11 @@ public:
     using NodeId = int;
     using Statistics = std::map<std::string, int>;
 
-    Network(BBox<double> bbox, double ew_res, double ns_res)
-        : bbox_(bbox), ew_res_(ew_res), ns_res_(ns_res)
+    Network(BBox<double> bbox, double ew_res, double ns_res, double speed)
+        : bbox_(bbox),
+          ew_res_(ew_res),
+          ns_res_(ns_res),
+          cell_travel_time_(((ew_res + ns_res) / 2) / speed)
     {}
 
     std::pair<RasterIndex, RasterIndex> xy_to_row_col(double x, double y) const
@@ -100,10 +103,7 @@ public:
     NodeId next_node(NodeId start, Generator& generator) const
     {
         auto nodes = candidate_nodes_from_node_matrix(start);
-        auto num_nodes = nodes.size();
-        std::uniform_int_distribution<size_t> dist(0, num_nodes - 1);
-        auto index = dist(generator);
-        return nodes[index];
+        return pick_random_node(nodes, generator);
     }
 
     std::set<NodeId> get_nodes_at(RasterIndex row, RasterIndex col) const
@@ -113,6 +113,23 @@ public:
         if (it != nodes_by_row_col_.end())
             return it->second;
         return std::set<NodeId>();
+    }
+
+    template<typename Generator>
+    NodeId
+    get_random_node_at(RasterIndex row, RasterIndex col, Generator& generator) const
+    {
+        auto nodes = get_nodes_at(row, col);
+        auto num_nodes = nodes.size();
+        if (num_nodes == 1) {
+            return *nodes.begin();
+        }
+        else if (num_nodes > 1) {
+            return pick_random_node(nodes, generator);
+        }
+        else {
+            throw std::invalid_argument("No nodes at a given row and column");
+        }
     }
 
     bool has_node_at(RasterIndex row, RasterIndex col) const
@@ -126,23 +143,23 @@ public:
     }
 
     template<typename Generator>
-    std::tuple<int, int> time_to_row_col(
+    std::tuple<int, int> travel(
         RasterIndex start_row,
         RasterIndex start_col,
         double time,
         Generator& generator) const
     {
-        // The trouble is when there is no node here, but we are already made decision
-        // to use this kernel.
-        auto node_id = get_node(start_row, start_col);
-        while (time > 0) {
+        // We assume there is a node here, i.e., that we are made decision
+        // to use this kernel knowing there is a node.
+        auto node_id = get_random_node_at(start_row, start_col, generator);
+        while (time >= 0) {
             auto next_node_id = next_node(node_id, generator);
-            auto segment = get_segment(node_id, next_node_id);
+            auto segment = segments_by_nodes_.at(std::make_pair(node_id, next_node_id));
             // nodes may need special handling
             for (auto cell : segment) {
-                time -= get_travel_time(cell);
+                time -= cell_travel_time_;
                 if (time <= 0) {
-                    return get_row_col(cell);
+                    return cell;
                     // Given the while condition, this subsequently ends the while loop
                     // as well.
                     // break;
@@ -150,6 +167,7 @@ public:
             }
             node_id = next_node_id;
         }
+        throw std::invalid_argument("Time must be greater than or equal to zero");
     }
 
     Statistics collect_statistics() const
@@ -273,21 +291,37 @@ protected:
             Segment segment;
             while (std::getline(segment_stream, x_coord_text, in_cell_delimeter)
                    && std::getline(segment_stream, y_coord_text, in_cell_delimeter)) {
-                // TODO: convert to row, col already here?
-                segment.emplace_back(std::stod(x_coord_text), std::stod(y_coord_text));
+                // The same cell is possibly repeated if raster resolution is lower than
+                // the detail ("resolution") of each segment, so we check if the last
+                // added coordinate pair converted to same cell.
+                auto new_point = xy_to_row_col(x_coord_text, y_coord_text);
+                if (segment.empty() || segment.back() != new_point)
+                    segment.emplace_back(new_point);
             }
             segments_by_nodes_.emplace(
                 std::make_pair(node_1_id, node_2_id), std::move(segment));
         }
     }
 
+    template<typename Container, typename Generator>
+    static NodeId pick_random_node(Container nodes, Generator& generator)
+    {
+        auto num_nodes = nodes.size();  // Replace by std::size in C++17.
+        std::uniform_int_distribution<size_t> dist(0, num_nodes - 1);
+        auto index = dist(generator);
+        // Our lists are expected to be short, so this is expected to be fast for
+        // both sets and vectors.
+        return *std::next(nodes.begin(), index);
+    }
+
     using NodeMatrix = std::set<std::pair<NodeId, NodeId>>;
-    using Segment = std::vector<std::pair<double, double>>;
+    using Segment = std::vector<std::pair<RasterIndex, RasterIndex>>;
     using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
 
     BBox<double> bbox_;
     double ew_res_;
     double ns_res_;
+    double cell_travel_time_;
     std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;
     NodeMatrix node_matrix_;
     SegmentsByNodes segments_by_nodes_;
@@ -321,7 +355,7 @@ public:
     std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
         double time = time_distribution_(generator);
-        std::tie(row, col) = network_.time_to_row_col(row, col, time, generator);
+        std::tie(row, col) = network_.travel(row, col, time, generator);
 
         return std::make_tuple(row, col);
     }
