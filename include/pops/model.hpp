@@ -323,10 +323,8 @@ public:
             bool managed = treatments.manage(
                 step, infected, exposed, susceptible, resistant, suitable_cells);
             if (managed && config_.use_mortality) {
-                // same conditions as the mortality code below
-                // TODO: make the mortality timing available as a separate function in
-                // the library or simply go over all valid cohorts
-                auto max_index = mortality_tracker.size() - config_.mortality_time_lag;
+                // treatments apply to all mortality tracker cohorts
+                auto max_index = mortality_tracker.size();
                 for (int age = 0; age <= max_index; age++) {
                     treatments.manage_mortality(
                         step, mortality_tracker[age], suitable_cells);
