@@ -324,7 +324,7 @@ public:
                 step, infected, exposed, susceptible, resistant, suitable_cells);
             if (managed && config_.use_mortality) {
                 // treatments apply to all mortality tracker cohorts
-                auto max_index = mortality_tracker.size();
+                int max_index = mortality_tracker.size();
                 for (int age = 0; age <= max_index; age++) {
                     treatments.manage_mortality(
                         step, mortality_tracker[age], suitable_cells);
