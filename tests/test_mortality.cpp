@@ -53,7 +53,8 @@ int test_mortality()
     double mortality_rate = 0.50;
     int mortality_time_lag = 0;
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
-    Simulation<Raster<int>, Raster<double>> simulation(42, infected.rows(), infected.cols());
+    Simulation<Raster<int>, Raster<double>> simulation(
+            42, infected.rows(), infected.cols());
     simulation.mortality(
         infected,
         mortality_rate,
