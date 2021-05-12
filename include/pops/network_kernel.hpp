@@ -184,6 +184,11 @@ public:
     void dump_yaml(OutputStream& stream) const
     {
         stream << "network:\n";
+        stream << "  statistics:\n";
+        auto stats = collect_statistics();
+        for (const auto& item : stats) {
+            stream << "    " << item.first << ": " << item.second << "\n";
+        }
         stream << "  edges:\n";
         for (const auto& item : node_matrix_) {
             stream << "    - [" << item.first << ", " << item.second << "]\n";

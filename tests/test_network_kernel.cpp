@@ -138,17 +138,21 @@ int create_network_from_files(int argc, char** argv)
 {
     if (argc != 5) {
         std::cerr << "Usage: " << argv[0]
-                  << " read|stats CONFIG_FILE NODE_FILE SEGMENT_FILE\n";
+                  << " read|stats|write CONFIG_FILE NODE_FILE SEGMENT_FILE\n";
         return 1;
     }
     std::string command = argv[1];
     bool show_stats = false;
+    bool write_network = false;
     if (command == "stats") {
         show_stats = true;
     }
+    else if (command == "write") {
+        write_network = true;
+    }
     else if (command != "read") {
         std::cerr << "Unknown sub-command: " << command << "\n";
-        std::cerr << "Supported sub-commands are: read, stats\n";
+        std::cerr << "Supported sub-commands are: read, stats, write\n";
         return 1;
     }
 
@@ -184,6 +188,9 @@ int create_network_from_files(int argc, char** argv)
         for (const auto& item : stats) {
             std::cout << item.first << ": " << item.second << "\n";
         }
+    }
+    if (write_network) {
+        network.dump_yaml(std::cout);
     }
 
     return 0;
