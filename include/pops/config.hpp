@@ -180,11 +180,11 @@ public:
         return output_schedule_;
     }
 
-    unsigned num_mortality_years()
+    unsigned num_mortality_steps()
     {
         if (!schedules_created_)
             throw std::logic_error(
-                "Schedules were not created before calling num_mortality_years()");
+                "Schedules were not created before calling num_mortality_steps()");
         return get_number_of_scheduled_actions(mortality_schedule_);
     }
 
