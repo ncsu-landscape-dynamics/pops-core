@@ -42,7 +42,7 @@ using std::endl;
 
 using namespace pops;
 
-int main(int argc, char* argv[])
+int test_mortality()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
     Raster<int> mortality_tracker = {{{3, 0}, {0, 0}}, {{2, 0}, {0, 0}}};
@@ -59,9 +59,9 @@ int main(int argc, char* argv[])
         mortality_rate,
         mortality_time_lag,
         died,
-        mortality_tracker_vector,
+        mortality_tracker,
         suitable_cells);
-    if (mortality != expected_mortality) {
+    if (died != expected_died) {
         cout << "Died (actual, expected):\n"
              << died << "  !=\n"
              << expected_died << "\n";
@@ -70,4 +70,12 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+int main()
+{
+    int num_errors = 0;
+
+    num_errors += test_mortality();
+    std::cout << "Mortality number of errors: " << num_errors << std::endl;
+    return num_errors;
+}
 #endif  // POPS_TEST
