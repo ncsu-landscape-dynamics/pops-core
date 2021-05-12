@@ -195,6 +195,16 @@ public:
             }
         }
         stats["num_standalone_nodes"] = num_standalone_nodes;
+        RasterIndex min_row;
+        RasterIndex min_col;
+        RasterIndex max_row;
+        RasterIndex max_col;
+        std::tie(min_row, min_col) = xy_to_row_col(bbox_.west, bbox_.north);
+        std::tie(max_row, max_col) = xy_to_row_col(bbox_.east, bbox_.south);
+        stats["min_row"] = min_row;
+        stats["min_col"] = min_col;
+        stats["max_row"] = max_row;
+        stats["max_col"] = max_col;
         return stats;
     }
 
