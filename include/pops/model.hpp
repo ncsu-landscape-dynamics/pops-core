@@ -327,8 +327,7 @@ public:
             if (managed && config_.use_mortality) {
                 // treatments apply to all mortality tracker cohorts
                 for (auto& raster : mortality_tracker) {
-                    treatments.manage_mortality(
-                        step, raster, suitable_cells);
+                    treatments.manage_mortality(step, raster, suitable_cells);
                 }
             }
         }
