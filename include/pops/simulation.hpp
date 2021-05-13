@@ -44,15 +44,13 @@ void rotate_left_by_one(Container& container)
 
 /** Draws n elements from a vector
  */
-std::vector<int> draw_n_from_v(std::vector<int> v, int n)
+template<typename Container, typedef int, typename Generator>
+std::vector<int> draw_n_from_v(std::vector<int> v, int n, Generator& generator)
 {
-    std::random_device rd;
-    std::mt19937 g(rd());
-
     if (n > v.size())
         n = v.size();
 
-    std::shuffle(v.begin(), v.end(), g);
+    std::shuffle(v.begin(), v.end(), generator);
     v.erase(v.begin() + n, v.end());
     return(v);
 }
@@ -305,14 +303,11 @@ public:
             // set up vector of numeric categories (infected = 1, susceptible = 2,
             // exposed = 3) for drawing # moved in each category
             std::vector<int> categories(total_infecteds, 1);
-            std::vector<int> suscs(suscepts, 2);
-            categories.insert(categories.end(), suscs.begin(), suscs.end());
-            std::vector<int> expos(expose), 3);
-            categories.insert(categories.end(), expos.begin(), expos.end());
-            std::vector<int> resists(resist), 4);
-            categories.insert(categories.end(), resists.begin(), resists.end());
+            categories.insert(categories.end(), suscepts, 2);
+            categories.insert(categories.end(), expose, 3);
+            categories.insert(categories.end(), resist, 4);
 
-            auto draw draw_n_from_v(categories, total_hosts_moded);
+            auto draw draw_n_from_v(categories, total_hosts_moded, generator_);
             infected_moved = std::count(draw.begin, draw.end, 1);
             susceptible_moved = std::count(draw.begin, draw.end, 2);
             exposed_moved = std::count(draw.begin, draw.end, 3);
@@ -320,7 +315,16 @@ public:
             if (infected_moved > 0) {
                 int max_index = mortality_tracker.size() - 1;
                 for (int index = 0; index <- max_index; index++) {
-
+                    exposeds <- exposed[index];
+                    exposed_count = exposeds(row_from, col_from);
+                    if (index == 0) {
+                        std::vector<int> exposed_categories(exposed_count, index);
+                    }
+                    else {
+                        exposed_categories(exposed_categories.end(), v(exposed_count, index));
+                    }
+                        exposed
+                        c
                 }
             }
 
