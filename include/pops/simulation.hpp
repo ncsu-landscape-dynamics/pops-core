@@ -42,6 +42,21 @@ void rotate_left_by_one(Container& container)
     std::rotate(container.begin(), container.begin() + 1, container.end());
 }
 
+/** Draws n elements from a vector
+ */
+std::vector<int> draw_n_from_v(std::vector<int> v, int n)
+{
+    std::random_device rd;
+    std::mt19937 g(rd());
+
+    if (n > v.size())
+        n = v.size();
+
+    std::shuffle(v.begin(), v.end(), g);
+    v.erase(v.begin() + n, v.end());
+    return(v);
+}
+
 /** The type of a epidemiological model (SI or SEI)
  */
 enum class ModelType
@@ -249,6 +264,8 @@ public:
         IntegerRaster& infected,
         IntegerRaster& susceptible,
         std::vector<IntegerRaster>& mortality_tracker_vector,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& resistant,
         IntegerRaster& total_hosts,
         IntegerRaster& total_exposed,
         unsigned step,
@@ -264,8 +281,11 @@ public:
                 return i;
             }
             int infected_moved = 0;
+            int exposed_moved = 0;
             int susceptible_moved = 0;
+            int resistant_moved = 0;
             int total_hosts_moved = 0;
+            int total_mortality_moved = 0;
             double inf_ratio = 0;
             int row_from = moved[0];
             int col_from = moved[1];
@@ -278,51 +298,40 @@ public:
             else {
                 total_hosts_moved = hosts;
             }
-            if (infected(row_from, col_from) > 0
-                && susceptible(row_from, col_from) > 0) {
-                inf_ratio = double(infected(row_from, col_from))
-                            / double(total_hosts(row_from, col_from));
-                int infected_mean = total_hosts_moved * inf_ratio;
-                if (infected_mean > 0) {
-                    if (movement_stochasticity_) {
-                        std::poisson_distribution<int> distribution(infected_mean);
-                        infected_moved = distribution(generator_);
-                    }
-                    else {
-                        infected_moved = infected_mean;
-                    }
+            auto total_infecteds <- infected(row_from, col_from);
+            auto suscepts <- susceptible(row_from, col_from)
+            auto expose <- total_exposed(row_from, col_from);
+            auto resist <- resistant(row_from, col_from);
+            // set up vector of numeric categories (infected = 1, susceptible = 2,
+            // exposed = 3) for drawing # moved in each category
+            std::vector<int> categories(total_infecteds, 1);
+            std::vector<int> suscs(suscepts, 2);
+            categories.insert(categories.end(), suscs.begin(), suscs.end());
+            std::vector<int> expos(expose), 3);
+            categories.insert(categories.end(), expos.begin(), expos.end());
+            std::vector<int> resists(resist), 4);
+            categories.insert(categories.end(), resists.begin(), resists.end());
+
+            auto draw draw_n_from_v(categories, total_hosts_moded);
+            infected_moved = std::count(draw.begin, draw.end, 1);
+            susceptible_moved = std::count(draw.begin, draw.end, 2);
+            exposed_moved = std::count(draw.begin, draw.end, 3);
+            resistant_moved = std::count(draw.begin, draw.end, 4);
+            if (infected_moved > 0) {
+                int max_index = mortality_tracker.size() - 1;
+                for (int index = 0; index <- max_index; index++) {
+
                 }
-                if (infected_moved > infected(row_from, col_from)) {
-                    infected_moved = infected(row_from, col_from);
-                }
-                if (infected_moved > total_hosts_moved) {
-                    infected_moved = total_hosts_moved;
-                }
-                susceptible_moved = total_hosts_moved - infected_moved;
-                if (susceptible_moved > susceptible(row_from, col_from)) {
-                    susceptible_moved = susceptible(row_from, col_from);
-                }
-            }
-            else if (
-                infected(row_from, col_from) > 0
-                && susceptible(row_from, col_from) == 0) {
-                infected_moved = total_hosts_moved;
-            }
-            else if (
-                infected(row_from, col_from) == 0
-                && susceptible(row_from, col_from) > 0) {
-                susceptible_moved = total_hosts_moved;
-            }
-            else {
-                continue;
             }
 
             infected(row_from, col_from) -= infected_moved;
             susceptible(row_from, col_from) -= susceptible_moved;
             total_hosts(row_from, col_from) -= total_hosts_moved;
+            total_exposed(row_from, col_from) -= total_exposed_moved;
             infected(row_to, col_to) += infected_moved;
             susceptible(row_to, col_to) += susceptible_moved;
             total_hosts(row_to, col_to) += total_hosts_moved;
+            total_exposed(row_to, col_to) += total_exposed_moved;
         }
         return movements.size();
     }
