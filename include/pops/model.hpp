@@ -208,7 +208,9 @@ public:
      * @param[in,out] total_populations All host and non-host individuals in the area
      * @param[out] dispersers Dispersing individuals (used internally)
      * @param exposed[in,out] Exposed hosts (if SEI model is active)
-     * @param mortality_tracker[in,out] Mortality tracker used to generate *died*
+     * @param mortality_tracker[in,out] Mortality tracker used to generate *died*.
+     * Expectation is that mortality tracker is of length (1/mortality_rate +
+     * mortality_time_lag)
      * @param died[out] Infected hosts which died this step based on the mortality
      * schedule
      * @param temperatures[in] Vector of temperatures used to evaluate lethal
@@ -324,15 +326,14 @@ public:
                 step, infected, exposed, susceptible, resistant, suitable_cells);
             if (managed && config_.use_mortality) {
                 // treatments apply to all mortality tracker cohorts
-                int max_index = mortality_tracker.size() - 1;
-                for (int age = 0; age <= max_index; age++) {
+                for (auto& raster : mortality_tracker) {
                     treatments.manage_mortality(
-                        step, mortality_tracker[age], suitable_cells);
+                        step, raster, suitable_cells);
                 }
             }
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
-            // expectation is that mortality tracker is of length ()1/mortality_rate
+            // expectation is that mortality tracker is of length (1/mortality_rate
             // + mortality_time_lag).
             // TODO: died.zero(); should be done by the caller if needed, document!
             simulation_.mortality(
