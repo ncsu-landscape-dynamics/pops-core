@@ -190,7 +190,12 @@ public:
         }
     }
 
-    /** kills infected hosts based on mortality rate and timing
+    /** kills infected hosts based on mortality rate and timing. In the last year
+     * of mortality tracking the first index all remaining tracked infected hosts
+     * are removed. In indexes that are in the mortality_time_lag no mortality occurs.
+     * In all other indexes the number of tracked individuals is multiplied by the
+     * mortality rate to calculate the number of hosts that die that time step. The
+     * mortality_tracker_vector has a minimum size of mortality_time_lag + 1.
      *
      * @param infected Currently infected hosts
      * @param total_hosts All hosts
@@ -198,7 +203,8 @@ public:
      * @param mortality_time_lag time lag prior to mortality beginning
      * @param died dead hosts during time step
      * @param mortality_tracker_vector vector of matrices for tracking infected
-     * host infection over time.
+     * host infection over time. Expectation is that mortality tracker is of
+     * length (1/mortality_rate + mortality_time_lag)
      * @param suitable_cells used to run model only where host are known to occur
      */
     void mortality(
@@ -220,6 +226,8 @@ public:
             for (int index = 0; index <= max_index; index++) {
                 int mortality_in_index = 0;
                 if (mortality_tracker_vector[index](i, j) > 0) {
+                    // used to ensure that all infected hosts in the last year of
+                    // tracking mortality
                     if (index == 0) {
                         mortality_in_index = mortality_tracker_vector[index](i, j);
                     }
@@ -229,7 +237,6 @@ public:
                     }
                     mortality_tracker_vector[index](i, j) -= mortality_in_index;
                     died(i, j) += mortality_in_index;
-                    mortality_current_step += mortality_in_index;
                     if (infected(i, j) > 0) {
                         infected(i, j) -= mortality_in_index;
                     }
