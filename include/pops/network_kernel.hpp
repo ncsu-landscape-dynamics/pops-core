@@ -195,16 +195,6 @@ public:
             }
         }
         stats["num_standalone_nodes"] = num_standalone_nodes;
-        RasterIndex min_row;
-        RasterIndex min_col;
-        RasterIndex max_row;
-        RasterIndex max_col;
-        std::tie(min_row, min_col) = xy_to_row_col(bbox_.west, bbox_.north);
-        std::tie(max_row, max_col) = xy_to_row_col(bbox_.east, bbox_.south);
-        stats["min_row"] = min_row;
-        stats["min_col"] = min_col;
-        stats["max_row"] = max_row;
-        stats["max_col"] = max_col;
         return stats;
     }
 
@@ -217,6 +207,31 @@ public:
         for (const auto& item : stats) {
             stream << "    " << item.first << ": " << item.second << "\n";
         }
+        stream << "  extent:\n";
+        stream << "    north: " << bbox_.north << "\n";
+        stream << "    south: " << bbox_.south << "\n";
+        stream << "    east: " << bbox_.east << "\n";
+        stream << "    west: " << bbox_.west << "\n";
+        stream << "  resolution:\n";
+        stream << "    ns: " << ns_res_ << "\n";
+        stream << "    ew: " << ew_res_ << "\n";
+        stream << "  raster:\n";
+        RasterIndex min_row;
+        RasterIndex min_col;
+        RasterIndex max_row;
+        RasterIndex max_col;
+        std::tie(min_row, min_col) =
+            xy_to_row_col(bbox_.west + ew_res_ / 2, bbox_.north - ns_res_ / 2);
+        std::tie(max_row, max_col) =
+            xy_to_row_col(bbox_.east - ew_res_ / 2, bbox_.south + ew_res_ / 2);
+        stream << "    min_row: " << min_row << "\n";
+        stream << "    min_col: " << min_col << "\n";
+        stream << "    max_row: " << max_row << "\n";
+        stream << "    max_col: " << max_col << "\n";
+        stream << "    num_rows: " << max_row - min_row + 1 << "\n";
+        stream << "    num_cols: " << max_col - min_col + 1 << "\n";
+        stream << "  cost:\n";
+        stream << "    cell_travel_time: " << cell_travel_time_ << "\n";
         stream << "  edges:\n";
         for (const auto& item : node_matrix_) {
             stream << "    - [" << item.first << ", " << item.second << "]\n";
