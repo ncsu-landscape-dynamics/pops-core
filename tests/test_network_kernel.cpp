@@ -62,30 +62,43 @@ int test_travel_network()
         1,
     };
     std::stringstream node_stream{
-        "1,22.0,7.0\n"
-        "2,27.0,6.0\n"
-        "3,21.0,1.0\n"
-        "8,28.0,3.0\n"};
+        "1,21.4,7.5\n"
+        "2,22.3,7.2\n"
+        "4,22.5,8.6\n"
+        "5,27.5,1.5\n"
+        "8,26.5,6.4\n"
+        "10,28.2,2.7\n"
+        "11,28.3,9.0\n"};
     std::stringstream segment_stream{
-        "1,2,22.0;7.0;22.7;7.5;23.5;8.0;24.3;8.5;25.0;9.0;25.8;9.0;26.6;9.0;27.4;9.0;28.2;9.0;29.0;9.0;29.0;8.0;29.0;7.0;29.0;6.0;29.0;5.0;29.0;4.0;29.0;3.0;29.0;2.0;29.0;1.0;28.3;1.3;27.5;1.5;26.8;1.8;26.0;2.0;26.2;2.8;26.4;3.6;26.6;4.4;26.8;5.2;27.0;6.0\n"
-        "3,8,21.0;1.0;21.2;1.9;21.3;2.7;21.4;3.6;21.6;4.4;21.7;5.3;21.9;6.1;22.0;7.0;22.8;6.8;23.7;6.7;24.5;6.5;25.3;6.3;26.2;6.1;27.0;6.0;27.3;5.2;27.5;4.5;27.8;3.7;28.0;3.0\n"};
+        "1,10,21.4;7.5;22.3;7.2;22.3;7.2;23.2;7.1;24.0;6.9;24.8;6.7;25.7;6.6;26.5;6.4;26.8;5.7;27.2;4.9;27.5;4.2;27.9;3.5;28.2;2.7;26.5;6.4\n"
+        "1,8,21.4;7.5;21.9;8.0;22.5;8.6;22.3;7.2;23.0;7.7;23.7;8.1;24.3;8.5;25.0;9.0;25.8;9.0;26.6;9.0;27.4;9.0;28.2;9.0;29.0;9.0;29.0;8.0;29.0;7.0;29.0;6.0;29.0;5.0;29.0;4.0;29.0;3.0;29.0;2.0;29.0;1.0;28.2;1.3;27.5;1.5;26.7;1.8;26.0;2.0;26.1;2.9;26.2;3.8;26.3;4.7;26.4;5.5;26.5;6.4\n"
+        "5,5,27.5;1.5;26.7;1.4;25.9;1.3;25.2;1.1;24.5;1.7;23.9;2.3;23.2;2.8;22.5;2.3;21.8;1.8;21.2;1.3;20.5;1.4;20.7;2.3;20.8;3.2;20.9;4.0;21.0;4.9;21.1;5.7;21.3;6.6;21.4;7.5;27.5;1.5\n"
+        "11,8,28.3;9.0;28.5;8.1;28.6;7.3;28.2;6.8;27.7;6.3;27.1;6.4;26.5;6.4\n"};
     network.load(node_stream, segment_stream);
 
-    std::random_device generator;
-    double time = 9;
-    int start_row = 9;
-    int start_col = 1;
-    if (!network.has_node_at(start_row, start_col)) {
-        std::cerr << "Expected node at " << start_row << ", " << start_col << "\n";
-        network.dump_yaml(std::cerr);
-        ret += 1;
+    std::default_random_engine generator;
+    const int num_times = 9;
+    int current_time = 0;
+    std::array<int, num_times> times;
+    std::generate_n(
+        times.begin(), num_times, [&current_time] { return ++current_time; });
+    for (const auto time : times) {
+        generator.seed(42);
+        int start_row = 8;
+        int start_col = 7;
+        if (!network.has_node_at(start_row, start_col)) {
+            std::cerr << "Expected node at " << start_row << ", " << start_col << "\n";
+            network.dump_yaml(std::cerr);
+            ret += 1;
+        }
+        int end_row;
+        int end_col;
+        std::tie(end_row, end_col) =
+            network.travel(start_row, start_col, time, generator);
+        std::cerr << "from (" << start_row << ", " << start_col << ") to (" << end_row
+                  << ", " << end_col << ") in " << time << "\n";
     }
-    int end_row;
-    int end_col;
-    std::tie(end_row, end_col) = network.travel(start_row, start_col, time, generator);
-    std::cerr << "from (" << start_row << ", " << start_col << ") to (" << end_row
-              << ", " << end_col << ") in " << time << "\n";
-    network.dump_yaml(std::cerr);
+    // network.dump_yaml(std::cout);
     return ret;
 }
 
