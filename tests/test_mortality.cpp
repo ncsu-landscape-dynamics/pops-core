@@ -51,8 +51,6 @@ int test_mortality()
     Raster<int> expected_died = {{4, 0}, {0, 0}};
     Raster<int> expected_infected = {{1, 0}, {0, 0}};
     Raster<int> expected_total_hosts = {{6, 5}, {5, 3}};
-    int ew_res = 30;
-    int ns_res = 30;
     double mortality_rate = 0.50;
     int mortality_time_lag = 0;
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
