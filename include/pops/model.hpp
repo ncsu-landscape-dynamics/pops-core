@@ -289,6 +289,7 @@ public:
                 infected,
                 mortality_tracker[mortality_simulation_year],
                 total_populations,
+                total_exposed,
                 outside_dispersers,
                 config_.weather,
                 weather_coefficient,
