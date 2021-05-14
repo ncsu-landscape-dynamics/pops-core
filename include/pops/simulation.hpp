@@ -304,8 +304,7 @@ public:
             categories.insert(categories.end(), expose, 3);
             categories.insert(categories.end(), resist, 4);
 
-            std::vector<int> draw;
-            draw draw_n_from_v(categories, total_hosts_moved, generator_);
+            std::vector<int>draw = draw_n_from_v(categories, total_hosts_moved, generator_);
             infected_moved = std::count(draw.begin(), draw.end(), 1);
             susceptible_moved = std::count(draw.begin(), draw.end(), 2);
             exposed_moved = std::count(draw.begin(), draw.end(), 3);
@@ -324,12 +323,12 @@ public:
                     }
                     index += 1;
                 }
-                std::vector<int> exposed_draw draw_n_from_v(
+                std::vector<int> exposed_draw  = draw_n_from_v(
                     exposed_categories, exposed_moved, generator_);
                 index = 0;
                 for (auto& raster : exposed) {
                     auto exposed_moved_in_cohort =
-                        std::count(exposed_draw.begin, exposed_draw.end, index);
+                        std::count(exposed_draw.begin(), exposed_draw.end(), index);
                     raster(row_from, col_from) -= exposed_moved_in_cohort;
                     raster(row_to, col_to) += exposed_moved_in_cohort;
                     index += 1;
@@ -350,12 +349,12 @@ public:
                     }
                     index += 1;
                 }
-                std::vector<int> mortality_draw draw_n_from_v(
+                std::vector<int> mortality_draw = draw_n_from_v(
                     mortality_categories, exposed_moved, generator_);
                 index = 0;
                 for (auto& raster : mortality_tracker_vector) {
                     auto mortality_moved_in_cohort =
-                        std::count(mortality_draw.begin, mortality_draw.end, index);
+                        std::count(mortality_draw.begin(), mortality_draw.end(), index);
                     raster(row_from, col_from) -= mortality_moved_in_cohort;
                     raster(row_to, col_to) += mortality_moved_in_cohort;
                     index += 1;
