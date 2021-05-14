@@ -287,6 +287,8 @@ public:
             int row_to = moved[2];
             int col_to = moved[3];
             int hosts = moved[4];
+            std::vector<int> exposed_categories;
+            std::vector<int> mortality_categories;
             if (hosts > total_hosts(row_from, col_from)) {
                 total_hosts_moved = total_hosts(row_from, col_from);
             }
@@ -314,13 +316,9 @@ public:
                 int index = 0;
                 for (auto& raster : exposed) {
                     auto exposed_count = raster(row_from, col_from);
-                    if (index == 0) {
-                        std::vector<int> exposed_categories(exposed_count, index);
-                    }
-                    else {
-                        exposed_categories(
-                            exposed_categories.end(), exposed_count, index);
-                    }
+                    exposed_categories.insert(
+                        exposed_categories.end(), exposed_count, index);
+
                     index += 1;
                 }
                 std::vector<int> exposed_draw  = draw_n_from_v(
@@ -344,13 +342,13 @@ public:
                         mortality_categories(mortality_count, index);
                     }
                     else {
-                        mortality_categories(
+                        mortality_categories.insert(
                             mortality_categories.end(), mortality_count, index);
                     }
                     index += 1;
                 }
                 std::vector<int> mortality_draw = draw_n_from_v(
-                    mortality_categories, exposed_moved, generator_);
+                    mortality_categories, infected_moved, generator_);
                 index = 0;
                 for (auto& raster : mortality_tracker_vector) {
                     auto mortality_moved_in_cohort =
