@@ -44,8 +44,8 @@ void rotate_left_by_one(Container& container)
 
 /** Draws n elements from a vector. Expects n to be less than v.size().
  */
-template<typename Container, typedef int, typename Generator>
-std::vector<int> draw_n_from_v(std::vector<int> v, int n, Generator& generator)
+template<typename Generator>
+std::vector<int> draw_n_from_v(std::vector<int> v, unsigned n, Generator& generator)
 {
     if (n > v.size())
         n = v.size();
@@ -338,13 +338,8 @@ public:
                 int index = 0;
                 for (auto& raster : mortality_tracker_vector) {
                     auto mortality_count = raster(row_from, col_from);
-                    if (index == 0) {
-                        mortality_categories(mortality_count, index);
-                    }
-                    else {
-                        mortality_categories.insert(
-                            mortality_categories.end(), mortality_count, index);
-                    }
+                    mortality_categories.insert(
+                        mortality_categories.end(), mortality_count, index);
                     index += 1;
                 }
                 std::vector<int> mortality_draw = draw_n_from_v(
