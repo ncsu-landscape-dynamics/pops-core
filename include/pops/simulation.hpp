@@ -42,7 +42,7 @@ void rotate_left_by_one(Container& container)
     std::rotate(container.begin(), container.begin() + 1, container.end());
 }
 
-/** Draws n elements from a vector
+/** Draws n elements from a vector. Expects n to be less than v.size().
  */
 template<typename Container, typedef int, typename Generator>
 std::vector<int> draw_n_from_v(std::vector<int> v, int n, Generator& generator)
@@ -324,7 +324,7 @@ public:
                     exposed_categories, exposed_moved, generator_);
                 index = 0;
                 for (auto& raster : exposed) {
-                    exposed_moved_in_cohort =
+                    auto exposed_moved_in_cohort =
                         std::count(exposed_draw.begin, exposed_draw.end, index);
                     raster(row_from, col_from) -= exposed_moved_in_cohort;
                     raster(row_to, col_to) += exposed_moved_in_cohort;
@@ -345,7 +345,7 @@ public:
                     mortality_categories, exposed_moved, generator_);
                 index = 0;
                 for (auto& raster : mortality_tracker_vector) {
-                    mortality_moved_in_cohort =
+                    auto mortality_moved_in_cohort =
                         std::count(mortality_draw.begin, mortality_draw.end, index);
                     raster(row_from, col_from) -= mortality_moved_in_cohort;
                     raster(row_to, col_to) += mortality_moved_in_cohort;

@@ -84,6 +84,7 @@ int test_with_reduced_stochasticity()
     //                exposed_size,
     //                Raster<int>(infected.rows(), infected.cols(), 0));
     Raster<int> died(infected.rows(), infected.cols(), 0);
+    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
@@ -113,6 +114,7 @@ int test_with_reduced_stochasticity()
         total_populations,
         total_hosts,
         dispersers,
+        total_exposed,
         empty_integer,
         mortality_tracker,
         died,
@@ -213,6 +215,7 @@ int test_deterministic()
         num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
 
     Raster<int> died(infected.rows(), infected.cols(), 0);
+    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
@@ -238,6 +241,7 @@ int test_deterministic()
         total_populations,
         total_hosts,
         dispersers,
+        total_exposed,
         empty_integer,
         mortality_tracker,
         died,
@@ -337,6 +341,7 @@ int test_deterministic_exponential()
         num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
 
     Raster<int> died(infected.rows(), infected.cols(), 0);
+    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
@@ -362,6 +367,7 @@ int test_deterministic_exponential()
         total_populations,
         total_hosts,
         dispersers,
+        total_exposed,
         empty_integer,
         mortality_tracker,
         died,
@@ -458,6 +464,7 @@ int test_model_sei_deterministic()
         num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
 
     Raster<int> died(infected.rows(), infected.cols(), 0);
+    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     int exposed_size = 0;
     if (config.latency_period_steps)
         exposed_size = config.latency_period_steps + 1;
@@ -490,6 +497,7 @@ int test_model_sei_deterministic()
             total_populations,
             total_hosts,
             dispersers,
+            total_exposed,
             exposed,
             mortality_tracker,
             died,
@@ -582,6 +590,7 @@ int test_model_sei_deterministic_with_treatments()
         num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
 
     Raster<int> died(infected.rows(), infected.cols(), 0);
+    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     int exposed_size = 0;
     if (config.latency_period_steps)
         exposed_size = config.latency_period_steps + 1;
@@ -633,6 +642,7 @@ int test_model_sei_deterministic_with_treatments()
             total_populations,
             total_hosts,
             dispersers,
+            total_exposed,
             exposed,
             mortality_tracker,
             died,
