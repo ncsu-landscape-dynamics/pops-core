@@ -304,11 +304,12 @@ public:
             categories.insert(categories.end(), expose, 3);
             categories.insert(categories.end(), resist, 4);
 
-            std::vector<int> draw draw_n_from_v(categories, total_hosts_moved, generator_);
-            infected_moved = std::count(draw.begin, draw.end, 1);
-            susceptible_moved = std::count(draw.begin, draw.end, 2);
-            exposed_moved = std::count(draw.begin, draw.end, 3);
-            resistant_moved = std::count(draw.begin, draw.end, 4);
+            std::vector<int> draw;
+            draw draw_n_from_v(categories, total_hosts_moved, generator_);
+            infected_moved = std::count(draw.begin(), draw.end(), 1);
+            susceptible_moved = std::count(draw.begin(), draw.end(), 2);
+            exposed_moved = std::count(draw.begin(), draw.end(), 3);
+            resistant_moved = std::count(draw.begin(), draw.end(), 4);
 
             if (exposed_moved > 0) {
                 int index = 0;
