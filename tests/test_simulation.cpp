@@ -214,11 +214,16 @@ int test_with_reduced_stochasticity()
     infected = {{5, 0}, {0, 0}};
     susceptible = {{10, 20}, {14, 15}};
     mortality_tracker = {{0, 0}, {0, 0}};
+    Raster<int> total_exposed = {{0, 0}, {0, 0}};
+    Raster<int> resistant = {{0, 0}, {0, 0}};
+    Raster<int> exposed = {{0, 0}, {0, 0}};
     total_hosts = susceptible;
     simulation.movement(
         infected,
         susceptible,
         mortality_tracker,
+        exposed,
+        resistant,
         total_hosts,
         total_exposed,
         step,
@@ -598,6 +603,8 @@ int test_calling_all_functions()
     Raster<int> susceptible = {{10, 15}, {14, 15}};
     Raster<int> total_hosts = {{15, 15}, {14, 15}};
     Raster<int> total_exposed = {{0, 0}, {0, 0}};
+    Raster<int> resistant = {{0, 0}, {0, 0}};
+    Raster<int> exposed = {{0, 0}, {0, 0}};
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0.6, 0.8}, {0.2, 0.8}};
     Raster<int> dispersers(infected.rows(), infected.cols());
