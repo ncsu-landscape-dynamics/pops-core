@@ -304,21 +304,26 @@ public:
             categories.insert(categories.end(), expose, 3);
             categories.insert(categories.end(), resist, 4);
 
-            auto draw draw_n_from_v(categories, total_hosts_moved, generator_);
+            std::vector<int> draw draw_n_from_v(categories, total_hosts_moved, generator_);
             infected_moved = std::count(draw.begin, draw.end, 1);
             susceptible_moved = std::count(draw.begin, draw.end, 2);
             exposed_moved = std::count(draw.begin, draw.end, 3);
             resistant_moved = std::count(draw.begin, draw.end, 4);
 
             if (exposed_moved > 0) {
-                std::vector<int> exposed_categories;
                 int index = 0;
                 for (auto& raster : exposed) {
                     auto exposed_count = raster(row_from, col_from);
-                    exposed_categories(exposed_categories.end(), exposed_count, index);
+                    if (index == 0) {
+                        std::vector<int> exposed_categories(exposed_count, index);
+                    }
+                    else {
+                        exposed_categories(
+                            exposed_categories.end(), exposed_count, index);
+                    }
                     index += 1;
                 }
-                auto exposed_draw draw_n_from_v(
+                std::vector<int> exposed_draw draw_n_from_v(
                     exposed_categories, exposed_moved, generator_);
                 index = 0;
                 for (auto& raster : exposed) {
@@ -335,11 +340,16 @@ public:
                 int index = 0;
                 for (auto& raster : mortality_tracker_vector) {
                     auto mortality_count = raster(row_from, col_from);
-                    mortality_categories(
-                        mortality_categories.end(), mortality_count, index);
+                    if (index == 0) {
+                        mortality_categories(mortality_count, index);
+                    }
+                    else {
+                        mortality_categories(
+                            mortality_categories.end(), mortality_count, index);
+                    }
                     index += 1;
                 }
-                auto mortality_draw draw_n_from_v(
+                std::vector<int> mortality_draw draw_n_from_v(
                     mortality_categories, exposed_moved, generator_);
                 index = 0;
                 for (auto& raster : mortality_tracker_vector) {
