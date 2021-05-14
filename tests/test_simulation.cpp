@@ -600,6 +600,7 @@ int test_calling_all_functions()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
     std::vector<Raster<int>> mortality_tracker_vector = {{0, 0}, {0, 0}};
+    Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
     Raster<int> susceptible = {{10, 15}, {14, 15}};
     Raster<int> total_hosts = {{15, 15}, {14, 15}};
     Raster<int> total_exposed = {{0, 0}, {0, 0}};
