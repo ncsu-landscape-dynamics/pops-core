@@ -213,7 +213,7 @@ int test_with_reduced_stochasticity()
     }
     infected = {{5, 0}, {0, 0}};
     susceptible = {{10, 20}, {14, 15}};
-    std::vector<Raster<int>> mortality_tracker = {{0, 0}, {0, 0}};
+    std::vector<Raster<int>> mortality_tracker_vector = {{0, 0}, {0, 0}};
     total_exposed = {{0, 0}, {0, 0}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     std::vector<Raster<int>> exposed = {{0, 0}, {0, 0}};
@@ -221,7 +221,7 @@ int test_with_reduced_stochasticity()
     simulation.movement(
         infected,
         susceptible,
-        mortality_tracker,
+        mortality_tracker_vector,
         exposed,
         resistant,
         total_hosts,
@@ -599,7 +599,7 @@ int test_SI_versus_SEI0()
 int test_calling_all_functions()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
-    std::vector<Raster<int>> mortality_tracker = {{0, 0}, {0, 0}};
+    std::vector<Raster<int>> mortality_tracker_vector = {{0, 0}, {0, 0}};
     Raster<int> susceptible = {{10, 15}, {14, 15}};
     Raster<int> total_hosts = {{15, 15}, {14, 15}};
     Raster<int> total_exposed = {{0, 0}, {0, 0}};
@@ -638,7 +638,7 @@ int test_calling_all_functions()
     simulation.movement(
         infected,
         susceptible,
-        mortality_tracker,
+        mortality_tracker_vector,
         exposed,
         resistant,
         total_hosts,
