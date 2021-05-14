@@ -282,8 +282,6 @@ public:
             int susceptible_moved = 0;
             int resistant_moved = 0;
             int total_hosts_moved = 0;
-            int total_mortality_moved = 0;
-            double inf_ratio = 0;
             int row_from = moved[0];
             int col_from = moved[1];
             int row_to = moved[2];
@@ -313,7 +311,7 @@ public:
             resistant_moved = std::count(draw.begin, draw.end, 4);
 
             if (exposed_moved > 0) {
-                std::vector<int> exposed_categories{};
+                std::vector<int> exposed_categories;
                 int index = 0;
                 for (auto& raster : exposed) {
                     auto exposed_count = raster(row_from, col_from);
@@ -333,7 +331,7 @@ public:
             }
 
             if (infected_moved > 0) {
-                std::vector<int> mortality_categories{};
+                std::vector<int> mortality_categories;
                 int index = 0;
                 for (auto& raster : mortality_tracker_vector) {
                     auto mortality_count = raster(row_from, col_from);
