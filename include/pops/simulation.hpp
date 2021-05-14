@@ -322,7 +322,7 @@ public:
 
                     index += 1;
                 }
-                std::vector<int> exposed_draw  =
+                std::vector<int> exposed_draw =
                     draw_n_from_v(exposed_categories, exposed_moved, generator_);
                 index = 0;
                 for (auto& raster : exposed) {
