@@ -296,10 +296,10 @@ public:
             else {
                 total_hosts_moved = hosts;
             }
-            auto total_infecteds <- infected(row_from, col_from);
-            auto suscepts <- susceptible(row_from, col_from);
-            auto expose <- total_exposed(row_from, col_from);
-            auto resist <- resistant(row_from, col_from);
+            auto total_infecteds = infected(row_from, col_from);
+            auto suscepts = susceptible(row_from, col_from);
+            auto expose = total_exposed(row_from, col_from);
+            auto resist = resistant(row_from, col_from);
             // set up vector of numeric categories (infected = 1, susceptible = 2,
             // exposed = 3) for drawing # moved in each category
             std::vector<int> categories(total_infecteds, 1);
@@ -322,10 +322,11 @@ public:
                     index += 1;
                 }
                 auto exposed_draw draw_n_from_v(
-                        exposed_categories, exposed_moved, generator_);
+                     exposed_categories, exposed_moved, generator_);
                 int index = 0;
                 for (auto& raster : exposed) {
-                    exposed_moved_in_cohort = std::count(exposed_draw.begin, exposed_draw.end, 1);
+                    exposed_moved_in_cohort =
+                        std::count(exposed_draw.begin, exposed_draw.end, 1);
                     raster(row_from, col_from) -= exposed_moved_in_cohort;
                     raster(row_to, col_to) += exposed_moved_in_cohort;
                     index += 1;
@@ -342,10 +343,11 @@ public:
                     index += 1;
                 }
                 auto mortality_draw draw_n_from_v(
-                        mortality_categories, exposed_moved, generator_);
+                     mortality_categories, exposed_moved, generator_);
                 int index = 0;
                 for (auto& raster : mortality_tracker_vector) {
-                    mortality_moved_in_cohort = std::count(mortality_draw.begin, mortality_draw.end, 1);
+                    mortality_moved_in_cohort =
+                        std::count(mortality_draw.begin, mortality_draw.end, 1);
                     raster(row_from, col_from) -= mortality_moved_in_cohort;
                     raster(row_to, col_to) += mortality_moved_in_cohort;
                     index += 1;
@@ -761,7 +763,8 @@ public:
             suitable_cells,
             establishment_probability);
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
-            this->infect_exposed(step, exposed, infected, mortality_tracker, total_exposed);
+            this->infect_exposed(
+                step, exposed, infected, mortality_tracker, total_exposed);
         }
     }
 };
