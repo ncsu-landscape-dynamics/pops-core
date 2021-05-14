@@ -271,7 +271,6 @@ public:
         const std::vector<std::vector<int>>& movements,
         std::vector<unsigned> movement_schedule)
     {
-        UNUSED(mortality_tracker);  // Mortality is not supported by movements.
         for (unsigned i = last_index; i < movements.size(); i++) {
             auto moved = movements[i];
             unsigned move_schedule = movement_schedule[i];
@@ -322,11 +321,11 @@ public:
                     index += 1;
                 }
                 auto exposed_draw draw_n_from_v(
-                     exposed_categories, exposed_moved, generator_);
-                int index = 0;
+                    exposed_categories, exposed_moved, generator_);
+                index = 0;
                 for (auto& raster : exposed) {
                     exposed_moved_in_cohort =
-                        std::count(exposed_draw.begin, exposed_draw.end, 1);
+                        std::count(exposed_draw.begin, exposed_draw.end, index);
                     raster(row_from, col_from) -= exposed_moved_in_cohort;
                     raster(row_to, col_to) += exposed_moved_in_cohort;
                     index += 1;
@@ -343,11 +342,11 @@ public:
                     index += 1;
                 }
                 auto mortality_draw draw_n_from_v(
-                     mortality_categories, exposed_moved, generator_);
-                int index = 0;
+                    mortality_categories, exposed_moved, generator_);
+                index = 0;
                 for (auto& raster : mortality_tracker_vector) {
                     mortality_moved_in_cohort =
-                        std::count(mortality_draw.begin, mortality_draw.end, 1);
+                        std::count(mortality_draw.begin, mortality_draw.end, index);
                     raster(row_from, col_from) -= mortality_moved_in_cohort;
                     raster(row_to, col_to) += mortality_moved_in_cohort;
                     index += 1;

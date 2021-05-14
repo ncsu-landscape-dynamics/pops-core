@@ -236,6 +236,7 @@ public:
         IntegerRaster& total_populations,
         IntegerRaster& total_hosts,
         IntegerRaster& dispersers,
+        IntegerRaster& total_exposed,
         std::vector<IntegerRaster>& exposed,
         std::vector<IntegerRaster>& mortality_tracker,
         IntegerRaster& died,
