@@ -310,8 +310,11 @@ public:
                 last_index = simulation_.movement(
                     infected,
                     susceptible,
-                    mortality_tracker[mortality_simulation_year],
+                    mortality_tracker,
+                    exposed,
+                    resistant,
                     total_hosts,
+                    total_exposed,
                     step,
                     last_index,
                     movements,
