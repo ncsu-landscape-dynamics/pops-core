@@ -167,7 +167,7 @@ int test_deterministic()
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
-    const std::vector<std::vector<int>> suitable_cells = {
+    std::vector<std::vector<int>> suitable_cells = {
         {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
 
     Config config;
@@ -294,7 +294,7 @@ int test_deterministic_exponential()
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
-    const std::vector<std::vector<int>> suitable_cells = {
+    std::vector<std::vector<int>> suitable_cells = {
         {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
 
     Config config;
@@ -418,7 +418,7 @@ int test_model_sei_deterministic()
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
-    const std::vector<std::vector<int>> suitable_cells = {
+    std::vector<std::vector<int>> suitable_cells = {
         {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
 
     Config config;
@@ -544,7 +544,7 @@ int test_model_sei_deterministic_with_treatments()
     Raster<int> dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
-    const std::vector<std::vector<int>> suitable_cells = {
+    std::vector<std::vector<int>> suitable_cells = {
         {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
 
     Config config;
