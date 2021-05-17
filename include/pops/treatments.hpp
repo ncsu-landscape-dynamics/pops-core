@@ -131,7 +131,7 @@ public:
     }
     void apply_treatment_mortality(
         IntegerRaster& infected,
-        std::vector<std::vector<int>>& suitable_cells) override
+        const std::vector<std::vector<int>>& suitable_cells) override
     {
         for (auto indices : suitable_cells) {
             int i = indices[0];
@@ -176,7 +176,7 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& susceptible,
         IntegerRaster&,
-        std::vector<std::vector<int>>& suitable_cells) override
+        const std::vector<std::vector<int>>& suitable_cells) override
     {
         for (auto indices : suitable_cells) {
             int i = indices[0];
@@ -244,7 +244,7 @@ public:
         std::vector<IntegerRaster>& exposed_vector,
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
-        std::vector<std::vector<int>>& suitable_cells) override
+        const std::vector<std::vector<int>>& suitable_cells) override
     {
         for (auto indices : suitable_cells) {
             int i = indices[0];
@@ -280,7 +280,7 @@ public:
     void end_treatment(
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
-        std::vector<std::vector<int>>& suitable_cells) override
+        const std::vector<std::vector<int>>& suitable_cells) override
     {
         for (auto indices : suitable_cells) {
             int i = indices[0];
@@ -370,7 +370,7 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
-        std::vector<std::vector<int>>& suitable_cells)
+        const std::vector<std::vector<int>>& suitable_cells)
     {
         bool changed = false;
         for (unsigned i = 0; i < treatments.size(); i++) {
@@ -395,7 +395,7 @@ public:
     bool manage_mortality(
         unsigned current,
         IntegerRaster& infected,
-        std::vector<std::vector<int>>& suitable_cells)
+        const std::vector<std::vector<int>>& suitable_cells)
     {
         bool applied = false;
         for (unsigned i = 0; i < treatments.size(); i++)
