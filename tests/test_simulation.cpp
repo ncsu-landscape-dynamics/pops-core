@@ -140,8 +140,6 @@ int test_with_reduced_stochasticity()
     Raster<int> total_exposed = {{0, 0}, {0, 0}};
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
-    unsigned step = 1;
-    unsigned last_index = 0;
 
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
     auto expected_infected = expected_mortality_tracker + infected;
@@ -594,20 +592,20 @@ int test_calling_all_functions()
     unsigned step = 1;
     unsigned last_index = 0;
     int seed = 42;
-    std::vector<std::vector<int>> suitable_cellss = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
     Simulation<Raster<int>, Raster<double>> simulation(
         seed, infected.rows(), infected.cols());
     simulation.remove(
-        infected, susceptible, temperature, lethal_temperature, suitable_cellss);
+        infected, susceptible, temperature, lethal_temperature, suitable_cells);
     simulation.generate(
         dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cellss);
+        suitable_cells);
     RadialDispersalKernel<Raster<int>> kernel(
         ew_res, ns_res, dispersal_kernel, short_distance_scale);
     simulation.movement(
@@ -634,7 +632,7 @@ int test_calling_all_functions()
         weather,
         weather_coefficient,
         kernel,
-        suitable_cellss);
+        suitable_cells);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;
     return 0;
 }
