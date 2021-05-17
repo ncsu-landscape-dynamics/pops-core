@@ -211,32 +211,32 @@ int test_with_reduced_stochasticity()
              << expected_mortality_tracker << "\n";
         return 1;
     }
-    infected = {{5, 0}, {0, 0}};
-    susceptible = {{10, 20}, {14, 15}};
-    std::vector<Raster<int>> mortality_tracker_vector = {{0, 0}, {0, 0}};
-    total_exposed = {{0, 0}, {0, 0}};
-    Raster<int> resistant = {{0, 0}, {0, 0}};
-    std::vector<Raster<int>> exposed = {{0, 0}, {0, 0}};
-    total_hosts = susceptible;
-    simulation.movement(
-        infected,
-        susceptible,
-        mortality_tracker_vector,
-        exposed,
-        resistant,
-        total_hosts,
-        total_exposed,
-        step,
-        last_index,
-        movements,
-        movement_schedule);
-    expected_infected = {{4, 0}, {0, 1}};
-    if (infected != expected_infected) {
-        cout << "reduced_stochasticity: infected (actual, expected):\n"
-             << infected << "  !=\n"
-             << expected_infected << "\n";
-        return 1;
-    }
+    // infected = {{5, 0}, {0, 0}};
+    // susceptible = {{10, 20}, {14, 15}};
+    // std::vector<Raster<int>> mortality_tracker_vector = {{0, 0}, {0, 0}};
+    // total_exposed = {{0, 0}, {0, 0}};
+    // Raster<int> resistant = {{0, 0}, {0, 0}};
+    // std::vector<Raster<int>> exposed = {{0, 0}, {0, 0}};
+    // total_hosts = susceptible;
+    // simulation.movement(
+    //     infected,
+    //     susceptible,
+    //     mortality_tracker_vector,
+    //     exposed,
+    //     resistant,
+    //     total_hosts,
+    //     total_exposed,
+    //     step,
+    //     last_index,
+    //     movements,
+    //     movement_schedule);
+    // expected_infected = {{4, 0}, {0, 1}};
+    // if (infected != expected_infected) {
+    //     cout << "reduced_stochasticity: infected (actual, expected):\n"
+    //          << infected << "  !=\n"
+    //          << expected_infected << "\n";
+    //     return 1;
+    // }
     return 0;
 }
 
