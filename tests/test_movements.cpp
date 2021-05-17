@@ -56,7 +56,7 @@ int test_move_all()
     std::vector<unsigned> movement_schedule = {1, 1};
     // set expected new values after movement
     Raster<int> expected_infected = {{0, 0}, {0, 5}};
-    Raster<int> expected_susceptible = {{0, 5}, {5, 13}};
+    Raster<int> expected_susceptible = {{0, 0}, {10, 13}};
     Raster<int> expected_total_exposed = {{0, 0}, {0, 0}};
     Raster<int> expected_resistant = {{0, 0}, {0, 0}};
     Raster<int> expected_total_hosts = {{0, 5}, {5, 18}};
@@ -80,15 +80,15 @@ int test_move_all()
         movement_schedule);
     if (infected != expected_infected) {
         cout << "infected (actual, expected):\n"
-            << infected << "  !=\n"
-            << expected_infected << "\n";
+             << infected << "  !=\n"
+             << expected_infected << "\n";
         return 1;
     }
     if (susceptible != expected_susceptible) {
-      cout << "susceptible (actual, expected):\n"
-           << susceptible << "  !=\n"
-           << expected_susceptible << "\n";
-      return 1;
+        cout << "susceptible (actual, expected):\n"
+             << susceptible << "  !=\n"
+             << expected_susceptible << "\n";
+        return 1;
     }
     if (total_exposed != expected_total_exposed) {
         cout << "total_exposed (actual, expected):\n"
