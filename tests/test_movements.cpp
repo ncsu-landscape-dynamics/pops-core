@@ -153,7 +153,7 @@ int test_move_all_exposed()
   Raster<int> expected_susceptible = {{0, 0}, {10, 13}};
   Raster<int> expected_total_exposed = {{0, 0}, {0, 5}};
   Raster<int> expected_resistant = {{0, 0}, {0, 0}};
-  Raster<int> expected_total_hosts = {{0, 0}, {10, 18}};
+  Raster<int> expected_total_hosts = {{0, 0}, {10, 23}};
   std::vector<Raster<int>> expected_exposed = {{{0, 0}, {0, 2}}, {{0, 0}, {0, 3}}};
   std::vector<Raster<int>> expected_mortality_tracker = {
     {{0, 0}, {0, 3}}, {{0, 0}, {0, 2}}};
