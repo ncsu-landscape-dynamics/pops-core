@@ -249,7 +249,7 @@ public:
         QuarantineEscape<IntegerRaster>& quarantine,  // out
         const IntegerRaster& quarantine_areas,
         const std::vector<std::vector<int>> movements,
-        const std::vector<std::vector<int>>& suitable_cells)
+        std::vector<std::vector<int>>& suitable_cells)
     {
         int mortality_simulation_year =
             simulation_step_to_action_step(config_.mortality_schedule(), step);
