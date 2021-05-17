@@ -364,7 +364,7 @@ public:
                     int i = indices[0];
                     int j = indices[1];
                     if ((i == row_to) & (j == col_to)) {
-                        match += 1
+                        match += 1;
                     }
                 }
                 if (match == 0) {
