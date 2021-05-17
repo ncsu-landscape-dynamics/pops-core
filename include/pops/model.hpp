@@ -320,7 +320,8 @@ public:
                     step,
                     last_index,
                     movements,
-                    config_.movement_schedule);
+                    config_.movement_schedule,
+                    suitable_cells);
             }
         }
         // treatments

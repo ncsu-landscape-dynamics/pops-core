@@ -269,7 +269,8 @@ public:
         unsigned step,
         unsigned last_index,
         const std::vector<std::vector<int>>& movements,
-        std::vector<unsigned> movement_schedule)
+        std::vector<unsigned> movement_schedule,
+        std::vector<std::vector<int>>& suitable_cells)
     {
         for (unsigned i = last_index; i < movements.size(); i++) {
             auto moved = movements[i];
@@ -352,6 +353,23 @@ public:
                     raster(row_from, col_from) -= mortality_moved_in_cohort;
                     raster(row_to, col_to) += mortality_moved_in_cohort;
                     index += 1;
+                }
+            }
+            // check that the location with host movement is in suitable cells.
+            // Since suitable-cells comes from the total hosts originally. The
+            // the first check is for total_hosts
+            if (total_hosts(row_to, col_to) == 0) {
+                int match = 0;
+                for (auto indices : suitable_cells) {
+                    int i = indices[0];
+                    int j = indices[1];
+                    if (i == row_to & j == col_to) {
+                        match += 1;
+                    }
+                }
+                if (match == 0) {
+                    std::vector<int> added_index = {row_to, col_to};
+                    suitable_cells.push_back(added_index);
                 }
             }
 

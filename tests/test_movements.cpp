@@ -77,7 +77,8 @@ int test_move_all_no_exposed()
         step,
         last_index,
         movements,
-        movement_schedule);
+        movement_schedule,
+        suitable_cells);
     if (infected != expected_infected) {
         cout << "infected (actual, expected):\n"
              << infected << "  !=\n"
@@ -171,7 +172,8 @@ int test_move_all_exposed()
         step,
         last_index,
         movements,
-        movement_schedule);
+        movement_schedule,
+        suitable_cells);
     if (infected != expected_infected) {
         cout << "infected (actual, expected):\n"
              << infected << "  !=\n"

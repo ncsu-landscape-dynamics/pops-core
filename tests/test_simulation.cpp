@@ -621,7 +621,8 @@ int test_calling_all_functions()
         step,
         last_index,
         movements,
-        movement_schedule);
+        movement_schedule,
+        suitable_cells);
     simulation.disperse(
         dispersers,
         susceptible,
