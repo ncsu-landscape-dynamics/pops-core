@@ -189,7 +189,7 @@ public:
         IntegerRaster& susceptible,
         const FloatRaster& temperature,
         double lethal_temperature,
-        std::vector<std::vector<int>>& suitable_cells)
+        const std::vector<std::vector<int>>& suitable_cells)
     {
         for (auto indices : suitable_cells) {
             int i = indices[0];
@@ -210,7 +210,7 @@ public:
         int first_mortality_year,
         IntegerRaster& mortality,
         std::vector<IntegerRaster>& mortality_tracker_vector,
-        std::vector<std::vector<int>>& suitable_cells)
+        const std::vector<std::vector<int>>& suitable_cells)
     {
         if (current_year >= (first_mortality_year)) {
             int mortality_current_year = 0;
@@ -402,7 +402,7 @@ public:
         bool weather,
         const FloatRaster& weather_coefficient,
         double reproductive_rate,
-        std::vector<std::vector<int>>& suitable_cells)
+        const std::vector<std::vector<int>>& suitable_cells)
     {
         double lambda = reproductive_rate;
         for (auto indices : suitable_cells) {
@@ -485,7 +485,7 @@ public:
         bool weather,
         const FloatRaster& weather_coefficient,
         DispersalKernel& dispersal_kernel,
-        std::vector<std::vector<int>>& suitable_cells,
+        const std::vector<std::vector<int>>& suitable_cells,
         double establishment_probability = 0.5)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
@@ -572,7 +572,7 @@ public:
         const IntegerRaster& total_hosts,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         DispersalKernel& dispersal_kernel,
-        std::vector<std::vector<int>>& suitable_cells,
+        const std::vector<std::vector<int>>& suitable_cells,
         double overpopulation_percentage,
         double leaving_percentage)
     {
@@ -759,7 +759,7 @@ public:
         bool weather,
         const FloatRaster& weather_coefficient,
         DispersalKernel& dispersal_kernel,
-        std::vector<std::vector<int>>& suitable_cells,
+        const std::vector<std::vector<int>>& suitable_cells,
         double establishment_probability = 0.5)
     {
         auto* infected_or_exposed = &infected;

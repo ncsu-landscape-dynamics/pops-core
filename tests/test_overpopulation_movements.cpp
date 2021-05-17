@@ -136,8 +136,7 @@ int test_model()
     // More reference data
     auto leaving = infected(0, 0) * config.leaving_percentage;
     // Objects
-    std::vector<std::vector<int>> suitable_cells =
-        get_suitable_cells(total_hosts);
+    std::vector<std::vector<int>> suitable_cells = get_suitable_cells(total_hosts);
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, 0, suitable_cells);
