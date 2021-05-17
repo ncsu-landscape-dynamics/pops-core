@@ -175,7 +175,7 @@ public:
         std::map<std::string, int> stats;
         std::set<NodeId> node_ids;
         for (auto item : nodes_by_row_col_) {
-            for (auto node_id : item.second) {
+            for (const auto node_id : item.second) {
                 node_ids.insert(node_id);
             }
         }
@@ -329,7 +329,7 @@ protected:
     }
 
     template<typename Container, typename Generator>
-    static NodeId pick_random_node(Container nodes, Generator& generator)
+    static NodeId pick_random_node(const Container& nodes, Generator& generator)
     {
         auto num_nodes = nodes.size();  // Replace by std::size in C++17.
         std::uniform_int_distribution<size_t> dist(0, num_nodes - 1);
