@@ -129,9 +129,8 @@ int main()
 {
   int num_errors = 0;
 
-  num_errors += test_mortality();
-  std::cout << "Mortality number of errors: " << num_errors << std::endl;
+  num_errors += test_move_all();
+  std::cout << "Movement number of errors: " << num_errors << std::endl;
   return num_errors;
 }
 #endif  // POPS_TEST
-© 2021 GitHub, Inc.
