@@ -121,16 +121,16 @@ int test_move_all_no_exposed()
         return 1;
     }
     if (exposed[1] != expected_exposed[1]) {
-      cout << "exposeds (actual, expected):\n"
-           << exposed[1] << "  !=\n"
-           << expected_exposed[1] << "\n";
-      return 1;
+        cout << "exposeds (actual, expected):\n"
+             << exposed[1] << "  !=\n"
+             << expected_exposed[1] << "\n";
+        return 1;
     }
     if (mortality_tracker[1] != expected_mortality_tracker[1]) {
-      cout << "mortality_tracker (actual, expected):\n"
-           << mortality_tracker[1] << "  !=\n"
-           << expected_mortality_tracker[1] << "\n";
-      return 1;
+        cout << "mortality_tracker (actual, expected):\n"
+             << mortality_tracker[1] << "  !=\n"
+             << expected_mortality_tracker[1] << "\n";
+        return 1;
     }
     return 0;
 }
@@ -156,7 +156,7 @@ int test_move_all_exposed()
     Raster<int> expected_total_hosts = {{0, 0}, {10, 23}};
     std::vector<Raster<int>> expected_exposed = {{{0, 0}, {0, 2}}, {{0, 0}, {0, 3}}};
     std::vector<Raster<int>> expected_mortality_tracker = {
-      {{0, 0}, {0, 3}}, {{0, 0}, {0, 2}}};
+        {{0, 0}, {0, 3}}, {{0, 0}, {0, 2}}};
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     Simulation<Raster<int>, Raster<double>> simulation(
         42, infected.rows(), infected.cols());
@@ -172,61 +172,61 @@ int test_move_all_exposed()
         last_index,
         movements,
         movement_schedule);
-  if (infected != expected_infected) {
-      cout << "infected (actual, expected):\n"
-           << infected << "  !=\n"
-           << expected_infected << "\n";
-      return 1;
-  }
-  if (susceptible != expected_susceptible) {
-      cout << "susceptible (actual, expected):\n"
-           << susceptible << "  !=\n"
-           << expected_susceptible << "\n";
-      return 1;
-  }
-  if (total_exposed != expected_total_exposed) {
-      cout << "total_exposed (actual, expected):\n"
-           << total_exposed << "  !=\n"
-           << expected_total_exposed << "\n";
-      return 1;
-  }
-  if (resistant != expected_resistant) {
-      cout << "resistant (actual, expected):\n"
-           << resistant << "  !=\n"
-           << expected_resistant << "\n";
-      return 1;
-  }
-  if (total_hosts != expected_total_hosts) {
-      cout << "total_hosts (actual, expected):\n"
-           << total_hosts << "  !=\n"
-           << expected_total_hosts << "\n";
-      return 1;
-  }
-  if (exposed[0] != expected_exposed[0]) {
-      cout << "exposeds (actual, expected):\n"
-           << exposed[0] << "  !=\n"
-           << expected_exposed[0] << "\n";
-      return 1;
-  }
-  if (mortality_tracker[0] != expected_mortality_tracker[0]) {
-      cout << "mortality_tracker (actual, expected):\n"
-           << mortality_tracker[0] << "  !=\n"
-           << expected_mortality_tracker[0] << "\n";
-      return 1;
-  }
-  if (exposed[1] != expected_exposed[1]) {
-      cout << "exposeds (actual, expected):\n"
-           << exposed[1] << "  !=\n"
-           << expected_exposed[1] << "\n";
-      return 1;
-  }
-  if (mortality_tracker[1] != expected_mortality_tracker[1]) {
-      cout << "mortality_tracker (actual, expected):\n"
-           << mortality_tracker[1] << "  !=\n"
-           << expected_mortality_tracker[1] << "\n";
-      return 1;
-  }
-  return 0;
+    if (infected != expected_infected) {
+        cout << "infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (susceptible != expected_susceptible) {
+        cout << "susceptible (actual, expected):\n"
+             << susceptible << "  !=\n"
+             << expected_susceptible << "\n";
+        return 1;
+    }
+    if (total_exposed != expected_total_exposed) {
+        cout << "total_exposed (actual, expected):\n"
+             << total_exposed << "  !=\n"
+             << expected_total_exposed << "\n";
+        return 1;
+    }
+    if (resistant != expected_resistant) {
+        cout << "resistant (actual, expected):\n"
+             << resistant << "  !=\n"
+             << expected_resistant << "\n";
+        return 1;
+    }
+    if (total_hosts != expected_total_hosts) {
+        cout << "total_hosts (actual, expected):\n"
+             << total_hosts << "  !=\n"
+             << expected_total_hosts << "\n";
+        return 1;
+    }
+    if (exposed[0] != expected_exposed[0]) {
+        cout << "exposeds (actual, expected):\n"
+             << exposed[0] << "  !=\n"
+             << expected_exposed[0] << "\n";
+        return 1;
+    }
+    if (mortality_tracker[0] != expected_mortality_tracker[0]) {
+        cout << "mortality_tracker (actual, expected):\n"
+             << mortality_tracker[0] << "  !=\n"
+             << expected_mortality_tracker[0] << "\n";
+        return 1;
+    }
+    if (exposed[1] != expected_exposed[1]) {
+        cout << "exposeds (actual, expected):\n"
+             << exposed[1] << "  !=\n"
+             << expected_exposed[1] << "\n";
+        return 1;
+    }
+    if (mortality_tracker[1] != expected_mortality_tracker[1]) {
+        cout << "mortality_tracker (actual, expected):\n"
+             << mortality_tracker[1] << "  !=\n"
+             << expected_mortality_tracker[1] << "\n";
+        return 1;
+    }
+    return 0;
 }
 
 int main()
