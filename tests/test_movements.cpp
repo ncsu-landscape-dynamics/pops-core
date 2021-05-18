@@ -255,7 +255,7 @@ int test_move_add_suitable_cell()
         {{0, 0}, {0, 3}}, {{0, 0}, {0, 2}}};
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}};
     std::vector<std::vector<int>> expected_suitable_cells = {
-      {0, 0}, {0, 1}, {1, 0}, {1, 1}};
+        {0, 0}, {0, 1}, {1, 0}, {1, 1}};
     Simulation<Raster<int>, Raster<double>> simulation(
         42, infected.rows(), infected.cols());
     simulation.movement(
@@ -327,9 +327,27 @@ int test_move_add_suitable_cell()
     }
     if (suitable_cells[0] != expected_suitable_cells[0]) {
         cout << "mortality_tracker (actual, expected):\n"
-             << suitable_cell[0]s << "  !=\n"
+             << suitable_cells[0] << "  !=\n"
              << expected_suitable_cells[0] << "\n";
         return 1;
+    }
+    if (suitable_cells[1] != expected_suitable_cells[1]) {
+      cout << "mortality_tracker (actual, expected):\n"
+           << suitable_cells[1] << "  !=\n"
+           << expected_suitable_cells[1] << "\n";
+      return 1;
+    }
+    if (suitable_cells[2] != expected_suitable_cells[2]) {
+      cout << "mortality_tracker (actual, expected):\n"
+           << suitable_cells[2] << "  !=\n"
+           << expected_suitable_cells[2] << "\n";
+      return 1;
+    }
+    if (suitable_cells[3] != expected_suitable_cells[3]) {
+      cout << "mortality_tracker (actual, expected):\n"
+           << suitable_cells[3] << "  !=\n"
+           << expected_suitable_cells[3] << "\n";
+      return 1;
     }
     return 0;
 }
