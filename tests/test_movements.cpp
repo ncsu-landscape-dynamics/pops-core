@@ -325,10 +325,10 @@ int test_move_add_suitable_cell()
              << expected_mortality_tracker[1] << "\n";
         return 1;
     }
-    if (suitable_cells != expected_suitable_cells) {
+    if (suitable_cells[0] != expected_suitable_cells[0]) {
         cout << "mortality_tracker (actual, expected):\n"
-             << suitable_cells << "  !=\n"
-             << expected_suitable_cells << "\n";
+             << suitable_cell[0]s << "  !=\n"
+             << expected_suitable_cells[0] << "\n";
         return 1;
     }
     return 0;
