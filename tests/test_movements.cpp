@@ -376,7 +376,6 @@ int test_move_add_suitable_cell()
     return 0;
 }
 
-
 int main()
 {
     int num_errors = 0;
