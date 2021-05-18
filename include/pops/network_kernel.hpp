@@ -20,6 +20,7 @@
 #include "raster.hpp"
 #include "utils.hpp"
 
+#include <algorithm>
 #include <set>
 #include <random>
 #include <string>
@@ -154,7 +155,7 @@ public:
         auto node_id = get_random_node_at(start_row, start_col, generator);
         while (time >= 0) {
             auto next_node_id = next_node(node_id, generator);
-            auto segment = segments_by_nodes_.at(std::make_pair(node_id, next_node_id));
+            auto segment = get_segment(node_id, next_node_id);
             // nodes may need special handling
             for (auto cell : segment) {
                 time -= cell_travel_time_;
@@ -264,6 +265,10 @@ public:
     }
 
 protected:
+    using NodeMatrix = std::set<std::pair<NodeId, NodeId>>;
+    using Segment = std::vector<std::pair<RasterIndex, RasterIndex>>;
+    using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
+
     template<typename InputStream>
     void load_nodes(InputStream& stream, std::set<NodeId>& node_ids)
     {
@@ -343,6 +348,29 @@ protected:
         }
     }
 
+    Segment get_segment(NodeId start, NodeId end) const
+    {
+        for (const auto& item : segments_by_nodes_) {
+            const auto& key{item.first};
+            if (key.first == start && key.second == end)
+                return item.second;
+            if (key.second == start && key.first == end) {
+                const Segment& stored{item.second};
+                Segment reversed(stored.size());
+                std::reverse_copy(stored.begin(), stored.end(), reversed.begin());
+                //                std::cerr << "X";
+                //                std::cerr << "[";
+                //                for (const auto& item : reversed) {
+                //                    std::cerr << "[" << item.first << ", " <<
+                //                    item.second << "],";
+                //                }
+                //                std::cerr << "]\n";
+                return reversed;
+            }
+        }
+        throw std::invalid_argument("No segment for given nodes");
+    }
+
     template<typename Container, typename Generator>
     static NodeId pick_random_node(const Container& nodes, Generator& generator)
     {
@@ -353,10 +381,6 @@ protected:
         // both sets and vectors.
         return *std::next(nodes.begin(), index);
     }
-
-    using NodeMatrix = std::set<std::pair<NodeId, NodeId>>;
-    using Segment = std::vector<std::pair<RasterIndex, RasterIndex>>;
-    using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
 
     BBox<double> bbox_;
     double ew_res_;
