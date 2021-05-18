@@ -30,6 +30,12 @@ this repository.
 - Model class kernels are now created and returned by protected functions.
 - Config class has now more defaults and subsequent setup now consistently fails when
   required values were not set.
+- Movement module has added parameters (`mortality_tracker_vector`, `exposed`, `resistant`, 
+  `total_exposed`, and `suitable_cells`).
+  * Now moves exposed and resistant populations
+  * Now moves total_hosts
+  * Now moves moratility tracked hosts
+  * Adds a new suitable_cell if a movement creates a new location with hosts.
 
 ## [1.0.2] - 2020-10-09
 
