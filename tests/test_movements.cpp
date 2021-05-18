@@ -325,28 +325,28 @@ int test_move_add_suitable_cell()
              << expected_mortality_tracker[1] << "\n";
         return 1;
     }
-    if (suitable_cells[0] != expected_suitable_cells[0]) {
+    if (suitable_cells[0][0] != expected_suitable_cells[0][0]) {
         cout << "mortality_tracker (actual, expected):\n"
-             << suitable_cells[0] << "  !=\n"
-             << expected_suitable_cells[0] << "\n";
+             << suitable_cells[0][0] << "  !=\n"
+             << expected_suitable_cells[0][0] << "\n";
         return 1;
     }
-    if (suitable_cells[1] != expected_suitable_cells[1]) {
+    if (suitable_cells[1][0] != expected_suitable_cells[1][0]) {
       cout << "mortality_tracker (actual, expected):\n"
-           << suitable_cells[1] << "  !=\n"
-           << expected_suitable_cells[1] << "\n";
+           << suitable_cells[1][0] << "  !=\n"
+           << expected_suitable_cells[1][0] << "\n";
       return 1;
     }
-    if (suitable_cells[2] != expected_suitable_cells[2]) {
+    if (suitable_cells[2][0] != expected_suitable_cells[2][0]) {
       cout << "mortality_tracker (actual, expected):\n"
-           << suitable_cells[2] << "  !=\n"
-           << expected_suitable_cells[2] << "\n";
+           << suitable_cells[2][0] << "  !=\n"
+           << expected_suitable_cells[2][0] << "\n";
       return 1;
     }
-    if (suitable_cells[3] != expected_suitable_cells[3]) {
+    if (suitable_cells[3][0] != expected_suitable_cells[3][0]) {
       cout << "mortality_tracker (actual, expected):\n"
-           << suitable_cells[3] << "  !=\n"
-           << expected_suitable_cells[3] << "\n";
+           << suitable_cells[3][0] << "  !=\n"
+           << expected_suitable_cells[3][0] << "\n";
       return 1;
     }
     return 0;
