@@ -195,6 +195,11 @@ public:
             }
         }
         stats["num_standalone_nodes"] = num_standalone_nodes;
+        // TODO: This can be faster. The list is a ordered set and we iterate over
+        // elements above.
+        const auto minmax_node_id = minmax_element(node_ids.begin(), node_ids.end());
+        stats["min_node_id"] = *minmax_node_id.first;
+        stats["max_node_id"] = *minmax_node_id.second;
         return stats;
     }
 
@@ -245,6 +250,16 @@ public:
                 stream << "      row: " << row << "\n";
                 stream << "      col: " << col << "\n";
             }
+        }
+        stream << "  segments:\n";
+        for (const auto& item : segments_by_nodes_) {
+            stream << "    - start_node: " << item.first.first << "\n";
+            stream << "      end_node: " << item.first.second << "\n";
+            stream << "      cells: [";
+            for (const auto& cell : item.second) {
+                stream << "[" << cell.first << ", " << cell.second << "], ";
+            }
+            stream << "]\n";
         }
     }
 
