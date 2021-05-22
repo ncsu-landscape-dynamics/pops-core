@@ -176,6 +176,21 @@ public:
         throw std::invalid_argument("Time must be greater than or equal to zero");
     }
 
+    std::vector<std::pair<NodeId, std::pair<RasterIndex, RasterIndex>>>
+    get_all_nodes() const
+    {
+        std::vector<std::pair<NodeId, std::pair<RasterIndex, RasterIndex>>> nodes;
+        nodes.reserve(nodes_by_row_col_.size());  // It will be at least this big.
+        for (auto item : nodes_by_row_col_) {
+            RasterIndex row = item.first.first;
+            RasterIndex col = item.first.second;
+            for (const auto node_id : item.second) {
+                nodes.emplace_back(node_id, std::make_pair(row, col));
+            }
+        }
+        return nodes;
+    }
+
     Statistics collect_statistics() const
     {
         std::map<std::string, int> stats;

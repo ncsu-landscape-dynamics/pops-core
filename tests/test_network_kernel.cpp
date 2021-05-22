@@ -154,7 +154,54 @@ int test_create_network()
     return ret;
 }
 
-using RawConfig = std::map<std::string, std::string>;
+// Possibly replace with templates
+std::string convert_to(const std::string& text, std::string tag)
+{
+    UNUSED(tag);
+    return text;
+}
+
+double convert_to(const std::string& text, double tag)
+{
+    UNUSED(tag);
+    return std::stod(text);
+}
+
+int convert_to(const std::string& text, int tag)
+{
+    UNUSED(tag);
+    return std::stod(text);
+}
+
+class RawConfig
+{
+public:
+    template<typename T = std::string>
+    T get(const std::string& key) const
+    {
+        auto it{values_.find(key)};
+        if (it != values_.end())
+            return convert_to(it->second, T());
+        throw std::invalid_argument(std::string("No value for key: ") + key);
+    }
+    template<typename T = std::string>
+    T get(const std::string& key, T default_value) const
+    {
+        auto it{values_.find(key)};
+        if (it != values_.end())
+            return convert_to(it->second, T());
+        return default_value;
+    }
+    // std::optional for default_value can replace the overload in C++17.
+    template<typename T>
+    void set(const std::string& key, const T& value)
+    {
+        values_[key] = value;
+    }
+
+protected:
+    std::map<std::string, std::string> values_;
+};
 
 template<typename Stream>
 RawConfig read_config(Stream& stream)
@@ -165,7 +212,7 @@ RawConfig read_config(Stream& stream)
         std::regex delimeter(R"([\s]*:[\s]*)");
         std::smatch match;
         if (regex_search(line, match, delimeter)) {
-            config[match.prefix()] = match.suffix();
+            config.set(match.prefix(), match.suffix());
         }
         else {
             throw std::runtime_error(std::string("Incorrect format at line: ") + line);
@@ -178,10 +225,10 @@ BBox<double> bbox_from_config(const RawConfig& config)
 {
     BBox<double> bbox;
     try {
-        bbox.north = std::stod(config.at("north"));
-        bbox.south = std::stod(config.at("south"));
-        bbox.east = std::stod(config.at("east"));
-        bbox.west = std::stod(config.at("west"));
+        bbox.north = config.get<double>("north");
+        bbox.south = config.get<double>("south");
+        bbox.east = config.get<double>("east");
+        bbox.west = config.get<double>("west");
     }
     catch (std::out_of_range&) {
         throw std::runtime_error(
@@ -193,18 +240,23 @@ BBox<double> bbox_from_config(const RawConfig& config)
 int create_network_from_files(int argc, char** argv)
 {
     if (argc != 5) {
-        std::cerr << "Usage: " << argv[0]
-                  << " read|stats|write CONFIG_FILE NODE_FILE SEGMENT_FILE\n";
+        std::cerr
+            << "Usage: " << argv[0]
+            << " read|stats|write|travel_all CONFIG_FILE NODE_FILE SEGMENT_FILE\n";
         return 1;
     }
     std::string command = argv[1];
     bool show_stats = false;
     bool write_network = false;
+    bool travel_all = false;
     if (command == "stats") {
         show_stats = true;
     }
     else if (command == "write") {
         write_network = true;
+    }
+    else if (command == "travel_all") {
+        travel_all = true;
     }
     else if (command != "read") {
         std::cerr << "Unknown sub-command: " << command << "\n";
@@ -233,10 +285,11 @@ int create_network_from_files(int argc, char** argv)
 
     RawConfig config = read_config(config_stream);
     BBox<double> bbox = bbox_from_config(config);
-    double nsres = std::stod(config["nsres"]);
-    double ewres = std::stod(config["ewres"]);
+    double nsres = config.get<double>("nsres");
+    double ewres = config.get<double>("ewres");
+    double speed = config.get("speed", 0.);
 
-    Network<int> network(bbox, nsres, ewres, 42);
+    Network<int> network(bbox, nsres, ewres, speed);
     network.load(node_stream, segment_stream);
 
     if (show_stats) {
@@ -247,6 +300,30 @@ int create_network_from_files(int argc, char** argv)
     }
     if (write_network) {
         network.dump_yaml(std::cout);
+    }
+    if (travel_all) {
+        double min_time = config.get("min_time", 1);
+        double max_time = config.get("max_time", 1);
+        double time_increment = config.get("time_increment", 1);
+        std::default_random_engine generator;
+        for (const auto& node : network.get_all_nodes()) {
+            for (double time = min_time; time <= max_time; time += time_increment) {
+                generator.seed(42);
+                int start_row = node.second.first;
+                int start_col = node.second.second;
+                int end_row;
+                int end_col;
+                if (!network.has_node_at(start_row, start_col)) {
+                    std::cerr << "Internal error in the Network\n";
+                    return 1;
+                }
+                std::tie(end_row, end_col) =
+                    network.travel(start_row, start_col, time, generator);
+                // std::cerr << "from (" << start_row << ", " << start_col << ") to ("
+                // << end_row
+                //          << ", " << end_col << ") in " << time << "\n";
+            }
+        }
     }
 
     return 0;
