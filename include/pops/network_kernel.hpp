@@ -104,6 +104,8 @@ public:
     NodeId next_node(NodeId start, Generator& generator) const
     {
         auto nodes = candidate_nodes_from_node_matrix(start);
+        if (nodes.empty())
+            return start;
         return pick_random_node(nodes, generator);
     }
 
@@ -155,6 +157,9 @@ public:
         auto node_id = get_random_node_at(start_row, start_col, generator);
         while (time >= 0) {
             auto next_node_id = next_node(node_id, generator);
+            // If there is no segment from the node, return the start cell.
+            if (next_node_id == node_id)
+                return {start_row, start_col};
             auto segment = get_segment(node_id, next_node_id);
             // nodes may need special handling
             for (auto cell : segment) {
