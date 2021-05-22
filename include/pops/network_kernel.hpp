@@ -88,16 +88,9 @@ public:
         load_segments(segment_stream, node_ids);
     }
 
-    std::vector<NodeId> candidate_nodes_from_node_matrix(NodeId node) const
+    const std::vector<NodeId>& candidate_nodes_from_node_matrix(NodeId node) const
     {
-        std::vector<NodeId> nodes;
-        for (const auto& item : node_matrix_) {
-            if (item.first == node)
-                nodes.push_back(item.second);
-            else if (item.second == node)
-                nodes.push_back(item.first);
-        }
-        return nodes;
+        return node_matrix_.at(node);
     }
 
     template<typename Generator>
@@ -205,7 +198,6 @@ public:
         std::set<NodeId> nodes_with_segments;
         for (const auto& item : node_matrix_) {
             nodes_with_segments.insert(item.first);
-            nodes_with_segments.insert(item.second);
         }
         stats["num_nodes_with_segments"] = nodes_with_segments.size();
         int num_standalone_nodes = 0;
@@ -260,7 +252,7 @@ public:
         stream << "    cell_travel_time: " << cell_travel_time_ << "\n";
         stream << "  edges:\n";
         for (const auto& item : node_matrix_) {
-            stream << "    - [" << item.first << ", " << item.second << "]\n";
+            // stream << "    - [" << item.first << ", " << item.second << "]\n";
         }
         stream << "  nodes:\n";
         for (const auto& item : nodes_by_row_col_) {
@@ -285,7 +277,7 @@ public:
     }
 
 protected:
-    using NodeMatrix = std::set<std::pair<NodeId, NodeId>>;
+    using NodeMatrix = std::map<NodeId, std::vector<NodeId>>;
     using Segment = std::vector<std::pair<RasterIndex, RasterIndex>>;
     using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
 
@@ -322,6 +314,7 @@ protected:
     template<typename InputStream>
     void load_segments(InputStream& stream, const std::set<NodeId>& node_ids)
     {
+        std::set<std::pair<NodeId, NodeId>> node_pairs;
         std::string line;
         while (std::getline(stream, line)) {
             std::istringstream line_stream{line};
@@ -348,7 +341,7 @@ protected:
             // We don't know which way the nodes are ordered, so instead of checking
             // the order, we create a symmetric matrix since we allocated the memory
             // anyway.
-            node_matrix_.emplace(node_1_id, node_2_id);
+            node_pairs.emplace(node_1_id, node_2_id);
             std::istringstream segment_stream{segment_text};
             char in_cell_delimeter{';'};
             std::string x_coord_text;
@@ -365,6 +358,17 @@ protected:
             }
             segments_by_nodes_.emplace(
                 std::make_pair(node_1_id, node_2_id), std::move(segment));
+        }
+
+        for (auto node_id : node_ids) {
+            std::vector<NodeId> nodes;
+            for (const auto& item : node_pairs) {
+                if (item.first == node_id)
+                    nodes.push_back(item.second);
+                else if (item.second == node_id)
+                    nodes.push_back(item.first);
+            }
+            node_matrix_[node_id] = std::move(nodes);
         }
     }
 
