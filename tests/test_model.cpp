@@ -70,12 +70,15 @@ int test_with_reduced_stochasticity()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
+    config.use_mortality = false;
+    config.mortality_frequency = "year";
+    config.mortality_frequency_n = 1;
     config.create_schedules();
 
-    unsigned num_mortality_years = config.num_mortality_years();
-    std::cerr << "num_mortality_years: " << num_mortality_years << "\n";
+    unsigned num_mortality_steps = 1;
+    std::cerr << "num_mortality_steps: " << num_mortality_steps << "\n";
     std::vector<Raster<int>> mortality_tracker(
-        num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
+        num_mortality_steps, Raster<int>(infected.rows(), infected.cols(), 0));
 
     //    int exposed_size = 0;
     //    if (config.latency_period_steps)
@@ -204,13 +207,16 @@ int test_deterministic()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
+    config.use_mortality = false;
+    config.mortality_frequency = "year";
+    config.mortality_frequency_n = 1;
     config.create_schedules();
 
     config.deterministic = true;
 
-    unsigned num_mortality_years = config.num_mortality_years();
+    unsigned num_mortality_steps = 1;
     std::vector<Raster<int>> mortality_tracker(
-        num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
+        num_mortality_steps, Raster<int>(infected.rows(), infected.cols(), 0));
 
     Raster<int> died(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
@@ -328,13 +334,16 @@ int test_deterministic_exponential()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
+    config.use_mortality = false;
+    config.mortality_frequency = "year";
+    config.mortality_frequency_n = 1;
     config.create_schedules();
 
     config.deterministic = true;
 
-    unsigned num_mortality_years = config.num_mortality_years();
+    unsigned num_mortality_steps = 1;
     std::vector<Raster<int>> mortality_tracker(
-        num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
+        num_mortality_steps, Raster<int>(infected.rows(), infected.cols(), 0));
 
     Raster<int> died(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
@@ -447,15 +456,18 @@ int test_model_sei_deterministic()
     config.set_date_end(2020, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
+    config.use_mortality = false;
+    config.mortality_frequency = "year";
+    config.mortality_frequency_n = 1;
     config.create_schedules();
 
     config.deterministic = true;
 
     std::vector<std::vector<int>> movements;
 
-    unsigned num_mortality_years = config.num_mortality_years();
+    unsigned num_mortality_steps = 1;
     std::vector<Raster<int>> mortality_tracker(
-        num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
+        num_mortality_steps, Raster<int>(infected.rows(), infected.cols(), 0));
 
     Raster<int> died(infected.rows(), infected.cols(), 0);
     int exposed_size = 0;
@@ -571,15 +583,18 @@ int test_model_sei_deterministic_with_treatments()
     config.set_date_end(2020, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
+    config.use_mortality = false;
+    config.mortality_frequency = "year";
+    config.mortality_frequency_n = 1;
     config.create_schedules();
 
     config.deterministic = true;
 
     std::vector<std::vector<int>> movements;
 
-    unsigned num_mortality_years = config.num_mortality_years();
+    unsigned num_mortality_steps = 1;
     std::vector<Raster<int>> mortality_tracker(
-        num_mortality_years, Raster<int>(infected.rows(), infected.cols(), 0));
+        num_mortality_steps, Raster<int>(infected.rows(), infected.cols(), 0));
 
     Raster<int> died(infected.rows(), infected.cols(), 0);
     int exposed_size = 0;
