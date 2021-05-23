@@ -384,18 +384,16 @@ public:
             // Since suitable-cells comes from the total hosts originally. The
             // the first check is for total_hosts
             if (total_hosts(row_to, col_to) == 0) {
-                int match = 0;
                 for (auto indices : suitable_cells) {
                     int i = indices[0];
                     int j = indices[1];
-                    if ((i == row_to) & (j == col_to)) {
-                        match += 1;
+                    if ((i == row_to) && (j == col_to)) {
+                        std::vector<int> added_index = {row_to, col_to};
+                        suitable_cells.push_back(added_index);
+                        break;
                     }
                 }
-                if (match == 0) {
-                    std::vector<int> added_index = {row_to, col_to};
-                    suitable_cells.push_back(added_index);
-                }
+
             }
 
             infected(row_from, col_from) -= infected_moved;
