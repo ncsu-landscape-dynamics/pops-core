@@ -42,28 +42,55 @@ using std::endl;
 
 using namespace pops;
 
-int main(int argc, char* argv[])
+int test_mortality()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
-    Raster<int> mortality_tracker = {{{3, 0}, {0, 0}}, {{0, 0}, {0, 0}}};
-    Raster<int> mortality = {{0, 0}, {0, 0}};
-    int ew_res = 30;
-    int ns_res = 30;
+    Raster<int> total_hosts = {{10, 5}, {5, 3}};
+    std::vector<Raster<int>> mortality_tracker = {{{3, 0}, {0, 0}}, {{2, 0}, {0, 0}}};
+    Raster<int> died = {{0, 0}, {0, 0}};
+    Raster<int> expected_died = {{4, 0}, {0, 0}};
+    Raster<int> expected_infected = {{1, 0}, {0, 0}};
+    Raster<int> expected_total_hosts = {{6, 5}, {5, 3}};
     double mortality_rate = 0.50;
-    int current_year = 2018;
-    int first_mortality_year = 2018;
+    int mortality_time_lag = 0;
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
-    Simulation<Raster<int>, Raster<double>> simulation(42, infected, ew_res, ns_res);
+    Simulation<Raster<int>, Raster<double>> simulation(
+        42, infected.rows(), infected.cols());
     simulation.mortality(
         infected,
+        total_hosts,
         mortality_rate,
-        current_year,
-        first_mortality_year,
-        mortality,
-        mortality_tracker_vector,
-        suitable_cells) cout
-        << mortality << endl;
+        mortality_time_lag,
+        died,
+        mortality_tracker,
+        suitable_cells);
+    if (died != expected_died) {
+        cout << "died (actual, expected):\n"
+             << died << "  !=\n"
+             << expected_died << "\n";
+        return 1;
+    }
+    if (infected != expected_infected) {
+        cout << "infected (actual, expected):\n"
+             << infected << "  !=\n"
+             << expected_infected << "\n";
+        return 1;
+    }
+    if (total_hosts != expected_total_hosts) {
+        cout << "total_hosts (actual, expected):\n"
+             << total_hosts << "  !=\n"
+             << expected_total_hosts << "\n";
+        return 1;
+    }
     return 0;
 }
 
+int main()
+{
+    int num_errors = 0;
+
+    num_errors += test_mortality();
+    std::cout << "Mortality number of errors: " << num_errors << std::endl;
+    return num_errors;
+}
 #endif  // POPS_TEST

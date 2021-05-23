@@ -208,7 +208,9 @@ public:
      * @param[in,out] total_populations All host and non-host individuals in the area
      * @param[out] dispersers Dispersing individuals (used internally)
      * @param exposed[in,out] Exposed hosts (if SEI model is active)
-     * @param mortality_tracker[in,out] Mortality tracker used to generate *died*
+     * @param mortality_tracker[in,out] Mortality tracker used to generate *died*.
+     * Expectation is that mortality tracker is of length (1/mortality_rate +
+     * mortality_time_lag)
      * @param died[out] Infected hosts which died this step based on the mortality
      * schedule
      * @param temperatures[in] Vector of temperatures used to evaluate lethal
@@ -251,8 +253,7 @@ public:
         const std::vector<std::vector<int>> movements,
         std::vector<std::vector<int>>& suitable_cells)
     {
-        int mortality_simulation_year =
-            simulation_step_to_action_step(config_.mortality_schedule(), step);
+
         // removal of dispersers due to lethal temperatures
         if (config_.use_lethal_temperature && config_.lethal_schedule()[step]) {
             int lethal_step =
@@ -288,7 +289,7 @@ public:
                 susceptible,
                 exposed,
                 infected,
-                mortality_tracker[mortality_simulation_year],
+                mortality_tracker.back(),
                 total_populations,
                 total_exposed,
                 outside_dispersers,
@@ -309,6 +310,7 @@ public:
                     config_.leaving_percentage);
             }
             if (config_.use_movements) {
+                // to do fix movements to use entire mortality tracker
                 last_index = simulation_.movement(
                     infected,
                     susceptible,
@@ -329,37 +331,21 @@ public:
             bool managed = treatments.manage(
                 step, infected, exposed, susceptible, resistant, suitable_cells);
             if (managed && config_.use_mortality) {
-                // same conditions as the mortality code below
-                // TODO: make the mortality timing available as a separate function in
-                // the library or simply go over all valid cohorts
-                if (mortality_simulation_year >= config_.first_mortality_year - 1) {
-                    auto max_index =
-                        mortality_simulation_year - (config_.first_mortality_year - 1);
-                    for (int age = 0; age <= max_index; age++) {
-                        treatments.manage_mortality(
-                            step, mortality_tracker[age], suitable_cells);
-                    }
+                // treatments apply to all mortality tracker cohorts
+                for (auto& raster : mortality_tracker) {
+                    treatments.manage_mortality(step, raster, suitable_cells);
                 }
             }
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
-            // only run to the current year of simulation
-            // (first year is 0):
-            //   max index == sim year
-            // reduced by first time when trees start dying
-            // (counted from 1: first year == 1)
-            // e.g. for sim year 3, year dying 4, max index is 0
-            //   max index = sim year - (dying year - 1)
-            // index is negative before we reach the year
-            // (so we can skip these years)
-            // sim year - (dying year - 1) < 0
-            // sim year < dying year - 1
+            // expectation is that mortality tracker is of length (1/mortality_rate
+            // + mortality_time_lag).
             // TODO: died.zero(); should be done by the caller if needed, document!
             simulation_.mortality(
                 infected,
+                total_hosts,
                 config_.mortality_rate,
-                mortality_simulation_year,
-                config_.first_mortality_year - 1,
+                config_.mortality_time_lag,
                 died,
                 mortality_tracker,
                 suitable_cells);

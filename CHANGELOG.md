@@ -23,6 +23,8 @@ this repository.
 - Total hosts added to run_step (Chris Jones)
   * Allows overpopulations to be based on total_hosts rather than total_populations
   * Allows movement to be based on total_hosts rather than total_populations
+- Mortality timing is now more flexible (Chris Jones)
+  * requires 2 new parameters mortality_frequency and mortality_frequency_n
 
 ### Changed
 - Model class internal attributes and functions are now protected instead of private
