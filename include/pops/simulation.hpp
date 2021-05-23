@@ -393,7 +393,6 @@ public:
                         break;
                     }
                 }
-
             }
 
             infected(row_from, col_from) -= infected_moved;
