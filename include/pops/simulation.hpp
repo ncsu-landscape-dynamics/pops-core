@@ -42,7 +42,7 @@ void rotate_left_by_one(Container& container)
     std::rotate(container.begin(), container.begin() + 1, container.end());
 }
 
-/** Draws n elements from a vector. Expects n to be less than v.size().
+/** Draws n elements from a vector. Expects n to be equal or less than v.size().
  */
 template<typename Generator>
 std::vector<int> draw_n_from_v(std::vector<int> v, unsigned n, Generator& generator)
