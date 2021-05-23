@@ -217,7 +217,6 @@ public:
         const std::vector<std::vector<int>>& suitable_cells)
     {
 
-        int mortality_current_step = 0;
         int max_index = mortality_tracker_vector.size() - mortality_time_lag - 1;
 
         for (auto indices : suitable_cells) {
