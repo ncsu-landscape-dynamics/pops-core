@@ -52,7 +52,7 @@ std::vector<int> draw_n_from_v(std::vector<int> v, unsigned n, Generator& genera
 
     std::shuffle(v.begin(), v.end(), generator);
     v.erase(v.begin() + n, v.end());
-    return (v);
+    return v;
 }
 
 /** The type of a epidemiological model (SI or SEI)
