@@ -82,7 +82,7 @@ int test_with_neighbor_kernel()
     Raster<int> total_hosts = susceptible;
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
-
+    Raster<int> total_exposed = {{0, 0}, {0, 0}};
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
     auto expected_infected = expected_mortality_tracker + infected;
 
@@ -103,6 +103,7 @@ int test_with_neighbor_kernel()
         infected,
         mortality_tracker,
         total_hosts,
+        total_exposed,
         outside_dispersers,
         weather,
         weather_coefficient,
@@ -136,10 +137,9 @@ int test_with_reduced_stochasticity()
     Raster<int> total_hosts = susceptible;
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
+    Raster<int> total_exposed = {{0, 0}, {0, 0}};
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
-    unsigned step = 1;
-    unsigned last_index = 0;
 
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
     auto expected_infected = expected_mortality_tracker + infected;
@@ -185,6 +185,7 @@ int test_with_reduced_stochasticity()
         infected,
         mortality_tracker,
         total_hosts,
+        total_exposed,
         outside_dispersers,
         weather,
         weather_coefficient,
@@ -206,26 +207,6 @@ int test_with_reduced_stochasticity()
         cout << "reduced_stochasticity: mortality tracker (actual, expected):\n"
              << mortality_tracker << "  !=\n"
              << expected_mortality_tracker << "\n";
-        return 1;
-    }
-    infected = {{5, 0}, {0, 0}};
-    susceptible = {{10, 20}, {14, 15}};
-    mortality_tracker = {{0, 0}, {0, 0}};
-    total_hosts = susceptible;
-    simulation.movement(
-        infected,
-        susceptible,
-        mortality_tracker,
-        total_hosts,
-        step,
-        last_index,
-        movements,
-        movement_schedule);
-    expected_infected = {{4, 0}, {0, 1}};
-    if (infected != expected_infected) {
-        cout << "reduced_stochasticity: infected (actual, expected):\n"
-             << infected << "  !=\n"
-             << expected_infected << "\n";
         return 1;
     }
     return 0;
@@ -275,6 +256,7 @@ int test_with_sei()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
     Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
+    Raster<int> total_exposed = {{0, 0}, {0, 0}};
     // Susceptible and total are set in a way that there won't be any
     // dilution effect and the disperser will always establish given the
     // selected random seed. Establishment probability is high and with
@@ -323,6 +305,7 @@ int test_with_sei()
         infected,
         mortality_tracker,
         total_hosts,
+        total_exposed,
         outside_dispersers,
         weather,
         weather_coefficient,
@@ -350,6 +333,7 @@ int test_with_sei()
         infected,
         mortality_tracker,
         total_hosts,
+        total_exposed,
         outside_dispersers,
         weather,
         weather_coefficient,
@@ -366,6 +350,7 @@ int test_with_sei()
         infected,
         mortality_tracker,
         total_hosts,
+        total_exposed,
         outside_dispersers,
         weather,
         weather_coefficient,
@@ -393,6 +378,7 @@ int test_with_sei()
         infected,
         mortality_tracker,
         total_hosts,
+        total_exposed,
         outside_dispersers,
         weather,
         weather_coefficient,
@@ -429,6 +415,7 @@ int test_with_sei()
         infected,
         mortality_tracker,
         total_hosts,
+        total_exposed,
         outside_dispersers,
         weather,
         weather_coefficient,
@@ -447,6 +434,7 @@ int test_with_sei()
             infected,
             mortality_tracker,
             total_hosts,
+            total_exposed,
             outside_dispersers,
             weather,
             weather_coefficient,
@@ -468,6 +456,9 @@ int test_SI_versus_SEI0()
     Raster<int> mortality_tracker_1 = {{0, 0}, {0, 0}};
     auto mortality_tracker_2 = mortality_tracker_1;
     auto mortality_tracker_3 = mortality_tracker_1;
+    Raster<int> total_exposed_1 = {{0, 0}, {0, 0}};
+    auto total_exposed_2 = total_exposed_1;
+    auto total_exposed_3 = total_exposed_1;
     // Susceptible and total are set in a way that there won't be any
     // dilution effect and the disperser will always establish given the
     // selected random seed. Establishment probability is high and with
@@ -520,6 +511,7 @@ int test_SI_versus_SEI0()
             infected_1,
             mortality_tracker_1,
             total_hosts_1,
+            total_exposed_1,
             outside_dispersers_1,
             weather,
             weather_coefficient,
@@ -531,6 +523,7 @@ int test_SI_versus_SEI0()
             infected_2,
             mortality_tracker_2,
             total_hosts_2,
+            total_exposed_2,
             outside_dispersers_2,
             weather,
             weather_coefficient,
@@ -544,6 +537,7 @@ int test_SI_versus_SEI0()
             infected_3,
             mortality_tracker_3,
             total_hosts_3,
+            total_exposed_3,
             outside_dispersers_3,
             weather,
             weather_coefficient,
@@ -577,9 +571,13 @@ int test_SI_versus_SEI0()
 int test_calling_all_functions()
 {
     Raster<int> infected = {{5, 0}, {0, 0}};
+    std::vector<Raster<int>> mortality_tracker_vector = {{0, 0}, {0, 0}};
     Raster<int> mortality_tracker = {{0, 0}, {0, 0}};
     Raster<int> susceptible = {{10, 15}, {14, 15}};
     Raster<int> total_hosts = {{15, 15}, {14, 15}};
+    Raster<int> total_exposed = {{0, 0}, {0, 0}};
+    Raster<int> resistant = {{0, 0}, {0, 0}};
+    std::vector<Raster<int>> exposed = {{0, 0}, {0, 0}};
     Raster<double> temperature = {{5, 0}, {0, 0}};
     Raster<double> weather_coefficient = {{0.6, 0.8}, {0.2, 0.8}};
     Raster<int> dispersers(infected.rows(), infected.cols());
@@ -594,42 +592,47 @@ int test_calling_all_functions()
     unsigned step = 1;
     unsigned last_index = 0;
     int seed = 42;
-    std::vector<std::vector<int>> suitable_cellss = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
     Simulation<Raster<int>, Raster<double>> simulation(
         seed, infected.rows(), infected.cols());
     simulation.remove(
-        infected, susceptible, temperature, lethal_temperature, suitable_cellss);
+        infected, susceptible, temperature, lethal_temperature, suitable_cells);
     simulation.generate(
         dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cellss);
+        suitable_cells);
     RadialDispersalKernel<Raster<int>> kernel(
         ew_res, ns_res, dispersal_kernel, short_distance_scale);
     simulation.movement(
         infected,
         susceptible,
-        mortality_tracker,
+        mortality_tracker_vector,
+        exposed,
+        resistant,
         total_hosts,
+        total_exposed,
         step,
         last_index,
         movements,
-        movement_schedule);
+        movement_schedule,
+        suitable_cells);
     simulation.disperse(
         dispersers,
         susceptible,
         infected,
         mortality_tracker,
         total_hosts,
+        total_exposed,
         outside_dispersers,
         weather,
         weather_coefficient,
         kernel,
-        suitable_cellss);
+        suitable_cells);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;
     return 0;
 }

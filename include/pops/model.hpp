@@ -238,6 +238,7 @@ public:
         IntegerRaster& total_populations,
         IntegerRaster& total_hosts,
         IntegerRaster& dispersers,
+        IntegerRaster& total_exposed,
         std::vector<IntegerRaster>& exposed,
         std::vector<IntegerRaster>& mortality_tracker,
         IntegerRaster& died,
@@ -250,7 +251,7 @@ public:
         QuarantineEscape<IntegerRaster>& quarantine,  // out
         const IntegerRaster& quarantine_areas,
         const std::vector<std::vector<int>> movements,
-        const std::vector<std::vector<int>>& suitable_cells)
+        std::vector<std::vector<int>>& suitable_cells)
     {
 
         // removal of dispersers due to lethal temperatures
@@ -290,6 +291,7 @@ public:
                 infected,
                 mortality_tracker.back(),
                 total_populations,
+                total_exposed,
                 outside_dispersers,
                 config_.weather,
                 weather_coefficient,
@@ -312,12 +314,16 @@ public:
                 last_index = simulation_.movement(
                     infected,
                     susceptible,
-                    mortality_tracker.back(),
+                    mortality_tracker,
+                    exposed,
+                    resistant,
                     total_hosts,
+                    total_exposed,
                     step,
                     last_index,
                     movements,
-                    config_.movement_schedule);
+                    config_.movement_schedule,
+                    suitable_cells);
             }
         }
         // treatments
