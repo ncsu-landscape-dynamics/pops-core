@@ -112,7 +112,6 @@ int test_application_ratio_pesticide()
     Raster<int> treated = {{10, 6}, {20, 42}};
     Raster<int> inf_treated = {{1, 4}, {16, 40}};
     Raster<int> resist = {{0, 0}, {0, 0}};
-    auto total_hosts = infected + susceptible + resistant;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
         std::cout << "Treatment with pesticide and ratio app does not work"
                   << std::endl;
@@ -215,6 +214,7 @@ int test_combination()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
+    auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
@@ -283,6 +283,7 @@ int test_pesticide_temporal_overlap()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
+    auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
@@ -360,6 +361,7 @@ int test_steering()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
+    auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
@@ -441,6 +443,7 @@ int test_clear()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
+    auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
