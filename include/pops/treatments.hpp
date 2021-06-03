@@ -188,11 +188,11 @@ public:
             int susceptible_changed = 0;
             if (this->application_ == TreatmentApplication::Ratio) {
                 infected_changed = infected(i, j) - (infected(i, j) * this->map_(i, j));
-                infected(i, j) = infected_change;
+                infected(i, j) = infected_changed;
             }
             else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
                 infected_changed = this->map_(i, j) ? 0 : infected(i, j);
-                infected(i, j) = infected_change;
+                infected(i, j) = infected_changed;
             }
             for (auto& raster : exposed) {
                 if (this->application_ == TreatmentApplication::Ratio) {
