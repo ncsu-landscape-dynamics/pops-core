@@ -390,7 +390,12 @@ public:
         for (unsigned i = 0; i < treatments.size(); i++) {
             if (treatments[i]->should_start(current)) {
                 treatments[i]->apply_treatment(
-                    infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
+                    infected,
+                    exposed,
+                    susceptible,
+                    resistant,
+                    total_hosts,
+                    suitable_cells);
                 changed = true;
             }
             else if (treatments[i]->should_end(current)) {
