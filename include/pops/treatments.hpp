@@ -87,6 +87,7 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
+        IntegerRaster& total_hosts,
         const std::vector<std::vector<int>>& spatial_indeices) = 0;
     virtual void end_treatment(
         IntegerRaster& susceptible,
@@ -175,29 +176,39 @@ public:
         IntegerRaster& infected,
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& susceptible,
-        IntegerRaster&,
+        IntegerRaster& resistant,
+        IntegerRaster& total_hosts,
         const std::vector<std::vector<int>>& suitable_cells) override
     {
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
+            int exposed_changed = 0;
+            int infected_changed = 0;
+            int susceptible_changed = 0;
             if (this->application_ == TreatmentApplication::Ratio) {
-                infected(i, j) = infected(i, j) - (infected(i, j) * this->map_(i, j));
+                infected_change = infected(i, j) - (infected(i, j) * this->map_(i, j));
+                infected(i, j) = infected_change;
             }
             else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
-                infected(i, j) = this->map_(i, j) ? 0 : infected(i, j);
+                infected_change = this->map_(i, j) ? 0 : infected(i, j);
+                infected(i, j) = infected_change;
             }
             for (auto& raster : exposed) {
                 if (this->application_ == TreatmentApplication::Ratio) {
                     raster(i, j) = raster(i, j) - (raster(i, j) * this->map_(i, j));
+                    exposed_changed += raster(i, j) - (raster(i, j) * this->map_(i, j));
                 }
                 else if (
                     this->application_ == TreatmentApplication::AllInfectedInCell) {
                     raster(i, j) = this->map_(i, j) ? 0 : raster(i, j);
+                    exposed_changed += this->map_(i, j) ? 0 : raster(i, j);
                 }
             }
-            susceptible(i, j) =
+            susceptible_changed =
                 susceptible(i, j) - (susceptible(i, j) * this->map_(i, j));
+            susceptible(i, j) = susceptible_changed;
+            total_hosts(i, j) = infected_change + susceptible_changed + exposed_changed + resistant(i, j)
         }
     }
     void end_treatment(
@@ -244,6 +255,7 @@ public:
         std::vector<IntegerRaster>& exposed_vector,
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
+        IntegerRaster&,
         const std::vector<std::vector<int>>& suitable_cells) override
     {
         for (auto indices : suitable_cells) {
