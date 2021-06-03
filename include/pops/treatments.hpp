@@ -383,13 +383,14 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
+        IntegerRaster& total_hosts,
         const std::vector<std::vector<int>>& suitable_cells)
     {
         bool changed = false;
         for (unsigned i = 0; i < treatments.size(); i++) {
             if (treatments[i]->should_start(current)) {
                 treatments[i]->apply_treatment(
-                    infected, exposed, susceptible, resistant, suitable_cells);
+                    infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
                 changed = true;
             }
             else if (treatments[i]->should_end(current)) {
