@@ -187,11 +187,11 @@ public:
             int infected_changed = 0;
             int susceptible_changed = 0;
             if (this->application_ == TreatmentApplication::Ratio) {
-                infected_change = infected(i, j) - (infected(i, j) * this->map_(i, j));
+                infected_changed = infected(i, j) - (infected(i, j) * this->map_(i, j));
                 infected(i, j) = infected_change;
             }
             else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
-                infected_change = this->map_(i, j) ? 0 : infected(i, j);
+                infected_changed = this->map_(i, j) ? 0 : infected(i, j);
                 infected(i, j) = infected_change;
             }
             for (auto& raster : exposed) {
@@ -208,7 +208,8 @@ public:
             susceptible_changed =
                 susceptible(i, j) - (susceptible(i, j) * this->map_(i, j));
             susceptible(i, j) = susceptible_changed;
-            total_hosts(i, j) = infected_change + susceptible_changed + exposed_changed + resistant(i, j)
+            total_hosts(i, j) = infected_changed + susceptible_changed + exposed_changed
+                                + resistant(i, j);
         }
     }
     void end_treatment(
