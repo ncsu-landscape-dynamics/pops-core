@@ -41,15 +41,17 @@ int test_application_ratio()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
+    auto total_host = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     treatments.add_treatment(tr1, Date(2020, 1, 1), 0, TreatmentApplication::Ratio);
-    treatments.manage(0, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(0, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     Raster<int> treated = {{0, 3}, {5, 42}};
     Raster<int> inf_treated = {{0, 2}, {4, 40}};
+    auto th_treated = treated + inf_treated;
     if (!(susceptible == treated && infected == inf_treated)) {
         std::cout << "Treatment with ratio app does not work" << std::endl;
         std::cout << susceptible << infected;
@@ -67,13 +69,14 @@ int test_application_all_inf()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
+    auto total_host = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     treatments.add_treatment(
         tr1, Date(2020, 1, 1), 0, TreatmentApplication::AllInfectedInCell);
-    treatments.manage(0, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(0, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     Raster<int> treated = {{0, 3}, {5, 42}};
     Raster<int> inf_treated = {{0, 0}, {0, 40}};
@@ -95,16 +98,18 @@ int test_application_ratio_pesticide()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
+    auto total_host = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     treatments.add_treatment(tr1, Date(2020, 5, 1), 7, TreatmentApplication::Ratio);
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     Raster<int> treated = {{10, 6}, {20, 42}};
     Raster<int> inf_treated = {{1, 4}, {16, 40}};
     Raster<int> resist = {{0, 0}, {0, 0}};
+    auto total_host = infected + susceptible + resistant;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
         std::cout << "Treatment with pesticide and ratio app does not work"
                   << std::endl;
@@ -112,7 +117,7 @@ int test_application_ratio_pesticide()
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{0, 3}, {5, 42}};
     inf_treated = {{0, 2}, {4, 40}};
@@ -124,7 +129,7 @@ int test_application_ratio_pesticide()
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 8));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{11, 8}, {32, 42}};
     resist = {{0, 0}, {0, 0}};
@@ -146,6 +151,7 @@ int test_application_all_inf_pesticide()
     Raster<int> susceptible = {{10, 6}, {20, 42}};
     Raster<int> resistant = {{0, 0}, {0, 0}};
     Raster<int> infected = {{1, 4}, {16, 40}};
+    auto total_host = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
@@ -153,7 +159,7 @@ int test_application_all_inf_pesticide()
     treatments.add_treatment(
         tr1, Date(2020, 5, 1), 7, TreatmentApplication::AllInfectedInCell);
     unsigned n = scheduler.schedule_action_date(Date(2020, 1, 1));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     Raster<int> treated = {{10, 6}, {20, 42}};
     Raster<int> inf_treated = {{1, 4}, {16, 40}};
@@ -165,7 +171,7 @@ int test_application_all_inf_pesticide()
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{0, 3}, {5, 42}};
     inf_treated = {{0, 0}, {0, 40}};
@@ -177,7 +183,7 @@ int test_application_all_inf_pesticide()
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 8));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{11, 10}, {36, 42}};
     resist = {{0, 0}, {0, 0}};
@@ -208,7 +214,7 @@ int test_combination()
     treatments.add_treatment(tr1, Date(2020, 5, 1), 0, TreatmentApplication::Ratio);
     treatments.add_treatment(tr2, Date(2020, 6, 1), 7, TreatmentApplication::Ratio);
     unsigned n = scheduler.schedule_action_date(Date(2020, 1, 1));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     Raster<int> treated = {{10, 6}, {20, 42}};
     Raster<int> inf_treated = {{1, 4}, {16, 40}};
@@ -219,7 +225,7 @@ int test_combination()
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{0, 3}, {5, 42}};
     inf_treated = {{0, 2}, {4, 40}};
@@ -230,7 +236,7 @@ int test_combination()
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 6, 2));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{0, 0}, {0, 0}};
     inf_treated = {{0, 0}, {0, 0}};
@@ -241,7 +247,7 @@ int test_combination()
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 6, 8));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{0, 5}, {9, 82}};
     inf_treated = {{0, 0}, {0, 0}};
@@ -273,7 +279,7 @@ int test_pesticide_temporal_overlap()
     treatments.add_treatment(tr2, Date(2020, 5, 20), 30, TreatmentApplication::Ratio);
 
     unsigned n = scheduler.schedule_action_date(Date(2020, 5, 1));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     Raster<int> treated = {{0, 0}, {20, 42}};
     Raster<int> inf_treated = {{0, 0}, {16, 40}};
@@ -286,7 +292,7 @@ int test_pesticide_temporal_overlap()
     }
 
     n = scheduler.schedule_action_date(Date(2020, 5, 20));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{0, 0}, {0, 0}};
     inf_treated = {{0, 0}, {0, 0}};
@@ -299,7 +305,7 @@ int test_pesticide_temporal_overlap()
     }
 
     n = scheduler.schedule_action_date(Date(2020, 6, 1));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{11, 10}, {0, 0}};
     inf_treated = {{0, 0}, {0, 0}};
@@ -312,7 +318,7 @@ int test_pesticide_temporal_overlap()
     }
 
     n = scheduler.schedule_action_date(Date(2020, 6, 21));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{11, 10}, {36, 82}};
     inf_treated = {{0, 0}, {0, 0}};
@@ -345,17 +351,17 @@ int test_steering()
     treatments.add_treatment(tr1, Date(2020, 5, 1), 0, TreatmentApplication::Ratio);
     treatments.add_treatment(tr2, Date(2020, 6, 1), 7, TreatmentApplication::Ratio);
     unsigned n = scheduler.schedule_action_date(Date(2020, 1, 1));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 5, 12));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 1));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 8));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 15));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     Raster<int> treated = {{0, 5}, {9, 82}};
     Raster<int> inf_treated = {{0, 0}, {0, 0}};
@@ -370,17 +376,17 @@ int test_steering()
     resistant = {{0, 0}, {0, 0}};
     infected = {{1, 4}, {16, 40}};
     n = scheduler.schedule_action_date(Date(2020, 1, 1));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 5, 12));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 1));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 8));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 15));
-    treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+    treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     treated = {{0, 5}, {9, 82}};
     inf_treated = {{0, 0}, {0, 0}};
@@ -418,22 +424,22 @@ int test_clear()
     treatments.clear_after_step(n);
     n = scheduler.schedule_action_date(Date(2020, 1, 1));
     num_actions +=
-        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+        treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
     num_actions +=
-        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+        treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 5, 12));
     num_actions +=
-        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+        treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 1));
     num_actions +=
-        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+        treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 8));
     num_actions +=
-        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+        treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
     n = scheduler.schedule_action_date(Date(2020, 6, 15));
     num_actions +=
-        treatments.manage(n, infected, exposed, susceptible, resistant, suitable_cells);
+        treatments.manage(n, infected, exposed, susceptible, resistant, total_hosts, suitable_cells);
 
     Raster<int> treated = {{0, 5}, {9, 82}};
     Raster<int> inf_treated = {{0, 0}, {0, 0}};
