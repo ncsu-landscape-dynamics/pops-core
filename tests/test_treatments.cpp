@@ -242,7 +242,7 @@ int test_combination()
     Raster<int> treated = {{10, 6}, {20, 42}};
     Raster<int> inf_treated = {{1, 4}, {16, 40}};
     Raster<int> resist = {{0, 0}, {0, 0}};
-    auto th_treated = treated + inf_treated +resist;
+    auto th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
         std::cout << "Combination of treatments does not work" << std::endl;
@@ -270,7 +270,7 @@ int test_combination()
     treated = {{0, 0}, {0, 0}};
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{0, 5}, {9, 82}};
-    th_treated = treated + inf_treated +resist;
+    th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
         std::cout << "Combination of treatments does not work" << std::endl;
