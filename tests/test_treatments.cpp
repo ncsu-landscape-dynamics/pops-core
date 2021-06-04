@@ -53,9 +53,10 @@ int test_application_ratio()
     Raster<int> treated = {{0, 3}, {5, 42}};
     Raster<int> inf_treated = {{0, 2}, {4, 40}};
     auto th_treated = treated + inf_treated +resistant;
-    if (!(susceptible == treated && infected == inf_treated && total_hosts == th_treated)) {
+    if (!(susceptible == treated && infected == inf_treated
+          && total_hosts == th_treated)) {
         std::cout << "Treatment with ratio app does not work" << std::endl;
-        std::cout << susceptible << infected;
+        std::cout << susceptible << infected  << total_hosts;
         num_errors++;
     }
     return num_errors;
@@ -82,9 +83,10 @@ int test_application_all_inf()
 
     Raster<int> treated = {{0, 3}, {5, 42}};
     Raster<int> inf_treated = {{0, 0}, {0, 40}};
+    auto th_treated = treated + inf_treated +resistant;
     if (!(susceptible == treated && infected == inf_treated)) {
         std::cout << "Treatment with AllInfectedInCell app does not work" << std::endl;
-        std::cout << susceptible << infected;
+        std::cout << susceptible << infected << total_hosts;
         num_errors++;
     }
     return num_errors;
@@ -112,10 +114,12 @@ int test_application_ratio_pesticide()
     Raster<int> treated = {{10, 6}, {20, 42}};
     Raster<int> inf_treated = {{1, 4}, {16, 40}};
     Raster<int> resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Treatment with pesticide and ratio app does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
@@ -125,10 +129,12 @@ int test_application_ratio_pesticide()
     treated = {{0, 3}, {5, 42}};
     inf_treated = {{0, 2}, {4, 40}};
     resist = {{11, 5}, {27, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Treatment with pesticide and ratio app does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 8));
@@ -137,10 +143,12 @@ int test_application_ratio_pesticide()
 
     treated = {{11, 8}, {32, 42}};
     resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Treatment with pesticide and ratio app does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     return num_errors;
@@ -169,10 +177,12 @@ int test_application_all_inf_pesticide()
     Raster<int> treated = {{10, 6}, {20, 42}};
     Raster<int> inf_treated = {{1, 4}, {16, 40}};
     Raster<int> resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Treatment with pesticide and AllInfectedInCell app does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
@@ -182,10 +192,12 @@ int test_application_all_inf_pesticide()
     treated = {{0, 3}, {5, 42}};
     inf_treated = {{0, 0}, {0, 40}};
     resist = {{11, 7}, {31, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Treatment with pesticide and AllInfectedInCell app does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 8));
@@ -194,10 +206,12 @@ int test_application_all_inf_pesticide()
 
     treated = {{11, 10}, {36, 42}};
     resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Treatment with pesticide and AllInfectedInCell app does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     return num_errors;
@@ -228,9 +242,11 @@ int test_combination()
     Raster<int> treated = {{10, 6}, {20, 42}};
     Raster<int> inf_treated = {{1, 4}, {16, 40}};
     Raster<int> resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Combination of treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
@@ -240,9 +256,11 @@ int test_combination()
     treated = {{0, 3}, {5, 42}};
     inf_treated = {{0, 2}, {4, 40}};
     resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Combination of treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 6, 2));
@@ -252,9 +270,11 @@ int test_combination()
     treated = {{0, 0}, {0, 0}};
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{0, 5}, {9, 82}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Combination of treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 6, 8));
@@ -264,9 +284,11 @@ int test_combination()
     treated = {{0, 5}, {9, 82}};
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Combination of treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     return num_errors;
@@ -298,10 +320,12 @@ int test_pesticide_temporal_overlap()
     Raster<int> treated = {{0, 0}, {20, 42}};
     Raster<int> inf_treated = {{0, 0}, {16, 40}};
     Raster<int> resist = {{11, 10}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Temporal overlap of pesticide treatments does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -312,10 +336,12 @@ int test_pesticide_temporal_overlap()
     treated = {{0, 0}, {0, 0}};
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{11, 10}, {36, 82}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Temporal overlap of pesticide treatments does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -326,10 +352,12 @@ int test_pesticide_temporal_overlap()
     treated = {{11, 10}, {0, 0}};
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{0, 0}, {36, 82}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Temporal overlap of pesticide treatments does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -340,10 +368,12 @@ int test_pesticide_temporal_overlap()
     treated = {{11, 10}, {36, 82}};
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Temporal overlap of pesticide treatments does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -390,9 +420,11 @@ int test_steering()
     Raster<int> treated = {{0, 5}, {9, 82}};
     Raster<int> inf_treated = {{0, 0}, {0, 0}};
     Raster<int> resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Steering with treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -421,9 +453,11 @@ int test_steering()
     treated = {{0, 5}, {9, 82}};
     inf_treated = {{0, 0}, {0, 0}};
     resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Steering with treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -475,9 +509,11 @@ int test_clear()
     Raster<int> treated = {{0, 5}, {9, 82}};
     Raster<int> inf_treated = {{0, 0}, {0, 0}};
     Raster<int> resist = {{0, 0}, {0, 0}};
-    if (!(susceptible == treated && infected == inf_treated && resist == resistant)) {
+    auto th_treated = treated + inf_treated +resist;
+    if (!(susceptible == treated && infected == inf_treated && resist == resistant
+          && total_hosts == th_treated)) {
         std::cout << "Clearing of treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant;
+        std::cout << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     if (num_actions != 3) {
