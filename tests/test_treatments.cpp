@@ -84,7 +84,7 @@ int test_application_all_inf()
     Raster<int> treated = {{0, 3}, {5, 42}};
     Raster<int> inf_treated = {{0, 0}, {0, 40}};
     auto th_treated = treated + inf_treated + resistant;
-    if (!(susceptible == treated && infected == inf_treated)) {
+    if (!(susceptible == treated && infected == inf_treated && total_hosts == th_treated)) {
         std::cout << "Treatment with AllInfectedInCell app does not work" << std::endl;
         std::cout << susceptible << infected << total_hosts;
         num_errors++;
