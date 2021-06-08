@@ -212,8 +212,8 @@ public:
             new_susceptible =
                 susceptible(i, j) - (susceptible(i, j) * this->map_(i, j));
             susceptible(i, j) = new_susceptible;
-            total_hosts(i, j) = new_infected + new_susceptible + new_exposed_total
-                                + resistant(i, j);
+            total_hosts(i, j) =
+                new_infected + new_susceptible + new_exposed_total + resistant(i, j);
         }
     }
     void end_treatment(
