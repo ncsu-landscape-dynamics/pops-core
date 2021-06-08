@@ -20,6 +20,7 @@
 #include "raster.hpp"
 #include "date.hpp"
 #include "scheduling.hpp"
+#include "utils.hpp"
 
 #include <map>
 #include <vector>
@@ -197,7 +198,8 @@ public:
             }
             for (auto& raster : exposed) {
                 if (this->application_ == TreatmentApplication::Ratio) {
-                    new_exposed_individual = raster(i, j) - (raster(i, j) * this->map_(i, j));
+                    new_exposed_individual =
+                        raster(i, j) - (raster(i, j) * this->map_(i, j));
                     raster(i, j) = new_exposed_individual;
                     new_exposed_total += new_exposed_individual;
                 }
