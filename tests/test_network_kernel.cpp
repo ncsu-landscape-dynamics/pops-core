@@ -154,28 +154,38 @@ int test_create_network()
     return ret;
 }
 
-// Possibly replace with templates
+/** Placeholder for string to string no-op. */
 std::string convert_to(const std::string& text, std::string tag)
 {
     UNUSED(tag);
     return text;
 }
 
+/** Convert string to double */
 double convert_to(const std::string& text, double tag)
 {
     UNUSED(tag);
     return std::stod(text);
 }
 
+/** Convert string to int */
 int convert_to(const std::string& text, int tag)
 {
     UNUSED(tag);
-    return std::stod(text);
+    return std::stoi(text);
 }
 
+/**
+ * \brief A generic key-value configuration which can convert values to desired types.
+ */
 class RawConfig
 {
 public:
+    /**
+     * Get value from config or the default value.
+     *
+     * The type is determined by the template parameter is specified.
+     */
     template<typename T = std::string>
     T get(const std::string& key) const
     {
@@ -184,6 +194,19 @@ public:
             return convert_to(it->second, T());
         throw std::invalid_argument(std::string("No value for key: ") + key);
     }
+    /**
+     * Get value from config or the default value.
+     *
+     * The type is determined by the default value unless the template parameter is
+     * specified. For floating point numbers, you can do:
+     *
+     * ```
+     * double x = config.get("x", 0.);
+     * ```
+     *
+     * However, if `0` is passed, the function parse the value as an integer and return
+     * an integer.
+     */
     template<typename T = std::string>
     T get(const std::string& key, T default_value) const
     {
@@ -192,7 +215,7 @@ public:
             return convert_to(it->second, T());
         return default_value;
     }
-    // std::optional for default_value can replace the overload in C++17.
+    // std::optional for default_value can replace the get overload in C++17.
     template<typename T>
     void set(const std::string& key, const T& value)
     {
@@ -203,6 +226,9 @@ protected:
     std::map<std::string, std::string> values_;
 };
 
+/**
+ * \brief Create RawConfig from a YAML-like text stream of simple `key: value` pairs.
+ */
 template<typename Stream>
 RawConfig read_config(Stream& stream)
 {
@@ -221,6 +247,12 @@ RawConfig read_config(Stream& stream)
     return config;
 }
 
+/**
+ * @brief Create bounding box from configuration
+ *
+ * @param configuration containing north, south, east, and west
+ * @return bounding box object with doubles
+ */
 BBox<double> bbox_from_config(const RawConfig& config)
 {
     BBox<double> bbox;
@@ -302,9 +334,9 @@ int create_network_from_files(int argc, char** argv)
         network.dump_yaml(std::cout);
     }
     if (travel_all) {
-        double min_time = config.get("min_time", 1);
-        double max_time = config.get("max_time", 1);
-        double time_increment = config.get("time_increment", 1);
+        double min_time = config.get("min_time", 1.);
+        double max_time = config.get("max_time", 1.);
+        double time_increment = config.get("time_increment", 1.);
         std::default_random_engine generator;
         for (const auto& node : network.get_all_nodes()) {
             for (double time = min_time; time <= max_time; time += time_increment) {
