@@ -86,23 +86,34 @@ int test_travel_network()
     std::array<int, num_times> times;
     std::generate_n(
         times.begin(), num_times, [&current_time] { return ++current_time; });
+    std::array<std::pair<int, int>, num_times> correct_destinations{
+        {{8, 7}, {8, 8}, {9, 9}, {8, 9}, {7, 9}, {6, 9}, {5, 9}, {4, 9}, {3, 9}}};
+    auto correct = correct_destinations.cbegin();
     for (const auto time : times) {
         generator.seed(42);
         int start_row = 8;
         int start_col = 7;
         if (!network.has_node_at(start_row, start_col)) {
             std::cerr << "Expected node at " << start_row << ", " << start_col << "\n";
-            network.dump_yaml(std::cerr);
             ret += 1;
         }
         int end_row;
         int end_col;
         std::tie(end_row, end_col) =
             network.travel(start_row, start_col, time, generator);
-        std::cerr << "from (" << start_row << ", " << start_col << ") to (" << end_row
-                  << ", " << end_col << ") in " << time << "\n";
+        if (correct->first != end_row || correct->second != end_col) {
+            std::cerr << "from (" << start_row << ", " << start_col << ") to ("
+                      << end_row << ", " << end_col << ") in " << time
+                      << " but expected to arrive to (" << correct->first << ", "
+                      << correct->second << ")\n";
+            ret += 1;
+        }
+        ++correct;
     }
-    // network.dump_yaml(std::cout);
+    if (ret) {
+        std::cout << "---\n";
+        network.dump_yaml(std::cout);
+    }
     return ret;
 }
 
