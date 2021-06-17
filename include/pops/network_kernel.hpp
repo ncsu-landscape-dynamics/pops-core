@@ -194,7 +194,8 @@ public:
             }
         }
         stats["num_nodes"] = node_ids.size();
-        stats["num_segments"] = node_matrix_.size();
+        // We store segements in both directions, so each segment is stored twice.
+        stats["num_segments"] = node_matrix_.size() / 2;
         std::set<NodeId> nodes_with_segments;
         for (const auto& item : node_matrix_) {
             nodes_with_segments.insert(item.first);
@@ -250,9 +251,15 @@ public:
         stream << "    num_cols: " << max_col - min_col + 1 << "\n";
         stream << "  cost:\n";
         stream << "    cell_travel_time: " << cell_travel_time_ << "\n";
-        stream << "  edges:\n";
+        std::set<std::pair<NodeId, NodeId>> edges;
         for (const auto& item : node_matrix_) {
-            // stream << "    - [" << item.first << ", " << item.second << "]\n";
+            for (const auto& node_id : item.second) {
+                edges.emplace(item.first, node_id);
+            }
+        }
+        stream << "  edges:\n";
+        for (const auto& item : edges) {
+            stream << "    - [" << item.first << ", " << item.second << "]\n";
         }
         stream << "  nodes:\n";
         for (const auto& item : nodes_by_row_col_) {
@@ -326,8 +333,10 @@ protected:
             auto node_1_id = node_id_from_text(node_1_text);
             auto node_2_id = node_id_from_text(node_2_text);
             // If either end nodes of the segment is not in the extent, skip it.
+            // This means that a segment is ignored even if one of the nodes and
+            // significant portion of the segment is in the area of iterest.
             // TODO: Part of the segment may still be out, so that needs to be checked.
-            // Replace by contains for C++20.
+            // Replace find by contains for C++20.
             if (node_ids.find(node_1_id) == node_ids.end()
                 || node_ids.find(node_2_id) == node_ids.end())
                 continue;
