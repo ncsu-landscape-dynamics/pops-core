@@ -288,6 +288,85 @@ protected:
     using Segment = std::vector<std::pair<RasterIndex, RasterIndex>>;
     using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
 
+    /**
+     * \brief A const iterator which encapsulates either forward or reverse iterator.
+     *
+     * Uses the iterator was passed in the constructor, but it can contain either
+     * forward or reverse iterator, so it allows writing direction agnostic code
+     * where the direction is determined in the runtime.
+     */
+    template<typename Container>
+    class ConstEitherWayIterator
+    {
+    public:
+        ConstEitherWayIterator(typename Container::const_iterator it)
+            : is_forward_(true), forward_it_(it)
+        {}
+        ConstEitherWayIterator(typename Container::const_reverse_iterator it)
+            : is_forward_(false), reverse_it_(it)
+        {}
+        ConstEitherWayIterator& operator++()
+        {
+            if (is_forward_)
+                ++forward_it_;
+            else
+                ++reverse_it_;
+            return *this;
+        }
+        const typename Container::value_type& operator*() const
+        {
+            if (is_forward_)
+                return *forward_it_;
+            return *reverse_it_;
+        }
+        bool operator!=(const ConstEitherWayIterator& other)
+        {
+            if (is_forward_)
+                return forward_it_ != other.forward_it_;
+            return reverse_it_ != other.reverse_it_;
+        }
+
+    private:
+        // Can be improved by std::optional or any in C++17.
+        bool is_forward_;
+        typename Container::const_iterator forward_it_;
+        typename Container::const_reverse_iterator reverse_it_;
+    };
+
+    /**
+     * \brief A const view of a Segment which can be iterated.
+     *
+     * Depending on which iterators are passed in the constructor, the view
+     * is in the forward direction of the Segment or in reverse. The view can also be
+     * a subset. The view supports only const iterators.
+     */
+    class SegmentView
+    {
+    public:
+        SegmentView(
+            typename Segment::const_iterator first,
+            typename Segment::const_iterator last)
+            : begin_(first), end_(last)
+        {}
+        SegmentView(
+            typename Segment::const_reverse_iterator first,
+            typename Segment::const_reverse_iterator last)
+            : begin_(first), end_(last)
+        {}
+        ConstEitherWayIterator<Segment> begin() const
+        {
+            return begin_;
+        }
+        ConstEitherWayIterator<Segment> end() const
+        {
+            return end_;
+        }
+
+    private:
+        ConstEitherWayIterator<Segment> begin_;
+        ConstEitherWayIterator<Segment> end_;
+    };
+
     template<typename InputStream>
     void load_nodes(InputStream& stream, std::set<NodeId>& node_ids)
     {
@@ -381,24 +460,25 @@ protected:
         }
     }
 
-    Segment get_segment(NodeId start, NodeId end) const
+    /**
+     * @brief Get a segment between the two given nodes
+     *
+     * For a given pair of nodes, the function finds the connecting segment
+     * and returns a view of the segment oriented according to the order of the nodes.
+     *
+     * @param start Start node id
+     * @param end End node id
+     * @returns View of the segment oriented from start to end
+     * @throws std::invalid_argument if there is no segment connecting the nodes
+     */
+    SegmentView get_segment(NodeId start, NodeId end) const
     {
         for (const auto& item : segments_by_nodes_) {
             const auto& key{item.first};
             if (key.first == start && key.second == end)
-                return item.second;
+                return SegmentView(item.second.cbegin(), item.second.cend());
             if (key.second == start && key.first == end) {
-                const Segment& stored{item.second};
-                Segment reversed(stored.size());
-                std::reverse_copy(stored.begin(), stored.end(), reversed.begin());
-                //                std::cerr << "X";
-                //                std::cerr << "[";
-                //                for (const auto& item : reversed) {
-                //                    std::cerr << "[" << item.first << ", " <<
-                //                    item.second << "],";
-                //                }
-                //                std::cerr << "]\n";
-                return reversed;
+                return SegmentView(item.second.crbegin(), item.second.crend());
             }
         }
         throw std::invalid_argument("No segment for given nodes");
