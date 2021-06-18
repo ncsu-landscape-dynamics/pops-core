@@ -27,6 +27,7 @@ this repository.
   * requires 2 new parameters mortality_frequency and mortality_frequency_n
 
 ### Changed
+
 - Model class internal attributes and functions are now protected instead of private
   to allow derived classes to access them for greater flexibility.
 - Model class kernels are now created and returned by protected functions.
@@ -38,6 +39,14 @@ this repository.
   * Now moves total_hosts
   * Now moves moratility tracked hosts
   * Adds a new suitable_cell if a movement creates a new location with hosts.
+- Treatments now modify total hosts (Chris Jones)
+- Citation updated to PoPS Frontiers paper (Chris Jones)
+  * Jones, C., Jones, S., Petrasova, A., Petras, V., Gaydos, D., 
+  Skrip, M., Takeuchi, Y., Bigsby, K., and Meentemeyer, R., 2021.
+  Iteratively forecasting biological invasions with PoPS and a little help from 
+  our friends.
+  *Frontiers in Ecology and the Environment* 
+  [DOI: 10.1002/fee.2357](https://doi.org/10.1002/fee.2357)
 
 ## [1.0.2] - 2020-10-09
 
