@@ -16,6 +16,8 @@ this repository.
 
 ## [Unreleased]
 
+## [1.1.0] - 2021-06-18
+
 ### Added
 
 - Pest movement based on overpopulation (Vaclav Petras)
@@ -29,12 +31,12 @@ this repository.
 ### Changed
 
 - Model class internal attributes and functions are now protected instead of private
-  to allow derived classes to access them for greater flexibility.
-- Model class kernels are now created and returned by protected functions.
+  to allow derived classes to access them for greater flexibility (Vaclav Petras).
+- Model class kernels are now created and returned by protected functions (Vaclav Petras).
 - Config class has now more defaults and subsequent setup now consistently fails when
-  required values were not set.
+  required values were not set (Vaclav Petras).
 - Movement module has added parameters (`mortality_tracker_vector`, `exposed`, `resistant`, 
-  `total_exposed`, and `suitable_cells`).
+  `total_exposed`, and `suitable_cells`) (Chris Jones).
   * Now moves exposed and resistant populations
   * Now moves total_hosts
   * Now moves moratility tracked hosts
@@ -370,6 +372,7 @@ this repository.
   includes now. (Vaclav Petras)
 
 [unreleased]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.2...HEAD
+[1.1.0]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/ncsu-landscape-dynamics/pops-core/tree/v1.0.0
