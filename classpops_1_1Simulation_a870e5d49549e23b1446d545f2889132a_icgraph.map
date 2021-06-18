@@ -1,0 +1,4 @@
+<map id="pops::Simulation::infect_exposed" name="pops::Simulation::infect_exposed">
+<area shape="rect" id="node1" title="Infect exposed hosts (E to I transition in the SEI model)" alt="" coords="248,5,424,47"/>
+<area shape="rect" id="node2" href="$classpops_1_1Simulation.html#ae39386514d5a0849d7453b0afdf44344" title="Disperse, expose, and infect based on dispersers." alt="" coords="5,5,200,47"/>
+</map>

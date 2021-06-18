@@ -1,0 +1,4 @@
+<map id="pops::draw_n_from_v" name="pops::draw_n_from_v">
+<area shape="rect" id="node1" title="Draws n elements from a vector." alt="" coords="264,5,425,32"/>
+<area shape="rect" id="node2" href="$classpops_1_1Simulation.html#a1770a130586e638e6b2d4aa85ae0b3cd" title="Moves hosts from one location to another." alt="" coords="5,5,216,32"/>
+</map>

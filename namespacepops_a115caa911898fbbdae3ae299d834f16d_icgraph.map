@@ -1,0 +1,6 @@
+<map id="pops::rotate_left_by_one" name="pops::rotate_left_by_one">
+<area shape="rect" id="node1" title="Rotate elements in a container to the left by one." alt="" coords="495,42,677,69"/>
+<area shape="rect" id="node2" href="$classpops_1_1Simulation.html#a870e5d49549e23b1446d545f2889132a" title="Infect exposed hosts (E to I transition in the SEI model)" alt="" coords="259,5,435,47"/>
+<area shape="rect" id="node4" href="$classpops_1_1Simulation.html#a9c4f2e4d644adcae3e7aa2d5b2739367" title="kills infected hosts based on mortality rate and timing." alt="" coords="248,71,447,98"/>
+<area shape="rect" id="node3" href="$classpops_1_1Simulation.html#ae39386514d5a0849d7453b0afdf44344" title="Disperse, expose, and infect based on dispersers." alt="" coords="5,5,200,47"/>
+</map>

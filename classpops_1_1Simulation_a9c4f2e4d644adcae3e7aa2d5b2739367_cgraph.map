@@ -1,0 +1,4 @@
+<map id="pops::Simulation::mortality" name="pops::Simulation::mortality">
+<area shape="rect" id="node1" title="kills infected hosts based on mortality rate and timing." alt="" coords="5,5,204,32"/>
+<area shape="rect" id="node2" href="$namespacepops.html#a115caa911898fbbdae3ae299d834f16d" title="Rotate elements in a container to the left by one." alt="" coords="252,5,435,32"/>
+</map>
