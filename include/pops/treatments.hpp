@@ -205,8 +205,10 @@ public:
                 }
                 else if (
                     this->application_ == TreatmentApplication::AllInfectedInCell) {
-                    raster(i, j) = this->map_(i, j) ? 0 : raster(i, j);
-                    new_exposed_total += this->map_(i, j) ? 0 : raster(i, j);
+                    new_exposed_individual =
+                        raster(i, j) - (raster(i, j) * this->map_(i, j));
+                    raster(i, j) = new_exposed_individual;
+                    new_exposed_total += new_exposed_individual;
                 }
             }
             new_susceptible =
