@@ -1,6 +1,7 @@
 # PoPS Core - Pest or Pathogen Spread Model Core
 
 [![Build Status](https://travis-ci.org/ncsu-landscape-dynamics/pops-core.svg?branch=master)](https://travis-ci.org/ncsu-landscape-dynamics/pops-core)
+[![DOI](https://zenodo.org/badge/142505637.svg)](https://zenodo.org/badge/latestdoi/142505637)
 
 PoPS Core is the core C++ library for the PoPS Model.
 
