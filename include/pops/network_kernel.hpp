@@ -126,6 +126,19 @@ public:
     }
 
     /**
+     * @brief Get row and column for a node.
+     * @param node Node id to get the coordinates for
+     * @return Row and column pair
+     */
+    std::pair<RasterIndex, RasterIndex> get_node_row_col(NodeId node) const
+    {
+        for (const auto& item : nodes_by_row_col_) {
+            if (container_contains(item.second, node))
+                return item.first;
+        }
+    }
+
+    /**
      * Travel in the network from given row and column for a given time.
      *
      * All previously visited nodes are tracked and, if possible, excluded
@@ -195,6 +208,7 @@ public:
             nodes_with_segments.insert(item.first);
         }
         stats["num_nodes_with_segments"] = nodes_with_segments.size();
+        // Only count the nodes here. Output them in the dump network output.
         int num_standalone_nodes = 0;
         for (NodeId node_id : node_ids) {
             if (nodes_with_segments.find(node_id) == nodes_with_segments.end()) {

@@ -342,7 +342,20 @@ int create_network_from_files(int argc, char** argv)
     if (show_stats) {
         auto stats = network.collect_statistics();
         for (const auto& item : stats) {
-            std::cout << item.first << ": " << item.second << "\n";
+            // TODO: Resolve the stats output directly in the network.
+            // Replace by starts_with in C++20.
+            if (item.first.rfind("standalone_node_", 0) == 0) {
+                int row;
+                int col;
+                std::tie(row, col) = network.get_node_row_col(item.second);
+                std::cout << item.first << ":\n";
+                std::cout << "  id: " << item.second << "\n";
+                std::cout << "  row: " << row << "\n";
+                std::cout << "  col: " << col << "\n";
+            }
+            else {
+                std::cout << item.first << ": " << item.second << "\n";
+            }
         }
     }
     if (write_network) {
