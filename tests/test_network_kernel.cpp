@@ -285,13 +285,13 @@ int create_network_from_files(int argc, char** argv)
     if (argc != 5) {
         std::cerr
             << "Usage: " << argv[0]
-            << " read|stats|write|travel_all|trace CONFIG_FILE NODE_FILE SEGMENT_FILE\n";
+            << " read|stats|write|trips|trace CONFIG_FILE NODE_FILE SEGMENT_FILE\n";
         return 1;
     }
     std::string command = argv[1];
     bool show_stats = false;
     bool write_network = false;
-    bool travel_all = false;
+    bool trips = false;
     bool trace = false;
     if (command == "stats") {
         show_stats = true;
@@ -299,15 +299,15 @@ int create_network_from_files(int argc, char** argv)
     else if (command == "write") {
         write_network = true;
     }
-    else if (command == "travel_all") {
-        travel_all = true;
+    else if (command == "trips") {
+        trips = true;
     }
     else if (command == "trace") {
         trace = true;
     }
     else if (command != "read") {
         std::cerr << "Unknown sub-command: " << command << "\n";
-        std::cerr << "Supported sub-commands are: read, stats, write\n";
+        std::cerr << "Supported sub-commands are: read, stats, write, trips, trace\n";
         return 1;
     }
 
@@ -326,7 +326,7 @@ int create_network_from_files(int argc, char** argv)
     std::string segment_file{argv[4]};
     std::ifstream segment_stream{segment_file};
     if (!segment_stream.is_open()) {
-        std::cerr << "Failed to open stream file: " << segment_file << "\n";
+        std::cerr << "Failed to open segment file: " << segment_file << "\n";
         return 1;
     }
 
@@ -361,13 +361,14 @@ int create_network_from_files(int argc, char** argv)
     if (write_network) {
         network.dump_yaml(std::cout);
     }
-    if (travel_all || trace) {
+    if (trips || trace) {
         double min_time = config.get("min_time", 1.);
         double max_time = config.get("max_time", 1.);
         double time_increment = config.get("time_increment", 1.);
         int seed = config.get("seed", 1);
         std::default_random_engine generator;
-        // Seed the generator for travel all and for node random selection for trace.
+        // Seed the generator for trips (only here) and for trace, seed it here
+        // for node shuffle (or random selection when using a subset).
         generator.seed(seed);
         auto nodes = network.get_all_nodes();
         shuffle_container(nodes, generator);
@@ -385,7 +386,7 @@ int create_network_from_files(int argc, char** argv)
                 return 1;
             }
             // For trace, the trips for node are the trace.
-            // For travel all, and time range, trips are independent combinations.
+            // For trips and time range, trips are independent combinations.
             std::vector<std::tuple<int, int, double>> trips;
             for (double time = min_time; time <= max_time; time += time_increment) {
                 if (trace)
