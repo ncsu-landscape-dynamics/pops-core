@@ -88,20 +88,6 @@ public:
         load_segments(segment_stream, node_ids);
     }
 
-    const std::vector<NodeId>& candidate_nodes_from_node_matrix(NodeId node) const
-    {
-        return node_matrix_.at(node);
-    }
-
-    template<typename Generator>
-    NodeId next_node(NodeId start, Generator& generator) const
-    {
-        auto nodes = candidate_nodes_from_node_matrix(start);
-        if (nodes.empty())
-            return start;
-        return pick_random_node(nodes, generator);
-    }
-
     std::set<NodeId> get_nodes_at(RasterIndex row, RasterIndex col) const
     {
         // return nodes_by_row_col_.at(std::make_pair(row, col));
@@ -138,24 +124,31 @@ public:
         return true;
     }
 
+    /**
+     * Travel in the network from given row and column for a given time.
+     *
+     * All previously visited nodes are tracked and, if possible, excluded
+     * from further traveling.
+     *
+     * @returns Final row and column pair
+     */
     template<typename Generator>
-    std::tuple<int, int> travel(
-        RasterIndex start_row,
-        RasterIndex start_col,
-        double time,
-        Generator& generator) const
+    std::tuple<int, int>
+    travel(RasterIndex row, RasterIndex col, double time, Generator& generator) const
     {
         // We assume there is a node here, i.e., that we are made decision
         // to use this kernel knowing there is a node.
-        auto node_id = get_random_node_at(start_row, start_col, generator);
+        auto node_id = get_random_node_at(row, col, generator);
+        std::set<NodeId> visited_nodes;
         while (time >= 0) {
-            auto next_node_id = next_node(node_id, generator);
+            auto next_node_id = next_node(node_id, visited_nodes, generator);
+            visited_nodes.insert(node_id);
             // If there is no segment from the node, return the start cell.
             if (next_node_id == node_id)
-                return {start_row, start_col};
+                return {row, col};
             auto segment = get_segment(node_id, next_node_id);
             // nodes may need special handling
-            for (auto cell : segment) {
+            for (const auto& cell : segment) {
                 time -= cell_travel_time_;
                 if (time <= 0) {
                     return cell;
@@ -174,7 +167,7 @@ public:
     {
         std::vector<std::pair<NodeId, std::pair<RasterIndex, RasterIndex>>> nodes;
         nodes.reserve(nodes_by_row_col_.size());  // It will be at least this big.
-        for (auto item : nodes_by_row_col_) {
+        for (const auto& item : nodes_by_row_col_) {
             RasterIndex row = item.first.first;
             RasterIndex col = item.first.second;
             for (const auto node_id : item.second) {
@@ -188,7 +181,7 @@ public:
     {
         std::map<std::string, int> stats;
         std::set<NodeId> node_ids;
-        for (auto item : nodes_by_row_col_) {
+        for (const auto& item : nodes_by_row_col_) {
             for (const auto node_id : item.second) {
                 node_ids.insert(node_id);
             }
@@ -484,6 +477,65 @@ protected:
         throw std::invalid_argument("No segment for given nodes");
     }
 
+    /**
+     * @brief Get nodes connected by an edge to a given node.
+     *
+     * @param node Node to get connections from
+     * @return List of connected nodes
+     */
+    const std::vector<NodeId>& nodes_connected_to(NodeId node) const
+    {
+        return node_matrix_.at(node);
+    }
+
+    /**
+     * Pick a next node from the given node.
+     *
+     * If there is more than one edge leading from the given node, a random node is
+     * picked. If there are no edges leading from the given node, the node is returned.
+     *
+     * The random node is picked from candidate nodes which are nodes connected to
+     * a given node. The candidate nodes which are in the _ignore_ list are excluded
+     * from the random selection. If all candiate nodes are in the *ignore* list,
+     * the *ignore* list is ignored and all candidate nodes are used.
+     *
+     * The function always returns a node to go to even if it means going to an ignored
+     * node or returning the value of the *node* parameter.
+     */
+    template<typename Generator>
+    NodeId
+    next_node(NodeId node, const std::set<NodeId>& ignore, Generator& generator) const
+    {
+        // Get all candidate nodes.
+        const auto& all_nodes = nodes_connected_to(node);
+
+        // Resolve disconnected node and dead end cases.
+        auto num_nodes = all_nodes.size();
+        if (!num_nodes)
+            return node;
+        else if (num_nodes == 1)
+            return all_nodes[0];
+
+        // Filter out the ignored nodes.
+        std::vector<int> nodes;
+        std::back_insert_iterator<std::vector<int>> back_it(nodes);
+        std::remove_copy_if(
+            all_nodes.begin(), all_nodes.end(), back_it, [&ignore](NodeId id) {
+                return container_contains(ignore, id);
+            });
+
+        // Pick a random node. Fallback to all candidate nodes if all are in ignore.
+        num_nodes = nodes.size();
+        if (!num_nodes)
+            return pick_random_node(all_nodes, generator);
+        else if (num_nodes == 1)
+            return nodes[0];
+        return pick_random_node(nodes, generator);
+    }
+
+    /**
+     * Select a random node from a list of nodes.
+     */
     template<typename Container, typename Generator>
     static NodeId pick_random_node(const Container& nodes, Generator& generator)
     {

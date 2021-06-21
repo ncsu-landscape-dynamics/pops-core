@@ -37,6 +37,15 @@
 
 #include <array>
 
+/**
+ * Return true if _container_ contains _value_.
+ */
+template<typename Container, typename Value>
+bool container_contains(const Container& container, const Value& value)
+{
+    return container.find(value) != container.end();
+}
+
 typedef std::tuple<int, int, int, int> BBoxInt;
 typedef std::tuple<double, double, double, double> BBoxFloat;
 typedef std::tuple<bool, bool, bool, bool> BBoxBool;

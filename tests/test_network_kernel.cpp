@@ -285,13 +285,14 @@ int create_network_from_files(int argc, char** argv)
     if (argc != 5) {
         std::cerr
             << "Usage: " << argv[0]
-            << " read|stats|write|travel_all CONFIG_FILE NODE_FILE SEGMENT_FILE\n";
+            << " read|stats|write|travel_all|trace CONFIG_FILE NODE_FILE SEGMENT_FILE\n";
         return 1;
     }
     std::string command = argv[1];
     bool show_stats = false;
     bool write_network = false;
     bool travel_all = false;
+    bool trace = false;
     if (command == "stats") {
         show_stats = true;
     }
@@ -300,6 +301,9 @@ int create_network_from_files(int argc, char** argv)
     }
     else if (command == "travel_all") {
         travel_all = true;
+    }
+    else if (command == "trace") {
+        trace = true;
     }
     else if (command != "read") {
         std::cerr << "Unknown sub-command: " << command << "\n";
@@ -344,27 +348,43 @@ int create_network_from_files(int argc, char** argv)
     if (write_network) {
         network.dump_yaml(std::cout);
     }
-    if (travel_all) {
+    if (travel_all || trace) {
         double min_time = config.get("min_time", 1.);
         double max_time = config.get("max_time", 1.);
         double time_increment = config.get("time_increment", 1.);
+        int seed = config.get("seed", 1);
         std::default_random_engine generator;
-        for (const auto& node : network.get_all_nodes()) {
+        // Seed the generator for travel all
+        // TODO: also for node random selection for trace once implemented
+        if (travel_all)
+            generator.seed(seed);
+        auto nodes = network.get_all_nodes();
+        if (trace)
+            std::cout << "traces:\n";
+        for (const auto& node : nodes) {
+            int start_row = node.second.first;
+            int start_col = node.second.second;
+            if (!network.has_node_at(start_row, start_col)) {
+                std::cerr << "Internal error in the Network\n";
+                return 1;
+            }
+            std::vector<std::pair<int, int>> trace_coords;
             for (double time = min_time; time <= max_time; time += time_increment) {
-                generator.seed(42);
-                int start_row = node.second.first;
-                int start_col = node.second.second;
+                if (trace)
+                    generator.seed(seed);
                 int end_row;
                 int end_col;
-                if (!network.has_node_at(start_row, start_col)) {
-                    std::cerr << "Internal error in the Network\n";
-                    return 1;
-                }
                 std::tie(end_row, end_col) =
                     network.travel(start_row, start_col, time, generator);
-                // std::cerr << "from (" << start_row << ", " << start_col << ") to ("
-                // << end_row
-                //          << ", " << end_col << ") in " << time << "\n";
+                trace_coords.emplace_back(end_row, end_col);
+            }
+            if (trace) {
+                std::cout << "  - cells: [";
+                for (const auto& cell : trace_coords) {
+                    std::cout << "[" << cell.first << ", " << cell.second << "], ";
+                }
+                std::cout << "]\n";
+                break;
             }
         }
     }
