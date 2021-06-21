@@ -88,20 +88,21 @@ public:
         load_segments(segment_stream, node_ids);
     }
 
-    std::set<NodeId> get_nodes_at(RasterIndex row, RasterIndex col) const
+    const std::set<NodeId>& get_nodes_at(RasterIndex row, RasterIndex col) const
     {
-        // return nodes_by_row_col_.at(std::make_pair(row, col));
         auto it = nodes_by_row_col_.find(std::make_pair(row, col));
         if (it != nodes_by_row_col_.end())
             return it->second;
-        return std::set<NodeId>();
+        // If not found, return an empty set (const reference to local static).
+        static std::set<NodeId> empty;
+        return empty;
     }
 
     template<typename Generator>
     NodeId
     get_random_node_at(RasterIndex row, RasterIndex col, Generator& generator) const
     {
-        auto nodes = get_nodes_at(row, col);
+        const auto& nodes = get_nodes_at(row, col);
         auto num_nodes = nodes.size();
         if (num_nodes == 1) {
             return *nodes.begin();
