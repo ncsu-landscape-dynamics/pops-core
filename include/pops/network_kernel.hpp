@@ -136,6 +136,7 @@ public:
             if (container_contains(item.second, node))
                 return item.first;
         }
+        throw std::invalid_argument("No node with a given id");
     }
 
     /**
