@@ -367,11 +367,12 @@ int create_network_from_files(int argc, char** argv)
         double time_increment = config.get("time_increment", 1.);
         int seed = config.get("seed", 1);
         std::default_random_engine generator;
-        // Seed the generator for travel all
-        // TODO: also for node random selection for trace once implemented
-        if (travel_all)
-            generator.seed(seed);
+        // Seed the generator for travel all and for node random selection for trace.
+        generator.seed(seed);
         auto nodes = network.get_all_nodes();
+        shuffle_container(nodes, generator);
+        int num_nodes = config.get<int>("num_nodes", nodes.size());
+
         if (trace)
             std::cout << "traces:\n";
         for (const auto& node : nodes) {
@@ -397,8 +398,11 @@ int create_network_from_files(int argc, char** argv)
                     std::cout << "[" << cell.first << ", " << cell.second << "], ";
                 }
                 std::cout << "]\n";
-                break;
             }
+            // End the loop sooner if are limited by number nodes.
+            --num_nodes;
+            if (!num_nodes)
+                break;
         }
     }
 

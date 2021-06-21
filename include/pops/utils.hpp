@@ -35,6 +35,7 @@
 #define M_PI 3.14159265358979323846
 #define PI M_PI
 
+#include <algorithm>
 #include <array>
 
 /**
@@ -44,6 +45,16 @@ template<typename Container, typename Value>
 bool container_contains(const Container& container, const Value& value)
 {
     return container.find(value) != container.end();
+}
+
+// Replace by ranges::shuffle in C++20.
+/**
+ * Reorder items in container.
+ */
+template<typename Container, typename Generator>
+void shuffle_container(Container& container, Generator& generator)
+{
+    std::shuffle(container.begin(), container.end(), generator);
 }
 
 typedef std::tuple<int, int, int, int> BBoxInt;
