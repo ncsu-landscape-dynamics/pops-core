@@ -375,6 +375,8 @@ int create_network_from_files(int argc, char** argv)
 
         if (trace)
             std::cout << "traces:\n";
+        else
+            std::cout << "trips:\n";
         for (const auto& node : nodes) {
             int start_row = node.second.first;
             int start_col = node.second.second;
@@ -382,7 +384,9 @@ int create_network_from_files(int argc, char** argv)
                 std::cerr << "Internal error in the Network\n";
                 return 1;
             }
-            std::vector<std::pair<int, int>> trace_coords;
+            // For trace, the trips for node are the trace.
+            // For travel all, and time range, trips are independent combinations.
+            std::vector<std::tuple<int, int, double>> trips;
             for (double time = min_time; time <= max_time; time += time_increment) {
                 if (trace)
                     generator.seed(seed);
@@ -390,14 +394,38 @@ int create_network_from_files(int argc, char** argv)
                 int end_col;
                 std::tie(end_row, end_col) =
                     network.travel(start_row, start_col, time, generator);
-                trace_coords.emplace_back(end_row, end_col);
+                trips.emplace_back(end_row, end_col, time);
             }
             if (trace) {
                 std::cout << "  - cells: [";
-                for (const auto& cell : trace_coords) {
-                    std::cout << "[" << cell.first << ", " << cell.second << "], ";
+                for (const auto& cell : trips) {
+                    std::cout << "[";
+                    std::cout << std::get<0>(cell) << ", " << std::get<1>(cell);
+                    std::cout << "], ";
                 }
                 std::cout << "]\n";
+                std::cout << "    times: [";
+                for (const auto& cell : trips) {
+                    std::cout << std::get<2>(cell) << ", ";
+                }
+                std::cout << "]\n";
+                std::cout << "    start:\n";
+                std::cout << "      row: " << start_row << "\n";
+                std::cout << "      col: " << start_col << "\n";
+                std::cout << "    end:\n";
+                std::cout << "      row: " << std::get<0>(trips.back()) << "\n";
+                std::cout << "      col: " << std::get<1>(trips.back()) << "\n";
+            }
+            else {
+                for (const auto& cell : trips) {
+                    std::cout << "  - start:\n";
+                    std::cout << "      row: " << start_row << "\n";
+                    std::cout << "      col: " << start_col << "\n";
+                    std::cout << "    end:\n";
+                    std::cout << "      row: " << std::get<0>(cell) << "\n";
+                    std::cout << "      col: " << std::get<1>(cell) << "\n";
+                    std::cout << "    time: " << std::get<2>(cell) << "\n";
+                }
             }
             // End the loop sooner if are limited by number nodes.
             --num_nodes;
