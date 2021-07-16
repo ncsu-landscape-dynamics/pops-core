@@ -32,19 +32,6 @@
 
 using namespace pops;
 
-std::vector<std::vector<int>> get_suitable_cells(Raster<int> raster)
-{
-    std::vector<std::vector<int>> cells;
-    for (int row = 0; row < raster.rows(); ++row) {
-        for (int col = 0; col < raster.cols(); ++col) {
-            if (raster(row, col) > 0) {
-                cells.push_back({row, col});
-            }
-        }
-    }
-    return cells;
-}
-
 int test_infected_arrive()
 {
     Raster<int> infected = {{16, 0}, {0, 0}};
@@ -52,7 +39,8 @@ int test_infected_arrive()
     Raster<int> total_hosts = infected + susceptible;
     std::vector<std::tuple<int, int>> outside_dispersers;
     int seed = 42;
-    std::vector<std::vector<int>> suitable_cells = get_suitable_cells(total_hosts);
+    std::vector<std::vector<int>> suitable_cells =
+        find_suitable_cells<int>(total_hosts);
     Simulation<Raster<int>, Raster<double>> simulation(
         seed, infected.rows(), infected.cols());
     DeterministicNeighborDispersalKernel kernel{Direction::E};
@@ -136,7 +124,8 @@ int test_model()
     // More reference data
     auto leaving = infected(0, 0) * config.leaving_percentage;
     // Objects
-    std::vector<std::vector<int>> suitable_cells = get_suitable_cells(total_hosts);
+    std::vector<std::vector<int>> suitable_cells =
+        find_suitable_cells<int>(total_hosts);
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, 0, suitable_cells);
@@ -165,6 +154,7 @@ int test_model()
         quarantine,
         zeros,
         movements,
+        Network<int>::null_network(),
         suitable_cells);
     // Test
     int ret = 0;

@@ -29,6 +29,8 @@ jobs:
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_date
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_deterministic
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_model
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_network
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_network_kernel
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_overpopulation_movements
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_raster
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_scheduling

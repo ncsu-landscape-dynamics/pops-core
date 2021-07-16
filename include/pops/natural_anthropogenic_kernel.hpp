@@ -69,12 +69,12 @@ public:
     std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
         // switch in between the supported kernels
-        if (!use_anthropogenic_kernel_ || bernoulli_distribution(generator)) {
+        if (!use_anthropogenic_kernel_
+            || !anthropogenic_kernel_.is_cell_eligible(row, col)
+            || bernoulli_distribution(generator)) {
             return natural_kernel_(generator, row, col);
         }
-        else {
-            return anthropogenic_kernel_(generator, row, col);
-        }
+        return anthropogenic_kernel_(generator, row, col);
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()

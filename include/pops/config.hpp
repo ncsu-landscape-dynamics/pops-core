@@ -65,6 +65,8 @@ public:
     std::string anthro_kernel_type;
     double anthro_scale{0};
     std::string anthro_direction;
+    double network_min_time{0};
+    double network_max_time{0};
     double anthro_kappa{0};
     double shape{1.0};
     // Treatments
