@@ -87,6 +87,9 @@ int test_model_with_network()
     config.cols = 3;
     config.ew_res = 33.3;
     config.ns_res = 33.3;
+
+    config.set_date_start(2001, 3, 1);
+    config.set_date_end(2001, 3, 3);
     config.create_schedules();
 
     BBox<double> bbox;
@@ -117,7 +120,7 @@ int test_model_with_network()
     std::vector<std::vector<int>> movements;
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     // Run
-    for (int step = 0; step < 10; ++step) {
+    for (unsigned step = 0; step < config.scheduler().get_num_steps(); ++step) {
         model.run_step(
             step,
             infected,
