@@ -31,6 +31,9 @@
 
 namespace pops {
 
+/**
+ * Network structure and algorithms
+ */
 template<typename RasterIndex>
 class Network
 {
@@ -44,6 +47,11 @@ public:
           ns_res_(ns_res),
           cell_travel_time_(((ew_res + ns_res) / 2) / speed)
     {}
+
+    static Network null_network()
+    {
+        return Network(BBox<double>(), 0, 0, 0);
+    }
 
     std::pair<RasterIndex, RasterIndex> xy_to_row_col(double x, double y) const
     {
@@ -581,15 +589,12 @@ protected:
  * However, it may work as a good starting point for cases where no
  * theory about the spread is available.
  */
+template<typename RasterIndex>
 class NetworkDispersalKernel
 {
 public:
-    // Other kernels don't have it as a template paramater now, so we just define it
-    // to have it for the network definition.
-    using RasterIndex = int;
-
     NetworkDispersalKernel(
-        Network<RasterIndex>& network, double min_time, double max_time)
+        const Network<RasterIndex>& network, double min_time, double max_time)
         : network_(network), time_distribution_(min_time, max_time)
     {}
 
@@ -618,7 +623,7 @@ public:
     }
 
 protected:
-    Network<RasterIndex>& network_;
+    const Network<RasterIndex>& network_;
     std::uniform_real_distribution<double> time_distribution_;
 };
 

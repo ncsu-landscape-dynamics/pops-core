@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <array>
+#include <vector>
 
 /**
  * Return true if _container_ contains _value_.
@@ -151,6 +152,35 @@ std::string quarantine_enum_to_string(Direction type)
     default:
         return "Invalid direction";
     }
+}
+
+/**
+ * Create a list of suitable cells in from a host raster.
+ *
+ * Suitable cell is defined as cell with value higher than zero, i.e., there is at least
+ * one host.
+ *
+ * Suitable cells datastructure is vector of vectors where the nested vector always has
+ * size equal to two and contains row and column index. The type was chosen to work well
+ * with Rcpp.
+ *
+ * First template parameter is the index type for the resulting sutibale cell indices.
+ * Second template parameter is deduced automatically from the function parameter.
+ */
+template<typename RasterIndex, typename RasterType>
+std::vector<std::vector<RasterIndex>> find_suitable_cells(const RasterType& raster)
+{
+    std::vector<std::vector<RasterIndex>> cells;
+    // The assumption is that the raster is sparse (otherwise we would not be doing
+    // this), so we have no number for the reserve method.
+    for (RasterIndex row = 0; row < raster.rows(); ++row) {
+        for (RasterIndex col = 0; col < raster.cols(); ++col) {
+            if (raster(row, col) > 0) {
+                cells.push_back({row, col});
+            }
+        }
+    }
+    return cells;
 }
 
 #endif  // POPS_UTILS_HPP

@@ -230,7 +230,7 @@ public:
     }
 
     template<class UnaryOperation>
-    void for_each(UnaryOperation op)
+    void for_each(UnaryOperation op) const
     {
         std::for_each(data_, data_ + (cols_ * rows_), op);
     }
