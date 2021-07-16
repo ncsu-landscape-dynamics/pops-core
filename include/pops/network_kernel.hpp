@@ -168,7 +168,7 @@ public:
             visited_nodes.insert(node_id);
             // If there is no segment from the node, return the start cell.
             if (next_node_id == node_id)
-                return {row, col};
+                return std::make_tuple(row, col);
             auto segment = get_segment(node_id, next_node_id);
             // nodes may need special handling
             for (const auto& cell : segment) {
