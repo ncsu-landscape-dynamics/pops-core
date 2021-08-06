@@ -33,14 +33,32 @@ namespace pops {
 
 /**
  * Network structure and algorithms
+ *
+ * The general workflow is contructing the object (with the constructor) and loading the
+ * data (with the load() function). Then the network is ready to be used for simulating
+ * trips over the network (with the travel() function).
+ *
+ * When the travel() function is used from a kernel, user of the network directly calls
+ * only the setup functions.
+ *
+ * The class exposes number of functions as public which are meant for testing or other
+ * special workflows.
  */
 template<typename RasterIndex>
 class Network
 {
 public:
-    using NodeId = int;
-    using Statistics = std::map<std::string, int>;
+    using NodeId = int;  ///< Type for node IDs
+    using Statistics = std::map<std::string, int>;  ///< Type for summary statistics
 
+    /**
+     * @brief Construct empty network.
+     *
+     * @param bbox Bounding box of the raster grid (in real world coordinates)
+     * @param ew_res East-west resolution of the raster grid
+     * @param ns_res North-south resolution of the raster grid
+     * @param speed Speed of travel in the same units as coordinates
+     */
     Network(BBox<double> bbox, double ew_res, double ns_res, double speed)
         : bbox_(bbox),
           ew_res_(ew_res),
@@ -48,11 +66,26 @@ public:
           cell_travel_time_(((ew_res + ns_res) / 2) / speed)
     {}
 
+    /**
+     * @brief Create an empty network not meant for futher use.
+     *
+     * This is useful when a network object is needed to contruct a kernel, but it will
+     * not be used in runtime.
+     *
+     * @return New Network object
+     */
     static Network null_network()
     {
         return Network(BBox<double>(), 0, 0, 0);
     }
 
+    /**
+     * @brief Convert real world coordinates to row and column in the raster grid.
+     *
+     * @param x The X coordinate (east-west or column direction)
+     * @param y The Y coordinate (north-south or row direction)
+     * @return Row and column
+     */
     std::pair<RasterIndex, RasterIndex> xy_to_row_col(double x, double y) const
     {
         double col = (x - bbox_.west) / ew_res_;
@@ -60,26 +93,47 @@ public:
         return {std::floor(row), std::floor(col)};
     }
 
+    /**
+     * Coverts coordinates as xy_to_row_col(double, double) but converts from strings.
+     */
     std::pair<RasterIndex, RasterIndex>
     xy_to_row_col(const std::string& x, const std::string& y) const
     {
         return xy_to_row_col(std::stod(x), std::stod(y));
     }
 
-    NodeId node_id_from_text(const std::string& text) const
-    {
-        return std::stoi(text);
-    }
-
+    /**
+     * @brief Test if coordinates XY are in the bounding box.
+     * @param x Real world coordinate X
+     * @param y Real world coordinate Y
+     * @return True if XY is in the bounding box, false otherwise.
+     */
     bool out_of_bbox(double x, double y) const
     {
         return x > bbox_.east || x < bbox_.west || y > bbox_.north || y < bbox_.south;
     }
 
     /**
+     * @brief Load nodes and segments from input streams.
      *
-     * std::string node_file, std::string segment_file
-     * std::ifstream node_stream{node_file};
+     * @param node_stream Input stream with records for nodes
+     * @param segment_stream Input stream with records for segments
+     * @param allow_empty True if the loaded network can be empty (no nodes)
+     *
+     * The function can take any input stream which behaves like std::ifstream or
+     * std::istringstream. These are also the two expected streams to be used
+     * (for reading from a file and reading from a string, respectively).
+     *
+     * A simple code for reading from files without any checking may look like this:
+     *
+     * ```
+     * Network network(...);
+     * std::string node_filename = "nodes.txt";
+     * std::string segment_filename = "segments.txt"
+     * std::ifstream node_stream{node_filename};
+     * std::ifstream segment_stream{segment_filename};
+     * network.load(node_stream, segment_stream);
+     * ```
      */
     template<typename InputStream>
     void load(
@@ -96,6 +150,16 @@ public:
         load_segments(segment_stream, node_ids);
     }
 
+    /**
+     * @brief Get a list of nodes at a given cell
+     *
+     * Returns a const reference to an internally stored set. If there are no nodes
+     * at a given cell, a reference to an empty set is returned.
+     *
+     * @param row Row in the raster grid
+     * @param col Column in the raster grid
+     * @return List of node IDs as a set
+     */
     const std::set<NodeId>& get_nodes_at(RasterIndex row, RasterIndex col) const
     {
         auto it = nodes_by_row_col_.find(std::make_pair(row, col));
@@ -106,6 +170,18 @@ public:
         return empty;
     }
 
+    /**
+     * @brief Get a randomly selected node at a given cell
+     *
+     * There can be more than one node at a given cell. This function selects one
+     * of these nodes randomly.
+     *
+     * @param row Row in the raster grid
+     * @param col Column in the raster grid
+     * @param generator Random number generator
+     * @return Node ID
+     * @throws std::invalid_argument if there is no node at a given cell
+     */
     template<typename Generator>
     NodeId
     get_random_node_at(RasterIndex row, RasterIndex col, Generator& generator) const
@@ -185,6 +261,16 @@ public:
         throw std::invalid_argument("Time must be greater than or equal to zero");
     }
 
+    /**
+     * @brief Get all nodes as vector of all ids with their row and column.
+     *
+     * If there is more than one node at a given cell (row and column),
+     * each of these nodes is returned as a separate item in the list.
+     *
+     * This translates the internal representation and returns a new object.
+     *
+     * @return A vector of pairs of id and row and col pair.
+     */
     std::vector<std::pair<NodeId, std::pair<RasterIndex, RasterIndex>>>
     get_all_nodes() const
     {
@@ -200,6 +286,13 @@ public:
         return nodes;
     }
 
+    /**
+     * @brief Collect statistics about the network
+     *
+     * Computes statistics such as number of nodes and segments.
+     *
+     * @return Associative array with statistics
+     */
     Statistics collect_statistics() const
     {
         std::map<std::string, int> stats;
@@ -217,7 +310,7 @@ public:
             nodes_with_segments.insert(item.first);
         }
         stats["num_nodes_with_segments"] = nodes_with_segments.size();
-        // Only count the nodes here. Output them in the dump network output.
+        // TODO: Only count the nodes here. Output them in the dump network output.
         int num_standalone_nodes = 0;
         for (NodeId node_id : node_ids) {
             if (nodes_with_segments.find(node_id) == nodes_with_segments.end()) {
@@ -234,6 +327,11 @@ public:
         return stats;
     }
 
+    /**
+     * @brief Output network to a stream.
+     *
+     * Writes statistics and different views of the network as a YAML file.
+     */
     template<typename OutputStream>
     void dump_yaml(OutputStream& stream) const
     {
@@ -304,6 +402,17 @@ protected:
     using NodeMatrix = std::map<NodeId, std::vector<NodeId>>;
     using Segment = std::vector<std::pair<RasterIndex, RasterIndex>>;
     using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
+
+    /**
+     * @brief Convert string to node ID
+     *
+     * @param text String with node ID
+     * @return Node ID
+     */
+    static NodeId node_id_from_text(const std::string& text)
+    {
+        return std::stoi(text);
+    }
 
     /**
      * \brief A const iterator which encapsulates either forward or reverse iterator.
@@ -384,6 +493,12 @@ protected:
         ConstEitherWayIterator<Segment> end_;
     };
 
+    /**
+     * @brief Read nodes from a stream.
+     *
+     * @param stream Input stream with nodes and their coordinates
+     * @param[out] node_ids Container to store node IDs in
+     */
     template<typename InputStream>
     void load_nodes(InputStream& stream, std::set<NodeId>& node_ids)
     {
@@ -414,6 +529,12 @@ protected:
         }
     }
 
+    /**
+     * @brief Read segments from a stream.
+     *
+     * @param stream Input stream with segments
+     * @param node_ids Container with node IDs to use
+     */
     template<typename InputStream>
     void load_segments(InputStream& stream, const std::set<NodeId>& node_ids)
     {
@@ -513,13 +634,13 @@ protected:
     }
 
     /**
-     * Pick a next node from the given node.
+     * @brief Pick a next node from the given node.
      *
      * If there is more than one edge leading from the given node, a random node is
      * picked. If there are no edges leading from the given node, the node is returned.
      *
      * The random node is picked from candidate nodes which are nodes connected to
-     * a given node. The candidate nodes which are in the _ignore_ list are excluded
+     * a given node. The candidate nodes which are in the *ignore* list are excluded
      * from the random selection. If all candiate nodes are in the *ignore* list,
      * the *ignore* list is ignored and all candidate nodes are used.
      *
@@ -580,19 +701,31 @@ protected:
     SegmentsByNodes segments_by_nodes_;
 };
 
-/*! Dispersal kernel for random uniform dispersal over the whole
- * landscape
+/*!
+ * @brief Dispersal kernel for dispersal over a network.
  *
- * This class is a good example of how to write a kernel and
- * it is useful for testing due to its simplicity. It tends to generate
- * a lot of spread because it quickly spreads over the landscape.
- * However, it may work as a good starting point for cases where no
- * theory about the spread is available.
+ * Network node must be present in the cell to start traveling, so is_cell_eligible()
+ * needs to be called first to see if the kernel can be used with the given row and
+ * column.
  */
 template<typename RasterIndex>
 class NetworkDispersalKernel
 {
 public:
+    /**
+     * @brief Create kernel.
+     *
+     * The kernel assumes that the *network* is already initialized. It does not modify
+     * the network.
+     *
+     * The *min_time* and *max_time* parameters are used as a range for uniform real
+     * distribution which determines the travel time through the network for one
+     * trip.
+     *
+     * @param network Existing network
+     * @param min_time Minimum travel time
+     * @param max_time Maximum travel time
+     */
     NetworkDispersalKernel(
         const Network<RasterIndex>& network, double min_time, double max_time)
         : network_(network), time_distribution_(min_time, max_time)
@@ -600,6 +733,8 @@ public:
 
     /*! \copybrief RadialDispersalKernel::operator()()
      *
+     * @throws std::invalid_argument if there is no network node at a given *row*
+     * and *col* (can be checked with is_cell_eligible() beforehand)
      */
     template<typename Generator>
     std::tuple<int, int> operator()(Generator& generator, int row, int col)
@@ -610,6 +745,13 @@ public:
         return std::make_tuple(row, col);
     }
 
+    /**
+     * @brief Test if cell is eligible to be used with the kernel.
+     *
+     * @param row Row to be used with the kernel
+     * @param col Column to be used with the kernel
+     * @return true if cell can be used, false otherwise
+     */
     bool is_cell_eligible(int row, int col)
     {
         return network_.has_node_at(row, col);
@@ -623,7 +765,9 @@ public:
     }
 
 protected:
+    /** Reference to the network */
     const Network<RasterIndex>& network_;
+    /** Travel Time distribnution */
     std::uniform_real_distribution<double> time_distribution_;
 };
 
