@@ -55,6 +55,7 @@ protected:
      * Kernel parameters are taken from the configuration.
      *
      * @param dispersers The disperser raster (reference, for deterministic kernel)
+     * @param network Network (initialized or not)
      * @return Created kernel
      */
     SwitchDispersalKernel<IntegerRaster, RasterIndex> create_natural_kernel(
@@ -97,6 +98,7 @@ protected:
      * by the leaving scale coefficient.
      *
      * @param dispersers The disperser raster (reference, for deterministic kernel)
+     * @param network Network (initialized or not)
      * @return Created kernel
      */
     SwitchDispersalKernel<IntegerRaster, RasterIndex>
@@ -139,6 +141,7 @@ protected:
      * kernel when available.
      *
      * @param dispersers The disperser raster (reference, for deterministic kernel)
+     * @param network Network (initialized or not)
      * @return Created kernel
      */
     SwitchDispersalKernel<IntegerRaster, RasterIndex> create_anthro_kernel(
@@ -236,6 +239,7 @@ public:
      * @param quarantine[in,out] Quarantine escape tracker
      * @param quarantine_areas[in] Quarantine areas
      * @param movements[in] Table of host movements
+     * @param network Network (initialized or Network::null_network() if unused)
      *
      * @note The parameters roughly correspond to Simulation::disperse()
      * and Simulation::disperse_and_infect() functions, so these can be used
