@@ -4,7 +4,7 @@
 /*
  * PoPS model - general utility functions (unrelated to the model)
  *
- * Copyright (C) 2020 by the authors.
+ * Copyright (C) 2020-2021 by the authors.
  *
  * Authors: Vaclav Petras <wenzeslaus gmail com>
  *
