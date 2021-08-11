@@ -43,6 +43,9 @@ namespace pops {
  *
  * The class exposes number of functions as public which are meant for testing or other
  * special workflows.
+ *
+ * RasterIndex template parameter is an integral type used for indexing in the grid,
+ * specifically used as a type for rows and columns.
  */
 template<typename RasterIndex>
 class Network
@@ -199,6 +202,12 @@ public:
         }
     }
 
+    /**
+     * @brief Test if the network has a node at a given row and column
+     * @param row Row
+     * @param col Column
+     * @return True if there is at least one node, false otherwise
+     */
     bool has_node_at(RasterIndex row, RasterIndex col) const
     {
         // Replace by contains in C++20.
@@ -399,8 +408,11 @@ public:
     }
 
 protected:
+    /** Node connections (edges) */
     using NodeMatrix = std::map<NodeId, std::vector<NodeId>>;
+    /** Cells connecting two nodes (segment between nodes) */
     using Segment = std::vector<std::pair<RasterIndex, RasterIndex>>;
+    /** Segments by nodes (edges) */
     using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
 
     /**
@@ -692,13 +704,14 @@ protected:
         return *std::next(nodes.begin(), index);
     }
 
-    BBox<double> bbox_;
-    double ew_res_;
-    double ns_res_;
-    double cell_travel_time_;
+    BBox<double> bbox_;  ///< Bounding box of the network grid in real world coordinates
+    double ew_res_;  ///< East-west resolution of the grid
+    double ns_res_;  ///< North-south resolution of the grid
+    double cell_travel_time_;  ///< Time to travel through one cell
+    /** Node IDs stored by row and column (multiple nodes per cell) */
     std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;
-    NodeMatrix node_matrix_;
-    SegmentsByNodes segments_by_nodes_;
+    NodeMatrix node_matrix_;  ///< List of node neighbors by node ID (edges)
+    SegmentsByNodes segments_by_nodes_;  ///< Lists of cells connecting nodes
 };
 
 /*!
