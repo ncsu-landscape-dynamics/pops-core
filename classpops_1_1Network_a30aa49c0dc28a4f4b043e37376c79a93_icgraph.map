@@ -1,0 +1,6 @@
+<map id="pops::Network::pick_random_node" name="pops::Network::pick_random_node">
+<area shape="rect" id="node1" title="Select a random node from a list of nodes." alt="" coords="456,35,607,76"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#a51795eee3efe57dea4a24140be15361c" title="Get a randomly selected node at a given cell." alt="" coords="239,5,385,47"/>
+<area shape="rect" id="node4" href="$classpops_1_1Network.html#a575b12757ec1614300d9b16281f3ba32" title="Pick a next node from the given node." alt="" coords="216,71,408,98"/>
+<area shape="rect" id="node3" href="$classpops_1_1Network.html#ad90fb6165c92429e3f9c7cc7415e0451" title="Travel in the network from given row and column for a given time." alt="" coords="5,42,168,69"/>
+</map>

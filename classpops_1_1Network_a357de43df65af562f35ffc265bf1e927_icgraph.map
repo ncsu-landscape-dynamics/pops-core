@@ -1,0 +1,5 @@
+<map id="pops::Network::out_of_bbox" name="pops::Network::out_of_bbox">
+<area shape="rect" id="node1" title="Test if coordinates XY are in the bounding box." alt="" coords="405,5,551,47"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#a222e225515d64ae2c4c984d901f2c682" title="Read nodes from a stream." alt="" coords="205,5,357,47"/>
+<area shape="rect" id="node3" href="$classpops_1_1Network.html#a8a79e15414f36a8fecea413daa5dbe2f" title="Load nodes and segments from input streams." alt="" coords="5,13,157,39"/>
+</map>

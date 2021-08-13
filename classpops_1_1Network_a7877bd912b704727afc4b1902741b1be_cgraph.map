@@ -1,0 +1,4 @@
+<map id="pops::Network::null_network" name="pops::Network::null_network">
+<area shape="rect" id="node1" title="Create an empty network not meant for futher use." alt="" coords="5,5,153,47"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#a86c523d8c235737c29c148b8b6b5154e" title="Construct empty network." alt="" coords="201,13,380,39"/>
+</map>

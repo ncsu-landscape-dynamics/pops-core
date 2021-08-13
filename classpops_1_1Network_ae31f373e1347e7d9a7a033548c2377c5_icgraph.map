@@ -1,0 +1,6 @@
+<map id="pops::Network::node_id_from_text" name="pops::Network::node_id_from_text">
+<area shape="rect" id="node1" title="Convert string to node ID." alt="" coords="405,39,561,80"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#a222e225515d64ae2c4c984d901f2c682" title="Read nodes from a stream." alt="" coords="205,5,357,47"/>
+<area shape="rect" id="node4" href="$classpops_1_1Network.html#a845d065076df0d2fd488e56905c71934" title="Read segments from a stream." alt="" coords="205,71,357,112"/>
+<area shape="rect" id="node3" href="$classpops_1_1Network.html#a8a79e15414f36a8fecea413daa5dbe2f" title="Load nodes and segments from input streams." alt="" coords="5,46,157,73"/>
+</map>

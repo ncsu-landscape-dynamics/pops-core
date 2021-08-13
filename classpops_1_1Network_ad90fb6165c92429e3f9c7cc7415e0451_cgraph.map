@@ -1,0 +1,9 @@
+<map id="pops::Network::travel" name="pops::Network::travel">
+<area shape="rect" id="node1" title="Travel in the network from given row and column for a given time." alt="" coords="5,82,168,109"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#a51795eee3efe57dea4a24140be15361c" title="Get a randomly selected node at a given cell." alt="" coords="239,9,385,51"/>
+<area shape="rect" id="node5" href="$classpops_1_1Network.html#a9152848225080e63118218b0095ae3cf" title="Get a segment between the two given nodes." alt="" coords="239,75,385,116"/>
+<area shape="rect" id="node6" href="$classpops_1_1Network.html#a575b12757ec1614300d9b16281f3ba32" title="Pick a next node from the given node." alt="" coords="216,141,408,167"/>
+<area shape="rect" id="node3" href="$classpops_1_1Network.html#a513be672464a896157655cbf2e08e7ec" title="Get a list of nodes at a given cell." alt="" coords="465,5,610,47"/>
+<area shape="rect" id="node4" href="$classpops_1_1Network.html#a30aa49c0dc28a4f4b043e37376c79a93" title="Select a random node from a list of nodes." alt="" coords="462,71,613,112"/>
+<area shape="rect" id="node7" href="$classpops_1_1Network.html#add5616fdeeb8d97d907f845e9378bc1e" title="Get nodes connected by an edge to a given node." alt="" coords="456,136,619,177"/>
+</map>

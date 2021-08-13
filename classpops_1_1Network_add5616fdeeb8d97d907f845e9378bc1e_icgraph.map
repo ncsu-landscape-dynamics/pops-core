@@ -1,0 +1,5 @@
+<map id="pops::Network::nodes_connected_to" name="pops::Network::nodes_connected_to">
+<area shape="rect" id="node1" title="Get nodes connected by an edge to a given node." alt="" coords="456,5,619,47"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#a575b12757ec1614300d9b16281f3ba32" title="Pick a next node from the given node." alt="" coords="216,13,408,39"/>
+<area shape="rect" id="node3" href="$classpops_1_1Network.html#ad90fb6165c92429e3f9c7cc7415e0451" title="Travel in the network from given row and column for a given time." alt="" coords="5,13,168,39"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="pops::Network::xy_to_row_col" name="pops::Network::xy_to_row_col">
+<area shape="rect" id="node1" title="Coverts coordinates as xy_to_row_col(double, double) but converts from strings." alt="" coords="5,5,165,47"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#a91c2e9a1973a8d9dae08e0417e43b9fd" title="Convert real world coordinates to row and column in the raster grid." alt="" coords="213,5,373,47"/>
+</map>

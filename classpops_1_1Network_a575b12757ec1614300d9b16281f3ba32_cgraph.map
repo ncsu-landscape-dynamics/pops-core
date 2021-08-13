@@ -1,0 +1,5 @@
+<map id="pops::Network::next_node" name="pops::Network::next_node">
+<area shape="rect" id="node1" title="Pick a next node from the given node." alt="" coords="5,46,197,73"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#add5616fdeeb8d97d907f845e9378bc1e" title="Get nodes connected by an edge to a given node." alt="" coords="245,5,408,47"/>
+<area shape="rect" id="node3" href="$classpops_1_1Network.html#a30aa49c0dc28a4f4b043e37376c79a93" title="Select a random node from a list of nodes." alt="" coords="251,71,402,112"/>
+</map>

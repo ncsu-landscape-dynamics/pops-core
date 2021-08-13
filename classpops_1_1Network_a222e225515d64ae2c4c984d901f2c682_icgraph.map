@@ -1,0 +1,4 @@
+<map id="pops::Network::load_nodes" name="pops::Network::load_nodes">
+<area shape="rect" id="node1" title="Read nodes from a stream." alt="" coords="205,5,357,47"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#a8a79e15414f36a8fecea413daa5dbe2f" title="Load nodes and segments from input streams." alt="" coords="5,13,157,39"/>
+</map>

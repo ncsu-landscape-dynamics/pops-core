@@ -1,0 +1,4 @@
+<map id="pops::Network::collect_statistics" name="pops::Network::collect_statistics">
+<area shape="rect" id="node1" title="Collect statistics about the network." alt="" coords="255,5,421,47"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#afa9f9ea598b3f2177073dfad54bda8c4" title="Output network to a stream." alt="" coords="5,13,207,39"/>
+</map>

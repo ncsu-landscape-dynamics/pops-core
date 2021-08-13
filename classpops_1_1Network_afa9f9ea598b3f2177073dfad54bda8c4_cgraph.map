@@ -1,0 +1,5 @@
+<map id="pops::Network::dump_yaml" name="pops::Network::dump_yaml">
+<area shape="rect" id="node1" title="Output network to a stream." alt="" coords="5,46,207,73"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#a775d82fe6751f8c858ad5a48954b400a" title="Collect statistics about the network." alt="" coords="255,5,421,47"/>
+<area shape="rect" id="node3" href="$classpops_1_1Network.html#a91c2e9a1973a8d9dae08e0417e43b9fd" title="Convert real world coordinates to row and column in the raster grid." alt="" coords="258,71,418,112"/>
+</map>

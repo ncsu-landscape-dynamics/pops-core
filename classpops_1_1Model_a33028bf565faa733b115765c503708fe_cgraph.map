@@ -1,0 +1,17 @@
+<map id="pops::Model::run_step" name="pops::Model::run_step">
+<area shape="rect" id="node1" title="Run one step of the simulation." alt="" coords="5,414,171,441"/>
+<area shape="rect" id="node2" href="$classpops_1_1SpreadRate.html#a5104f90ac61137516ad072023245b16a" title="Computes spread rate in n, s, e, w directions for certain simulation year based on provided infection..." alt="" coords="227,5,428,47"/>
+<area shape="rect" id="node3" href="$classpops_1_1Model.html#afd0e4f8cd6bc0f29fbd5d92e730a0113" title="Create anthropogenic kernel." alt="" coords="252,71,403,112"/>
+<area shape="rect" id="node5" href="$classpops_1_1Model.html#aa263c271978cb46377ad57c3b2589728" title="Create natural kernel." alt="" coords="252,136,403,177"/>
+<area shape="rect" id="node6" href="$classpops_1_1Model.html#a871681de36ce3d43ab4fde6e461a6efe" title="Create overpopulation movement kernel." alt="" coords="225,202,430,258"/>
+<area shape="rect" id="node7" href="$classpops_1_1QuarantineEscape.html#a3524d52561a63c0111564dc91d6d9905" title="Computes whether infection in certain step escaped from quarantine areas and if not,..." alt="" coords="219,283,436,324"/>
+<area shape="rect" id="node8" href="$classpops_1_1Config.html#a1131cb22f015eb22068d58f1a995c2fa" title=" " alt="" coords="254,348,401,389"/>
+<area shape="rect" id="node9" href="$classpops_1_1Treatments.html#a16a8eae5b8c4109b8411965d9cf7209f" title="Do management if needed." alt="" coords="230,414,425,441"/>
+<area shape="rect" id="node10" href="$classpops_1_1Treatments.html#a71480864b9849fd21e80dce91edb3412" title="Separately manage mortality infected cohorts." alt="" coords="230,465,425,507"/>
+<area shape="rect" id="node11" href="$classpops_1_1Config.html#a28164982c6776d4160c6675e7c851471" title=" " alt="" coords="242,531,413,572"/>
+<area shape="rect" id="node12" href="$classpops_1_1Config.html#af15a3548e52f5ab04fa50cbd1b5852de" title=" " alt="" coords="237,596,417,637"/>
+<area shape="rect" id="node13" href="$namespacepops.html#a38c6b618b967355a93921c2abfd3f031" title="Converts simulation step to step of actions." alt="" coords="245,661,410,703"/>
+<area shape="rect" id="node14" href="$classpops_1_1Config.html#af84e3989fa4c1f0f5eab1d5487c70457" title=" " alt="" coords="250,727,405,768"/>
+<area shape="rect" id="node15" href="$classpops_1_1Config.html#a77f322cb4c1c81aa7acac13931a75d9d" title=" " alt="" coords="250,792,405,833"/>
+<area shape="rect" id="node4" href="$namespacepops.html#a8b1c22f6f681b0c582b6741c1e030108" title="Get a corresponding enum value for a string which direction." alt="" coords="484,136,640,177"/>
+</map>

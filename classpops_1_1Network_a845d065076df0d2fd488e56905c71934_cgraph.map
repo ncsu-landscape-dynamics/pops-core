@@ -1,0 +1,5 @@
+<map id="pops::Network::load_segments" name="pops::Network::load_segments">
+<area shape="rect" id="node1" title="Read segments from a stream." alt="" coords="5,39,157,80"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#ae31f373e1347e7d9a7a033548c2377c5" title="Convert string to node ID." alt="" coords="207,5,363,47"/>
+<area shape="rect" id="node3" href="$classpops_1_1Network.html#a91c2e9a1973a8d9dae08e0417e43b9fd" title="Convert real world coordinates to row and column in the raster grid." alt="" coords="205,71,365,112"/>
+</map>

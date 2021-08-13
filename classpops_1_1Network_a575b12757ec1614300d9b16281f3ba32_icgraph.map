@@ -1,0 +1,4 @@
+<map id="pops::Network::next_node" name="pops::Network::next_node">
+<area shape="rect" id="node1" title="Pick a next node from the given node." alt="" coords="216,5,408,32"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#ad90fb6165c92429e3f9c7cc7415e0451" title="Travel in the network from given row and column for a given time." alt="" coords="5,5,168,32"/>
+</map>

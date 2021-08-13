@@ -1,0 +1,6 @@
+<map id="pops::Network::load_nodes" name="pops::Network::load_nodes">
+<area shape="rect" id="node1" title="Read nodes from a stream." alt="" coords="5,71,157,112"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#ae31f373e1347e7d9a7a033548c2377c5" title="Convert string to node ID." alt="" coords="207,5,363,47"/>
+<area shape="rect" id="node3" href="$classpops_1_1Network.html#a357de43df65af562f35ffc265bf1e927" title="Test if coordinates XY are in the bounding box." alt="" coords="213,71,358,112"/>
+<area shape="rect" id="node4" href="$classpops_1_1Network.html#a91c2e9a1973a8d9dae08e0417e43b9fd" title="Convert real world coordinates to row and column in the raster grid." alt="" coords="205,136,365,177"/>
+</map>

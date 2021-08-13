@@ -1,0 +1,4 @@
+<map id="pops::Network::get_segment" name="pops::Network::get_segment">
+<area shape="rect" id="node1" title="Get a segment between the two given nodes." alt="" coords="216,5,361,47"/>
+<area shape="rect" id="node2" href="$classpops_1_1Network.html#ad90fb6165c92429e3f9c7cc7415e0451" title="Travel in the network from given row and column for a given time." alt="" coords="5,13,168,39"/>
+</map>

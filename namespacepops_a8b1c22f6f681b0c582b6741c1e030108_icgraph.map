@@ -1,0 +1,8 @@
+<map id="pops::direction_from_string" name="pops::direction_from_string">
+<area shape="rect" id="node1" title="Get a corresponding enum value for a string which direction." alt="" coords="472,108,628,149"/>
+<area shape="rect" id="node2" href="$classpops_1_1Model.html#afd0e4f8cd6bc0f29fbd5d92e730a0113" title="Create anthropogenic kernel." alt="" coords="246,5,397,47"/>
+<area shape="rect" id="node4" href="$classpops_1_1Model.html#aa263c271978cb46377ad57c3b2589728" title="Create natural kernel." alt="" coords="246,71,397,112"/>
+<area shape="rect" id="node5" href="$classpops_1_1Model.html#a871681de36ce3d43ab4fde6e461a6efe" title="Create overpopulation movement kernel." alt="" coords="219,137,424,193"/>
+<area shape="rect" id="node6" href="$namespacepops.html#a49491510f5e7fee77319231c4b6bc8c0" title="Overload which allows to pass C&#45;style string which is nullptr (NULL)" alt="" coords="243,217,399,259"/>
+<area shape="rect" id="node3" href="$classpops_1_1Model.html#a33028bf565faa733b115765c503708fe" title="Run one step of the simulation." alt="" coords="5,78,171,105"/>
+</map>
