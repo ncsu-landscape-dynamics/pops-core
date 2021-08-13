@@ -147,9 +147,9 @@ public:
 
     /*! Generates a new position for the spread.
      *
-     * The randomness is based on the *generator*. The result may depend
-     * on previous calls of this operator (see e.g.
-     * `std::cauchy_distribution<RealType>::reset()`).
+     * The randomness is based on the *generator*, but the result may depend
+     * on previous calls of this operator (see e.g. documentation of the underlying
+     * `std::cauchy_distribution<RealType>`, specifically the `reset()` function).
      * Parameters *row* and *col* are row and column position of the
      * current disperser. The generated position will be relative to it.
      */
