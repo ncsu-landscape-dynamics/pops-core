@@ -79,7 +79,7 @@ int test_model_with_network()
     config.anthro_kernel_type = "network";
     config.network_min_time = 1;
     config.network_max_time = 9;
-    double network_speed = 33.3;
+    config.network_speed = 33.3;
     config.use_anthropogenic_kernel = true;
     config.percent_natural_dispersal = 0;
     config.anthro_scale = config.natural_scale;  // Unused, but we need to set it.
@@ -92,13 +92,13 @@ int test_model_with_network()
     config.set_date_end(2001, 3, 3);
     config.create_schedules();
 
-    BBox<double> bbox;
-    bbox.north = 100;
-    bbox.south = 0;
-    bbox.east = 100;
-    bbox.west = 0;
+    config.bbox.north = 100;
+    config.bbox.south = 0;
+    config.bbox.east = 100;
+    config.bbox.west = 0;
 
-    Network<int> network{bbox, config.ew_res, config.ns_res, network_speed};
+    Network<int> network{
+        config.bbox, config.ew_res, config.ns_res, config.network_speed};
     std::stringstream node_stream{
         "1,16.7,16.7\n"
         "2,50.0,83.3\n"

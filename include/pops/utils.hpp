@@ -70,6 +70,8 @@ struct BBox
     Number south;
     Number east;
     Number west;
+
+    BBox() : north(0), south(0), east(0), west(0) {}
 };
 
 /*! Spread direction
