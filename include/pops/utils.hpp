@@ -4,7 +4,7 @@
 /*
  * PoPS model - general utility functions (unrelated to the model)
  *
- * Copyright (C) 2020 by the authors.
+ * Copyright (C) 2020-2021 by the authors.
  *
  * Authors: Vaclav Petras <wenzeslaus gmail com>
  *
@@ -35,11 +35,44 @@
 #define M_PI 3.14159265358979323846
 #define PI M_PI
 
+#include <algorithm>
 #include <array>
+#include <vector>
+
+/**
+ * Return true if _container_ contains _value_.
+ */
+template<typename Container, typename Value>
+bool container_contains(const Container& container, const Value& value)
+{
+    return container.find(value) != container.end();
+}
+
+// Replace by ranges::shuffle in C++20.
+/**
+ * Reorder items in container.
+ */
+template<typename Container, typename Generator>
+void shuffle_container(Container& container, Generator& generator)
+{
+    std::shuffle(container.begin(), container.end(), generator);
+}
 
 typedef std::tuple<int, int, int, int> BBoxInt;
 typedef std::tuple<double, double, double, double> BBoxFloat;
 typedef std::tuple<bool, bool, bool, bool> BBoxBool;
+
+// C++20 NumericType
+template<typename Number>
+struct BBox
+{
+    Number north;
+    Number south;
+    Number east;
+    Number west;
+
+    BBox() : north(0), south(0), east(0), west(0) {}
+};
 
 /*! Spread direction
  *
@@ -121,6 +154,35 @@ std::string quarantine_enum_to_string(Direction type)
     default:
         return "Invalid direction";
     }
+}
+
+/**
+ * Create a list of suitable cells in from a host raster.
+ *
+ * Suitable cell is defined as cell with value higher than zero, i.e., there is at least
+ * one host.
+ *
+ * Suitable cells datastructure is vector of vectors where the nested vector always has
+ * size equal to two and contains row and column index. The type was chosen to work well
+ * with Rcpp.
+ *
+ * First template parameter is the index type for the resulting sutibale cell indices.
+ * Second template parameter is deduced automatically from the function parameter.
+ */
+template<typename RasterIndex, typename RasterType>
+std::vector<std::vector<RasterIndex>> find_suitable_cells(const RasterType& raster)
+{
+    std::vector<std::vector<RasterIndex>> cells;
+    // The assumption is that the raster is sparse (otherwise we would not be doing
+    // this), so we have no number for the reserve method.
+    for (RasterIndex row = 0; row < raster.rows(); ++row) {
+        for (RasterIndex col = 0; col < raster.cols(); ++col) {
+            if (raster(row, col) > 0) {
+                cells.push_back({row, col});
+            }
+        }
+    }
+    return cells;
 }
 
 #endif  // POPS_UTILS_HPP

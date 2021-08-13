@@ -1,7 +1,7 @@
 /*
  * Tests for the PoPS Model class.
  *
- * Copyright (C) 2020 by the authors.
+ * Copyright (C) 2020-2021 by the authors.
  *
  * Authors: Vaclav Petras <wenzeslaus gmail com>
  *
@@ -55,10 +55,11 @@ protected:
      * Kernel parameters are taken from the configuration.
      *
      * @param dispersers The disperser raster (reference, for deterministic kernel)
+     * @param network Network (initialized or not)
      * @return Created kernel
      */
-    SwitchDispersalKernel<IntegerRaster>
-    create_natural_kernel(const IntegerRaster& dispersers)
+    SwitchDispersalKernel<IntegerRaster, RasterIndex> create_natural_kernel(
+        const IntegerRaster& dispersers, const Network<RasterIndex>& network)
     {
         RadialDispersalKernel<IntegerRaster> radial_kernel(
             config_.ew_res,
@@ -76,11 +77,14 @@ protected:
             config_.ns_res,
             config_.natural_scale,
             config_.shape);
-        SwitchDispersalKernel<IntegerRaster> selectable_kernel(
+        NetworkDispersalKernel<RasterIndex> network_kernel(
+            network, config_.network_min_time, config_.network_max_time);
+        SwitchDispersalKernel<IntegerRaster, RasterIndex> selectable_kernel(
             natural_kernel,
             radial_kernel,
             deterministic_kernel,
             uniform_kernel,
+            network_kernel,
             natural_neighbor_kernel,
             config_.deterministic);
         return selectable_kernel;
@@ -94,10 +98,12 @@ protected:
      * by the leaving scale coefficient.
      *
      * @param dispersers The disperser raster (reference, for deterministic kernel)
+     * @param network Network (initialized or not)
      * @return Created kernel
      */
-    SwitchDispersalKernel<IntegerRaster>
-    create_overpopulation_movement_kernel(const IntegerRaster& dispersers)
+    SwitchDispersalKernel<IntegerRaster, RasterIndex>
+    create_overpopulation_movement_kernel(
+        const IntegerRaster& dispersers, const Network<RasterIndex>& network)
     {
         RadialDispersalKernel<IntegerRaster> radial_kernel(
             config_.ew_res,
@@ -115,11 +121,14 @@ protected:
             config_.ns_res,
             config_.natural_scale * config_.leaving_scale_coefficient,
             config_.shape);
-        SwitchDispersalKernel<IntegerRaster> selectable_kernel(
+        NetworkDispersalKernel<RasterIndex> network_kernel(
+            network, config_.network_min_time, config_.network_max_time);
+        SwitchDispersalKernel<IntegerRaster, RasterIndex> selectable_kernel(
             natural_kernel,
             radial_kernel,
             deterministic_kernel,
             uniform_kernel,
+            network_kernel,
             natural_neighbor_kernel,
             config_.deterministic);
         return selectable_kernel;
@@ -132,10 +141,11 @@ protected:
      * kernel when available.
      *
      * @param dispersers The disperser raster (reference, for deterministic kernel)
+     * @param network Network (initialized or not)
      * @return Created kernel
      */
-    SwitchDispersalKernel<IntegerRaster>
-    create_anthro_kernel(const IntegerRaster& dispersers)
+    SwitchDispersalKernel<IntegerRaster, RasterIndex> create_anthro_kernel(
+        const IntegerRaster& dispersers, const Network<RasterIndex>& network)
     {
         RadialDispersalKernel<IntegerRaster> radial_kernel(
             config_.ew_res,
@@ -153,11 +163,14 @@ protected:
             config_.ns_res,
             config_.anthro_scale,
             config_.shape);
-        SwitchDispersalKernel<IntegerRaster> selectable_kernel(
+        NetworkDispersalKernel<RasterIndex> network_kernel(
+            network, config_.network_min_time, config_.network_max_time);
+        SwitchDispersalKernel<IntegerRaster, RasterIndex> selectable_kernel(
             anthro_kernel,
             radial_kernel,
             deterministic_kernel,
             uniform_kernel,
+            network_kernel,
             anthro_neighbor_kernel,
             config_.deterministic);
         return selectable_kernel;
@@ -226,6 +239,7 @@ public:
      * @param quarantine[in,out] Quarantine escape tracker
      * @param quarantine_areas[in] Quarantine areas
      * @param movements[in] Table of host movements
+     * @param network Network (initialized or Network::null_network() if unused)
      *
      * @note The parameters roughly correspond to Simulation::disperse()
      * and Simulation::disperse_and_infect() functions, so these can be used
@@ -251,6 +265,7 @@ public:
         QuarantineEscape<IntegerRaster>& quarantine,  // out
         const IntegerRaster& quarantine_areas,
         const std::vector<std::vector<int>> movements,
+        const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
 
@@ -275,13 +290,13 @@ public:
                 config_.reproductive_rate,
                 suitable_cells);
 
-            DispersalKernel<IntegerRaster> dispersal_kernel(
-                create_natural_kernel(dispersers),
-                create_anthro_kernel(dispersers),
+            DispersalKernel<IntegerRaster, RasterIndex> dispersal_kernel(
+                create_natural_kernel(dispersers, network),
+                create_anthro_kernel(dispersers, network),
                 config_.use_anthropogenic_kernel,
                 config_.percent_natural_dispersal);
             auto overpopulation_kernel =
-                create_overpopulation_movement_kernel(dispersers);
+                create_overpopulation_movement_kernel(dispersers, network);
 
             simulation_.disperse_and_infect(
                 step,

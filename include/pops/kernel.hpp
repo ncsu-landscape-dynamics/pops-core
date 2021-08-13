@@ -1,7 +1,7 @@
 /*
  * PoPS model - main disperal kernel
  *
- * Copyright (C) 2019-2020 by the authors.
+ * Copyright (C) 2019-2021 by the authors.
  *
  * Authors: Vaclav Petras (wenzeslaus gmail com)
  *
@@ -75,10 +75,10 @@ namespace pops {
  * See NaturalAnthropogenicDispersalKernel and SwitchDispersalKernel for further
  * documentation.
  */
-template<typename IntegerRaster>
+template<typename IntegerRaster, typename RasterIndex>
 using DispersalKernel = NaturalAnthropogenicDispersalKernel<
-    SwitchDispersalKernel<IntegerRaster>,
-    SwitchDispersalKernel<IntegerRaster>>;
+    SwitchDispersalKernel<IntegerRaster, RasterIndex>,
+    SwitchDispersalKernel<IntegerRaster, RasterIndex>>;
 
 }  // namespace pops
 
