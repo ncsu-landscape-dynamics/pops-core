@@ -5,7 +5,7 @@ The goal of this guide is to help you get up and contributing to PoPS Core and/o
 1. Filing a bug report or feature request in an issue.
 1. Suggesting a change via a pull request.
 
-Please note that PoPS Core and rPoPS are released with a [Contributor Code of Conduct](contributing/CODE_OF_CONDUCT.md).
+Please note that PoPS Core and rPoPS are released with a [Contributor Code of Conduct](contributing_docs/CODE_OF_CONDUCT.md).
 By contributing to this project, you agree to abide by its terms.
 
 ## Issues
