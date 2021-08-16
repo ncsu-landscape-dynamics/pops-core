@@ -58,6 +58,103 @@ void shuffle_container(Container& container, Generator& generator)
     std::shuffle(container.begin(), container.end(), generator);
 }
 
+/**
+ * Select a random item from a container.
+ *
+ * May be slow if it takes a long time to increase the iterator (e.g., for std::set) and
+ * the container is large.
+ */
+template<typename Container, typename Generator>
+typename Container::value_type
+pick_random_item(const Container& container, Generator& generator)
+{
+    // Replace .size() call by std::size in C++17.
+    std::uniform_int_distribution<size_t> distribution(0, container.size() - 1);
+    auto index = distribution(generator);
+    // For small containers, this is expected to be fast for both sets and vectors.
+    return *std::next(container.begin(), index);
+}
+
+/**
+ * \brief A const iterator which encapsulates either forward or reverse iterator.
+ *
+ * Uses the iterator was passed in the constructor, but it can contain either
+ * forward or reverse iterator, so it allows writing direction agnostic code
+ * where the direction is determined in the runtime.
+ */
+template<typename Container>
+class ConstEitherWayIterator
+{
+public:
+    ConstEitherWayIterator(typename Container::const_iterator it)
+        : is_forward_(true), forward_it_(it)
+    {}
+    ConstEitherWayIterator(typename Container::const_reverse_iterator it)
+        : is_forward_(false), reverse_it_(it)
+    {}
+    ConstEitherWayIterator& operator++()
+    {
+        if (is_forward_)
+            ++forward_it_;
+        else
+            ++reverse_it_;
+        return *this;
+    }
+    const typename Container::value_type& operator*() const
+    {
+        if (is_forward_)
+            return *forward_it_;
+        return *reverse_it_;
+    }
+    bool operator!=(const ConstEitherWayIterator& other)
+    {
+        if (is_forward_)
+            return forward_it_ != other.forward_it_;
+        return reverse_it_ != other.reverse_it_;
+    }
+
+private:
+    // Can be improved by std::optional or any in C++17.
+    bool is_forward_;
+    typename Container::const_iterator forward_it_;
+    typename Container::const_reverse_iterator reverse_it_;
+};
+
+/**
+ * \brief A const view of a container which can be iterated.
+ *
+ * Depending on which iterators are passed in the constructor, the view
+ * is in the forward direction of the container or in reverse. The view can also be
+ * a subset. The view supports only const iterators.
+ */
+template<typename Container>
+class ContainerView
+{
+public:
+    ContainerView(
+        typename Container::const_iterator first,
+        typename Container::const_iterator last)
+        : begin_(first), end_(last)
+    {}
+    ContainerView(
+        typename Container::const_reverse_iterator first,
+        typename Container::const_reverse_iterator last)
+        : begin_(first), end_(last)
+    {}
+    ConstEitherWayIterator<Container> begin() const
+    {
+        return begin_;
+    }
+    ConstEitherWayIterator<Container> end() const
+    {
+        return end_;
+    }
+
+private:
+    ConstEitherWayIterator<Container> begin_;
+    ConstEitherWayIterator<Container> end_;
+};
+
 typedef std::tuple<int, int, int, int> BBoxInt;
 typedef std::tuple<double, double, double, double> BBoxFloat;
 typedef std::tuple<bool, bool, bool, bool> BBoxBool;
