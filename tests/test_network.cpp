@@ -2,7 +2,7 @@
 #include <regex>
 #include <random>
 
-#include <pops/network_kernel.hpp>
+#include <pops/network.hpp>
 
 using namespace pops;
 

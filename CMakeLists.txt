@@ -80,6 +80,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/cauchy_kernel.hpp
         include/pops/gamma_kernel.hpp
         include/pops/lognormal_kernel.hpp
+        include/pops/network.hpp
         include/pops/network_kernel.hpp
         include/pops/normal_kernel.hpp
         include/pops/weibull_kernel.hpp
