@@ -16,6 +16,14 @@ this repository.
 
 ## [Unreleased]
 
+### Added
+
+- Network kernel (Vaclav Petras)
+
+### Fixed
+
+- Fixed and completed documentation of function parameters. (Vaclav Petras)
+
 ## [1.1.0] - 2021-06-18
 
 ### Added
@@ -371,7 +379,7 @@ this repository.
 - Copy of GDAL code was removed from the repository, using system GDAL
   includes now. (Vaclav Petras)
 
-[unreleased]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.2...HEAD
+[unreleased]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.1.0...HEAD
 [1.1.0]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.0...v1.0.1
