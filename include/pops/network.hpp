@@ -225,7 +225,7 @@ public:
             return *nodes.begin();
         }
         else if (num_nodes > 1) {
-            return pick_random_node(nodes, generator);
+            return pick_random_item(nodes, generator);
         }
         else {
             throw std::invalid_argument("No nodes at a given row and column");
@@ -447,6 +447,8 @@ protected:
     using NodeMatrix = std::map<NodeId, std::vector<NodeId>>;
     /** Cells connecting two nodes (segment between nodes) */
     using Segment = std::vector<std::pair<RasterIndex, RasterIndex>>;
+    /** Constant view of a segment (to iterate a segment in either direction) */
+    using SegmentView = ContainerView<Segment>;
     /** Segments by nodes (edges) */
     using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
 
@@ -460,85 +462,6 @@ protected:
     {
         return std::stoi(text);
     }
-
-    /**
-     * \brief A const iterator which encapsulates either forward or reverse iterator.
-     *
-     * Uses the iterator was passed in the constructor, but it can contain either
-     * forward or reverse iterator, so it allows writing direction agnostic code
-     * where the direction is determined in the runtime.
-     */
-    template<typename Container>
-    class ConstEitherWayIterator
-    {
-    public:
-        ConstEitherWayIterator(typename Container::const_iterator it)
-            : is_forward_(true), forward_it_(it)
-        {}
-        ConstEitherWayIterator(typename Container::const_reverse_iterator it)
-            : is_forward_(false), reverse_it_(it)
-        {}
-        ConstEitherWayIterator& operator++()
-        {
-            if (is_forward_)
-                ++forward_it_;
-            else
-                ++reverse_it_;
-            return *this;
-        }
-        const typename Container::value_type& operator*() const
-        {
-            if (is_forward_)
-                return *forward_it_;
-            return *reverse_it_;
-        }
-        bool operator!=(const ConstEitherWayIterator& other)
-        {
-            if (is_forward_)
-                return forward_it_ != other.forward_it_;
-            return reverse_it_ != other.reverse_it_;
-        }
-
-    private:
-        // Can be improved by std::optional or any in C++17.
-        bool is_forward_;
-        typename Container::const_iterator forward_it_;
-        typename Container::const_reverse_iterator reverse_it_;
-    };
-
-    /**
-     * \brief A const view of a Segment which can be iterated.
-     *
-     * Depending on which iterators are passed in the constructor, the view
-     * is in the forward direction of the Segment or in reverse. The view can also be
-     * a subset. The view supports only const iterators.
-     */
-    class SegmentView
-    {
-    public:
-        SegmentView(
-            typename Segment::const_iterator first,
-            typename Segment::const_iterator last)
-            : begin_(first), end_(last)
-        {}
-        SegmentView(
-            typename Segment::const_reverse_iterator first,
-            typename Segment::const_reverse_iterator last)
-            : begin_(first), end_(last)
-        {}
-        ConstEitherWayIterator<Segment> begin() const
-        {
-            return begin_;
-        }
-        ConstEitherWayIterator<Segment> end() const
-        {
-            return end_;
-        }
-
-    private:
-        ConstEitherWayIterator<Segment> begin_;
-        ConstEitherWayIterator<Segment> end_;
-    };
 
     /**
      * @brief Read nodes from a stream.
@@ -719,24 +642,10 @@ protected:
         // Pick a random node. Fallback to all candidate nodes if all are in ignore.
         num_nodes = nodes.size();
         if (!num_nodes)
-            return pick_random_node(all_nodes, generator);
+            return pick_random_item(all_nodes, generator);
         else if (num_nodes == 1)
             return nodes[0];
-        return pick_random_node(nodes, generator);
-    }
-
-    /**
-     * Select a random node from a list of nodes.
-     */
-    template<typename Container, typename Generator>
-    static NodeId pick_random_node(const Container& nodes, Generator& generator)
-    {
-        auto num_nodes = nodes.size();  // Replace by std::size in C++17.
-        std::uniform_int_distribution<size_t> dist(0, num_nodes - 1);
-        auto index = dist(generator);
-        // Our lists are expected to be short, so this is expected to be fast for
-        // both sets and vectors.
-        return *std::next(nodes.begin(), index);
+        return pick_random_item(nodes, generator);
     }
 
     BBox<double> bbox_;  ///< Bounding box of the network grid in real world coordinates
