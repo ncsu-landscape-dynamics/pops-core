@@ -80,6 +80,11 @@ using DispersalKernel = NaturalAnthropogenicDispersalKernel<
     SwitchDispersalKernel<IntegerRaster, RasterIndex>,
     SwitchDispersalKernel<IntegerRaster, RasterIndex>>;
 
+template<typename Generator>
+using DynamicDispersalKernel = DynamicNaturalAnthropogenicDispersalKernel<
+    KernelInterface<Generator>,
+    KernelInterface<Generator>>;
+
 }  // namespace pops
 
 #endif  // POPS_KERNEL_HPP

@@ -100,6 +100,67 @@ public:
     }
 };
 
+template<typename NaturalKernelType, typename AnthropogenicKernelType>
+class DynamicNaturalAnthropogenicDispersalKernel
+{
+protected:
+    bool use_anthropogenic_kernel_;
+    NaturalKernelType* natural_kernel_;
+    AnthropogenicKernelType* anthropogenic_kernel_;
+    std::bernoulli_distribution bernoulli_distribution;
+
+public:
+    DynamicNaturalAnthropogenicDispersalKernel(
+        NaturalKernelType* natural_kernel,
+        AnthropogenicKernelType* anthropogenic_kernel,
+        bool use_anthropogenic_kernel,
+        double percent_natural_dispersal)
+        : use_anthropogenic_kernel_(use_anthropogenic_kernel),
+          // Here we initialize all distributions,
+          // although we won't use all of them.
+          natural_kernel_(natural_kernel),
+          anthropogenic_kernel_(anthropogenic_kernel),
+          // use bernoulli distribution to act as the sampling with prob(gamma,1-gamma)
+          bernoulli_distribution(percent_natural_dispersal)
+    {}
+
+    /*! \copydoc RadialDispersalKernel::operator()()
+     */
+    template<typename Generator>
+    std::tuple<int, int> operator()(Generator& generator, int row, int col)
+    {
+        // switch in between the supported kernels
+        if (!use_anthropogenic_kernel_
+            || !anthropogenic_kernel_->is_cell_eligible(row, col)
+            || bernoulli_distribution(generator)) {
+            return natural_kernel_->operator()(generator, row, col);
+        }
+        return anthropogenic_kernel_->operator()(generator, row, col);
+    }
+
+    /*! \copydoc RadialDispersalKernel::supports_kernel()
+     *
+     * Returns true if at least one of the kernels (natural or anthropogenic)
+     * supports the given kernel type.
+     *
+     * \note Note that if natural and anthropogenic kernels are different, this is
+     * not generally usable because one kernel can support that and the
+     * other not. However, there is not much room for accidental misuse
+     * of this because this class does not use the type directly
+     * (it is handled by the underlying kernels).
+     */
+    static bool supports_kernel(const DispersalKernelType type)
+    {
+        if (std::is_same<NaturalKernelType, AnthropogenicKernelType>::value) {
+            return NaturalKernelType::supports_kernel(type);
+        }
+        else {
+            return NaturalKernelType::supports_kernel(type)
+                   || AnthropogenicKernelType::supports_kernel(type);
+        }
+    }
+};
+
 }  // namespace pops
 
 #endif  // POPS_NATURAL_ANTHROPOGENIC_KERNEL_HPP

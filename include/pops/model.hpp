@@ -36,7 +36,11 @@
 
 namespace pops {
 
-template<typename IntegerRaster, typename FloatRaster, typename RasterIndex>
+template<
+    typename IntegerRaster,
+    typename FloatRaster,
+    typename RasterIndex,
+    typename Generator = std::default_random_engine>
 class Model
 {
 protected:
@@ -58,36 +62,52 @@ protected:
      * @param network Network (initialized or not)
      * @return Created kernel
      */
-    SwitchDispersalKernel<IntegerRaster, RasterIndex> create_natural_kernel(
+    KernelInterface<Generator>* create_natural_kernel(
         const IntegerRaster& dispersers, const Network<RasterIndex>& network)
     {
-        RadialDispersalKernel<IntegerRaster> radial_kernel(
-            config_.ew_res,
-            config_.ns_res,
-            natural_kernel,
-            config_.natural_scale,
-            direction_from_string(config_.natural_direction),
-            config_.natural_kappa,
-            config_.shape);
-        DeterministicDispersalKernel<IntegerRaster> deterministic_kernel(
-            natural_kernel,
-            dispersers,
-            config_.dispersal_percentage,
-            config_.ew_res,
-            config_.ns_res,
-            config_.natural_scale,
-            config_.shape);
-        NetworkDispersalKernel<RasterIndex> network_kernel(
-            network, config_.network_min_time, config_.network_max_time);
-        SwitchDispersalKernel<IntegerRaster, RasterIndex> selectable_kernel(
-            natural_kernel,
-            radial_kernel,
-            deterministic_kernel,
-            uniform_kernel,
-            network_kernel,
-            natural_neighbor_kernel,
-            config_.deterministic);
-        return selectable_kernel;
+
+        if (natural_kernel == DispersalKernelType::Uniform) {
+            return new AlwaysEligibleDynamicKernel<UniformDispersalKernel, Generator>(
+                uniform_kernel);
+        }
+        else if (natural_kernel == DispersalKernelType::DeterministicNeighbor) {
+            return new AlwaysEligibleDynamicKernel<
+                DeterministicNeighborDispersalKernel,
+                Generator>(natural_neighbor_kernel);
+        }
+        else if (natural_kernel == DispersalKernelType::Network) {
+            NetworkDispersalKernel<RasterIndex> network_kernel(
+                network, config_.network_min_time, config_.network_max_time);
+            return new DynamicKernel<NetworkDispersalKernel<RasterIndex>, Generator>(
+                network_kernel);
+        }
+        else if (config_.deterministic) {
+
+            DeterministicDispersalKernel<IntegerRaster> deterministic_kernel(
+                natural_kernel,
+                dispersers,
+                config_.dispersal_percentage,
+                config_.ew_res,
+                config_.ns_res,
+                config_.natural_scale,
+                config_.shape);
+            return new AlwaysEligibleDynamicKernel<
+                DeterministicDispersalKernel<IntegerRaster>,
+                Generator>(deterministic_kernel);
+        }
+        else {
+            RadialDispersalKernel<IntegerRaster> radial_kernel(
+                config_.ew_res,
+                config_.ns_res,
+                natural_kernel,
+                config_.natural_scale,
+                direction_from_string(config_.natural_direction),
+                config_.natural_kappa,
+                config_.shape);
+            return new AlwaysEligibleDynamicKernel<
+                RadialDispersalKernel<IntegerRaster>,
+                Generator>(radial_kernel);
+        }
     }
 
     /**
@@ -144,36 +164,50 @@ protected:
      * @param network Network (initialized or not)
      * @return Created kernel
      */
-    SwitchDispersalKernel<IntegerRaster, RasterIndex> create_anthro_kernel(
+    KernelInterface<Generator>* create_anthro_kernel(
         const IntegerRaster& dispersers, const Network<RasterIndex>& network)
     {
-        RadialDispersalKernel<IntegerRaster> radial_kernel(
-            config_.ew_res,
-            config_.ns_res,
-            anthro_kernel,
-            config_.anthro_scale,
-            direction_from_string(config_.anthro_direction),
-            config_.anthro_kappa,
-            config_.shape);
-        DeterministicDispersalKernel<IntegerRaster> deterministic_kernel(
-            anthro_kernel,
-            dispersers,
-            config_.dispersal_percentage,
-            config_.ew_res,
-            config_.ns_res,
-            config_.anthro_scale,
-            config_.shape);
-        NetworkDispersalKernel<RasterIndex> network_kernel(
-            network, config_.network_min_time, config_.network_max_time);
-        SwitchDispersalKernel<IntegerRaster, RasterIndex> selectable_kernel(
-            anthro_kernel,
-            radial_kernel,
-            deterministic_kernel,
-            uniform_kernel,
-            network_kernel,
-            anthro_neighbor_kernel,
-            config_.deterministic);
-        return selectable_kernel;
+        if (anthro_kernel == DispersalKernelType::Uniform) {
+            return new AlwaysEligibleDynamicKernel<UniformDispersalKernel, Generator>(
+                uniform_kernel);
+        }
+        else if (anthro_kernel == DispersalKernelType::DeterministicNeighbor) {
+            return new AlwaysEligibleDynamicKernel<
+                DeterministicNeighborDispersalKernel,
+                Generator>(anthro_neighbor_kernel);
+        }
+        else if (anthro_kernel == DispersalKernelType::Network) {
+            NetworkDispersalKernel<RasterIndex> network_kernel(
+                network, config_.network_min_time, config_.network_max_time);
+            return new DynamicKernel<NetworkDispersalKernel<RasterIndex>, Generator>(
+                network_kernel);
+        }
+        else if (config_.deterministic) {
+            DeterministicDispersalKernel<IntegerRaster> deterministic_kernel(
+                anthro_kernel,
+                dispersers,
+                config_.dispersal_percentage,
+                config_.ew_res,
+                config_.ns_res,
+                config_.anthro_scale,
+                config_.shape);
+            return new AlwaysEligibleDynamicKernel<
+                DeterministicDispersalKernel<IntegerRaster>,
+                Generator>(deterministic_kernel);
+        }
+        else {
+            RadialDispersalKernel<IntegerRaster> radial_kernel(
+                config_.ew_res,
+                config_.ns_res,
+                anthro_kernel,
+                config_.anthro_scale,
+                direction_from_string(config_.anthro_direction),
+                config_.anthro_kappa,
+                config_.shape);
+            return new AlwaysEligibleDynamicKernel<
+                RadialDispersalKernel<IntegerRaster>,
+                Generator>(radial_kernel);
+        }
     }
 
 public:
@@ -292,7 +326,7 @@ public:
                 config_.reproductive_rate,
                 suitable_cells);
 
-            DispersalKernel<IntegerRaster, RasterIndex> dispersal_kernel(
+            DynamicDispersalKernel<Generator> dispersal_kernel(
                 create_natural_kernel(dispersers, network),
                 create_anthro_kernel(dispersers, network),
                 config_.use_anthropogenic_kernel,

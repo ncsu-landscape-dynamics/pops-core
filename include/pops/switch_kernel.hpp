@@ -24,7 +24,112 @@
 #include "kernel_types.hpp"
 #include "utils.hpp"
 
+#include <any>
+
 namespace pops {
+
+template<typename Generator>
+class KernelInterface
+{
+public:
+    /*! \copydoc RadialDispersalKernel::operator()()
+     */
+    virtual std::tuple<int, int> operator()(Generator& generator, int row, int col) = 0;
+
+    virtual bool is_cell_eligible(int row, int col) = 0;
+
+    /*! \copydoc RadialDispersalKernel::supports_kernel()
+     */
+    virtual bool supports_kernel(const DispersalKernelType type) = 0;
+};
+
+template<typename ActualKernel, typename Generator>
+class BaseDynamicKernel : public KernelInterface<Generator>
+{
+public:
+    BaseDynamicKernel(const ActualKernel& kernel) : kernel_(kernel) {}
+
+    /*! \copydoc RadialDispersalKernel::operator()()
+     */
+    std::tuple<int, int> operator()(Generator& generator, int row, int col) override
+    {
+        return kernel_.operator()(generator, row, col);
+    }
+
+    /*! \copydoc RadialDispersalKernel::supports_kernel()
+     */
+    bool supports_kernel(const DispersalKernelType type) override
+    {
+        return ActualKernel::supports_kernel(type);
+    }
+
+protected:
+    ActualKernel kernel_;
+};
+
+template<typename ActualKernel, typename Generator>
+class DynamicKernel : public BaseDynamicKernel<ActualKernel, Generator>
+{
+public:
+    DynamicKernel(const ActualKernel& kernel)
+        : BaseDynamicKernel<ActualKernel, Generator>(kernel)
+    {}
+
+    bool is_cell_eligible(int row, int col) override
+    {
+        return BaseDynamicKernel<ActualKernel, Generator>::kernel_.is_cell_eligible(
+            row, col);
+    }
+};
+
+template<typename ActualKernel, typename Generator>
+class AlwaysEligibleDynamicKernel : public BaseDynamicKernel<ActualKernel, Generator>
+{
+public:
+    AlwaysEligibleDynamicKernel(const ActualKernel& kernel)
+        : BaseDynamicKernel<ActualKernel, Generator>(kernel)
+    {}
+
+    bool is_cell_eligible(int row, int col) override
+    {
+        UNUSED(row);
+        UNUSED(col);
+        return true;
+    }
+};
+
+/*! Dispersal kernel providing all the radial kernels.
+ *
+ * We understand a radial kernel to be a kernel which has parameters
+ * which translate into a distance and direction.
+ *
+ * To add new kernel, add new member, constructor parameter,
+ * its call in the function call operator, and extend the
+ * supports_kernel() function.
+ */
+// template<typename IntegerRaster, typename RasterIndex>
+// TODO: unique pointer here
+/*
+KernelInterface* create_dynamic_kernel(
+    const DispersalKernelType& dispersal_kernel_type, const bool deterministic = false)
+{
+    if (dispersal_kernel_type_ == DispersalKernelType::Uniform) {
+        return DynamicKernel(UniformDispersalKernel());
+    }
+    else if (dispersal_kernel_type_ == DispersalKernelType::DeterministicNeighbor) {
+        return DeterministicNeighborDispersalKernel(Direction::None);
+    }
+    else if (dispersal_kernel_type_ == DispersalKernelType::Network) {
+        return NetworkDispersalKernel<RasterIndex>();
+    }
+    else if (deterministic_) {
+        return DeterministicDispersalKernel<IntegerRaster>();
+    }
+    else {
+        return RadialDispersalKernel<IntegerRaster>(generator, row, col);
+    }
+}
+*/
 
 /*! Dispersal kernel providing all the radial kernels.
  *
