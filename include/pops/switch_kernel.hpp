@@ -41,6 +41,8 @@ public:
     /*! \copydoc RadialDispersalKernel::supports_kernel()
      */
     virtual bool supports_kernel(const DispersalKernelType type) = 0;
+
+    virtual ~KernelInterface() = default;
 };
 
 template<typename ActualKernel, typename Generator>

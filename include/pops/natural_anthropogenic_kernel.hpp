@@ -159,6 +159,14 @@ public:
                    || AnthropogenicKernelType::supports_kernel(type);
         }
     }
+
+    ~DynamicNaturalAnthropogenicDispersalKernel()
+    {
+        // We are likely double freeing somewhere (or potentially are without
+        // optimizations).
+        delete natural_kernel_;
+        delete anthropogenic_kernel_;
+    }
 };
 
 }  // namespace pops
