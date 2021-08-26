@@ -318,7 +318,7 @@ int test_kernels_generic(const KernelFactory& kernel_factory, int steps)
 
     using IntRaster = Raster<int, int>;
     using DoubleRaster = Raster<double, int>;
-    IntRaster infected{rows, cols, 5};
+    IntRaster infected{rows, cols, 100};
     IntRaster mortality_tracker{rows, cols, 0};
     IntRaster total_exposed{rows, cols, 0};
     // Susceptible and total are set in a way that there won't be any
@@ -395,10 +395,53 @@ SimpleDDKernel create_simple_static_kernel(
     return SimpleDDKernel(kernel, kernel, false, 1);
 }
 
+template<typename IntegerRaster, typename RasterIndex>
+RadialDispersalKernel<IntegerRaster> create_radial_kernel(
+    const Config& config,
+    const IntegerRaster& dispersers,
+    const Network<RasterIndex>& network)
+{
+    UNUSED(dispersers);
+    UNUSED(network);
+    return RadialDispersalKernel<IntegerRaster>(
+        config.ew_res,
+        config.ns_res,
+        kernel_type_from_string(config.natural_kernel_type),
+        config.natural_scale,
+        direction_from_string(config.natural_direction),
+        config.natural_kappa,
+        config.shape);
+}
+
+template<typename IntegerRaster>
+using DoubleRadialKernel = NaturalAnthropogenicDispersalKernel<
+    RadialDispersalKernel<IntegerRaster>,
+    RadialDispersalKernel<IntegerRaster>>;
+template<typename IntegerRaster, typename RasterIndex>
+DoubleRadialKernel<IntegerRaster> create_double_radial_kernel(
+    const Config& config,
+    const IntegerRaster& dispersers,
+    const Network<RasterIndex>& network)
+{
+    return DoubleRadialKernel<IntegerRaster>(
+        create_radial_kernel(config, dispersers, network),
+        RadialDispersalKernel<IntegerRaster>(
+            config.ew_res,
+            config.ns_res,
+            kernel_type_from_string(config.anthro_kernel_type),
+            config.anthro_scale,
+            direction_from_string(config.anthro_direction),
+            config.anthro_kappa,
+            config.shape),
+        config.use_anthropogenic_kernel,
+        config.percent_natural_dispersal);
+}
+
 int test_kernels2(int argc, char** argv)
 {
     if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " simple|static|dynamic STEPS\n";
+        std::cerr << "Usage: " << argv[0]
+                  << " trivial|radial|double|static|dynamic STEPS\n";
         return argc;
     }
     std::string command = argv[1];
@@ -406,9 +449,16 @@ int test_kernels2(int argc, char** argv)
 
     int ret = 0;
 
-    if (command == "simple") {
+    if (command == "trivial") {
         ret +=
             test_kernels_generic(create_simple_static_kernel<Raster<int>, int>, steps);
+    }
+    else if (command == "radial") {
+        ret += test_kernels_generic(create_radial_kernel<Raster<int>, int>, steps);
+    }
+    else if (command == "double") {
+        ret +=
+            test_kernels_generic(create_double_radial_kernel<Raster<int>, int>, steps);
     }
     else if (command == "static") {
         ret += test_kernels_generic(create_static_kernel<Raster<int>, int>, steps);
@@ -419,7 +469,6 @@ int test_kernels2(int argc, char** argv)
     }
     else {
         std::cerr << "Unknown sub-command: " << command << "\n";
-        std::cerr << "Supported sub-commands are: simple, static, dynamic\n";
         return 1;
     }
 
