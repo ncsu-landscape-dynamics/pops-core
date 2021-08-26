@@ -40,7 +40,9 @@ template<
     typename IntegerRaster,
     typename FloatRaster,
     typename RasterIndex,
-    typename Generator = std::default_random_engine>
+    typename Generator = std::default_random_engine,
+    typename KernelFactory = DynamicDispersalKernel<Generator>(
+        const Config&, const IntegerRaster&, const Network<RasterIndex>&)>
 class Model
 {
 protected:
@@ -51,6 +53,7 @@ protected:
     DeterministicNeighborDispersalKernel natural_neighbor_kernel;
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
     Simulation<IntegerRaster, FloatRaster, RasterIndex, Generator> simulation_;
+    KernelFactory& kernel_factory_;
     unsigned last_index{0};
 
     /**
@@ -98,7 +101,10 @@ protected:
     }
 
 public:
-    Model(const Config& config)
+    Model(
+        const Config& config,
+        KernelFactory& kernel_factory =
+            create_dynamic_kernel<Generator, IntegerRaster, RasterIndex>)
         : config_(config),
           natural_kernel(kernel_type_from_string(config.natural_kernel_type)),
           anthro_kernel(kernel_type_from_string(config.anthro_kernel_type)),
@@ -113,7 +119,8 @@ public:
               config.latency_period_steps,
               config.generate_stochasticity,
               config.establishment_stochasticity,
-              config.movement_stochasticity)
+              config.movement_stochasticity),
+          kernel_factory_(kernel_factory)
     {}
 
     /**
@@ -213,8 +220,7 @@ public:
                 config_.reproductive_rate,
                 suitable_cells);
 
-            auto dispersal_kernel = create_static_kernel(config_, dispersers, network);
-            //    create_dynamic_kernel<Generator>(config_, dispersers, network);
+            auto dispersal_kernel = kernel_factory_(config_, dispersers, network);
             auto overpopulation_kernel =
                 create_overpopulation_movement_kernel(dispersers, network);
 

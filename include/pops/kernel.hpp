@@ -324,7 +324,7 @@ DispersalKernel<IntegerRaster, RasterIndex> create_static_kernel(
 }
 
 template<typename Generator, typename IntegerRaster, typename RasterIndex>
-DynamicDispersalKernel<std::default_random_engine> create_dynamic_kernel(
+DynamicDispersalKernel<Generator> create_dynamic_kernel(
     const Config& config,
     const IntegerRaster& dispersers,
     const Network<RasterIndex>& network)
