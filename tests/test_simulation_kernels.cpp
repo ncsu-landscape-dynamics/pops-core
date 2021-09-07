@@ -27,6 +27,7 @@
 #include <pops/raster.hpp>
 #include <pops/utils.hpp>
 #include <pops/kernel.hpp>
+#include <pops/switch_kernel.hpp>
 #include <pops/simulation.hpp>
 #include <pops/model.hpp>
 
@@ -38,6 +39,181 @@
 #include <regex>
 
 using namespace pops;
+
+template<typename NaturalKernelType, typename AnthropogenicKernelType>
+class NaturalAnthropogenicDispersalKernel
+{
+protected:
+    bool use_anthropogenic_kernel_;
+    NaturalKernelType natural_kernel_;
+    AnthropogenicKernelType anthropogenic_kernel_;
+    std::bernoulli_distribution bernoulli_distribution;
+
+public:
+    NaturalAnthropogenicDispersalKernel(
+        const NaturalKernelType& natural_kernel,
+        const AnthropogenicKernelType& anthropogenic_kernel,
+        bool use_anthropogenic_kernel,
+        double percent_natural_dispersal)
+        : use_anthropogenic_kernel_(use_anthropogenic_kernel),
+          // Here we initialize all distributions,
+          // although we won't use all of them.
+          natural_kernel_(natural_kernel),
+          anthropogenic_kernel_(anthropogenic_kernel),
+          // use bernoulli distribution to act as the sampling with prob(gamma,1-gamma)
+          bernoulli_distribution(percent_natural_dispersal)
+    {}
+
+    /*! \copydoc RadialDispersalKernel::operator()()
+     */
+    template<typename Generator>
+    std::tuple<int, int> operator()(Generator& generator, int row, int col)
+    {
+        // switch in between the supported kernels
+        if (!use_anthropogenic_kernel_
+            || !anthropogenic_kernel_.is_cell_eligible(row, col)
+            || bernoulli_distribution(generator)) {
+            return natural_kernel_(generator, row, col);
+        }
+        return anthropogenic_kernel_(generator, row, col);
+    }
+
+    /*! \copydoc RadialDispersalKernel::supports_kernel()
+     *
+     * Returns true if at least one of the kernels (natural or anthropogenic)
+     * supports the given kernel type.
+     *
+     * \note Note that if natural and anthropogenic kernels are different, this is
+     * not generally usable because one kernel can support that and the
+     * other not. However, there is not much room for accidental misuse
+     * of this because this class does not use the type directly
+     * (it is handled by the underlying kernels).
+     */
+    static bool supports_kernel(const DispersalKernelType type)
+    {
+        if (std::is_same<NaturalKernelType, AnthropogenicKernelType>::value) {
+            return NaturalKernelType::supports_kernel(type);
+        }
+        else {
+            return NaturalKernelType::supports_kernel(type)
+                   || AnthropogenicKernelType::supports_kernel(type);
+        }
+    }
+};
+
+/**
+ * @brief Create natural kernel from configuration
+ *
+ * Kernel parameters are taken from the configuration.
+ *
+ * @param dispersers The disperser raster (reference, for deterministic kernel)
+ * @param network Network (initialized or not)
+ * @return Created kernel
+ */
+template<typename IntegerRaster, typename RasterIndex>
+SwitchDispersalKernel<IntegerRaster, RasterIndex> create_static_natural_kernel(
+    const Config& config,
+    const IntegerRaster& dispersers,
+    const Network<RasterIndex>& network)
+{
+    auto natural_kernel = kernel_type_from_string(config.natural_kernel_type);
+    UniformDispersalKernel uniform_kernel(config.rows, config.cols);
+    RadialDispersalKernel<IntegerRaster> radial_kernel(
+        config.ew_res,
+        config.ns_res,
+        natural_kernel,
+        config.natural_scale,
+        direction_from_string(config.natural_direction),
+        config.natural_kappa,
+        config.shape);
+    DeterministicNeighborDispersalKernel natural_neighbor_kernel(
+        direction_from_string(config.natural_direction));
+    DeterministicDispersalKernel<IntegerRaster> deterministic_kernel(
+        natural_kernel,
+        dispersers,
+        config.dispersal_percentage,
+        config.ew_res,
+        config.ns_res,
+        config.natural_scale,
+        config.shape);
+    NetworkDispersalKernel<RasterIndex> network_kernel(
+        network, config.network_min_time, config.network_max_time);
+    SwitchDispersalKernel<IntegerRaster, RasterIndex> selectable_kernel(
+        natural_kernel,
+        radial_kernel,
+        deterministic_kernel,
+        uniform_kernel,
+        network_kernel,
+        natural_neighbor_kernel,
+        config.deterministic);
+    return selectable_kernel;
+}
+/**
+ * @brief Create anthropogenic kernel from configuration
+ *
+ * Same structure as the natural kernel, but the parameters are for anthropogenic
+ * kernel when available.
+ *
+ * @param dispersers The disperser raster (reference, for deterministic kernel)
+ * @param network Network (initialized or not)
+ * @return Created kernel
+ */
+template<typename IntegerRaster, typename RasterIndex>
+SwitchDispersalKernel<IntegerRaster, RasterIndex> create_static_anthro_kernel(
+    const Config& config,
+    const IntegerRaster& dispersers,
+    const Network<RasterIndex>& network)
+{
+    auto anthro_kernel = kernel_type_from_string(config.anthro_kernel_type);
+    UniformDispersalKernel uniform_kernel(config.rows, config.cols);
+    RadialDispersalKernel<IntegerRaster> radial_kernel(
+        config.ew_res,
+        config.ns_res,
+        anthro_kernel,
+        config.anthro_scale,
+        direction_from_string(config.anthro_direction),
+        config.anthro_kappa,
+        config.shape);
+    DeterministicNeighborDispersalKernel anthro_neighbor_kernel(
+        direction_from_string(config.anthro_direction));
+    DeterministicDispersalKernel<IntegerRaster> deterministic_kernel(
+        anthro_kernel,
+        dispersers,
+        config.dispersal_percentage,
+        config.ew_res,
+        config.ns_res,
+        config.anthro_scale,
+        config.shape);
+    NetworkDispersalKernel<RasterIndex> network_kernel(
+        network, config.network_min_time, config.network_max_time);
+    SwitchDispersalKernel<IntegerRaster, RasterIndex> selectable_kernel(
+        anthro_kernel,
+        radial_kernel,
+        deterministic_kernel,
+        uniform_kernel,
+        network_kernel,
+        anthro_neighbor_kernel,
+        config.deterministic);
+    return selectable_kernel;
+}
+
+template<typename IntegerRaster, typename RasterIndex>
+using DispersalKernel = NaturalAnthropogenicDispersalKernel<
+    SwitchDispersalKernel<IntegerRaster, RasterIndex>,
+    SwitchDispersalKernel<IntegerRaster, RasterIndex>>;
+
+template<typename IntegerRaster, typename RasterIndex>
+DispersalKernel<IntegerRaster, RasterIndex> create_static_kernel(
+    const Config& config,
+    const IntegerRaster& dispersers,
+    const Network<RasterIndex>& network)
+{
+    return DispersalKernel<IntegerRaster, RasterIndex>(
+        create_static_natural_kernel(config, dispersers, network),
+        create_static_anthro_kernel(config, dispersers, network),
+        config.use_anthropogenic_kernel,
+        config.percent_natural_dispersal);
+}
 
 /** Placeholder for string to string no-op. */
 std::string convert_to(const std::string& text, std::string tag)
@@ -648,11 +824,26 @@ int kernel_type_test(int argc, char** argv)
     return ret;
 }
 
+int test_fixed_kernel_types()
+{
+    int ret = 0;
+    int steps = 2;
+    std::string kernel_type{"exponential"};
+    for (std::string command : {"trivial", "dynamic"}) {
+        ret += test_model_with_kernels(command, steps, kernel_type);
+        ret += test_simulation_with_kernels(command, steps, kernel_type);
+    }
+    return ret;
+}
+
 int main(int argc, char** argv)
 {
     int ret = 0;
 
-    ret += kernel_type_test(argc, argv);
+    if (argc < 2)
+        ret += test_fixed_kernel_types();
+    else
+        ret += kernel_type_test(argc, argv);
 
     return ret;
 }
