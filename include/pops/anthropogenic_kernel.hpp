@@ -53,7 +53,6 @@
 #include "network_kernel.hpp"
 #include "kernel_types.hpp"
 #include "kernel_base.hpp"
-#include "natural_anthropogenic_kernel.hpp"
 #include "config.hpp"
 
 #include <memory>
