@@ -42,20 +42,19 @@ create_natural_kernel(const Config& config, const IntegerRaster& dispersers)
 {
     auto natural_kernel = kernel_type_from_string(config.natural_kernel_type);
     if (natural_kernel == DispersalKernelType::Uniform) {
-        UniformDispersalKernel kernel(config.rows, config.cols);
         return std::make_unique<
-            AlwaysEligibleDynamicKernel<UniformDispersalKernel, Generator>>(kernel);
+            AlwaysEligibleDynamicKernel<UniformDispersalKernel, Generator>>(
+            config.rows, config.cols);
     }
     else if (natural_kernel == DispersalKernelType::DeterministicNeighbor) {
-        DeterministicNeighborDispersalKernel kernel(
-            direction_from_string(config.natural_direction));
         return std::make_unique<AlwaysEligibleDynamicKernel<
             DeterministicNeighborDispersalKernel,
-            Generator>>(kernel);
+            Generator>>(direction_from_string(config.natural_direction));
     }
     else if (config.deterministic) {
-
-        DeterministicDispersalKernel<IntegerRaster> deterministic_kernel(
+        return std::make_unique<AlwaysEligibleDynamicKernel<
+            DeterministicDispersalKernel<IntegerRaster>,
+            Generator>>(
             natural_kernel,
             dispersers,
             config.dispersal_percentage,
@@ -63,12 +62,11 @@ create_natural_kernel(const Config& config, const IntegerRaster& dispersers)
             config.ns_res,
             config.natural_scale,
             config.shape);
-        return std::make_unique<AlwaysEligibleDynamicKernel<
-            DeterministicDispersalKernel<IntegerRaster>,
-            Generator>>(deterministic_kernel);
     }
     else {
-        RadialDispersalKernel<IntegerRaster> radial_kernel(
+        return std::make_unique<AlwaysEligibleDynamicKernel<
+            RadialDispersalKernel<IntegerRaster>,
+            Generator>>(
             config.ew_res,
             config.ns_res,
             natural_kernel,
@@ -76,9 +74,6 @@ create_natural_kernel(const Config& config, const IntegerRaster& dispersers)
             direction_from_string(config.natural_direction),
             config.natural_kappa,
             config.shape);
-        return std::make_unique<AlwaysEligibleDynamicKernel<
-            RadialDispersalKernel<IntegerRaster>,
-            Generator>>(radial_kernel);
     }
 }
 

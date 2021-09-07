@@ -53,6 +53,10 @@ class BaseDynamicKernel : public KernelInterface<Generator>
 public:
     BaseDynamicKernel(const ActualKernel& kernel) : kernel_(kernel) {}
 
+    template<typename... Args>
+    BaseDynamicKernel(Args&&... args) : kernel_(std::forward<Args>(args)...)
+    {}
+
     /*! \copydoc RadialDispersalKernel::operator()()
      */
     std::tuple<int, int> operator()(Generator& generator, int row, int col) override
@@ -84,6 +88,11 @@ public:
         : BaseDynamicKernel<ActualKernel, Generator>(kernel)
     {}
 
+    template<typename... Args>
+    DynamicKernel(Args&&... args)
+        : BaseDynamicKernel<ActualKernel, Generator>(std::forward<Args>(args)...)
+    {}
+
     bool is_cell_eligible(int row, int col) override
     {
         return BaseDynamicKernel<ActualKernel, Generator>::kernel_.is_cell_eligible(
@@ -102,6 +111,11 @@ class AlwaysEligibleDynamicKernel : public BaseDynamicKernel<ActualKernel, Gener
 public:
     AlwaysEligibleDynamicKernel(const ActualKernel& kernel)
         : BaseDynamicKernel<ActualKernel, Generator>(kernel)
+    {}
+
+    template<typename... Args>
+    AlwaysEligibleDynamicKernel(Args&&... args)
+        : BaseDynamicKernel<ActualKernel, Generator>(std::forward<Args>(args)...)
     {}
 
     bool is_cell_eligible(int row, int col) override
