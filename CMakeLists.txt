@@ -66,6 +66,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/deterministic_kernel.hpp
         include/pops/kernel.hpp
         include/pops/simulation.hpp
+        include/pops/kernel_base.hpp
         include/pops/kernel_types.hpp
         include/pops/switch_kernel.hpp
         include/pops/spread_rate.hpp

@@ -28,6 +28,7 @@
 #include "treatments.hpp"
 #include "spread_rate.hpp"
 #include "simulation.hpp"
+#include "switch_kernel.hpp"
 #include "kernel.hpp"
 #include "scheduling.hpp"
 #include "quarantine.hpp"
