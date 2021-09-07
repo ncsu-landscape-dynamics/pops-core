@@ -46,13 +46,6 @@
 #ifndef POPS_KERNEL_HPP
 #define POPS_KERNEL_HPP
 
-#include "radial_kernel.hpp"
-#include "deterministic_kernel.hpp"
-#include "uniform_kernel.hpp"
-#include "neighbor_kernel.hpp"
-#include "network_kernel.hpp"
-#include "kernel_types.hpp"
-#include "kernel_base.hpp"
 #include "natural_kernel.hpp"
 #include "anthropogenic_kernel.hpp"
 #include "natural_anthropogenic_kernel.hpp"
