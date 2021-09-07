@@ -20,6 +20,9 @@
 
 namespace pops {
 
+/**
+ * Interface which all dynamically used kernels need to inherit from.
+ */
 template<typename Generator>
 class KernelInterface
 {
@@ -37,6 +40,13 @@ public:
     virtual ~KernelInterface() = default;
 };
 
+/**
+ * Base class for common implementation of operator() and other methods.
+ *
+ * Methods optional in static such as is_cell_eligible kernels need to be only in
+ * derived classes because valid implementation is required even if the method is
+ * eventually overridden.
+ */
 template<typename ActualKernel, typename Generator>
 class BaseDynamicKernel : public KernelInterface<Generator>
 {
@@ -61,6 +71,11 @@ protected:
     ActualKernel kernel_;
 };
 
+/**
+ * Default class which turns a any kernel into a kernel usable with KernelInterface.
+ *
+ * Kernel needs to implement is_cell_eligible.
+ */
 template<typename ActualKernel, typename Generator>
 class DynamicKernel : public BaseDynamicKernel<ActualKernel, Generator>
 {
@@ -76,6 +91,11 @@ public:
     }
 };
 
+/**
+ * Class which turns a any kernel into a kernel usable with KernelInterface.
+ *
+ * Useful for kernles which do not implement is_cell_eligible.
+ */
 template<typename ActualKernel, typename Generator>
 class AlwaysEligibleDynamicKernel : public BaseDynamicKernel<ActualKernel, Generator>
 {

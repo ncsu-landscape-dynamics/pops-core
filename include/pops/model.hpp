@@ -42,7 +42,7 @@ template<
     typename FloatRaster,
     typename RasterIndex,
     typename Generator = std::default_random_engine,
-    typename KernelFactory = DynamicDispersalKernel<Generator>(
+    typename KernelFactory = DispersalKernel<Generator>(
         const Config&, const IntegerRaster&, const Network<RasterIndex>&)>
 class Model
 {

@@ -56,6 +56,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     target_sources(pops INTERFACE
         include/pops/config.hpp
         include/pops/natural_anthropogenic_kernel.hpp
+        include/pops/natural_kernel.hpp
+        include/pops/anthropogenic_kernel.hpp
         include/pops/uniform_kernel.hpp
         include/pops/radial_kernel.hpp
         include/pops/treatments.hpp

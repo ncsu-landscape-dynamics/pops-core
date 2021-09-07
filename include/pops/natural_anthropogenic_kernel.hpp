@@ -46,7 +46,7 @@ namespace pops {
  */
 
 template<typename NaturalKernelType, typename AnthropogenicKernelType>
-class DynamicNaturalAnthropogenicDispersalKernel
+class NaturalAnthropogenicDispersalKernel
 {
 protected:
     bool use_anthropogenic_kernel_;
@@ -55,7 +55,7 @@ protected:
     std::bernoulli_distribution bernoulli_distribution;
 
 public:
-    DynamicNaturalAnthropogenicDispersalKernel(
+    NaturalAnthropogenicDispersalKernel(
         std::unique_ptr<NaturalKernelType> natural_kernel,
         std::unique_ptr<AnthropogenicKernelType> anthropogenic_kernel,
         bool use_anthropogenic_kernel,
