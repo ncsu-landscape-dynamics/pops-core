@@ -47,43 +47,46 @@ std::unique_ptr<KernelInterface<Generator>> create_anthro_kernel(
 {
     auto anthro_kernel = kernel_type_from_string(config.anthro_kernel_type);
     if (anthro_kernel == DispersalKernelType::Uniform) {
-        return std::make_unique<
-            AlwaysEligibleDynamicKernel<UniformDispersalKernel, Generator>>(
-            config.rows, config.cols);
+        using Kernel = AlwaysEligibleDynamicKernel<UniformDispersalKernel, Generator>;
+        return std::unique_ptr<Kernel>(new Kernel(config.rows, config.cols));
     }
     else if (anthro_kernel == DispersalKernelType::DeterministicNeighbor) {
-        return std::make_unique<AlwaysEligibleDynamicKernel<
+        using Kernel = AlwaysEligibleDynamicKernel<
             DeterministicNeighborDispersalKernel,
-            Generator>>(direction_from_string(config.anthro_direction));
+            Generator>;
+        return std::unique_ptr<Kernel>(
+            new Kernel(direction_from_string(config.anthro_direction)));
     }
     else if (anthro_kernel == DispersalKernelType::Network) {
-        return std::make_unique<
-            DynamicKernel<NetworkDispersalKernel<RasterIndex>, Generator>>(
-            network, config.network_min_time, config.network_max_time);
+        using Kernel = DynamicKernel<NetworkDispersalKernel<RasterIndex>, Generator>;
+        return std::unique_ptr<Kernel>(
+            new Kernel(network, config.network_min_time, config.network_max_time));
     }
     else if (config.deterministic) {
-        return std::make_unique<AlwaysEligibleDynamicKernel<
+        using Kernel = AlwaysEligibleDynamicKernel<
             DeterministicDispersalKernel<IntegerRaster>,
-            Generator>>(
+            Generator>;
+        return std::unique_ptr<Kernel>(new Kernel(
             anthro_kernel,
             dispersers,
             config.dispersal_percentage,
             config.ew_res,
             config.ns_res,
             config.anthro_scale,
-            config.shape);
+            config.shape));
     }
     else {
-        return std::make_unique<AlwaysEligibleDynamicKernel<
+        using Kernel = AlwaysEligibleDynamicKernel<
             RadialDispersalKernel<IntegerRaster>,
-            Generator>>(
+            Generator>;
+        return std::unique_ptr<Kernel>(new Kernel(
             config.ew_res,
             config.ns_res,
             anthro_kernel,
             config.anthro_scale,
             direction_from_string(config.anthro_direction),
             config.anthro_kappa,
-            config.shape);
+            config.shape));
     }
 }
 

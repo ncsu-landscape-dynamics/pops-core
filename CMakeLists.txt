@@ -10,8 +10,8 @@ project(pops-core
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     # We need the following C++ standard
-    set(CMAKE_CXX_STANDARD 14)
-    
+    set(CMAKE_CXX_STANDARD 11)
+
     # Disable compiler-specific extensions
     set(CMAKE_CXX_EXTENSIONS OFF)
 
