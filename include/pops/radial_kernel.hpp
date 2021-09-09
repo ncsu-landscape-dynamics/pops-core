@@ -204,6 +204,8 @@ public:
         return std::make_tuple(row, col);
     }
 
+    /*! Returns true if kernel can be used with a given cell.
+     */
     bool is_cell_eligible(int row, int col)
     {
         UNUSED(row);

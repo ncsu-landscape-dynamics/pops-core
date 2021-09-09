@@ -47,23 +47,23 @@ std::unique_ptr<KernelInterface<Generator>> create_anthro_kernel(
 {
     auto anthro_kernel = kernel_type_from_string(config.anthro_kernel_type);
     if (anthro_kernel == DispersalKernelType::Uniform) {
-        using Kernel = AlwaysEligibleDynamicKernel<UniformDispersalKernel, Generator>;
+        using Kernel = DynamicWrapperKernel<UniformDispersalKernel, Generator>;
         return std::unique_ptr<Kernel>(new Kernel(config.rows, config.cols));
     }
     else if (anthro_kernel == DispersalKernelType::DeterministicNeighbor) {
-        using Kernel = AlwaysEligibleDynamicKernel<
-            DeterministicNeighborDispersalKernel,
-            Generator>;
+        using Kernel =
+            DynamicWrapperKernel<DeterministicNeighborDispersalKernel, Generator>;
         return std::unique_ptr<Kernel>(
             new Kernel(direction_from_string(config.anthro_direction)));
     }
     else if (anthro_kernel == DispersalKernelType::Network) {
-        using Kernel = DynamicKernel<NetworkDispersalKernel<RasterIndex>, Generator>;
+        using Kernel =
+            DynamicWrapperKernel<NetworkDispersalKernel<RasterIndex>, Generator>;
         return std::unique_ptr<Kernel>(
             new Kernel(network, config.network_min_time, config.network_max_time));
     }
     else if (config.deterministic) {
-        using Kernel = AlwaysEligibleDynamicKernel<
+        using Kernel = DynamicWrapperKernel<
             DeterministicDispersalKernel<IntegerRaster>,
             Generator>;
         return std::unique_ptr<Kernel>(new Kernel(
@@ -76,9 +76,8 @@ std::unique_ptr<KernelInterface<Generator>> create_anthro_kernel(
             config.shape));
     }
     else {
-        using Kernel = AlwaysEligibleDynamicKernel<
-            RadialDispersalKernel<IntegerRaster>,
-            Generator>;
+        using Kernel =
+            DynamicWrapperKernel<RadialDispersalKernel<IntegerRaster>, Generator>;
         return std::unique_ptr<Kernel>(new Kernel(
             config.ew_res,
             config.ns_res,

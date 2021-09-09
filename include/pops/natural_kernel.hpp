@@ -42,18 +42,18 @@ create_natural_kernel(const Config& config, const IntegerRaster& dispersers)
 {
     auto natural_kernel = kernel_type_from_string(config.natural_kernel_type);
     if (natural_kernel == DispersalKernelType::Uniform) {
-        using Kernel = AlwaysEligibleDynamicKernel<UniformDispersalKernel, Generator>;
+        using Kernel = DynamicWrapperKernel<UniformDispersalKernel, Generator>;
+        // This can be std::make_unique in C++14.
         return std::unique_ptr<Kernel>(new Kernel(config.rows, config.cols));
     }
     else if (natural_kernel == DispersalKernelType::DeterministicNeighbor) {
-        using Kernel = AlwaysEligibleDynamicKernel<
-            DeterministicNeighborDispersalKernel,
-            Generator>;
+        using Kernel =
+            DynamicWrapperKernel<DeterministicNeighborDispersalKernel, Generator>;
         return std::unique_ptr<Kernel>(
             new Kernel(direction_from_string(config.natural_direction)));
     }
     else if (config.deterministic) {
-        using Kernel = AlwaysEligibleDynamicKernel<
+        using Kernel = DynamicWrapperKernel<
             DeterministicDispersalKernel<IntegerRaster>,
             Generator>;
         return std::unique_ptr<Kernel>(new Kernel(
@@ -66,9 +66,8 @@ create_natural_kernel(const Config& config, const IntegerRaster& dispersers)
             config.shape));
     }
     else {
-        using Kernel = AlwaysEligibleDynamicKernel<
-            RadialDispersalKernel<IntegerRaster>,
-            Generator>;
+        using Kernel =
+            DynamicWrapperKernel<RadialDispersalKernel<IntegerRaster>, Generator>;
         return std::unique_ptr<Kernel>(new Kernel(
             config.ew_res,
             config.ns_res,

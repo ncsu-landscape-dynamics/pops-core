@@ -41,20 +41,20 @@ public:
 };
 
 /**
- * Base class for common implementation of operator() and other methods.
+ * A class which turns any kernel into a kernel usable with KernelInterface.
  *
- * Methods optional in static such as is_cell_eligible kernels need to be only in
- * derived classes because valid implementation is required even if the method is
- * eventually overridden.
+ * Kernel needs to implement operator() and is_cell_eligible function.
  */
 template<typename ActualKernel, typename Generator>
-class BaseDynamicKernel : public KernelInterface<Generator>
+class DynamicWrapperKernel : public KernelInterface<Generator>
 {
 public:
-    BaseDynamicKernel(const ActualKernel& kernel) : kernel_(kernel) {}
+    /** Creates an interal copy of the provided kernel */
+    DynamicWrapperKernel(const ActualKernel& kernel) : kernel_(kernel) {}
 
+    /** Creates a new internal kernel instance from the provided parameters */
     template<typename... Args>
-    BaseDynamicKernel(Args&&... args) : kernel_(std::forward<Args>(args)...)
+    DynamicWrapperKernel(Args&&... args) : kernel_(std::forward<Args>(args)...)
     {}
 
     /*! \copydoc RadialDispersalKernel::operator()()
@@ -62,6 +62,14 @@ public:
     std::tuple<int, int> operator()(Generator& generator, int row, int col) override
     {
         return kernel_.operator()(generator, row, col);
+    }
+
+    /*! \copydoc RadialDispersalKernel::is_cell_eligible()
+     */
+    bool is_cell_eligible(int row, int col) override
+    {
+        return DynamicWrapperKernel<ActualKernel, Generator>::kernel_.is_cell_eligible(
+            row, col);
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()
@@ -73,57 +81,6 @@ public:
 
 protected:
     ActualKernel kernel_;
-};
-
-/**
- * Default class which turns a any kernel into a kernel usable with KernelInterface.
- *
- * Kernel needs to implement is_cell_eligible.
- */
-template<typename ActualKernel, typename Generator>
-class DynamicKernel : public BaseDynamicKernel<ActualKernel, Generator>
-{
-public:
-    DynamicKernel(const ActualKernel& kernel)
-        : BaseDynamicKernel<ActualKernel, Generator>(kernel)
-    {}
-
-    template<typename... Args>
-    DynamicKernel(Args&&... args)
-        : BaseDynamicKernel<ActualKernel, Generator>(std::forward<Args>(args)...)
-    {}
-
-    bool is_cell_eligible(int row, int col) override
-    {
-        return BaseDynamicKernel<ActualKernel, Generator>::kernel_.is_cell_eligible(
-            row, col);
-    }
-};
-
-/**
- * Class which turns a any kernel into a kernel usable with KernelInterface.
- *
- * Useful for kernles which do not implement is_cell_eligible.
- */
-template<typename ActualKernel, typename Generator>
-class AlwaysEligibleDynamicKernel : public BaseDynamicKernel<ActualKernel, Generator>
-{
-public:
-    AlwaysEligibleDynamicKernel(const ActualKernel& kernel)
-        : BaseDynamicKernel<ActualKernel, Generator>(kernel)
-    {}
-
-    template<typename... Args>
-    AlwaysEligibleDynamicKernel(Args&&... args)
-        : BaseDynamicKernel<ActualKernel, Generator>(std::forward<Args>(args)...)
-    {}
-
-    bool is_cell_eligible(int row, int col) override
-    {
-        UNUSED(row);
-        UNUSED(col);
-        return true;
-    }
 };
 
 }  // namespace pops
