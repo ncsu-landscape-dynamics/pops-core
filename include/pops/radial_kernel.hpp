@@ -204,6 +204,15 @@ public:
         return std::make_tuple(row, col);
     }
 
+    /*! Returns true if kernel can be used with a given cell.
+     */
+    bool is_cell_eligible(int row, int col)
+    {
+        UNUSED(row);
+        UNUSED(col);
+        return true;
+    }
+
     /*! Returns true if the kernel class support a given kernel type
      *
      * \warning This function is experimental and may be removed or

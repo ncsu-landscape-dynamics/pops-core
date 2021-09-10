@@ -46,8 +46,10 @@
 #ifndef POPS_KERNEL_HPP
 #define POPS_KERNEL_HPP
 
-#include "switch_kernel.hpp"
+#include "natural_kernel.hpp"
+#include "anthropogenic_kernel.hpp"
 #include "natural_anthropogenic_kernel.hpp"
+#include "config.hpp"
 
 namespace pops {
 
@@ -75,10 +77,25 @@ namespace pops {
  * See NaturalAnthropogenicDispersalKernel and SwitchDispersalKernel for further
  * documentation.
  */
-template<typename IntegerRaster, typename RasterIndex>
+template<typename Generator>
 using DispersalKernel = NaturalAnthropogenicDispersalKernel<
-    SwitchDispersalKernel<IntegerRaster, RasterIndex>,
-    SwitchDispersalKernel<IntegerRaster, RasterIndex>>;
+    KernelInterface<Generator>,
+    KernelInterface<Generator>>;
+
+template<typename Generator, typename IntegerRaster, typename RasterIndex>
+DispersalKernel<Generator> create_dynamic_kernel(
+    const Config& config,
+    const IntegerRaster& dispersers,
+    const Network<RasterIndex>& network)
+{
+    return DispersalKernel<Generator>(
+        create_natural_kernel<Generator, IntegerRaster, RasterIndex>(
+            config, dispersers),
+        create_anthro_kernel<Generator, IntegerRaster, RasterIndex>(
+            config, dispersers, network),
+        config.use_anthropogenic_kernel,
+        config.percent_natural_dispersal);
+}
 
 }  // namespace pops
 

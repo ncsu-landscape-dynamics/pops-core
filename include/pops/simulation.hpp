@@ -122,7 +122,11 @@ inline ModelType model_type_from_string(const char* text)
  * type are perfomed and a signed type might be required in the future.
  * A default is provided, but it can be changed in the future.
  */
-template<typename IntegerRaster, typename FloatRaster, typename RasterIndex = int>
+template<
+    typename IntegerRaster,
+    typename FloatRaster,
+    typename RasterIndex = int,
+    typename Generator = std::default_random_engine>
 class Simulation
 {
 private:
@@ -133,7 +137,7 @@ private:
     bool movement_stochasticity_;
     ModelType model_type_;
     unsigned latency_period_;
-    std::default_random_engine generator_;
+    Generator generator_;
 
 public:
     /** Creates simulation object and seeds the internal random number generator.

@@ -11,7 +11,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     # We need the following C++ standard
     set(CMAKE_CXX_STANDARD 11)
-    
+
     # Disable compiler-specific extensions
     set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -56,6 +56,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     target_sources(pops INTERFACE
         include/pops/config.hpp
         include/pops/natural_anthropogenic_kernel.hpp
+        include/pops/natural_kernel.hpp
+        include/pops/anthropogenic_kernel.hpp
         include/pops/uniform_kernel.hpp
         include/pops/radial_kernel.hpp
         include/pops/treatments.hpp
@@ -66,6 +68,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/deterministic_kernel.hpp
         include/pops/kernel.hpp
         include/pops/simulation.hpp
+        include/pops/kernel_base.hpp
         include/pops/kernel_types.hpp
         include/pops/switch_kernel.hpp
         include/pops/spread_rate.hpp
