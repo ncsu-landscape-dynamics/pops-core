@@ -251,7 +251,8 @@ public:
         QuarantineEscape<IntegerRaster>& quarantine,  // out
         const IntegerRaster& quarantine_areas,
         const std::vector<std::vector<int>> movements,
-        std::vector<std::vector<int>>& suitable_cells)
+        std::vector<std::vector<int>>& suitable_cells,
+        IntegerRaster& established_dispersers)
     {
 
         // removal of dispersers due to lethal temperatures
@@ -273,7 +274,8 @@ public:
                 config_.weather,
                 weather_coefficient,
                 config_.reproductive_rate,
-                suitable_cells);
+                suitable_cells,
+                established_dispersers);
 
             DispersalKernel<IntegerRaster> dispersal_kernel(
                 create_natural_kernel(dispersers),
@@ -297,6 +299,7 @@ public:
                 weather_coefficient,
                 dispersal_kernel,
                 suitable_cells,
+                established_dispersers,
                 config_.establishment_probability);
             if (config_.use_overpopulation_movements) {
                 simulation_.move_overpopulated_pests(
