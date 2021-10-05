@@ -131,8 +131,10 @@ int test_with_reduced_stochasticity()
         quarantine,
         zeros,
         movements,
+        Network<int>::null_network(),
         suitable_cells,
         established_disperers);
+
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
@@ -263,8 +265,10 @@ int test_deterministic()
         quarantine,
         zeros,
         movements,
+        Network<int>::null_network(),
         suitable_cells,
         established_dispersers);
+
     if (dispersers != expected_dispersers) {
         cout << "deterministic: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
@@ -394,8 +398,10 @@ int test_deterministic_exponential()
         quarantine,
         zeros,
         movements,
+        Network<int>::null_network(),
         suitable_cells,
         established_disperers);
+
     if (dispersers != expected_dispersers) {
         cout << "deterministic exponential: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
@@ -529,8 +535,10 @@ int test_model_sei_deterministic()
             quarantine,
             zeros,
             movements,
+            Network<int>::null_network(),
             suitable_cells,
             established_dispersers);
+
     }
     if (dispersers != expected_dispersers) {
         cout << "sei_deterministic: dispersers (actual, expected):\n"
@@ -679,6 +687,7 @@ int test_model_sei_deterministic_with_treatments()
             quarantine,
             zeros,
             movements,
+            Network<int>::null_network(),
             suitable_cells,
             established_dispersers);
     }
