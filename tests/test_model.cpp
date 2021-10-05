@@ -41,6 +41,7 @@ int test_with_reduced_stochasticity()
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     Config config;
     config.weather = false;
@@ -130,7 +131,8 @@ int test_with_reduced_stochasticity()
         quarantine,
         zeros,
         movements,
-        suitable_cells);
+        suitable_cells,
+        established_disperers);
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
@@ -168,6 +170,7 @@ int test_deterministic()
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells = {
@@ -260,7 +263,8 @@ int test_deterministic()
         quarantine,
         zeros,
         movements,
-        suitable_cells);
+        suitable_cells,
+        established_dispersers);
     if (dispersers != expected_dispersers) {
         cout << "deterministic: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
@@ -298,6 +302,7 @@ int test_deterministic_exponential()
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells = {
@@ -389,7 +394,8 @@ int test_deterministic_exponential()
         quarantine,
         zeros,
         movements,
-        suitable_cells);
+        suitable_cells,
+        established_disperers);
     if (dispersers != expected_dispersers) {
         cout << "deterministic exponential: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
@@ -425,6 +431,7 @@ int test_model_sei_deterministic()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells = {
@@ -522,7 +529,8 @@ int test_model_sei_deterministic()
             quarantine,
             zeros,
             movements,
-            suitable_cells);
+            suitable_cells,
+            established_dispersers);
     }
     if (dispersers != expected_dispersers) {
         cout << "sei_deterministic: dispersers (actual, expected):\n"
@@ -554,6 +562,7 @@ int test_model_sei_deterministic_with_treatments()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells = {
@@ -670,7 +679,8 @@ int test_model_sei_deterministic_with_treatments()
             quarantine,
             zeros,
             movements,
-            suitable_cells);
+            suitable_cells,
+            established_dispersers);
     }
     if (!outside_dispersers.empty()) {
         cout << "sei_deterministic_with_treatments: There are outside_dispersers ("
