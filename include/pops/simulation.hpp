@@ -424,7 +424,8 @@ public:
         bool weather,
         const FloatRaster& weather_coefficient,
         double reproductive_rate,
-        const std::vector<std::vector<int>>& suitable_cells)
+        const std::vector<std::vector<int>>& suitable_cells,
+        IntegerRaster& established_dispersers)
     {
         double lambda = reproductive_rate;
         for (auto indices : suitable_cells) {
@@ -449,6 +450,7 @@ public:
                 dispersers(i, j) = 0;
             }
         }
+        established_dispersers += dispersers;
     }
 
     /** Creates dispersal locations for the dispersing individuals
@@ -508,6 +510,7 @@ public:
         const FloatRaster& weather_coefficient,
         DispersalKernel& dispersal_kernel,
         const std::vector<std::vector<int>>& suitable_cells,
+        IntegerRaster& established_dispersers,
         double establishment_probability = 0.5)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
@@ -550,6 +553,9 @@ public:
                                     "Unknown ModelType value in "
                                     "Simulation::disperse()");
                             }
+                        }
+                        else {
+                            established_dispersers[i, j] -= 1;
                         }
                     }
                 }
@@ -782,6 +788,7 @@ public:
         const FloatRaster& weather_coefficient,
         DispersalKernel& dispersal_kernel,
         const std::vector<std::vector<int>>& suitable_cells,
+        IntegerRaster& established_dispersers,
         double establishment_probability = 0.5)
     {
         auto* infected_or_exposed = &infected;
@@ -802,6 +809,7 @@ public:
             weather_coefficient,
             dispersal_kernel,
             suitable_cells,
+            established_dispersers,
             establishment_probability);
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
             this->infect_exposed(
