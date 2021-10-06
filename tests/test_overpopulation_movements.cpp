@@ -102,6 +102,7 @@ int test_model()
     auto expected_susceptible = susceptible;
     // Simulation data
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     // Empty data
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
@@ -155,7 +156,8 @@ int test_model()
         zeros,
         movements,
         Network<int>::null_network(),
-        suitable_cells);
+        suitable_cells,
+        established_dispersers);
     // Test
     int ret = 0;
     // Test that infected decrease
