@@ -538,7 +538,6 @@ int test_model_sei_deterministic()
             Network<int>::null_network(),
             suitable_cells,
             established_dispersers);
-
     }
     if (dispersers != expected_dispersers) {
         cout << "sei_deterministic: dispersers (actual, expected):\n"

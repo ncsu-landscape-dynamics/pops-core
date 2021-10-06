@@ -196,7 +196,7 @@ public:
         QuarantineEscape<IntegerRaster>& quarantine,  // out
         const IntegerRaster& quarantine_areas,
         const std::vector<std::vector<int>> movements,
-       const Network<RasterIndex>& network,
+        const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells,
         IntegerRaster& established_dispersers)
     {
