@@ -133,7 +133,7 @@ int test_with_reduced_stochasticity()
         movements,
         Network<int>::null_network(),
         suitable_cells,
-        established_disperers);
+        established_dispersers);
 
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
@@ -400,7 +400,7 @@ int test_deterministic_exponential()
         movements,
         Network<int>::null_network(),
         suitable_cells,
-        established_disperers);
+        established_dispersers);
 
     if (dispersers != expected_dispersers) {
         cout << "deterministic exponential: dispersers (actual, expected):\n"
