@@ -386,7 +386,7 @@ int test_model_with_kernels_generic(
     Raster<int> total_populations = total_hosts;
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     Raster<int> dispersers(infected.rows(), infected.cols());
-    IntRaster established_dispersers(infected.rows(), infected.cols());
+    Raster established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells =
