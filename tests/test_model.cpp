@@ -105,6 +105,7 @@ int test_with_reduced_stochasticity()
         zeros, config.ew_res, config.ns_res, quarantine_num_steps, suitable_cells);
 
     auto expected_dispersers = config.reproductive_rate * infected;
+    auto expected_established_dispersers = config.reproductive_rate * infected;
     std::vector<std::vector<int>> movements = {
         {0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
 
@@ -139,6 +140,13 @@ int test_with_reduced_stochasticity()
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
              << expected_dispersers << "\n";
+        return 1;
+    }
+    if (established_dispersers != expected_established_dispersers) {
+        cout
+        << "reduced_stochasticity: established dispersers (actual, expected):\n"
+        << established_dispersers << "  !=\n"
+        << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
@@ -241,7 +249,7 @@ int test_deterministic()
         zeros, config.ew_res, config.ns_res, 0, suitable_cells);
 
     auto expected_dispersers = config.reproductive_rate * infected;
-
+    auto expected_established_dispersers = config.reproductive_rate * infected;
     int step = 0;
 
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
@@ -273,6 +281,13 @@ int test_deterministic()
         cout << "deterministic: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
              << expected_dispersers << "\n";
+        return 1;
+    }
+    if (established_dispersers != expected_established_dispersers) {
+        cout
+            << "deterministic: established dispersers (actual, expected):\n"
+            << established_dispersers << "  !=\n"
+            << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
