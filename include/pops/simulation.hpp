@@ -564,7 +564,7 @@ public:
                             }
                         }
                         else {
-                            established_dispersers[i, j] -= 1;
+                            established_dispersers(i, j) -= 1;
                         }
                     }
                 }
