@@ -143,10 +143,9 @@ int test_with_reduced_stochasticity()
         return 1;
     }
     if (established_dispersers != expected_established_dispersers) {
-        cout
-        << "reduced_stochasticity: established dispersers (actual, expected):\n"
-        << established_dispersers << "  !=\n"
-        << expected_established_dispersers << "\n";
+        cout << "reduced_stochasticity: established dispersers (actual, expected):\n"
+             << established_dispersers << "  !=\n"
+             << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
@@ -284,10 +283,9 @@ int test_deterministic()
         return 1;
     }
     if (established_dispersers != expected_established_dispersers) {
-        cout
-            << "deterministic: established dispersers (actual, expected):\n"
-            << established_dispersers << "  !=\n"
-            << expected_established_dispersers << "\n";
+        cout << "deterministic: established dispersers (actual, expected):\n"
+             << established_dispersers << "  !=\n"
+             << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
