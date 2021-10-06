@@ -453,12 +453,13 @@ public:
                     dispersers_from_cell = lambda * infected(i, j);
                 }
                 dispersers(i, j) = dispersers_from_cell;
+                established_dispersers(i, j) = dispersers_from_cell;
             }
             else {
                 dispersers(i, j) = 0;
+                established_dispersers(i, j) = 0;
             }
         }
-        established_dispersers += dispersers;
     }
 
     /** Creates dispersal locations for the dispersing individuals
