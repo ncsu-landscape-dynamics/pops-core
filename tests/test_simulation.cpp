@@ -652,7 +652,7 @@ int test_calling_all_functions()
         weather_coefficient,
         kernel,
         suitable_cells,
-        established_dispers);
+        established_dispersers);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;
     return 0;
 }
