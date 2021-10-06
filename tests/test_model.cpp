@@ -411,9 +411,9 @@ int test_deterministic_exponential()
     }
     if (established_dispersers != expected_established_dispersers) {
         cout
-        << "deterministic exponential: established dispersers (actual, expected):\n"
-        << established_dispersers << "  !=\n"
-        << expected_established_dispersers << "\n";
+            << "deterministic exponential: established dispersers (actual, expected):\n"
+            << established_dispersers << "  !=\n"
+            << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
@@ -556,9 +556,9 @@ int test_model_sei_deterministic()
     }
     if (established_dispersers != expected_established_dispersers) {
         cout
-        << "deterministic exponential: established dispersers (actual, expected):\n"
-        << established_dispersers << "  !=\n"
-        << expected_established_dispersers << "\n";
+            << "sei_deterministic exponential: established dispersers (actual, expected):\n"
+            << established_dispersers << "  !=\n"
+            << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
@@ -714,7 +714,7 @@ int test_model_sei_deterministic_with_treatments()
     }
     if (established_dispersers != expected_established_dispersers) {
         cout
-            << "deterministic exponential: established dispersers (actual, expected):\n"
+            << "sei_deterministic_with_treatments: established dispersers (actual, expected):\n"
             << established_dispersers << "  !=\n"
             << expected_established_dispersers << "\n";
         return 1;
