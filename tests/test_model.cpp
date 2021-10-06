@@ -374,6 +374,7 @@ int test_deterministic_exponential()
         zeros, config.ew_res, config.ns_res, 0, suitable_cells);
 
     auto expected_dispersers = config.reproductive_rate * infected;
+    auto expected_established_dispersers = config.reproductive_rate * infected;
 
     int step = 0;
 
@@ -406,6 +407,12 @@ int test_deterministic_exponential()
         cout << "deterministic exponential: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
              << expected_dispersers << "\n";
+        return 1;
+    }
+    if (established_dispersers != expected_established_dispersers) {
+        cout << "deterministic exponential: established dispersers (actual, expected):\n"
+             << established_dispersers << "  !=\n"
+             << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
@@ -510,6 +517,7 @@ int test_model_sei_deterministic()
     // There should be still the original number of infected when dispersers are
     // created.
     auto expected_dispersers = config.reproductive_rate * infected;
+    auto expected_established_dispersers = config.reproductive_rate * infected;
     // One E to I transition should happen.
     auto expected_infected = config.reproductive_rate * infected + infected;
 
@@ -543,6 +551,12 @@ int test_model_sei_deterministic()
         cout << "sei_deterministic: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
              << expected_dispersers << "\n";
+        return 1;
+    }
+    if (established_dispersers != expected_established_dispersers) {
+        cout << "deterministic exponential: established dispersers (actual, expected):\n"
+             << established_dispersers << "  !=\n"
+             << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
@@ -648,6 +662,7 @@ int test_model_sei_deterministic_with_treatments()
     // There should be still the original number of infected when dispersers are
     // created.
     auto expected_dispersers = config.reproductive_rate * infected;
+    auto expected_established_dispersers = config.reproductive_rate * infected;
     // One E to I transition should happen.
     auto expected_infected = config.reproductive_rate * infected + infected;
     // Apply treatment to expected results (assuming rate == 1)
@@ -693,6 +708,12 @@ int test_model_sei_deterministic_with_treatments()
     if (!outside_dispersers.empty()) {
         cout << "sei_deterministic_with_treatments: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be none\n";
+        return 1;
+    }
+    if (established_dispersers != expected_established_dispersers) {
+        cout << "deterministic exponential: established dispersers (actual, expected):\n"
+             << established_dispersers << "  !=\n"
+             << expected_established_dispersers << "\n";
         return 1;
     }
     if (infected != expected_infected) {
