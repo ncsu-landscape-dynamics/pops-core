@@ -142,6 +142,7 @@ int test_model()
         total_populations,
         total_hosts,
         dispersers,
+        established_dispersers,
         total_exposed,
         empty_ints,
         empty_ints,
@@ -156,8 +157,7 @@ int test_model()
         zeros,
         movements,
         Network<int>::null_network(),
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
     // Test
     int ret = 0;
     // Test that infected decrease

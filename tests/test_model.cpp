@@ -119,6 +119,7 @@ int test_with_reduced_stochasticity()
         total_populations,
         total_hosts,
         dispersers,
+        established_dispersers,
         total_exposed,
         empty_integer,
         mortality_tracker,
@@ -133,8 +134,7 @@ int test_with_reduced_stochasticity()
         zeros,
         movements,
         Network<int>::null_network(),
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
 
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
@@ -259,6 +259,7 @@ int test_deterministic()
         total_populations,
         total_hosts,
         dispersers,
+        established_dispersers,
         total_exposed,
         empty_integer,
         mortality_tracker,
@@ -273,8 +274,7 @@ int test_deterministic()
         zeros,
         movements,
         Network<int>::null_network(),
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
 
     if (dispersers != expected_dispersers) {
         cout << "deterministic: dispersers (actual, expected):\n"
@@ -399,6 +399,7 @@ int test_deterministic_exponential()
         total_populations,
         total_hosts,
         dispersers,
+        established_dispersers,
         total_exposed,
         empty_integer,
         mortality_tracker,
@@ -413,8 +414,7 @@ int test_deterministic_exponential()
         zeros,
         movements,
         Network<int>::null_network(),
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
 
     if (dispersers != expected_dispersers) {
         cout << "deterministic exponential: dispersers (actual, expected):\n"
@@ -544,6 +544,7 @@ int test_model_sei_deterministic()
             total_populations,
             total_hosts,
             dispersers,
+            established_dispersers,
             total_exposed,
             exposed,
             mortality_tracker,
@@ -558,8 +559,7 @@ int test_model_sei_deterministic()
             zeros,
             movements,
             Network<int>::null_network(),
-            suitable_cells,
-            established_dispersers);
+            suitable_cells);
     }
     if (dispersers != expected_dispersers) {
         cout << "sei_deterministic: dispersers (actual, expected):\n"
@@ -702,6 +702,7 @@ int test_model_sei_deterministic_with_treatments()
             total_populations,
             total_hosts,
             dispersers,
+            established_dispersers,
             total_exposed,
             exposed,
             mortality_tracker,
@@ -716,8 +717,7 @@ int test_model_sei_deterministic_with_treatments()
             zeros,
             movements,
             Network<int>::null_network(),
-            suitable_cells,
-            established_dispersers);
+            suitable_cells);
     }
     if (!outside_dispersers.empty()) {
         cout << "sei_deterministic_with_treatments: There are outside_dispersers ("

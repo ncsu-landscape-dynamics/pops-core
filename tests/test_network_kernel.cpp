@@ -129,6 +129,7 @@ int test_model_with_network()
             total_populations,
             total_hosts,
             dispersers,
+            established_dispersers,
             total_exposed,
             empty_ints,
             empty_ints,
@@ -143,8 +144,7 @@ int test_model_with_network()
             zeros,
             movements,
             network,
-            suitable_cells,
-            established_dispersers);
+            suitable_cells);
     }
 
     int ret = 0;

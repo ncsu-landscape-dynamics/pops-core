@@ -100,6 +100,7 @@ int test_with_neighbor_kernel()
     // cout << dispersers;
     simulation.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -109,8 +110,7 @@ int test_with_neighbor_kernel()
         weather,
         weather_coefficient,
         kernel,
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
     if (!outside_dispersers.empty()) {
         cout << "There are outside_dispersers (" << outside_dispersers.size()
              << ") but there should be none\n";
@@ -170,12 +170,12 @@ int test_with_reduced_stochasticity()
         movement_stochasticity);
     simulation.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
@@ -185,6 +185,7 @@ int test_with_reduced_stochasticity()
     }
     simulation.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -195,7 +196,6 @@ int test_with_reduced_stochasticity()
         weather_coefficient,
         kernel,
         suitable_cells,
-        established_dispersers,
         establishment_probability);
     if (!outside_dispersers.empty()) {
         cout << "reduced_stochasticity: There are outside_dispersers ("
@@ -307,6 +307,7 @@ int test_with_sei()
     simulation.disperse_and_infect(
         step,
         dispersers,
+        established_dispersers,
         susceptible,
         exposed,
         infected,
@@ -317,8 +318,7 @@ int test_with_sei()
         weather,
         weather_coefficient,
         kernel,
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
     if (infected != expected_infected) {
         cout << "SEI test infected (actual, expected):\n"
              << infected << "  !=\n"
@@ -336,6 +336,7 @@ int test_with_sei()
     simulation.disperse_and_infect(
         ++step,
         dispersers,
+        established_dispersers,
         susceptible,
         exposed,
         infected,
@@ -346,14 +347,14 @@ int test_with_sei()
         weather,
         weather_coefficient,
         kernel,
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
     simulation.disperse_and_infect(
         ++step,
         dispersers,
+        established_dispersers,
         susceptible,
         exposed,
         infected,
@@ -364,8 +365,7 @@ int test_with_sei()
         weather,
         weather_coefficient,
         kernel,
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -383,6 +383,7 @@ int test_with_sei()
     simulation.disperse_and_infect(
         ++step,
         dispersers,
+        established_dispersers,
         susceptible,
         exposed,
         infected,
@@ -393,8 +394,7 @@ int test_with_sei()
         weather,
         weather_coefficient,
         kernel,
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -421,6 +421,7 @@ int test_with_sei()
     simulation.disperse_and_infect(
         ++step,
         dispersers,
+        established_dispersers,
         susceptible,
         exposed,
         infected,
@@ -431,8 +432,7 @@ int test_with_sei()
         weather,
         weather_coefficient,
         kernel,
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -441,6 +441,7 @@ int test_with_sei()
         simulation.disperse_and_infect(
             ++step,
             dispersers,
+            established_dispersers,
             susceptible,
             exposed,
             infected,
@@ -451,8 +452,7 @@ int test_with_sei()
             weather,
             weather_coefficient,
             kernel,
-            suitable_cells,
-            established_dispersers);
+            suitable_cells);
         print_vector(exposed);
         cout << infected << "\n\n";
         ret += disperse_and_infect_postcondition(step, exposed);
@@ -520,6 +520,7 @@ int test_SI_versus_SEI0()
         simulation_SI_1.disperse_and_infect(
             step,
             dispersers,
+            established_dispersers,
             susceptible_1,
             empty_exposed,
             infected_1,
@@ -530,10 +531,10 @@ int test_SI_versus_SEI0()
             weather,
             weather_coefficient,
             kernel,
-            suitable_cells,
-            established_dispersers);
+            suitable_cells);
         simulation_SI_2.disperse(
             dispersers,
+            established_dispersers,
             susceptible_2,
             infected_2,
             mortality_tracker_2,
@@ -543,11 +544,11 @@ int test_SI_versus_SEI0()
             weather,
             weather_coefficient,
             kernel,
-            suitable_cells,
-            established_dispersers);
+            suitable_cells);
         simulation_SEI0.disperse_and_infect(
             step,
             dispersers,
+            established_dispersers,
             susceptible_3,
             exposed,
             infected_3,
@@ -558,8 +559,7 @@ int test_SI_versus_SEI0()
             weather,
             weather_coefficient,
             kernel,
-            suitable_cells,
-            established_dispersers);
+            suitable_cells);
         ret += disperse_and_infect_postcondition(step, exposed);
         if (infected_2 != infected_1) {
             cout
@@ -619,12 +619,12 @@ int test_calling_all_functions()
         infected, susceptible, temperature, lethal_temperature, suitable_cells);
     simulation.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
     RadialDispersalKernel<Raster<int>> kernel(
         ew_res, ns_res, dispersal_kernel, short_distance_scale);
     simulation.movement(
@@ -642,6 +642,7 @@ int test_calling_all_functions()
         suitable_cells);
     simulation.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -651,8 +652,7 @@ int test_calling_all_functions()
         weather,
         weather_coefficient,
         kernel,
-        suitable_cells,
-        established_dispersers);
+        suitable_cells);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;
     return 0;
 }

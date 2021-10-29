@@ -77,12 +77,12 @@ int test_with_cauchy_deterministic_kernel()
         movement_stochasticity);
     simulation.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cell,
-        established_dispersers);
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Cauchy: dispersers (actual, expected):\n"
@@ -95,6 +95,7 @@ int test_with_cauchy_deterministic_kernel()
     // using a smaller scale value since the test raster is so small
     simulation.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -105,7 +106,6 @@ int test_with_cauchy_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         suitable_cell,
-        established_dispersers,
         establishment_probability);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Cauchy: There are outside_dispersers ("
@@ -168,12 +168,12 @@ int test_with_exponential_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cell,
-        established_dispersers);
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Exponential: dispersers (actual, expected):\n"
@@ -259,12 +259,12 @@ int test_with_weibull_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cell,
-        established_dispersers);
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Weibull: dispersers (actual, expected):\n"
@@ -277,6 +277,7 @@ int test_with_weibull_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -287,7 +288,6 @@ int test_with_weibull_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         suitable_cell,
-        established_dispersers,
         establishment_probability);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Weibull: There are outside_dispersers ("
@@ -349,12 +349,12 @@ int test_with_log_normal_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cell,
-        established_dispersers);
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel LogNormal: dispersers (actual, expected):\n"
@@ -367,6 +367,7 @@ int test_with_log_normal_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -377,7 +378,6 @@ int test_with_log_normal_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         suitable_cell,
-        established_dispersers,
         establishment_probability);
     if (outside_dispersers.size() != 8) {
         cout << "Deterministic Kernel LogNormal: There are outside_dispersers ("
@@ -440,12 +440,12 @@ int test_with_normal_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cell,
-        established_dispersers);
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Normal: dispersers (actual, expected):\n"
@@ -458,6 +458,7 @@ int test_with_normal_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -468,7 +469,6 @@ int test_with_normal_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         suitable_cell,
-        established_dispersers,
         establishment_probability);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Normal: There are outside_dispersers ("
@@ -530,12 +530,12 @@ int test_with_hyperbolic_secant_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cell,
-        established_dispersers);
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout
@@ -549,6 +549,7 @@ int test_with_hyperbolic_secant_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -559,7 +560,6 @@ int test_with_hyperbolic_secant_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         suitable_cell,
-        established_dispersers,
         establishment_probability);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel HyperbolicSecant: There are outside_dispersers ("
@@ -622,12 +622,12 @@ int test_with_power_law_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cell,
-        established_dispersers);
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel PowerLaw: dispersers (actual, expected):\n"
@@ -640,6 +640,7 @@ int test_with_power_law_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -650,7 +651,6 @@ int test_with_power_law_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         suitable_cell,
-        established_dispersers,
         establishment_probability);
     if (outside_dispersers.size() != 1) {
         cout << "Deterministic Kernel PowerLaw: There are outside_dispersers ("
@@ -711,12 +711,12 @@ int test_with_logistic_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cell,
-        established_dispersers);
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Logistic: dispersers (actual, expected):\n"
@@ -729,6 +729,7 @@ int test_with_logistic_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -739,7 +740,6 @@ int test_with_logistic_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         suitable_cell,
-        established_dispersers,
         establishment_probability);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Logistic: There are outside_dispersers ("
@@ -800,12 +800,12 @@ int test_with_gamma_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cell,
-        established_dispersers);
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Gamma: dispersers (actual, expected):\n"
@@ -818,6 +818,7 @@ int test_with_gamma_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -828,7 +829,6 @@ int test_with_gamma_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         suitable_cell,
-        established_dispersers,
         establishment_probability);
     if (outside_dispersers.size() != 8) {
         cout << "Deterministic Kernel Gamma: There are outside_dispersers ("
@@ -890,12 +890,12 @@ int test_with_exponential_power_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
         reproductive_rate,
-        suitable_cell,
-        established_dispersers);
+        suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout
@@ -909,6 +909,7 @@ int test_with_exponential_power_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -919,7 +920,6 @@ int test_with_exponential_power_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         suitable_cell,
-        established_dispersers,
         establishment_probability);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Exponential Power: There are outside_dispersers ("

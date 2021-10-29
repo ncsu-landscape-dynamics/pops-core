@@ -306,6 +306,7 @@ int test_simulation_with_kernels_generic(
         simulation.disperse_and_infect(
             i,
             dispersers,
+            established_dispersers,
             susceptible,
             exposed,
             infected,
@@ -316,8 +317,7 @@ int test_simulation_with_kernels_generic(
             config.weather,
             weather_coefficient,
             kernel,
-            suitable_cells,
-            established_dispersers);
+            suitable_cells);
     }
     return 0;
 }
@@ -426,6 +426,7 @@ int test_model_with_kernels_generic(
             total_populations,
             total_hosts,
             dispersers,
+            established_dispersers,
             total_exposed,
             empty_integer,
             mortality_tracker,
@@ -440,8 +441,7 @@ int test_model_with_kernels_generic(
             zeros,
             movements,
             Network<int>::null_network(),
-            suitable_cells,
-            established_dispersers);
+            suitable_cells);
     }
     return 0;
 }
