@@ -183,6 +183,7 @@ public:
         IntegerRaster& total_populations,
         IntegerRaster& total_hosts,
         IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
         IntegerRaster& total_exposed,
         std::vector<IntegerRaster>& exposed,
         std::vector<IntegerRaster>& mortality_tracker,
@@ -197,8 +198,7 @@ public:
         const IntegerRaster& quarantine_areas,
         const std::vector<std::vector<int>> movements,
         const Network<RasterIndex>& network,
-        std::vector<std::vector<int>>& suitable_cells,
-        IntegerRaster& established_dispersers)
+        std::vector<std::vector<int>>& suitable_cells)
     {
 
         // removal of dispersers due to lethal temperatures
@@ -216,12 +216,12 @@ public:
         if (config_.spread_schedule()[step]) {
             simulation_.generate(
                 dispersers,
+                established_dispersers,
                 infected,
                 config_.weather,
                 weather_coefficient,
                 config_.reproductive_rate,
-                suitable_cells,
-                established_dispersers);
+                suitable_cells);
 
             auto dispersal_kernel = kernel_factory_(config_, dispersers, network);
             auto overpopulation_kernel =
@@ -230,6 +230,7 @@ public:
             simulation_.disperse_and_infect(
                 step,
                 dispersers,
+                established_dispersers,
                 susceptible,
                 exposed,
                 infected,
@@ -241,7 +242,6 @@ public:
                 weather_coefficient,
                 dispersal_kernel,
                 suitable_cells,
-                established_dispersers,
                 config_.establishment_probability);
             if (config_.use_overpopulation_movements) {
                 simulation_.move_overpopulated_pests(

@@ -428,12 +428,12 @@ public:
      */
     void generate(
         IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
         const IntegerRaster& infected,
         bool weather,
         const FloatRaster& weather_coefficient,
         double reproductive_rate,
-        const std::vector<std::vector<int>>& suitable_cells,
-        IntegerRaster& established_dispersers)
+        const std::vector<std::vector<int>>& suitable_cells)
     {
         double lambda = reproductive_rate;
         for (auto indices : suitable_cells) {
@@ -510,6 +510,7 @@ public:
     template<typename DispersalKernel>
     void disperse(
         const IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
         IntegerRaster& susceptible,
         IntegerRaster& exposed_or_infected,
         IntegerRaster& mortality_tracker,
@@ -520,7 +521,6 @@ public:
         const FloatRaster& weather_coefficient,
         DispersalKernel& dispersal_kernel,
         const std::vector<std::vector<int>>& suitable_cells,
-        IntegerRaster& established_dispersers,
         double establishment_probability = 0.5)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
@@ -788,6 +788,7 @@ public:
     void disperse_and_infect(
         unsigned step,
         const IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
         IntegerRaster& susceptible,
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& infected,
@@ -799,7 +800,6 @@ public:
         const FloatRaster& weather_coefficient,
         DispersalKernel& dispersal_kernel,
         const std::vector<std::vector<int>>& suitable_cells,
-        IntegerRaster& established_dispersers,
         double establishment_probability = 0.5)
     {
         auto* infected_or_exposed = &infected;
