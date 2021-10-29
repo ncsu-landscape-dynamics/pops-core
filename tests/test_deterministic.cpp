@@ -186,6 +186,7 @@ int test_with_exponential_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -196,7 +197,6 @@ int test_with_exponential_deterministic_kernel()
         weather_coefficient,
         deterministicKernel,
         suitable_cell,
-        established_dispersers,
         establishment_probability);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Exponential: There are outside_dispersers ("
