@@ -63,6 +63,7 @@ int test_model_with_network()
     auto expected_susceptible = susceptible;
     // Simulation data
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     // Empty data
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
@@ -128,6 +129,7 @@ int test_model_with_network()
             total_populations,
             total_hosts,
             dispersers,
+            established_dispersers,
             total_exposed,
             empty_ints,
             empty_ints,

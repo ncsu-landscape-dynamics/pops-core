@@ -285,6 +285,7 @@ int test_simulation_with_kernels_generic(
         find_suitable_cells<int>(susceptible);
 
     IntRaster dispersers(infected.rows(), infected.cols());
+    IntRaster established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<IntRaster> exposed(
@@ -305,6 +306,7 @@ int test_simulation_with_kernels_generic(
         simulation.disperse_and_infect(
             i,
             dispersers,
+            established_dispersers,
             susceptible,
             exposed,
             infected,
@@ -384,6 +386,7 @@ int test_model_with_kernels_generic(
     Raster<int> total_populations = total_hosts;
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells =
@@ -423,6 +426,7 @@ int test_model_with_kernels_generic(
             total_populations,
             total_hosts,
             dispersers,
+            established_dispersers,
             total_exposed,
             empty_integer,
             mortality_tracker,

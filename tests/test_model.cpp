@@ -41,6 +41,7 @@ int test_with_reduced_stochasticity()
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     Config config;
     config.weather = false;
@@ -104,6 +105,7 @@ int test_with_reduced_stochasticity()
         zeros, config.ew_res, config.ns_res, quarantine_num_steps, suitable_cells);
 
     auto expected_dispersers = config.reproductive_rate * infected;
+    auto expected_established_dispersers = config.reproductive_rate * infected;
     std::vector<std::vector<int>> movements = {
         {0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
 
@@ -117,6 +119,7 @@ int test_with_reduced_stochasticity()
         total_populations,
         total_hosts,
         dispersers,
+        established_dispersers,
         total_exposed,
         empty_integer,
         mortality_tracker,
@@ -132,10 +135,17 @@ int test_with_reduced_stochasticity()
         movements,
         Network<int>::null_network(),
         suitable_cells);
+
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
              << expected_dispersers << "\n";
+        return 1;
+    }
+    if (established_dispersers != expected_established_dispersers) {
+        cout << "reduced_stochasticity: established dispersers (actual, expected):\n"
+             << established_dispersers << "  !=\n"
+             << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
@@ -169,6 +179,7 @@ int test_deterministic()
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells = {
@@ -237,7 +248,7 @@ int test_deterministic()
         zeros, config.ew_res, config.ns_res, 0, suitable_cells);
 
     auto expected_dispersers = config.reproductive_rate * infected;
-
+    auto expected_established_dispersers = config.reproductive_rate * infected;
     int step = 0;
 
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
@@ -248,6 +259,7 @@ int test_deterministic()
         total_populations,
         total_hosts,
         dispersers,
+        established_dispersers,
         total_exposed,
         empty_integer,
         mortality_tracker,
@@ -263,10 +275,17 @@ int test_deterministic()
         movements,
         Network<int>::null_network(),
         suitable_cells);
+
     if (dispersers != expected_dispersers) {
         cout << "deterministic: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
              << expected_dispersers << "\n";
+        return 1;
+    }
+    if (established_dispersers != expected_established_dispersers) {
+        cout << "deterministic: established dispersers (actual, expected):\n"
+             << established_dispersers << "  !=\n"
+             << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
@@ -300,6 +319,7 @@ int test_deterministic_exponential()
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells = {
@@ -367,6 +387,7 @@ int test_deterministic_exponential()
         zeros, config.ew_res, config.ns_res, 0, suitable_cells);
 
     auto expected_dispersers = config.reproductive_rate * infected;
+    auto expected_established_dispersers = config.reproductive_rate * infected;
 
     int step = 0;
 
@@ -378,6 +399,7 @@ int test_deterministic_exponential()
         total_populations,
         total_hosts,
         dispersers,
+        established_dispersers,
         total_exposed,
         empty_integer,
         mortality_tracker,
@@ -393,10 +415,18 @@ int test_deterministic_exponential()
         movements,
         Network<int>::null_network(),
         suitable_cells);
+
     if (dispersers != expected_dispersers) {
         cout << "deterministic exponential: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
              << expected_dispersers << "\n";
+        return 1;
+    }
+    if (established_dispersers != expected_established_dispersers) {
+        cout
+            << "deterministic exponential: established dispersers (actual, expected):\n"
+            << established_dispersers << "  !=\n"
+            << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
@@ -428,6 +458,7 @@ int test_model_sei_deterministic()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells = {
@@ -500,6 +531,7 @@ int test_model_sei_deterministic()
     // There should be still the original number of infected when dispersers are
     // created.
     auto expected_dispersers = config.reproductive_rate * infected;
+    auto expected_established_dispersers = config.reproductive_rate * infected;
     // One E to I transition should happen.
     auto expected_infected = config.reproductive_rate * infected + infected;
 
@@ -512,6 +544,7 @@ int test_model_sei_deterministic()
             total_populations,
             total_hosts,
             dispersers,
+            established_dispersers,
             total_exposed,
             exposed,
             mortality_tracker,
@@ -532,6 +565,13 @@ int test_model_sei_deterministic()
         cout << "sei_deterministic: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
              << expected_dispersers << "\n";
+        return 1;
+    }
+    if (established_dispersers != expected_established_dispersers) {
+        cout
+            << "sei_deterministic exponential: established dispersers (actual, expected):\n"
+            << established_dispersers << "  !=\n"
+            << expected_established_dispersers << "\n";
         return 1;
     }
     if (!outside_dispersers.empty()) {
@@ -558,6 +598,7 @@ int test_model_sei_deterministic_with_treatments()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells = {
@@ -661,6 +702,7 @@ int test_model_sei_deterministic_with_treatments()
             total_populations,
             total_hosts,
             dispersers,
+            established_dispersers,
             total_exposed,
             exposed,
             mortality_tracker,

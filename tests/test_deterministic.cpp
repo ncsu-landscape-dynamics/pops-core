@@ -56,6 +56,7 @@ int test_with_cauchy_deterministic_kernel()
         {0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 1}, {1, 2}, {2, 0}, {2, 1}, {2, 2}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
     bool weather = false;
     double reproductive_rate = 2;
@@ -76,6 +77,7 @@ int test_with_cauchy_deterministic_kernel()
         movement_stochasticity);
     simulation.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
@@ -93,6 +95,7 @@ int test_with_cauchy_deterministic_kernel()
     // using a smaller scale value since the test raster is so small
     simulation.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -140,6 +143,7 @@ int test_with_exponential_deterministic_kernel()
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cell = {
@@ -164,6 +168,7 @@ int test_with_exponential_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
@@ -181,6 +186,7 @@ int test_with_exponential_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -229,6 +235,7 @@ int test_with_weibull_deterministic_kernel()
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cell = {
@@ -252,6 +259,7 @@ int test_with_weibull_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
@@ -269,6 +277,7 @@ int test_with_weibull_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -316,6 +325,7 @@ int test_with_log_normal_deterministic_kernel()
     Raster<int> expected_infected = {{5, 5, 0}, {5, 5, 0}, {0, 0, 2}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cell = {
@@ -339,6 +349,7 @@ int test_with_log_normal_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
@@ -356,6 +367,7 @@ int test_with_log_normal_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -404,6 +416,7 @@ int test_with_normal_deterministic_kernel()
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cell = {
@@ -427,6 +440,7 @@ int test_with_normal_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
@@ -444,6 +458,7 @@ int test_with_normal_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -491,6 +506,7 @@ int test_with_hyperbolic_secant_deterministic_kernel()
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cell = {
@@ -514,6 +530,7 @@ int test_with_hyperbolic_secant_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
@@ -532,6 +549,7 @@ int test_with_hyperbolic_secant_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -580,6 +598,7 @@ int test_with_power_law_deterministic_kernel()
     Raster<int> expected_infected = {{14, 1, 0}, {0, 14, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cell = {
@@ -603,6 +622,7 @@ int test_with_power_law_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
@@ -620,6 +640,7 @@ int test_with_power_law_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -666,6 +687,7 @@ int test_with_logistic_deterministic_kernel()
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cell = {
@@ -689,6 +711,7 @@ int test_with_logistic_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
@@ -706,6 +729,7 @@ int test_with_logistic_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -752,6 +776,7 @@ int test_with_gamma_deterministic_kernel()
     Raster<int> expected_infected = {{5, 5, 0}, {5, 5, 0}, {0, 0, 2}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cell = {
@@ -775,6 +800,7 @@ int test_with_gamma_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
@@ -792,6 +818,7 @@ int test_with_gamma_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
@@ -839,6 +866,7 @@ int test_with_exponential_power_deterministic_kernel()
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
     Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cell = {
@@ -862,6 +890,7 @@ int test_with_exponential_power_deterministic_kernel()
         movement_stochasticity);
     s2.generate(
         dispersers,
+        established_dispersers,
         infected,
         weather,
         weather_coefficient,
@@ -880,6 +909,7 @@ int test_with_exponential_power_deterministic_kernel()
 
     s2.disperse(
         dispersers,
+        established_dispersers,
         susceptible,
         infected,
         mortality_tracker,
