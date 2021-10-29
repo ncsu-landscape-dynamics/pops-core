@@ -810,6 +810,7 @@ public:
         }
         this->disperse(
             dispersers,
+            established_dispersers,
             susceptible,
             *infected_or_exposed,
             mortality_tracker,
@@ -820,7 +821,6 @@ public:
             weather_coefficient,
             dispersal_kernel,
             suitable_cells,
-            established_dispersers,
             establishment_probability);
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
             this->infect_exposed(
