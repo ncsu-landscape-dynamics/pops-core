@@ -111,7 +111,35 @@ public:
     std::pair<RasterIndex, RasterIndex>
     xy_to_row_col(const std::string& x, const std::string& y) const
     {
-        return xy_to_row_col(std::stod(x), std::stod(y));
+        try {
+            return xy_to_row_col(std::stod(x), std::stod(y));
+        }
+        catch (const std::invalid_argument&) {
+            if (string_contains(x, '"') || string_contains(x, '\'')) {
+                throw std::invalid_argument(
+                    std::string("Text for coordinate X cannot contain quotes: ") + x);
+            }
+            if (string_contains(y, '"') || string_contains(y, '\'')) {
+                throw std::invalid_argument(
+                    std::string("Text for coordinate Y cannot contain quotes: ") + y);
+            }
+            if (x.empty()) {
+                throw std::invalid_argument(
+                    "Text for coordinate X cannot be an empty string, Y is " + y);
+            }
+            if (y.empty()) {
+                throw std::invalid_argument(
+                    "Text for coordinate Y cannot be an empty string, X is " + y);
+            }
+            throw std::invalid_argument(
+                std::string("Text cannot be converted to X and Y coordinates: X: ") + x
+                + " Y: " + y);
+        }
+        catch (const std::out_of_range&) {
+            throw std::out_of_range(
+                std::string("Numerical value too large for X or Y coordinate: X: ") + x
+                + " Y: " + y);
+        }
     }
 
     /**
@@ -460,7 +488,31 @@ protected:
      */
     static NodeId node_id_from_text(const std::string& text)
     {
-        return std::stoi(text);
+        try {
+            return std::stoi(text);
+        }
+        catch (const std::invalid_argument& err) {
+            if (string_contains(text, '"') || string_contains(text, '\'')) {
+                throw std::invalid_argument(
+                    std::string("Text for a node ID cannot contain quotes "
+                                "(only digits are allowed): ")
+                    + text);
+            }
+            if (text.empty()) {
+                throw std::invalid_argument(
+                    "Text for a node ID cannot be an empty string");
+            }
+            else {
+                throw std::invalid_argument(
+                    std::string("Text cannot be converted to a node ID "
+                                "(only digits are allowed): ")
+                    + text);
+            }
+        }
+        catch (const std::out_of_range& err) {
+            throw std::out_of_range(
+                std::string("Numerical value too large for a node ID: ") + text);
+        }
     }
 
     /**
@@ -589,7 +641,9 @@ protected:
                 return SegmentView(item.second.crbegin(), item.second.crend());
             }
         }
-        throw std::invalid_argument("No segment for given nodes");
+        throw std::invalid_argument(std::string(
+            "No segment for given nodes: " + std::to_string(start) + " "
+            + std::to_string(end)));
     }
 
     /**
