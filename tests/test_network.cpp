@@ -372,7 +372,7 @@ int create_network_from_files(int argc, char** argv)
         generator.seed(seed);
         auto nodes = network.get_all_nodes();
         shuffle_container(nodes, generator);
-        int num_nodes = config.get<int>("num_nodes", nodes.size());
+        int num_nodes = config.get<int>("num_start_nodes", nodes.size());
 
         if (trace)
             std::cout << "traces:\n";
