@@ -8,17 +8,48 @@ The pre-release historical sections are using dates and topics as section
 headings instead of release numbers.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
-with an additional rule that interfaces to the core library follow the same numbering
-although they are in separate repositories, so increasing version number there
-increases version here although there is no specific tag or release for that in
-this repository.
+and this project loosely adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html),
+i.e., major-minor-patch.
+However, since there is _currently_ no need to keep the API stable,
+keeping SemVer is focused on conceptual stability rather than code strict API
+compatibility.
+API changes which require small adjustments in the code can be introduced in
+minor versions. For example, a new parameter which is optional from a user
+point of view can be added in a minor version, although it may require changes
+for the caller of a C++ function which has an additional required parameter
+after the change. However, conceptual changes such as complete API rewrites
+warant a new major version.
+Please, open an issue if you need to change this policy.
+For greater stability, consider using the interfaces instead of the core C++
+library.
+
+Interfaces to the core library which are in separate repositories all share
+the same numbering line with this repository, so increasing version number
+there increases version here and a new tag (and possibly also release) is
+created in this repository although there are no changes in this repository or
+the tagged revision was already tagged before.
 
 ## [Unreleased]
 
 ### Added
 
-- Network kernel (Vaclav Petras)
+- Network kernel. (Vaclav Petras)
+- Established dispersers from a cell are now tracked. (Chris Jones)
+- Collection of general-use function for container handling for internal use.
+- Template parameter for random number generator to Model and Simulation.
+
+### Changed
+
+- Virtual functions are used to switch beween kernels instead of an
+  ever-growing if-else statement. (Vaclav Petras)
+  * This is possibly faster and it has additional cost only
+    when compared to hardcoded simple kernels.
+  * Kernel parameters don't need to be provided anymore when the kernel is
+    not used.
+  * Opens door for adding many kernels in a flexible way.
+- Anthropogenic kernel is now different from natural kernel and contains one
+  network kernel. (Vaclav Petras)
 
 ### Fixed
 
@@ -35,6 +66,7 @@ this repository.
   * Allows movement to be based on total_hosts rather than total_populations
 - Mortality timing is now more flexible (Chris Jones)
   * requires 2 new parameters mortality_frequency and mortality_frequency_n
+- DOI, including a DOI for each release, is now available through Zenodo.
 
 ### Changed
 
