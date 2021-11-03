@@ -21,6 +21,8 @@ for the caller of a C++ function which has an additional required parameter
 after the change. However, conceptual changes such as complete API rewrites
 warant a new major version.
 Please, open an issue if you need to change this policy.
+For greater stability, consider using the interfaces instead of the core C++
+library.
 
 Interfaces to the core library which are in separate repositories all share
 the same numbering line with this repository, so increasing version number
