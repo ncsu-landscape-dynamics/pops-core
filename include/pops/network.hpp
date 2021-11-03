@@ -182,13 +182,14 @@ public:
     /**
      * @brief Load nodes and segments from input streams.
      *
-     * @param node_stream Input stream with records for nodes
-     * @param segment_stream Input stream with records for segments
+     * @param stream Input stream with records for network segments
      * @param allow_empty True if the loaded network can be empty (no nodes)
      *
-     * The nodes stream is a CSV with rows `node_id,X,Y`.
-     * Segment stream is custom text format resembling CSV geared towards parsing, not
-     * readability, with rows `node_id_1,node_id_2,X1;Y1;X2;Y2;X3;Y3;...`.
+     * Network segment stream is custom text format resembling CSV geared towards
+     * parsing, not readability, with rows `node_id_1,node_id_2,X1;Y1;X2;Y2;X3;Y3;...`.
+     * Nodes, edges, and segment spatial representation are read from the network
+     * segement stream. Node coordinates are taken from the first and last coordinate
+     * pair in the segment.
      *
      * The function can take any input stream which behaves like std::ifstream or
      * std::istringstream. These are also the two expected streams to be used
@@ -198,35 +199,36 @@ public:
      *
      * ```
      * Network network(...);
-     * std::string node_filename = "nodes.txt";
-     * std::string segment_filename = "segments.txt"
-     * std::ifstream node_stream{node_filename};
-     * std::ifstream segment_stream{segment_filename};
-     * network.load(node_stream, segment_stream);
+     * std::string filename = "network.txt"
+     * std::ifstream stream{filename};
+     * network.load(stream);
      * ```
      *
-     * The input network is a list of nodes and their coordinates and a list of edges
+     * The input network a list of edges which are pairs of nodes
      * and the corresponding segments. The input is used as-is. The network is agnostic
      * towards how the segments look like in terms of crossing each other or other
      * nodes.
      *
-     * All XY coordinates of nodes and segment points are converted to row and column
-     * using bounding box and resolution.
+     * All XY coordinates of segment points including nodes coordinates are converted
+     * to row and column using bounding box and resolution.
      *
-     * Coordinates for nodes and segment are treated separately, so input segment
-     * coordinates should include the node coordinates.
+     * Coordinates for nodes are taken from the beginning and the end of each segment,
+     * so input segment coordinates should include the node coordinates.
      *
-     * Standalone nodes (without any connection) are allowed and handled as no movement
-     * from the source cell. Only edges (segments) with both nodes in the bounding box
+     * Only edges (segments) with both nodes in the bounding box
      * are considered, i.e., input network is reduced to the bounding box during
      * reading, but clipping happens on the level of whole edges, not in the middle of
      * a segment.
+     *
+     * Standalone nodes (without any connection) are theoretically allowed in the
+     * internal representation of the netwrok and handled
+     * as no movement from the source cell, but the input always needs to contain an
+     * edge.
      */
     template<typename InputStream>
-    void load(
-        InputStream& node_stream, InputStream& segment_stream, bool allow_empty = false)
+    void load(InputStream& stream, bool allow_empty = false)
     {
-        load_segments(segment_stream);
+        load_segments(stream);
         if (node_matrix_.empty()) {
             if (allow_empty)
                 return;
