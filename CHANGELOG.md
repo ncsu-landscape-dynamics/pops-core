@@ -9,13 +9,17 @@ headings instead of release numbers.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project loosely adheres to
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-Since there is _currently_ no need to keep the API stable,
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html),
+i.e., major-minor-patch.
+However, since there is _currently_ no need to keep the API stable,
+keeping SemVer is focused on conceptual stability rather than code strict API
+compatibility.
 API changes which require small adjustments in the code can be introduced in
 minor versions. For example, a new parameter which is optional from a user
 point of view can be added in a minor version, although it may require changes
 for the caller of a C++ function which has an additional required parameter
-after the change.
+after the change. However, conceptual changes such as complete API rewrites
+warant a new major version.
 Please, open an issue if you need to change this policy.
 
 Interfaces to the core library which are in separate repositories all share
