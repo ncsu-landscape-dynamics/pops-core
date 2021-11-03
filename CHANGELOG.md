@@ -10,10 +10,19 @@ headings instead of release numbers.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project loosely adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-API changes which require small adjustments in code can be introduced in minor
-versions. Interfaces to the core library follow the same numbering
-although they are in separate repositories, so increasing version number there
-increases version here and a new tag is created this repository.
+Since there is _currently_ no need to keep the API stable,
+API changes which require small adjustments in the code can be introduced in
+minor versions. For example, a new parameter which is optional from a user
+point of view can be added in a minor version, although it may require changes
+for the caller of a C++ function which has an additional required parameter
+after the change.
+Please, open an issue if you need to change this policy.
+
+Interfaces to the core library which are in separate repositories all share
+the same numbering line with this repository, so increasing version number
+there increases version here and a new tag (and possibly also release) is
+created in this repository although there are no changes in this repository or
+the tagged revision was already tagged before.
 
 ## [Unreleased]
 
