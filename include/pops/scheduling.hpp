@@ -412,7 +412,6 @@ inline std::vector<bool> schedule_from_string(
         "Output frequency and simulation step are incompatible");
     std::tie(sim_n, sim_unit) = scheduler.get_step_length();
     if (!frequency.empty()) {
-        // TODO: throw when n!=1 and it is not used?
         if (frequency == "final_step")
             return scheduler.schedule_action_end_of_simulation();
         else if (frequency == "year" || frequency == "yearly")
