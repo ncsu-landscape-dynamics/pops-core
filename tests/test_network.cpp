@@ -378,7 +378,8 @@ int create_network_from_files(int argc, char** argv)
             std::cout << "traces:\n";
         else
             std::cout << "trips:\n";
-        for (const auto& node : nodes) {
+        for (int i = 0; i < num_nodes; ++i) {
+            const auto& node = nodes[i % nodes.size()];
             int start_row = node.second.first;
             int start_col = node.second.second;
             if (!network.has_node_at(start_row, start_col)) {
@@ -428,10 +429,6 @@ int create_network_from_files(int argc, char** argv)
                     std::cout << "    time: " << std::get<2>(cell) << "\n";
                 }
             }
-            // End the loop sooner if are limited by number nodes.
-            --num_nodes;
-            if (!num_nodes)
-                break;
         }
     }
 
