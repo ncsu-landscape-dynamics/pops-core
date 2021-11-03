@@ -47,6 +47,63 @@ int compare_network_statistics(
     return ret;
 }
 
+int test_bbox_functions()
+{
+    int ret = 0;
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{
+        bbox,
+        1,
+        1,
+        1,
+    };
+    if (network.xy_out_of_bbox(25, 5)) {
+        std::cerr << "XY 25, 5 should be in, not out\n";
+        ++ret;
+    }
+    if (!network.xy_out_of_bbox(25, 11)) {
+        std::cerr << "XY 25, 11 should be out, not in\n";
+        ++ret;
+    }
+    if (network.row_col_out_of_bbox(2, 3)) {
+        std::cerr << "Row 2, col 3 should be in, not out\n";
+        ++ret;
+    }
+    if (!network.row_col_out_of_bbox(20, 3)) {
+        std::cerr << "Row 20, col 3 should be out, not in\n";
+        ++ret;
+    }
+    if (network.cell_out_of_bbox(std::make_pair(9, 8))) {
+        std::cerr << "Cell 9, 8 should be in, not out\n";
+        ++ret;
+    }
+    if (!network.cell_out_of_bbox(std::make_pair(-1, 3))) {
+        std::cerr << "Cell -1, 3 should be out, not in\n";
+        ++ret;
+    }
+    if (network.xy_out_of_bbox(bbox.east, bbox.north)) {
+        std::cerr << "Bbox EN corner XY should be in, not out\n";
+        ++ret;
+    }
+    if (network.xy_out_of_bbox(bbox.west, bbox.south)) {
+        std::cerr << "Bbox WS corner XY should be in, not out\n";
+        ++ret;
+    }
+    if (network.cell_out_of_bbox(network.xy_to_row_col(bbox.east, bbox.north))) {
+        std::cerr << "Bbox EN corner cell should be in, not out\n";
+        ++ret;
+    }
+    if (network.cell_out_of_bbox(network.xy_to_row_col(bbox.west, bbox.south))) {
+        std::cerr << "Bbox WS corner cell should be in, not out\n";
+        ++ret;
+    }
+    return ret;
+}
+
 int test_travel_network()
 {
     int ret = 0;
@@ -439,11 +496,12 @@ int run_tests()
 {
     int ret = 0;
 
+    ret += test_bbox_functions();
     ret += test_create_network();
     ret += test_travel_network();
 
     if (ret)
-        std::cerr << "Number of errors in the network kernel test: " << ret << "\n";
+        std::cerr << "Number of errors in the network test: " << ret << "\n";
     return ret;
 }
 
