@@ -335,6 +335,12 @@ int test_schedule_from_string()
     out = schedule_from_string(scheduling, "every_n_steps", 2);
     if (get_number_of_scheduled_actions(out) != 2)
         num_errors++;
+    out = schedule_from_string(scheduling, "every_step");
+    if (get_number_of_scheduled_actions(out) != scheduling.get_num_steps())
+        num_errors++;
+    out = schedule_from_string(scheduling, "time_step");
+    if (get_number_of_scheduled_actions(out) != scheduling.get_num_steps())
+        num_errors++;
     try {
         out = schedule_from_string(scheduling, "day");
         num_errors++;
@@ -353,6 +359,9 @@ int test_schedule_from_string()
     out = schedule_from_string(scheduling2, "every_n_steps", 7);
     if (get_number_of_scheduled_actions(out) != 4)
         num_errors++;
+    out = schedule_from_string(scheduling2, "every_step");
+    if (get_number_of_scheduled_actions(out) != scheduling2.get_num_steps())
+        num_errors++;
     out = schedule_from_string(scheduling2, "final_step");
     if (get_number_of_scheduled_actions(out) != 1)
         num_errors++;
@@ -367,6 +376,9 @@ int test_schedule_from_string()
     }
     out = schedule_from_string(scheduling3, "every_n_steps", 2);
     if (get_number_of_scheduled_actions(out) != 1)
+        num_errors++;
+    out = schedule_from_string(scheduling3, "every_step");
+    if (get_number_of_scheduled_actions(out) != scheduling3.get_num_steps())
         num_errors++;
     out = schedule_from_string(scheduling3, "month");
     if (get_number_of_scheduled_actions(out) != 0)
