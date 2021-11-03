@@ -32,7 +32,22 @@ the tagged revision was already tagged before.
 
 ### Added
 
-- Network kernel (Vaclav Petras)
+- Network kernel. (Vaclav Petras)
+- Established dispersers from a cell are now tracked. (Chris Jones)
+- Collection of general-use function for container handling for internal use.
+- Template parameter for random number generator to Model and Simulation.
+
+### Changed
+
+- Virtual functions are used to switch beween kernels instead of an
+  ever-growing if-else statement. (Vaclav Petras)
+  * This is possibly faster and it has additional cost only
+    when compared to hardcoded simple kernels.
+  * Kernel parameters don't need to be provided anymore when the kernel is
+    not used.
+  * Opens door for adding many kernels in a flexible way.
+- Anthropogenic kernel is now different from natural kernel and contains one
+  network kernel. (Vaclav Petras)
 
 ### Fixed
 
@@ -49,6 +64,7 @@ the tagged revision was already tagged before.
   * Allows movement to be based on total_hosts rather than total_populations
 - Mortality timing is now more flexible (Chris Jones)
   * requires 2 new parameters mortality_frequency and mortality_frequency_n
+- DOI, including a DOI for each release, is now available through Zenodo.
 
 ### Changed
 
