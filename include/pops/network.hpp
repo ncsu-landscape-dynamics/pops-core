@@ -204,8 +204,12 @@ public:
      * network.load(stream);
      * ```
      *
-     * The input network is a list of edges which are pairs of nodes
-     * and the corresponding segments. The input is used as-is. The network is agnostic
+     * The input network is a list of segments where each segment consists of a pairs of
+     * nodes and list of coordinates. In the terminology of the this class, the pair of
+     * nodes is called an edge and the edge with coordinates (or rows and columns) is
+     * called a segment.
+     *
+     * The input is used as-is. The network is agnostic
      * towards how the segments look like in terms of crossing each other or other
      * nodes.
      *
