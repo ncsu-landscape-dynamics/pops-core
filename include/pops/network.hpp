@@ -158,7 +158,7 @@ public:
     }
 
     /**
-     * @brief Test if a cells is in the bounding box.
+     * @brief Test if a cell is in the bounding box.
      * @param row Row in the raster grid
      * @param col Column in the raster grid
      * @return True if cells is in the bounding box, false otherwise.
@@ -169,9 +169,9 @@ public:
     }
 
     /**
-     * @brief Test if a cells is in the bounding box.
+     * @brief Test if a cell is in the bounding box.
      * @param cell Pair consisting of a row and column indices
-     * @return True if cells is in the bounding box, false otherwise.
+     * @return True if cell is in the bounding box, false otherwise.
      */
     bool cell_out_of_bbox(const std::pair<RasterIndex, RasterIndex>& cell) const
     {
@@ -204,7 +204,7 @@ public:
      * network.load(stream);
      * ```
      *
-     * The input network a list of edges which are pairs of nodes
+     * The input network is a list of edges which are pairs of nodes
      * and the corresponding segments. The input is used as-is. The network is agnostic
      * towards how the segments look like in terms of crossing each other or other
      * nodes.
@@ -586,7 +586,7 @@ protected:
                 if (segment.empty() || segment.back() != new_point)
                     segment.emplace_back(new_point);
             }
-            // If either end nodes of the segment is not in the extent, skip it.
+            // If either node of the segment is not in the extent, skip the segment.
             // This means that a segment is ignored even if one of the nodes and
             // significant portion of the segment is in the area of iterest.
             // TODO: Part of the segment may still be out, so that needs to be checked.
