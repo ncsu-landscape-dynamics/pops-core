@@ -75,8 +75,12 @@ public:
         : bbox_(bbox),
           ew_res_(ew_res),
           ns_res_(ns_res),
+          max_row_(0),
+          max_col_(0),
           cell_travel_time_(((ew_res + ns_res) / 2) / speed)
-    {}
+    {
+        std::tie(max_row_, max_col_) = xy_to_row_col(bbox_.east, bbox_.south);
+    }
 
     /**
      * @brief Create an empty network not meant for futher use.
@@ -148,21 +152,44 @@ public:
      * @param y Real world coordinate Y
      * @return True if XY is in the bounding box, false otherwise.
      */
-    bool out_of_bbox(double x, double y) const
+    bool xy_out_of_bbox(double x, double y) const
     {
         return x > bbox_.east || x < bbox_.west || y > bbox_.north || y < bbox_.south;
     }
 
     /**
+     * @brief Test if a cell is in the bounding box.
+     * @param row Row in the raster grid
+     * @param col Column in the raster grid
+     * @return True if cells is in the bounding box, false otherwise.
+     */
+    bool row_col_out_of_bbox(RasterIndex row, RasterIndex col) const
+    {
+        return row > max_row_ || row < 0 || col > max_col_ || col < 0;
+    }
+
+    /**
+     * @brief Test if a cell is in the bounding box.
+     * @param cell Pair consisting of a row and column indices
+     * @return True if cell is in the bounding box, false otherwise.
+     */
+    bool cell_out_of_bbox(const std::pair<RasterIndex, RasterIndex>& cell) const
+    {
+        return cell.first > max_row_ || cell.first < 0 || cell.second > max_col_
+               || cell.second < 0;
+    }
+
+    /**
      * @brief Load nodes and segments from input streams.
      *
-     * @param node_stream Input stream with records for nodes
-     * @param segment_stream Input stream with records for segments
+     * @param stream Input stream with records for network segments
      * @param allow_empty True if the loaded network can be empty (no nodes)
      *
-     * The nodes stream is a CSV with rows `node_id,X,Y`.
-     * Segment stream is custom text format resembling CSV geared towards parsing, not
-     * readability, with rows `node_id_1,node_id_2,X1;Y1;X2;Y2;X3;Y3;...`.
+     * Network segment stream is custom text format resembling CSV geared towards
+     * parsing, not readability, with rows `node_id_1,node_id_2,X1;Y1;X2;Y2;X3;Y3;...`.
+     * Nodes, edges, and segment spatial representation are read from the network
+     * segement stream. Node coordinates are taken from the first and last coordinate
+     * pair in the segment.
      *
      * The function can take any input stream which behaves like std::ifstream or
      * std::istringstream. These are also the two expected streams to be used
@@ -172,43 +199,46 @@ public:
      *
      * ```
      * Network network(...);
-     * std::string node_filename = "nodes.txt";
-     * std::string segment_filename = "segments.txt"
-     * std::ifstream node_stream{node_filename};
-     * std::ifstream segment_stream{segment_filename};
-     * network.load(node_stream, segment_stream);
+     * std::string filename = "network.txt"
+     * std::ifstream stream{filename};
+     * network.load(stream);
      * ```
      *
-     * The input network is a list of nodes and their coordinates and a list of edges
-     * and the corresponding segments. The input is used as-is. The network is agnostic
+     * The input network is a list of segments where each segment consists of a pairs of
+     * nodes and list of coordinates. In the terminology of the this class, the pair of
+     * nodes is called an edge and the edge with coordinates (or rows and columns) is
+     * called a segment.
+     *
+     * The input is used as-is. The network is agnostic
      * towards how the segments look like in terms of crossing each other or other
      * nodes.
      *
-     * All XY coordinates of nodes and segment points are converted to row and column
-     * using bounding box and resolution.
+     * All XY coordinates of segment points including nodes coordinates are converted
+     * to row and column using bounding box and resolution.
      *
-     * Coordinates for nodes and segment are treated separately, so input segment
-     * coordinates should include the node coordinates.
+     * Coordinates for nodes are taken from the beginning and the end of each segment,
+     * so input segment coordinates should include the node coordinates.
      *
-     * Standalone nodes (without any connection) are allowed and handled as no movement
-     * from the source cell. Only edges (segments) with both nodes in the bounding box
+     * Only edges (segments) with both nodes in the bounding box
      * are considered, i.e., input network is reduced to the bounding box during
      * reading, but clipping happens on the level of whole edges, not in the middle of
      * a segment.
+     *
+     * Standalone nodes (without any connection) are theoretically allowed in the
+     * internal representation of the netwrok and handled
+     * as no movement from the source cell, but the input always needs to contain an
+     * edge.
      */
     template<typename InputStream>
-    void load(
-        InputStream& node_stream, InputStream& segment_stream, bool allow_empty = false)
+    void load(InputStream& stream, bool allow_empty = false)
     {
-        std::set<NodeId> node_ids;
-        load_nodes(node_stream, node_ids);
-        if (node_ids.empty()) {
+        load_segments(stream);
+        if (node_matrix_.empty()) {
             if (allow_empty)
                 return;
             else
                 throw std::runtime_error("Network: No nodes within the extend");
         }
-        load_segments(segment_stream, node_ids);
     }
 
     /**
@@ -516,51 +546,14 @@ protected:
     }
 
     /**
-     * @brief Read nodes from a stream.
-     *
-     * @param stream Input stream with nodes and their coordinates
-     * @param[out] node_ids Container to store node IDs in
-     */
-    template<typename InputStream>
-    void load_nodes(InputStream& stream, std::set<NodeId>& node_ids)
-    {
-        std::string line;
-        while (std::getline(stream, line)) {
-            std::istringstream line_stream{line};
-            char delimeter{','};
-            std::string node_text;
-            std::getline(line_stream, node_text, delimeter);
-            std::string x_coord_text;
-            std::getline(line_stream, x_coord_text, delimeter);
-            std::string y_coord_text;
-            std::getline(line_stream, y_coord_text, delimeter);
-            RasterIndex row;
-            RasterIndex col;
-            double x = std::stod(x_coord_text);
-            double y = std::stod(y_coord_text);
-            // Cut to extend
-            if (out_of_bbox(x, y))
-                continue;
-            std::tie(row, col) = xy_to_row_col(x_coord_text, y_coord_text);
-            NodeId node_id = node_id_from_text(node_text);
-            if (node_id < 1) {
-                std::runtime_error("Node ID must be greater than zero");
-            }
-            nodes_by_row_col_[std::make_pair(row, col)].insert(node_id);
-            node_ids.insert(node_id);
-        }
-    }
-
-    /**
      * @brief Read segments from a stream.
      *
      * @param stream Input stream with segments
      * @param node_ids Container with node IDs to use
      */
     template<typename InputStream>
-    void load_segments(InputStream& stream, const std::set<NodeId>& node_ids)
+    void load_segments(InputStream& stream)
     {
-        std::set<std::pair<NodeId, NodeId>> node_pairs;
         std::string line;
         while (std::getline(stream, line)) {
             std::istringstream line_stream{line};
@@ -571,14 +564,11 @@ protected:
             std::getline(line_stream, node_2_text, delimeter);
             auto node_1_id = node_id_from_text(node_1_text);
             auto node_2_id = node_id_from_text(node_2_text);
-            // If either end nodes of the segment is not in the extent, skip it.
-            // This means that a segment is ignored even if one of the nodes and
-            // significant portion of the segment is in the area of iterest.
-            // TODO: Part of the segment may still be out, so that needs to be checked.
-            // Replace find by contains for C++20.
-            if (node_ids.find(node_1_id) == node_ids.end()
-                || node_ids.find(node_2_id) == node_ids.end())
-                continue;
+            if (node_1_id < 1 || node_2_id < 1) {
+                std::runtime_error(std::string(
+                    "Node ID must be greater than zero: " + node_1_text + " "
+                    + node_2_text));
+            }
             if (node_1_id == node_2_id) {
                 std::runtime_error(
                     std::string("Segment cannot begin and end with the same node: ")
@@ -586,10 +576,6 @@ protected:
             }
             std::string segment_text;
             std::getline(line_stream, segment_text, delimeter);
-            // We don't know which way the nodes are ordered, so instead of checking
-            // the order, we create a symmetric matrix since we allocated the memory
-            // anyway.
-            node_pairs.emplace(node_1_id, node_2_id);
             std::istringstream segment_stream{segment_text};
             char in_cell_delimeter{';'};
             std::string x_coord_text;
@@ -604,19 +590,25 @@ protected:
                 if (segment.empty() || segment.back() != new_point)
                     segment.emplace_back(new_point);
             }
+            // If either node of the segment is not in the extent, skip the segment.
+            // This means that a segment is ignored even if one of the nodes and
+            // significant portion of the segment is in the area of iterest.
+            // TODO: Part of the segment may still be out, so that needs to be checked.
+            // Cut to extend
+            if (cell_out_of_bbox(segment.front()) || cell_out_of_bbox(segment.back()))
+                continue;
+            // We are done with the segment data, so we move them to the attribute.
             segments_by_nodes_.emplace(
                 std::make_pair(node_1_id, node_2_id), std::move(segment));
         }
 
-        for (auto node_id : node_ids) {
-            std::vector<NodeId> nodes;
-            for (const auto& item : node_pairs) {
-                if (item.first == node_id)
-                    nodes.push_back(item.second);
-                else if (item.second == node_id)
-                    nodes.push_back(item.first);
-            }
-            node_matrix_[node_id] = std::move(nodes);
+        for (const auto& node_segment : segments_by_nodes_) {
+            nodes_by_row_col_[node_segment.second.front()].insert(
+                node_segment.first.first);
+            nodes_by_row_col_[node_segment.second.back()].insert(
+                node_segment.first.second);
+            node_matrix_[node_segment.first.first].push_back(node_segment.first.second);
+            node_matrix_[node_segment.first.second].push_back(node_segment.first.first);
         }
     }
 
@@ -705,6 +697,8 @@ protected:
     BBox<double> bbox_;  ///< Bounding box of the network grid in real world coordinates
     double ew_res_;  ///< East-west resolution of the grid
     double ns_res_;  ///< North-south resolution of the grid
+    RasterIndex max_row_;  ///< Maximum row index in the grid
+    RasterIndex max_col_;  ///< Maximum column index in the grid
     double cell_travel_time_;  ///< Time to travel through one cell
     /** Node IDs stored by row and column (multiple nodes per cell) */
     std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;

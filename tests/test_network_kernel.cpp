@@ -100,15 +100,10 @@ int test_model_with_network()
 
     Network<int> network{
         config.bbox, config.ew_res, config.ns_res, config.network_speed};
-    std::stringstream node_stream{
-        "1,16.7,16.7\n"
-        "2,50.0,83.3\n"
-        "3,83.3,83.3\n"
-        "4,83.3,50.0\n"};
     std::stringstream segment_stream{
         "1,2,16.7;16.7;50.0;16.7;50.0;50.0;50.0;83.3\n"
         "4,3,83.3;50.0;83.3;83.3\n"};
-    network.load(node_stream, segment_stream);
+    network.load(segment_stream);
 
     // Objects
     std::vector<std::vector<int>> suitable_cells =

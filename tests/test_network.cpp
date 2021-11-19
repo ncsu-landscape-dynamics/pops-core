@@ -47,6 +47,63 @@ int compare_network_statistics(
     return ret;
 }
 
+int test_bbox_functions()
+{
+    int ret = 0;
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{
+        bbox,
+        1,
+        1,
+        1,
+    };
+    if (network.xy_out_of_bbox(25, 5)) {
+        std::cerr << "XY 25, 5 should be in, not out\n";
+        ++ret;
+    }
+    if (!network.xy_out_of_bbox(25, 11)) {
+        std::cerr << "XY 25, 11 should be out, not in\n";
+        ++ret;
+    }
+    if (network.row_col_out_of_bbox(2, 3)) {
+        std::cerr << "Row 2, col 3 should be in, not out\n";
+        ++ret;
+    }
+    if (!network.row_col_out_of_bbox(20, 3)) {
+        std::cerr << "Row 20, col 3 should be out, not in\n";
+        ++ret;
+    }
+    if (network.cell_out_of_bbox(std::make_pair(9, 8))) {
+        std::cerr << "Cell 9, 8 should be in, not out\n";
+        ++ret;
+    }
+    if (!network.cell_out_of_bbox(std::make_pair(-1, 3))) {
+        std::cerr << "Cell -1, 3 should be out, not in\n";
+        ++ret;
+    }
+    if (network.xy_out_of_bbox(bbox.east, bbox.north)) {
+        std::cerr << "Bbox EN corner XY should be in, not out\n";
+        ++ret;
+    }
+    if (network.xy_out_of_bbox(bbox.west, bbox.south)) {
+        std::cerr << "Bbox WS corner XY should be in, not out\n";
+        ++ret;
+    }
+    if (network.cell_out_of_bbox(network.xy_to_row_col(bbox.east, bbox.north))) {
+        std::cerr << "Bbox EN corner cell should be in, not out\n";
+        ++ret;
+    }
+    if (network.cell_out_of_bbox(network.xy_to_row_col(bbox.west, bbox.south))) {
+        std::cerr << "Bbox WS corner cell should be in, not out\n";
+        ++ret;
+    }
+    return ret;
+}
+
 int test_travel_network()
 {
     int ret = 0;
@@ -61,14 +118,6 @@ int test_travel_network()
         1,
         1,
     };
-    std::stringstream node_stream{
-        "1,21.4,7.5\n"
-        "2,22.3,7.2\n"
-        "4,22.5,8.6\n"
-        "5,27.5,1.5\n"
-        "8,26.5,6.4\n"
-        "10,28.2,2.7\n"
-        "11,28.3,9.0\n"};
     std::stringstream segment_stream{
         "1,2,21.4;7.5;22.3;7.2\n"
         "1,4,21.4;7.5;21.9;8.0;22.5;8.6\n"
@@ -78,7 +127,7 @@ int test_travel_network()
         "11,8,28.3;9.0;28.5;8.1;28.6;7.3;28.2;6.8;27.7;6.3;27.1;6.4;26.5;6.4\n"
         "2,5,22.3;7.2;23.0;7.7;23.7;8.1;24.3;8.5;25.0;9.0;25.8;9.0;26.6;9.0;27.4;9.0;28.2;9.0;29.0;9.0;29.0;8.0;29.0;7.0;29.0;6.0;29.0;5.0;29.0;4.0;29.0;3.0;29.0;2.0;29.0;1.0;28.2;1.3;27.5;1.5\n"
         "5,8,27.5;1.5;26.7;1.8;26.0;2.0;26.1;2.9;26.2;3.8;26.3;4.7;26.4;5.5;26.5;6.4\n"};
-    network.load(node_stream, segment_stream);
+    network.load(segment_stream);
 
     std::default_random_engine generator;
     const int num_times = 9;
@@ -130,16 +179,10 @@ int test_create_network()
         std::cerr << "Empty network should not have a node at any cell\n";
         ret += 1;
     }
-    std::stringstream node_stream{
-        "1,-79.937,37.270\n"
-        "2,-79.934,37.272\n"
-        "3,-79.902,37.367\n"
-        "4,-79.941,37.273\n"
-        "5,-80.015,37.279\n"};
     std::stringstream segment_stream{
         "1,2,-79.937;37.270;-79.936;37.270;-79.936;37.271;-79.936;37.271;-79.936;37.271;-79.934;37.272;-79.934;37.272\n"
         "3,4,-79.902;37.367;-79.903;37.366;-79.903;37.366;-79.904;37.366;-79.905;37.365;-79.905;37.36;-79.920;37.352;-79.93;37.273;-79.940;37.273;-79.941;37.273\n"};
-    network.load(node_stream, segment_stream);
+    network.load(segment_stream);
     int out_row;
     int out_col;
     std::tie(out_row, out_col) = network.xy_to_row_col(-80.015, 37.279);
@@ -282,10 +325,9 @@ BBox<double> bbox_from_config(const RawConfig& config)
 
 int create_network_from_files(int argc, char** argv)
 {
-    if (argc != 5) {
-        std::cerr
-            << "Usage: " << argv[0]
-            << " read|stats|write|trips|trace CONFIG_FILE NODE_FILE SEGMENT_FILE\n";
+    if (argc != 4) {
+        std::cerr << "Usage: " << argv[0]
+                  << " read|stats|write|trips|trace CONFIG_FILE NETWORK_FILE\n";
         return 1;
     }
     std::string command = argv[1];
@@ -317,16 +359,10 @@ int create_network_from_files(int argc, char** argv)
         std::cerr << "Failed to open config file: " << config_file << "\n";
         return 1;
     }
-    std::string node_file{argv[3]};
-    std::ifstream node_stream{node_file};
-    if (!node_stream.is_open()) {
-        std::cerr << "Failed to open node file: " << node_file << "\n";
-        return 1;
-    }
-    std::string segment_file{argv[4]};
+    std::string segment_file{argv[3]};
     std::ifstream segment_stream{segment_file};
     if (!segment_stream.is_open()) {
-        std::cerr << "Failed to open segment file: " << segment_file << "\n";
+        std::cerr << "Failed to open network segment file: " << segment_file << "\n";
         return 1;
     }
 
@@ -337,7 +373,7 @@ int create_network_from_files(int argc, char** argv)
     double speed = config.get("speed", 0.);
 
     Network<int> network(bbox, nsres, ewres, speed);
-    network.load(node_stream, segment_stream);
+    network.load(segment_stream);
 
     if (show_stats) {
         auto stats = network.collect_statistics();
@@ -439,11 +475,12 @@ int run_tests()
 {
     int ret = 0;
 
+    ret += test_bbox_functions();
     ret += test_create_network();
     ret += test_travel_network();
 
     if (ret)
-        std::cerr << "Number of errors in the network kernel test: " << ret << "\n";
+        std::cerr << "Number of errors in the network test: " << ret << "\n";
     return ret;
 }
 
