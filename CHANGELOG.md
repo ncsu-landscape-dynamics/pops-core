@@ -19,7 +19,7 @@ minor versions. For example, a new parameter which is optional from a user
 point of view can be added in a minor version, although it may require changes
 for the caller of a C++ function which has an additional required parameter
 after the change. However, conceptual changes such as complete API rewrites
-warant a new major version.
+warrant a new major version.
 Please, open an issue if you need to change this policy.
 For greater stability, consider using the interfaces instead of the core C++
 library.
@@ -45,7 +45,7 @@ the tagged revision was already tagged before.
 
 ### Changed
 
-- Virtual functions are used to switch beween kernels instead of an
+- Virtual functions are used to switch between kernels instead of an
   ever-growing if-else statement. (Vaclav Petras)
   * This is possibly faster and it has additional cost only
     when compared to hardcoded simple kernels.
@@ -66,7 +66,7 @@ the tagged revision was already tagged before.
 - Pest movement based on overpopulation (Vaclav Petras)
   * When cell contains too many pests, pests leave and move to a different cell.
 - Total hosts added to run_step (Chris Jones)
-  * Allows overpopulations to be based on total_hosts rather than total_populations
+  * Allows overpopulation to be based on total_hosts rather than total_populations
   * Allows movement to be based on total_hosts rather than total_populations
 - Mortality timing is now more flexible (Chris Jones)
   * requires 2 new parameters mortality_frequency and mortality_frequency_n
@@ -83,7 +83,7 @@ the tagged revision was already tagged before.
   `total_exposed`, and `suitable_cells`) (Chris Jones).
   * Now moves exposed and resistant populations
   * Now moves total_hosts
-  * Now moves moratility tracked hosts
+  * Now moves mortality tracked hosts
   * Adds a new suitable_cell if a movement creates a new location with hosts.
 - Treatments now modify total hosts (Chris Jones)
 - Citation updated to PoPS Frontiers paper (Chris Jones)
@@ -404,7 +404,7 @@ the tagged revision was already tagged before.
 ### Fixed
 
 - Initialize memory for the sporulation object for the cases when it is
-  zero cases to fix conditional jump which depends on uninitialised
+  zero cases to fix conditional jump which depends on uninitialized
   value. (Vaclav Petras)
 - Memory allocation and deallocation is done by the right pair of
   malloc-free or new-delete. (Vaclav Petras)
