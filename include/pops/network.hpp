@@ -35,8 +35,8 @@ namespace pops {
  *
  * The network consists of nodes connected by edges. Edges are spatially represented
  * as segments. Edges themselves don't carry cost and have meaning only as indicators of
- * existence of a connection between nodes. Cost is travel time determined by advancing
- * through the segment.
+ * existence of a connection between nodes. Cost for each edge is a travel distance
+ * determined by advancing through cells in a segment.
  *
  * Nodes are the hop-on locations for dispersers. The dispersers can hop-off anywhere.
  *
@@ -69,15 +69,14 @@ public:
      * @param bbox Bounding box of the raster grid (in real world coordinates)
      * @param ew_res East-west resolution of the raster grid
      * @param ns_res North-south resolution of the raster grid
-     * @param speed Speed of travel in the same units as coordinates
      */
-    Network(BBox<double> bbox, double ew_res, double ns_res, double speed)
+    Network(BBox<double> bbox, double ew_res, double ns_res)
         : bbox_(bbox),
           ew_res_(ew_res),
           ns_res_(ns_res),
           max_row_(0),
           max_col_(0),
-          cell_travel_time_(((ew_res + ns_res) / 2) / speed)
+          distance_per_cell_((ew_res + ns_res) / 2)
     {
         std::tie(max_row_, max_col_) = xy_to_row_col(bbox_.east, bbox_.south);
     }
@@ -92,7 +91,7 @@ public:
      */
     static Network null_network()
     {
-        return Network(BBox<double>(), 0, 0, 0);
+        return Network(BBox<double>(), 0, 0);
     }
 
     /**
@@ -321,7 +320,7 @@ public:
     }
 
     /**
-     * Travel in the network from given row and column for a given time.
+     * Travel given distance in the network from given row and column.
      *
      * All previously visited nodes are tracked and, if possible, excluded
      * from further traveling.
@@ -329,14 +328,14 @@ public:
      * @returns Final row and column pair
      */
     template<typename Generator>
-    std::tuple<int, int>
-    travel(RasterIndex row, RasterIndex col, double time, Generator& generator) const
+    std::tuple<int, int> travel(
+        RasterIndex row, RasterIndex col, double distance, Generator& generator) const
     {
         // We assume there is a node here, i.e., that we are made decision
         // to use this kernel knowing there is a node.
         auto node_id = get_random_node_at(row, col, generator);
         std::set<NodeId> visited_nodes;
-        while (time >= 0) {
+        while (distance >= 0) {
             auto next_node_id = next_node(node_id, visited_nodes, generator);
             visited_nodes.insert(node_id);
             // If there is no segment from the node, return the start cell.
@@ -345,8 +344,8 @@ public:
             auto segment = get_segment(node_id, next_node_id);
             // nodes may need special handling
             for (const auto& cell : segment) {
-                time -= cell_travel_time_;
-                if (time <= 0) {
+                distance -= distance_per_cell_;
+                if (distance <= 0) {
                     return cell;
                     // Given the while condition, this subsequently ends the while loop
                     // as well.
@@ -355,7 +354,7 @@ public:
             }
             node_id = next_node_id;
         }
-        throw std::invalid_argument("Time must be greater than or equal to zero");
+        throw std::invalid_argument("Distance must be greater than or equal to zero");
     }
 
     /**
@@ -462,7 +461,7 @@ public:
         stream << "    num_rows: " << max_row - min_row + 1 << "\n";
         stream << "    num_cols: " << max_col - min_col + 1 << "\n";
         stream << "  cost:\n";
-        stream << "    cell_travel_time: " << cell_travel_time_ << "\n";
+        stream << "    distance_per_cell: " << distance_per_cell_ << "\n";
         std::set<std::pair<NodeId, NodeId>> edges;
         for (const auto& item : node_matrix_) {
             for (const auto& node_id : item.second) {
@@ -699,7 +698,7 @@ protected:
     double ns_res_;  ///< North-south resolution of the grid
     RasterIndex max_row_;  ///< Maximum row index in the grid
     RasterIndex max_col_;  ///< Maximum column index in the grid
-    double cell_travel_time_;  ///< Time to travel through one cell
+    double distance_per_cell_;  ///< Distance to travel through one cell (cost)
     /** Node IDs stored by row and column (multiple nodes per cell) */
     std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;
     NodeMatrix node_matrix_;  ///< List of node neighbors by node ID (edges)

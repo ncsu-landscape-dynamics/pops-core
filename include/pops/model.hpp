@@ -89,7 +89,7 @@ protected:
             config_.natural_scale * config_.leaving_scale_coefficient,
             config_.shape);
         NetworkDispersalKernel<RasterIndex> network_kernel(
-            network, config_.network_min_time, config_.network_max_time);
+            network, config_.network_min_distance, config_.network_max_distance);
         SwitchDispersalKernel<IntegerRaster, RasterIndex> selectable_kernel(
             natural_kernel,
             radial_kernel,
