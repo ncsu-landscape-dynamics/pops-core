@@ -57,7 +57,7 @@ This section is designed to clarify the branch structure and versioning of this 
 
 ### Bug Fixes
 
-Most bugs/issues will be found in the **master** branch as it is the branch being used in the R package and Grass module. Thus bug fixes should be merged into **master** once tested on both R and Grass. Bug fixes should be released as minor versions (e.g. if major release is 1.0 then the first bug fix would be released as version 1.1 and both R and Grass would be updated to 1.1.0). If a bug is found in one of the interfaces (R package or Grass module) that doesn't require a change to PoPS Core then these repositories should be updated indepentantly and maintain a patch release 1.0.x. For example, if the current version of the R package is 1.1.0 and Grass module is 1.1.0 and a bug is found in the R package then the R package version becomes 1.1.1 while the Grass version is 1.1.0. However, the version number is still shared for all the projects, so when a new version of the GRASS module is needed, it will be 1.1.2.
+Most bugs/issues will be found in the **master** branch as it is the branch being used in the R package and Grass module. Thus bug fixes should be merged into **master** once tested on both R and Grass. Bug fixes should be released as minor versions (e.g. if major release is 1.0 then the first bug fix would be released as version 1.1 and both R and Grass would be updated to 1.1.0). If a bug is found in one of the interfaces (R package or Grass module) that doesn't require a change to PoPS Core then these repositories should be updated independently and maintain a patch release 1.0.x. For example, if the current version of the R package is 1.1.0 and Grass module is 1.1.0 and a bug is found in the R package then the R package version becomes 1.1.1 while the Grass version is 1.1.0. However, the version number is still shared for all the projects, so when a new version of the GRASS module is needed, it will be 1.1.2.
 
 ### New Features
 
@@ -75,7 +75,7 @@ documents to make the process as seamless as possible.
 The stable API to be used in other projects includes the `pops::Model`
 and `pops::Config` classes and classes used in their API (for example,
 `pops::SpreadRate`).
-This API is changed only beween major versions or, if really needed,
+This API is changed only between major versions or, if really needed,
 to fix serious issues in the released major version.
 
 Other classes and functions are part of the internal API and although
@@ -93,7 +93,7 @@ the following core functions rather than the API.
 
 simulation.remove : removes the pest or pathogen from the infested hosts based on some environmental threshold (currently only temperature is accounted for).
 
-simulation.generate : generates dispersing indivduls from all infested cells based as a function of local infected hosts and weather.
+simulation.generate : generates dispersing individuals from all infested cells based as a function of local infected hosts and weather.
 
 simulation.disperse : creates dispersal locations for the dispersing individuals from the generate function.
 
