@@ -82,8 +82,8 @@ private members.
 
 #### Use of auto
 
-Prefer `auto` for variables and explicit type specificiation for
-memeber variables.
+Prefer `auto` for variables and explicit type specification for
+member variables.
 
 ### Documentation
 

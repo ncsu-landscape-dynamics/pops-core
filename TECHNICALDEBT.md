@@ -65,7 +65,7 @@ optionally linked in an entry.
 
 ### Add
 
-- Tests need to be written for weekly, daily, and multi-day timesteps for Date functionality.
+- Tests need to be written for weekly, daily, and multi-day time steps for Date functionality.
 
 ## 2019-06-14
 
@@ -79,7 +79,7 @@ optionally linked in an entry.
 
 - Exposed and Diseased classes should be added (need to think about how to handle in disperse).
 - 3-D array for Susceptible, Exposed, Infected, Diseased classes to handle multiple species up to N.
-- Host-compentency score for handling multiple hosts.
+- Host-competency score for handling multiple hosts.
 
 ## 2018-08-02 - PoPS Model Separation
 
