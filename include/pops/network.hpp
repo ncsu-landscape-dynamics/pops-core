@@ -180,16 +180,16 @@ public:
     }
 
     /**
-     * @brief Load nodes and segments from input streams.
+     * @brief Load network from an input stream.
      *
-     * @param stream Input stream with records for network segments
-     * @param allow_empty True if the loaded network can be empty (no nodes)
+     * @param stream Input stream containing text records for network
+     * @param allow_empty True if the loaded network can be empty
      *
-     * Network segment stream is custom text format resembling CSV geared towards
+     * Network stream is text in a custom format resembling CSV geared towards
      * parsing, not readability, with rows `node_id_1,node_id_2,X1;Y1;X2;Y2;X3;Y3;...`.
-     * Nodes, edges, and segment spatial representation are read from the network
-     * segement stream. Node coordinates are taken from the first and last coordinate
-     * pair in the segment.
+     * Each line represents an edge (pair of connected nodes) and the spatial
+     * representation of the edge (here called a segment). Node coordinates are taken
+     * from the first and last coordinate pair in the segment.
      *
      * The function can take any input stream which behaves like std::ifstream or
      * std::istringstream. These are also the two expected streams to be used
@@ -499,7 +499,7 @@ protected:
     /** Node connections (edges)
      *
      * The matrix is sparse. One node can be connected to multiple nodes.
-     * Connection is both directions is stored explicitly (see load_segments() source
+     * Connection in both directions is stored explicitly (see load_segments() source
      * code).
      */
     using NodeMatrix = std::map<NodeId, std::vector<NodeId>>;
@@ -571,7 +571,7 @@ protected:
             }
             if (node_1_id == node_2_id) {
                 std::runtime_error(
-                    std::string("Segment cannot begin and end with the same node: ")
+                    std::string("Edge cannot begin and end with the same node: ")
                     + node_1_text + " " + node_2_text);
             }
             std::string segment_text;
