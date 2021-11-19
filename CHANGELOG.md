@@ -38,6 +38,10 @@ the tagged revision was already tagged before.
 - Established dispersers from a cell are now tracked. (Chris Jones)
 - Collection of general-use function for container handling for internal use.
 - Template parameter for random number generator to Model and Simulation.
+- New frequency values, every_step and time_step, can be used to schedule
+  action every step of the simulation. (Vaclav Petras)
+  * This was implemented in rpops for simple cases. The new version in Core
+    supports all unit and n combinations for the simulation step.
 
 ### Changed
 
