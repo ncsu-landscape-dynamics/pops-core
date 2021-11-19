@@ -78,9 +78,8 @@ int test_model_with_network()
     config.natural_kernel_type = "cauchy";
     config.natural_scale = 0.1;
     config.anthro_kernel_type = "network";
-    config.network_min_time = 1;
-    config.network_max_time = 9;
-    config.network_speed = 33.3;
+    config.network_min_distance = 1;
+    config.network_max_distance = 9;
     config.use_anthropogenic_kernel = true;
     config.percent_natural_dispersal = 0;
     config.anthro_scale = config.natural_scale;  // Unused, but we need to set it.
@@ -98,8 +97,7 @@ int test_model_with_network()
     config.bbox.east = 100;
     config.bbox.west = 0;
 
-    Network<int> network{
-        config.bbox, config.ew_res, config.ns_res, config.network_speed};
+    Network<int> network{config.bbox, config.ew_res, config.ns_res};
     std::stringstream network_stream{
         "1,2,16.7;16.7;50.0;16.7;50.0;50.0;50.0;83.3\n"
         "4,3,83.3;50.0;83.3;83.3\n"};

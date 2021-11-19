@@ -55,12 +55,7 @@ int test_bbox_functions()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{
-        bbox,
-        1,
-        1,
-        1,
-    };
+    Network<int> network{bbox, 1, 1};
     if (network.xy_out_of_bbox(25, 5)) {
         std::cerr << "XY 25, 5 should be in, not out\n";
         ++ret;
@@ -112,12 +107,7 @@ int test_travel_network()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{
-        bbox,
-        1,
-        1,
-        1,
-    };
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "1,2,21.4;7.5;22.3;7.2\n"
         "1,4,21.4;7.5;21.9;8.0;22.5;8.6\n"
@@ -130,15 +120,16 @@ int test_travel_network()
     network.load(network_stream);
 
     std::default_random_engine generator;
-    const int num_times = 9;
-    int current_time = 0;
-    std::array<int, num_times> times;
-    std::generate_n(
-        times.begin(), num_times, [&current_time] { return ++current_time; });
-    std::array<std::pair<int, int>, num_times> correct_destinations{
+    const int num_distances = 9;
+    int current_distance = 0;
+    std::array<int, num_distances> distances;
+    std::generate_n(distances.begin(), num_distances, [&current_distance] {
+        return ++current_distance;
+    });
+    std::array<std::pair<int, int>, num_distances> correct_destinations{
         {{8, 7}, {8, 8}, {9, 9}, {8, 9}, {7, 9}, {6, 9}, {5, 9}, {4, 9}, {3, 9}}};
     auto correct = correct_destinations.cbegin();
-    for (const auto time : times) {
+    for (const auto distance : distances) {
         generator.seed(42);
         int start_row = 8;
         int start_col = 7;
@@ -149,10 +140,10 @@ int test_travel_network()
         int end_row;
         int end_col;
         std::tie(end_row, end_col) =
-            network.travel(start_row, start_col, time, generator);
+            network.travel(start_row, start_col, distance, generator);
         if (correct->first != end_row || correct->second != end_col) {
             std::cerr << "from (" << start_row << ", " << start_col << ") to ("
-                      << end_row << ", " << end_col << ") in " << time
+                      << end_row << ", " << end_col << ") in " << distance
                       << " but expected to arrive to (" << correct->first << ", "
                       << correct->second << ")\n";
             ret += 1;
@@ -174,7 +165,7 @@ int test_create_network()
     bbox.south = 30;
     bbox.east = -70;
     bbox.west = -80;
-    Network<int> network{bbox, 0.01, 0.01, 42};
+    Network<int> network{bbox, 0.01, 0.01};
     if (network.has_node_at(1, 1)) {
         std::cerr << "Empty network should not have a node at any cell\n";
         ret += 1;
@@ -370,9 +361,8 @@ int create_network_from_files(int argc, char** argv)
     BBox<double> bbox = bbox_from_config(config);
     double nsres = config.get<double>("nsres");
     double ewres = config.get<double>("ewres");
-    double speed = config.get("speed", 0.);
 
-    Network<int> network(bbox, nsres, ewres, speed);
+    Network<int> network(bbox, nsres, ewres);
     network.load(network_stream);
 
     if (show_stats) {
@@ -398,9 +388,9 @@ int create_network_from_files(int argc, char** argv)
         network.dump_yaml(std::cout);
     }
     if (trips || trace) {
-        double min_time = config.get("min_time", 1.);
-        double max_time = config.get("max_time", 1.);
-        double time_increment = config.get("time_increment", 1.);
+        double min_distance = config.get("min_distance", 1.);
+        double max_distance = config.get("max_distance", 1.);
+        double distance_increment = config.get("distance_increment", 1.);
         int seed = config.get("seed", 1);
         std::default_random_engine generator;
         // Seed the generator for trips (only here) and for trace, seed it here
@@ -423,16 +413,17 @@ int create_network_from_files(int argc, char** argv)
                 return 1;
             }
             // For trace, the trips for node are the trace.
-            // For trips and time range, trips are independent combinations.
+            // For trips and distance range, trips are independent combinations.
             std::vector<std::tuple<int, int, double>> trips;
-            for (double time = min_time; time <= max_time; time += time_increment) {
+            for (double distance = min_distance; distance <= max_distance;
+                 distance += distance_increment) {
                 if (trace)
                     generator.seed(seed);
                 int end_row;
                 int end_col;
                 std::tie(end_row, end_col) =
-                    network.travel(start_row, start_col, time, generator);
-                trips.emplace_back(end_row, end_col, time);
+                    network.travel(start_row, start_col, distance, generator);
+                trips.emplace_back(end_row, end_col, distance);
             }
             if (trace) {
                 std::cout << "  - cells: [";
@@ -442,7 +433,7 @@ int create_network_from_files(int argc, char** argv)
                     std::cout << "], ";
                 }
                 std::cout << "]\n";
-                std::cout << "    times: [";
+                std::cout << "    distances: [";
                 for (const auto& cell : trips) {
                     std::cout << std::get<2>(cell) << ", ";
                 }
@@ -462,7 +453,7 @@ int create_network_from_files(int argc, char** argv)
                     std::cout << "    end:\n";
                     std::cout << "      row: " << std::get<0>(cell) << "\n";
                     std::cout << "      col: " << std::get<1>(cell) << "\n";
-                    std::cout << "    time: " << std::get<2>(cell) << "\n";
+                    std::cout << "    distance: " << std::get<2>(cell) << "\n";
                 }
             }
         }
