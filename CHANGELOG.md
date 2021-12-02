@@ -7,10 +7,11 @@ and the text can be used as part of the release description.
 The pre-release historical sections are using dates and topics as section
 headings instead of release numbers.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format of this file is based on
+[Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project loosely adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html),
-i.e., major-minor-patch.
+i.e., major.minor.patch-style versioning.
 However, since there is _currently_ no need to keep the API stable,
 keeping SemVer is focused on conceptual stability rather than code strict API
 compatibility.
@@ -31,6 +32,12 @@ created in this repository although there are no changes in this repository or
 the tagged revision was already tagged before.
 
 ## [Unreleased]
+
+The unreleased section contains upcoming changes.
+At release time, its content moves to a new release version section
+and it remains empty until a new change is added.
+
+## [2.0.0] - 2021-12-02
 
 ### Added
 
@@ -415,7 +422,8 @@ the tagged revision was already tagged before.
 - Copy of GDAL code was removed from the repository, using system GDAL
   includes now. (Vaclav Petras)
 
-[unreleased]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.1.0...HEAD
+[unreleased]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v2.0.0...HEAD
+[1.1.0]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.1.0...v2.0.0
 [1.1.0]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/ncsu-landscape-dynamics/pops-core/compare/v1.0.0...v1.0.1
