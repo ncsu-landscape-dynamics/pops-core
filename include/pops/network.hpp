@@ -69,14 +69,16 @@ public:
      * @param bbox Bounding box of the raster grid (in real world coordinates)
      * @param ew_res East-west resolution of the raster grid
      * @param ns_res North-south resolution of the raster grid
+     * @param snap Snap result to the closest node
      */
-    Network(BBox<double> bbox, double ew_res, double ns_res)
+    Network(BBox<double> bbox, double ew_res, double ns_res, bool snap = false)
         : bbox_(bbox),
           ew_res_(ew_res),
           ns_res_(ns_res),
           max_row_(0),
           max_col_(0),
-          distance_per_cell_((ew_res + ns_res) / 2)
+          distance_per_cell_((ew_res + ns_res) / 2),
+          snap_(snap)
     {
         std::tie(max_row_, max_col_) = xy_to_row_col(bbox_.east, bbox_.south);
     }
@@ -342,14 +344,24 @@ public:
             if (next_node_id == node_id)
                 return std::make_tuple(row, col);
             auto segment = get_segment(node_id, next_node_id);
-            // nodes may need special handling
+            if (distance > segment.cost()) {
+                distance -= segment.cost();
+                continue;
+            }
+            else if (distance == segment.cost()) {
+                return *segment.end();
+            }
+            if (snap_) {
+                if (distance < segment.cost() / 2) {
+                    return *segment.begin();
+                }
+                return *segment.end();
+            }
+            // Advance over a segment.
             for (const auto& cell : segment) {
                 distance -= distance_per_cell_;
                 if (distance <= 0) {
                     return cell;
-                    // Given the while condition, this subsequently ends the while loop
-                    // as well.
-                    // break;
                 }
             }
             node_id = next_node_id;
@@ -502,10 +514,56 @@ protected:
      * code).
      */
     using NodeMatrix = std::map<NodeId, std::vector<NodeId>>;
+
     /** Cells connecting two nodes (segment between nodes) */
-    using Segment = std::vector<std::pair<RasterIndex, RasterIndex>>;
+    class Segment : public std::vector<std::pair<RasterIndex, RasterIndex>>
+    {
+    public:
+        explicit Segment(double distance_per_cell)
+            : distance_per_cell_(distance_per_cell)
+        {}
+
+        /** Get cost of the whole segment (edge). */
+        double cost() const
+        {
+            return this->size() * distance_per_cell_;
+        }
+
+    private:
+        double distance_per_cell_;
+    };
+
     /** Constant view of a segment (to iterate a segment in either direction) */
-    using SegmentView = ContainerView<Segment>;
+    class SegmentView : public ContainerView<Segment>
+    {
+    public:
+        SegmentView(
+            typename Segment::const_iterator first,
+            typename Segment::const_iterator last,
+            const Segment& segment)
+            : ContainerView<Segment>(first, last), segment_(segment)
+        {}
+        SegmentView(
+            typename Segment::const_reverse_iterator first,
+            typename Segment::const_reverse_iterator last,
+            const Segment& segment)
+            : ContainerView<Segment>(first, last), segment_(segment)
+        {}
+
+        /** Get cost of the whole underlying segment (edge).
+         *
+         * Notably, this function assumes that the view represents the whole segment,
+         * not just part of it.
+         */
+        double cost() const
+        {
+            return segment_.cost();
+        }
+
+    private:
+        const Segment& segment_;
+    };
+
     /** Segments by nodes (edges) */
     using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
 
@@ -579,7 +637,7 @@ protected:
             char in_cell_delimeter{';'};
             std::string x_coord_text;
             std::string y_coord_text;
-            Segment segment;
+            Segment segment(distance_per_cell_);
             while (std::getline(segment_stream, x_coord_text, in_cell_delimeter)
                    && std::getline(segment_stream, y_coord_text, in_cell_delimeter)) {
                 // The same cell is possibly repeated if raster resolution is lower than
@@ -626,11 +684,11 @@ protected:
     {
         auto it = segments_by_nodes_.find(std::make_pair(start, end));
         if (it != segments_by_nodes_.end()) {
-            return SegmentView(it->second.cbegin(), it->second.cend());
+            return SegmentView(it->second.cbegin(), it->second.cend(), item.second);
         }
         it = segments_by_nodes_.find(std::make_pair(end, start));
         if (it != segments_by_nodes_.end()) {
-            return SegmentView(it->second.crbegin(), it->second.crend());
+            return SegmentView(it->second.crbegin(), it->second.crend(), item.second);
         }
         throw std::invalid_argument(std::string(
             "No segment for given nodes: " + std::to_string(start) + " "
@@ -699,6 +757,7 @@ protected:
     RasterIndex max_row_;  ///< Maximum row index in the grid
     RasterIndex max_col_;  ///< Maximum column index in the grid
     double distance_per_cell_;  ///< Distance to travel through one cell (cost)
+    bool snap_ = false;
     /** Node IDs stored by row and column (multiple nodes per cell) */
     std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;
     NodeMatrix node_matrix_;  ///< List of node neighbors by node ID (edges)
