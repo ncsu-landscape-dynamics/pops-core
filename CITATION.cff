@@ -1,21 +1,19 @@
-cff-version: 1.0.3
-message: If you use this software, please cite it as below.
+cff-version: 1.1.0
+message: If you use this software, please cite it using instructions in the readme file.
 authors:
   - family-names: Petras
     given-names: Vaclav
     orcid: https://orcid.org/0000-0001-5566-9236
+  - family-names: Jones
+    given-names: Chris M.
+    orcid: https://orcid.org/0000-0002-0229-2970
+  - family-names: Lawrimore
+    given-names: Margaret A.
+    orcid: https://orcid.org/0000-0003-2266-3588
   - family-names: Petrasova
     given-names: Anna
-    website: https://petrasovaa.github.io/
-  - family-names: Chen
-    given-names: Zexi
-    website: https://www.linkedin.com/in/zexi-chen/
-  - family-names: Tonini
-    given-names: Francesco
-    website: http://www.francescotonini.com/
-title: r.spread.sod - SOD spread model implemented as GRASS GIS module
-version: 29074a1
-date-released: 2018-06-21
-url: https://grass.osgeo.org/grass74/manuals/addons/r.spread.sod.html
-repository-code: https://github.com/ncsu-landscape-dynamics/SOD-modeling-cpp
+    orcid: https://orcid.org/0000-0002-5120-5538
+date-released: 2021-12-02
+title: PoPS Core: C++ library for the Pest or Pathogen Spread Model 
+version: 2.0.0
 license: GPL-2.0-or-later
