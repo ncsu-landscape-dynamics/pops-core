@@ -339,6 +339,8 @@ public:
         std::set<NodeId> visited_nodes;
         while (distance >= 0) {
             auto next_node_id = next_node(node_id, visited_nodes, generator);
+            // Either we will return or we will be going through the node, so we can go
+            // ahead and mark it as visited.
             visited_nodes.insert(node_id);
             // If there is no segment from the node, return the start cell.
             if (next_node_id == node_id)
@@ -519,18 +521,27 @@ protected:
     class Segment : public std::vector<std::pair<RasterIndex, RasterIndex>>
     {
     public:
-        explicit Segment(double distance_per_cell)
-            : distance_per_cell_(distance_per_cell)
-        {}
-
         /** Get cost of the whole segment (edge). */
         double cost() const
         {
-            return this->size() * distance_per_cell_;
+            if (total_cost_)
+                return total_cost_;
+            return this->size() * cost_per_cell_;
+        }
+
+        double set_total_cost(double value)
+        {
+            total_cost_ = value;
+        }
+
+        double set_cost_per_cell(double value)
+        {
+            cost_per_cell_ = value;
         }
 
     private:
-        double distance_per_cell_;
+        double cost_per_cell_ = 0;
+        double total_cost_ = 0;
     };
 
     /** Constant view of a segment (to iterate a segment in either direction) */
@@ -603,6 +614,40 @@ protected:
     }
 
     /**
+     * @brief Convert string to cost
+     *
+     * @param text String with cost
+     * @return Cost as number
+     */
+    static double cost_from_text(const std::string& text)
+    {
+        try {
+            return std::stod(text);
+        }
+        catch (const std::invalid_argument& err) {
+            if (string_contains(text, '"') || string_contains(text, '\'')) {
+                throw std::invalid_argument(
+                    std::string("Text for cost cannot contain quotes "
+                                "(only digits are allowed): ")
+                    + text);
+            }
+            if (text.empty()) {
+                throw std::invalid_argument("Text for cost cannot be an empty string");
+            }
+            else {
+                throw std::invalid_argument(
+                    std::string("Text cannot be converted to cost "
+                                "(only digits are allowed): ")
+                    + text);
+            }
+        }
+        catch (const std::out_of_range& err) {
+            throw std::out_of_range(
+                std::string("Numerical value too large for cost: ") + text);
+        }
+    }
+
+    /**
      * @brief Read segments from a stream.
      *
      * @param stream Input stream with segments
@@ -631,13 +676,25 @@ protected:
                     std::string("Edge cannot begin and end with the same node: ")
                     + node_1_text + " " + node_2_text);
             }
+            Segment segment;
+
+            if (false /* no cost */) {
+                std::string cost_text;
+                std::getline(line_stream, cost_text, delimeter);
+                double cost = cost_from_text(cost_text);
+                segment.set_total_cost(cost);
+            }
+            else {
+                segment.set_distance_per_cell(distance_per_cell_);
+            }
+
             std::string segment_text;
             std::getline(line_stream, segment_text, delimeter);
             std::istringstream segment_stream{segment_text};
             char in_cell_delimeter{';'};
             std::string x_coord_text;
             std::string y_coord_text;
-            Segment segment(distance_per_cell_);
+
             while (std::getline(segment_stream, x_coord_text, in_cell_delimeter)
                    && std::getline(segment_stream, y_coord_text, in_cell_delimeter)) {
                 // The same cell is possibly repeated if raster resolution is lower than
@@ -660,12 +717,13 @@ protected:
         }
 
         for (const auto& node_segment : segments_by_nodes_) {
-            nodes_by_row_col_[node_segment.second.front()].insert(
-                node_segment.first.first);
-            nodes_by_row_col_[node_segment.second.back()].insert(
-                node_segment.first.second);
-            node_matrix_[node_segment.first.first].push_back(node_segment.first.second);
-            node_matrix_[node_segment.first.second].push_back(node_segment.first.first);
+            const auto& start_node_id{node_segment.first.first};
+            const auto& end_node_id{node_segment.first.second};
+            const auto& segment{node_segment.second};
+            nodes_by_row_col_[segment.front()].insert(start_node_id);
+            nodes_by_row_col_[segment.back()].insert(end_node_id);
+            node_matrix_[start_node_id].push_back(end_node_id);
+            node_matrix_[end_node_id].push_back(start_node_id);
         }
     }
 
