@@ -647,6 +647,33 @@ protected:
         }
     }
 
+    template<typename InputStream>
+    static bool stream_has_cost_column(InputStream& stream, char delimeter)
+    {
+        // Get header to determine what is included.
+        auto starting_position = stream.tellg();
+        std::string line;
+        std::getline(stream, line);
+        std::istringstream line_stream{line};
+        std::string label;
+        int column_number = 0;
+        while (std::getline(line_stream, label, delimeter)) {
+            column_number++;
+            if (column_number == 1 && label != "node_1") {
+                // The right label is not there. Assuming it is without a header.
+                stream.seekg(starting_position);
+                break;
+            }
+            if (label == "cost") {
+                if (column_number != 3) {
+                    std::runtime_error("The cost column must be the third column");
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * @brief Read segments from a stream.
      *
@@ -656,10 +683,12 @@ protected:
     template<typename InputStream>
     void load_segments(InputStream& stream)
     {
+        char delimeter{','};
+        bool has_cost = stream_has_cost_column(stream, delimeter);
+
         std::string line;
         while (std::getline(stream, line)) {
             std::istringstream line_stream{line};
-            char delimeter{','};
             std::string node_1_text;
             std::getline(line_stream, node_1_text, delimeter);
             std::string node_2_text;
@@ -678,7 +707,7 @@ protected:
             }
             Segment segment;
 
-            if (false /* no cost */) {
+            if (has_cost) {
                 std::string cost_text;
                 std::getline(line_stream, cost_text, delimeter);
                 double cost = cost_from_text(cost_text);
