@@ -157,6 +157,65 @@ int test_travel_network()
     return ret;
 }
 
+int test_cost_network()
+{
+    int ret = 0;
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1};
+    std::stringstream network_stream{
+        "node_1,node_2,cost,geometry\n"
+        "1,2,111.5,21.4;7.5;22.3;7.2\n"
+        "1,4,112.6,21.4;7.5;21.9;8.0;22.5;8.6\n"
+        "5,1,113.6,27.5;1.5;26.7;1.4;25.9;1.3;25.2;1.1;24.5;1.7;23.9;2.3;23.2;2.8;22.5;2.3;21.8;1.8;21.2;1.3;20.5;1.4;20.7;2.3;20.8;3.2;20.9;4.0;21.0;4.9;21.1;5.7;21.3;6.6;21.4;7.5\n"
+        "2,8,114.6,22.3;7.2;23.2;7.1;24.0;6.9;24.8;6.7;25.7;6.6;26.5;6.4\n"
+        "8,10,126.4,26.5;6.4;26.8;5.7;27.2;4.9;27.5;4.2;27.9;3.5;28.2;2.7\n"
+        "11,8,127.4,28.3;9.0;28.5;8.1;28.6;7.3;28.2;6.8;27.7;6.3;27.1;6.4;26.5;6.4\n"
+        "2,5,128.4,22.3;7.2;23.0;7.7;23.7;8.1;24.3;8.5;25.0;9.0;25.8;9.0;26.6;9.0;27.4;9.0;28.2;9.0;29.0;9.0;29.0;8.0;29.0;7.0;29.0;6.0;29.0;5.0;29.0;4.0;29.0;3.0;29.0;2.0;29.0;1.0;28.2;1.3;27.5;1.5\n"
+        "5,8,129.7,27.5;1.5;26.7;1.8;26.0;2.0;26.1;2.9;26.2;3.8;26.3;4.7;26.4;5.5;26.5;6.4\n"};
+    network.load(network_stream);
+
+    std::default_random_engine generator;
+    const int num_distances = 9;
+    int current_distance = 1;
+    std::array<int, num_distances> distances;
+    std::generate_n(distances.begin(), num_distances, [&current_distance] {
+        return ++current_distance;
+    });
+    std::array<std::pair<int, int>, num_distances> correct_destinations{
+        {{8, 7}, {8, 8}, {9, 9}, {8, 9}, {7, 9}, {6, 9}, {5, 9}, {4, 9}, {3, 9}}};
+    auto correct = correct_destinations.cbegin();
+    for (const auto distance : distances) {
+        generator.seed(42);
+        int start_row = 8;
+        int start_col = 7;
+        if (!network.has_node_at(start_row, start_col)) {
+            std::cerr << "Expected node at " << start_row << ", " << start_col << "\n";
+            ret += 1;
+        }
+        int end_row;
+        int end_col;
+        std::tie(end_row, end_col) =
+            network.travel(start_row, start_col, distance, generator);
+        if (correct->first != end_row || correct->second != end_col) {
+            std::cerr << "from (" << start_row << ", " << start_col << ") to ("
+                      << end_row << ", " << end_col << ") in " << distance
+                      << " but expected to arrive to (" << correct->first << ", "
+                      << correct->second << ")\n";
+            ret += 1;
+        }
+        ++correct;
+    }
+    if (ret) {
+        std::cout << "---\n";
+        network.dump_yaml(std::cout);
+    }
+    return ret;
+}
+
 int test_create_network()
 {
     int ret = 0;
@@ -469,6 +528,7 @@ int run_tests()
     ret += test_bbox_functions();
     ret += test_create_network();
     ret += test_travel_network();
+    ret += test_cost_network();
 
     if (ret)
         std::cerr << "Number of errors in the network test: " << ret << "\n";

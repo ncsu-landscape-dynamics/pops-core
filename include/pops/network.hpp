@@ -361,7 +361,7 @@ public:
             }
             // Advance over a segment.
             for (const auto& cell : segment) {
-                distance -= distance_per_cell_;
+                distance -= segment.cost_per_cell();
                 if (distance <= 0) {
                     return cell;
                 }
@@ -529,6 +529,14 @@ protected:
             return this->size() * cost_per_cell_;
         }
 
+        /** Get cost per cell for the underlying segment (edge). */
+        double cost_per_cell() const
+        {
+            if (total_cost_)
+                return total_cost_ / this->size();
+            return cost_per_cell_;
+        }
+
         void set_total_cost(double value)
         {
             total_cost_ = value;
@@ -569,6 +577,12 @@ protected:
         double cost() const
         {
             return segment_.cost();
+        }
+
+        /** Get cost per cell for the underlying segment (edge). */
+        double cost_per_cell() const
+        {
+            return segment_.cost_per_cell();
         }
 
     private:
@@ -666,7 +680,8 @@ protected:
             }
             if (label == "cost") {
                 if (column_number != 3) {
-                    std::runtime_error("The cost column must be the third column");
+                    throw std::runtime_error(
+                        "The cost column must be the third column");
                 }
                 return true;
             }
@@ -733,6 +748,16 @@ protected:
                 if (segment.empty() || segment.back() != new_point)
                     segment.emplace_back(new_point);
             }
+
+            if (segment.empty()) {
+                throw std::runtime_error(
+                    std::string("Row for an edge between nodes ") + node_1_text
+                    + " and " + node_2_text + " does not have any node coordinates");
+            }
+            // If the two nodes has the same coordinates (e.g., after computing the cell
+            // from the real-world coordinates, the segment geometry list contains only
+            // one pair, so size equal to one is considered correct.
+
             // If either node of the segment is not in the extent, skip the segment.
             // This means that a segment is ignored even if one of the nodes and
             // significant portion of the segment is in the area of iterest.
