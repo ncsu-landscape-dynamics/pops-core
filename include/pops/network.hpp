@@ -529,12 +529,12 @@ protected:
             return this->size() * cost_per_cell_;
         }
 
-        double set_total_cost(double value)
+        void set_total_cost(double value)
         {
             total_cost_ = value;
         }
 
-        double set_cost_per_cell(double value)
+        void set_cost_per_cell(double value)
         {
             cost_per_cell_ = value;
         }
@@ -685,7 +685,7 @@ protected:
                 segment.set_total_cost(cost);
             }
             else {
-                segment.set_distance_per_cell(distance_per_cell_);
+                segment.set_cost_per_cell(distance_per_cell_);
             }
 
             std::string segment_text;
