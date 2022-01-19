@@ -13,6 +13,9 @@ authors:
   - family-names: Petrasova
     given-names: Anna
     orcid: https://orcid.org/0000-0002-5120-5538
+  - family-names: Tonini
+    given-names: Francesco
+    orcid: https://orcid.org/0000-0003-4721-1297
 date-released: 2021-12-02
 title: PoPS Core: C++ library for the Pest or Pathogen Spread Model 
 version: 2.0.0
