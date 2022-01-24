@@ -531,14 +531,14 @@ protected:
         {
             if (total_cost_)
                 return total_cost_;
-            return this->size() * cost_per_cell_;
+            return (this->size() - 1) * cost_per_cell_;
         }
 
-        /** Get cost per cell for the underlying segment (edge). */
+        /** Get cost per cell for the segment (edge). */
         double cost_per_cell() const
         {
             if (total_cost_)
-                return total_cost_ / this->size();
+                return total_cost_ / (this->size() - 1);
             return cost_per_cell_;
         }
 
