@@ -339,13 +339,19 @@ public:
         std::set<NodeId> visited_nodes;
         while (distance >= 0) {
             auto next_node_id = next_node(node_id, visited_nodes, generator);
-            // Either we will return or we will be going through the node, so we can go
-            // ahead and mark it as visited.
+            // We have visited the current node (initial start node or end node from
+            // last iteration. (There is no need to tell next_node that the current node
+            // is visited, but we need to tell it the next time because it won't be
+            // current anymore.)
             visited_nodes.insert(node_id);
             // If there is no segment from the node, return the start cell.
             if (next_node_id == node_id)
                 return std::make_tuple(row, col);
             auto segment = get_segment(node_id, next_node_id);
+            // Set node ID for the next iteration.
+            node_id = next_node_id;
+
+            // nodes may need special handling
             if (distance > segment.cost()) {
                 distance -= segment.cost();
                 continue;
@@ -366,7 +372,6 @@ public:
                     return cell;
                 }
             }
-            node_id = next_node_id;
         }
         throw std::invalid_argument("Distance must be greater than or equal to zero");
     }
