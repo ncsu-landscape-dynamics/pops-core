@@ -282,6 +282,59 @@ int test_cost_network()
     return ret;
 }
 
+int test_step_network()
+{
+    int ret = 0;
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1, true};
+    std::stringstream network_stream{
+        "1,2,21;7;22;7\n"
+        "1,4,21;7;22;8\n"
+        "5,1,27;1;21;7\n"
+        "2,8,22;7;26;6\n"
+        "8,9,26;6;28;2\n"
+        "3,8,28;9;26;6\n"
+        "2,5,22;7;27;1\n"
+        "5,8,27;1;26;6\n"};
+    network.load(network_stream);
+
+    std::default_random_engine generator;
+    const int num_distances = 5;
+    std::array<std::tuple<int, int, int>, num_distances> destinations{
+        {{1, 4, 6}, {2, 3, 2}, {3, 9, 7}, {4, 4, 6}, {5, 1, 8}}};
+    for (const auto destination : destinations) {
+        generator.seed(42);
+        int start_row = 1;
+        int start_col = 8;
+        if (!network.has_node_at(start_row, start_col)) {
+            std::cerr << "Expected node at " << start_row << ", " << start_col << "\n";
+            ret += 1;
+            break;
+        }
+        int end_row;
+        int end_col;
+        std::tie(end_row, end_col) =
+            network.step(start_row, start_col, generator, std::get<0>(destination));
+        if (std::get<1>(destination) != end_row
+            || std::get<2>(destination) != end_col) {
+            std::cerr << "from (" << start_row << ", " << start_col << ") to ("
+                      << end_row << ", " << end_col << ") in "
+                      << std::get<0>(destination) << " but expected to arrive to ("
+                      << std::get<1>(destination) << ", " << std::get<2>(destination)
+                      << ")\n";
+            ret += 1;
+        }
+    }
+    if (ret) {
+        // network.dump_yaml(std::cout);
+    }
+    return ret;
+}
+
 int test_create_network()
 {
     int ret = 0;
@@ -608,6 +661,7 @@ int run_tests()
     ret += test_travel_network();
     ret += test_snap_network();
     ret += test_cost_network();
+    ret += test_step_network();
 
     if (ret)
         std::cerr << "Number of errors in the network test: " << ret << "\n";
