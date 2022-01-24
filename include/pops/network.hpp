@@ -374,6 +374,36 @@ public:
     }
 
     /**
+     * Step to a different node in the network from given row and column.
+     *
+     * Returns any node of the nodes connected to the start node possibly based on the
+     * edge probability if probability was assigned to the edges.
+     *
+     * If *num_steps* is greater than 1, multiple steps are perfomed and the last node
+     * is returned. In each node, the probability to picking a specific connection are
+     * either determined by the provided edge probabilities or are equal. Consequently,
+     * previously visited nodes can be visited again. In other words, for highly
+     * probable connections, most likely next step is a step back to the starting node
+     * (or generally previous node for `num_steps >= 3`).
+     *
+     * The function assumes a node is at the *row*, *col* coordinates , i.e., that this
+     * was either checked beforehand or otherwise ensured. If there is no node, an
+     * std::invalid_argument exception is thrown.
+     *
+     * @returns Destination row and column pair
+     */
+    template<typename Generator>
+    std::tuple<int, int> step(
+        RasterIndex row, RasterIndex col, Generator& generator, int num_steps = 1) const
+    {
+        auto node_id = get_random_node_at(row, col, generator);
+        for (int i = 0; i < num_steps; ++i) {
+            node_id = next_probable_node(node_id, generator);
+        }
+        return get_node_row_col(node_id);
+    }
+
+    /**
      * @brief Get all nodes as vector of all ids with their row and column.
      *
      * If there is more than one node at a given cell (row and column),
@@ -480,7 +510,7 @@ public:
         stream << "    distance_per_cell: " << distance_per_cell_ << "\n";
         std::set<std::pair<NodeId, NodeId>> edges;
         for (const auto& item : node_matrix_) {
-            for (const auto& node_id : item.second) {
+            for (const auto& node_id : item.second.second) {
                 edges.emplace(item.first, node_id);
             }
         }
@@ -517,7 +547,8 @@ protected:
      * Connection in both directions is stored explicitly (see load_segments() source
      * code).
      */
-    using NodeMatrix = std::map<NodeId, std::vector<NodeId>>;
+    using NodeMatrix =
+        std::map<NodeId, std::pair<std::vector<double>, std::vector<NodeId>>>;
     using Cell = std::pair<RasterIndex, RasterIndex>;
 
     /** Cells connecting two nodes (segment between nodes) */
@@ -571,9 +602,20 @@ protected:
             cost_per_cell_ = value;
         }
 
+        double probability() const
+        {
+            return probability_;
+        }
+
+        void set_probability(double value)
+        {
+            probability_ = value;
+        }
+
     private:
         double cost_per_cell_ = 0;
         double total_cost_ = 0;
+        double probability_ = 0;
     };
 
     /** Constant view of a segment (to iterate a segment in either direction)
@@ -665,6 +707,42 @@ protected:
     }
 
     /**
+     * @brief Convert string to probability
+     *
+     * @param text String with probability
+     * @return Probability as number
+     */
+    static double probability_from_text(const std::string& text)
+    {
+        try {
+            return std::stod(text);
+        }
+        catch (const std::invalid_argument& err) {
+            if (string_contains(text, '"') || string_contains(text, '\'')) {
+                throw std::invalid_argument(
+                    std::string("Text for connection probabilty cannot contain quotes "
+                                "(only digits are allowed): ")
+                    + text);
+            }
+            if (text.empty()) {
+                throw std::invalid_argument(
+                    "Text for connection probabilty cannot be an empty string");
+            }
+            else {
+                throw std::invalid_argument(
+                    std::string("Text cannot be converted to connection probabilty "
+                                "(only digits are allowed): ")
+                    + text);
+            }
+        }
+        catch (const std::out_of_range& err) {
+            throw std::out_of_range(
+                std::string("Numerical value too large for connection probabilty: ")
+                + text);
+        }
+    }
+
+    /**
      * @brief Convert string to cost
      *
      * @param text String with cost
@@ -699,8 +777,10 @@ protected:
     }
 
     template<typename InputStream>
-    static bool stream_has_cost_column(InputStream& stream, char delimeter)
+    static std::pair<bool, bool> stream_has_columns(InputStream& stream, char delimeter)
     {
+        bool has_cost{false};
+        bool has_probability{false};
         // Get header to determine what is included.
         auto starting_position = stream.tellg();
         std::string line;
@@ -715,15 +795,26 @@ protected:
                 stream.seekg(starting_position);
                 break;
             }
-            if (label == "cost") {
-                if (column_number != 3) {
-                    throw std::runtime_error(
-                        "The cost column must be the third column");
+            if (label == "probability") {
+                if (has_cost) {
+                    std::runtime_error(
+                        "The cost column must be after the probability column");
                 }
-                return true;
+                if (column_number != 3) {
+                    std::runtime_error(
+                        "The probability column must be the third column");
+                }
+                has_probability = true;
+            }
+            if (label == "cost") {
+                if (!(column_number == 3 || column_number == 4)) {
+                    std::runtime_error(
+                        "The cost column must be the third or fourth column");
+                }
+                has_cost = true;
             }
         }
-        return false;
+        return {has_cost, has_probability};
     }
 
     /**
@@ -736,7 +827,9 @@ protected:
     void load_segments(InputStream& stream)
     {
         char delimeter{','};
-        bool has_cost = stream_has_cost_column(stream, delimeter);
+        bool has_cost{false};
+        bool has_probability{false};
+        std::tie(has_cost, has_probability) = stream_has_columns(stream, delimeter);
 
         std::string line;
         while (std::getline(stream, line)) {
@@ -759,6 +852,12 @@ protected:
             }
             Segment segment;
 
+            if (has_probability) {
+                std::string probability_text;
+                std::getline(line_stream, probability_text, delimeter);
+                double connection_probability = probability_from_text(probability_text);
+                segment.set_probability(connection_probability);
+            }
             if (has_cost) {
                 std::string cost_text;
                 std::getline(line_stream, cost_text, delimeter);
@@ -826,8 +925,12 @@ protected:
             const auto& segment{node_segment.second};
             nodes_by_row_col_[segment.front()].insert(start_node_id);
             nodes_by_row_col_[segment.back()].insert(end_node_id);
-            node_matrix_[start_node_id].push_back(end_node_id);
-            node_matrix_[end_node_id].push_back(start_node_id);
+            if (has_probability) {
+                node_matrix_[start_node_id].first.push_back(segment.probability());
+                node_matrix_[end_node_id].first.push_back(segment.probability());
+            }
+            node_matrix_[start_node_id].second.push_back(end_node_id);
+            node_matrix_[end_node_id].second.push_back(start_node_id);
         }
     }
 
@@ -865,7 +968,7 @@ protected:
      */
     const std::vector<NodeId>& nodes_connected_to(NodeId node) const
     {
-        return node_matrix_.at(node);
+        return node_matrix_.at(node).second;
     }
 
     /**
@@ -910,6 +1013,39 @@ protected:
             return pick_random_item(all_nodes, generator);
         else if (num_nodes == 1)
             return nodes[0];
+        return pick_random_item(nodes, generator);
+    }
+
+    /**
+     * @brief Pick a probable node from the given node.
+     *
+     * If there is more than one edge leading from the given node, a random node is
+     * picked based on edge probabilities. If there are no probabilities assigned, a
+     * random node is picked. If there are no edges leading from the given node, the
+     * node itself is returned.
+     */
+    template<typename Generator>
+    NodeId next_probable_node(NodeId node, Generator& generator) const
+    {
+        // Get all candidate nodes.
+        const auto& record = node_matrix_.at(node);
+        const auto& probabilities = record.first;
+        const auto& nodes = record.second;
+
+        // Resolve disconnected node and dead end cases.
+        auto num_nodes = nodes.size();
+        if (!num_nodes)
+            return node;
+        else if (num_nodes == 1)
+            return nodes[0];
+
+        // Pick nodes based on edge probabilities if they are available.
+        if (!probabilities.empty()) {
+            std::discrete_distribution<int> dd{
+                probabilities.begin(), probabilities.end()};
+            return nodes.at(dd(generator));
+        }
+        // Pick a connected node with equal edge probabilities.
         return pick_random_item(nodes, generator);
     }
 
