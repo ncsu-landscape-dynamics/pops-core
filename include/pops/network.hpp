@@ -365,13 +365,9 @@ public:
                 }
                 return *segment.end();
             }
-            // Advance over a segment.
-            for (const auto& cell : segment) {
-                distance -= segment.cost_per_cell();
-                if (distance <= 0) {
-                    return cell;
-                }
-            }
+            // Advance in a segment.
+            auto index = std::lround(distance / segment.cost_per_cell());
+            return *(segment.begin() + index);
         }
         throw std::invalid_argument("Distance must be greater than or equal to zero");
     }
