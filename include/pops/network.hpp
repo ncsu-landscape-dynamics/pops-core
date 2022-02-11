@@ -287,7 +287,9 @@ public:
             return pick_random_item(nodes, generator);
         }
         else {
-            throw std::invalid_argument("No nodes at a given row and column");
+            throw std::invalid_argument(
+                "No nodes at a given row and column: " + std::to_string(row) + ", "
+                + std::to_string(col));
         }
     }
 
@@ -357,13 +359,13 @@ public:
                 continue;
             }
             else if (distance == segment.cost()) {
-                return *segment.end();
+                return *(--segment.end());
             }
             if (snap_) {
                 if (distance < segment.cost() / 2) {
                     return *segment.begin();
                 }
-                return *segment.end();
+                return *(--segment.end());
             }
             // Advance in a segment.
             auto index = std::lround(distance / segment.cost_per_cell());

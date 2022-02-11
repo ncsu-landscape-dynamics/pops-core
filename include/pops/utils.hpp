@@ -109,6 +109,14 @@ public:
             ++reverse_it_;
         return *this;
     }
+    ConstEitherWayIterator& operator--()
+    {
+        if (is_forward_)
+            --forward_it_;
+        else
+            --reverse_it_;
+        return *this;
+    }
     ConstEitherWayIterator operator+(typename Container::difference_type rhs)
     {
         if (is_forward_)
