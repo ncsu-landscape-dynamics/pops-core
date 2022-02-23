@@ -345,6 +345,18 @@ int convert_to(const std::string& text, int tag)
     return std::stoi(text);
 }
 
+/** Convert string to bool */
+int convert_to(const std::string& text, bool tag)
+{
+    UNUSED(tag);
+    if (text == "true" || text == "True" || text == "TRUE")
+        return true;
+    if (text == "false" || text == "false" || text == "FALSE")
+        return false;
+    throw std::invalid_argument(
+        std::string("Value conversion error: ") + text + " is not a boolean value");
+}
+
 /**
  * \brief A generic key-value configuration which can convert values to desired types.
  */
@@ -487,7 +499,7 @@ int create_network_from_files(int argc, char** argv)
     double nsres = config.get<double>("nsres");
     double ewres = config.get<double>("ewres");
 
-    Network<int> network(bbox, nsres, ewres);
+    Network<int> network(bbox, nsres, ewres, config.get("snap", false));
     network.load(network_stream);
 
     if (show_stats) {
