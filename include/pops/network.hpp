@@ -359,17 +359,17 @@ public:
                 continue;
             }
             else if (distance == segment.cost()) {
-                return *(--segment.end());
+                return segment.back();
             }
             if (snap_) {
                 if (distance < segment.cost() / 2) {
-                    return *segment.begin();
+                    return segment.front();
                 }
-                return *(--segment.end());
+                return segment.back();
             }
             // Advance in a segment.
             auto index = std::lround(distance / segment.cost_per_cell());
-            return *(segment.begin() + index);
+            return segment[index];
         }
         throw std::invalid_argument("Distance must be greater than or equal to zero");
     }

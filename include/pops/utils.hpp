@@ -165,6 +165,14 @@ public:
         typename Container::const_reverse_iterator last)
         : begin_(first), end_(last)
     {}
+    typename Container::const_reference front() const
+    {
+        return *(this->begin());
+    }
+    typename Container::const_reference back() const
+    {
+        return *(--(this->end()));
+    }
     ConstEitherWayIterator<Container> begin() const
     {
         return begin_;
@@ -172,6 +180,11 @@ public:
     ConstEitherWayIterator<Container> end() const
     {
         return end_;
+    }
+    typename Container::const_reference
+    operator[](typename Container::size_type pos) const
+    {
+        return *(this->begin() + pos);
     }
 
 private:
