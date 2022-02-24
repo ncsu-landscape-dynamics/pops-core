@@ -353,23 +353,22 @@ public:
             // Set node ID for the next iteration.
             node_id = next_node_id;
 
-            // nodes may need special handling
             if (distance > segment.cost()) {
+                // Go over the whole segment.
                 distance -= segment.cost();
                 continue;
             }
-            else if (distance == segment.cost()) {
-                return segment.back();
-            }
             if (snap_) {
                 if (distance < segment.cost() / 2) {
+                    // Less than half snaps to the start node.
                     return segment.front();
                 }
+                // Half or more snaps to the end node.
                 return segment.back();
             }
-            // Advance in a segment.
-            auto index = std::lround(distance / segment.cost_per_cell());
-            return segment[index];
+            // No snapping, advance in a segment.
+            // This includes the special cases when distance is 0 or total segment cost.
+            return segment.cell_by_cost(distance);
         }
         throw std::invalid_argument("Distance must be greater than or equal to zero");
     }
@@ -519,11 +518,25 @@ protected:
      * code).
      */
     using NodeMatrix = std::map<NodeId, std::vector<NodeId>>;
+    using Cell = std::pair<RasterIndex, RasterIndex>;
 
     /** Cells connecting two nodes (segment between nodes) */
-    class Segment : public std::vector<std::pair<RasterIndex, RasterIndex>>
+    class Segment : public std::vector<Cell>
     {
     public:
+        using typename std::vector<Cell>::const_reference;
+
+        /** Get cell by cost instead of an index */
+        const_reference cell_by_cost(double cost) const
+        {
+            // This is like
+            // index = (max_index / total_cost) * cost
+            // but cost_per_cell == total_cost / max_index, so
+            // index = 1 / (total_cost / max_index) * cost.
+            auto index = std::lround(cost / this->cost_per_cell());
+            return this->at(index);
+        }
+
         /** Get cost of the whole segment (edge). */
         double cost() const
         {
@@ -571,6 +584,11 @@ protected:
             const Segment& segment)
             : ContainerView<Segment>(first, last), segment_(segment)
         {}
+
+        typename Segment::const_reference cell_by_cost(double cost) const
+        {
+            return segment_.cell_by_cost(cost);
+        }
 
         /** Get cost of the whole underlying segment (edge).
          *
