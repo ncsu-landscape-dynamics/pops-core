@@ -525,16 +525,23 @@ protected:
     {
     public:
         using typename std::vector<Cell>::const_reference;
+        using typename std::vector<Cell>::size_type;
 
-        /** Get cell by cost instead of an index */
-        const_reference cell_by_cost(double cost) const
+        /** Get index from cost */
+        size_type index_from_cost(double cost) const
         {
             // This is like
             // index = (max_index / total_cost) * cost
             // but cost_per_cell == total_cost / max_index, so
             // index = 1 / (total_cost / max_index) * cost.
-            auto index = std::lround(cost / this->cost_per_cell());
-            return this->at(index);
+            return std::lround(cost / this->cost_per_cell());
+        }
+
+        /** Get cell by cost instead of an index */
+        const_reference cell_by_cost(double cost) const
+        {
+            auto index = this->index_from_cost(cost);
+            return this->operator[](index);
         }
 
         /** Get cost of the whole segment (edge). */
@@ -593,7 +600,8 @@ protected:
         /** Get cell by cost instead of an index */
         typename Segment::const_reference cell_by_cost(double cost) const
         {
-            auto index = std::lround(cost / segment_.cost_per_cell());
+            // The index is without a direction, so we can use it in reverse too.
+            auto index = segment_.index_from_cost(cost);
             return this->operator[](index);
         }
 
