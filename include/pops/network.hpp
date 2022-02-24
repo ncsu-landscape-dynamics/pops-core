@@ -568,7 +568,12 @@ protected:
         double total_cost_ = 0;
     };
 
-    /** Constant view of a segment (to iterate a segment in either direction) */
+    /** Constant view of a segment (to iterate a segment in either direction)
+     *
+     * Notably, the view uses iterators to flip the direction of the segment,
+     * but the total cost is still for the whole segment, i.e., this is not view of
+     * a part of the segment, but view of a potentially reversed segment.
+     */
     class SegmentView : public ContainerView<Segment>
     {
     public:
@@ -585,9 +590,11 @@ protected:
             : ContainerView<Segment>(first, last), segment_(segment)
         {}
 
+        /** Get cell by cost instead of an index */
         typename Segment::const_reference cell_by_cost(double cost) const
         {
-            return segment_.cell_by_cost(cost);
+            auto index = std::lround(cost / segment_.cost_per_cell());
+            return this->operator[](index);
         }
 
         /** Get cost of the whole underlying segment (edge).
