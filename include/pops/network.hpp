@@ -624,13 +624,13 @@ protected:
      */
     SegmentView get_segment(NodeId start, NodeId end) const
     {
-        for (const auto& item : segments_by_nodes_) {
-            const auto& key{item.first};
-            if (key.first == start && key.second == end)
-                return SegmentView(item.second.cbegin(), item.second.cend());
-            if (key.second == start && key.first == end) {
-                return SegmentView(item.second.crbegin(), item.second.crend());
-            }
+        auto it = segments_by_nodes_.find(std::make_pair(start, end));
+        if (it != segments_by_nodes_.end()) {
+            return SegmentView(it->second.cbegin(), it->second.cend());
+        }
+        it = segments_by_nodes_.find(std::make_pair(end, start));
+        if (it != segments_by_nodes_.end()) {
+            return SegmentView(it->second.crbegin(), it->second.crend());
         }
         throw std::invalid_argument(std::string(
             "No segment for given nodes: " + std::to_string(start) + " "
