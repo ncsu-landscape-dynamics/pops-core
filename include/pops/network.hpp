@@ -776,6 +776,7 @@ protected:
             std::string x_coord_text;
             std::string y_coord_text;
 
+            long int loaded_coord_pairs = 0;
             while (std::getline(segment_stream, x_coord_text, in_cell_delimeter)
                    && std::getline(segment_stream, y_coord_text, in_cell_delimeter)) {
                 // The same cell is possibly repeated if raster resolution is lower than
@@ -784,6 +785,7 @@ protected:
                 auto new_point = xy_to_row_col(x_coord_text, y_coord_text);
                 if (segment.empty() || segment.back() != new_point)
                     segment.emplace_back(new_point);
+                ++loaded_coord_pairs;
             }
 
             if (segment.empty()) {
@@ -791,9 +793,20 @@ protected:
                     std::string("Row for an edge between nodes ") + node_1_text
                     + " and " + node_2_text + " does not have any node coordinates");
             }
+            if (loaded_coord_pairs < 2) {
+                throw std::runtime_error(
+                    std::string("Row for an edge between nodes ") + node_1_text
+                    + " and " + node_2_text + " has only 1 coordinate pair "
+                    + "(at least two are needed, one for each node), "
+                    + "the one coordinate pair was: " + x_coord_text + ", "
+                    + y_coord_text);
+            }
             // If the two nodes has the same coordinates (e.g., after computing the cell
             // from the real-world coordinates, the segment geometry list contains only
             // one pair, so size equal to one is considered correct.
+            // However, we need put back the missing coordinates for the second node.
+            if (segment.size() == 1)
+                segment.push_back(typename Segment::value_type(segment.back()));
 
             // If either node of the segment is not in the extent, skip the segment.
             // This means that a segment is ignored even if one of the nodes and
