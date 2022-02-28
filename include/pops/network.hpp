@@ -602,11 +602,13 @@ protected:
             cost_per_cell_ = value;
         }
 
+        /** Get probability of an edge */
         double probability() const
         {
             return probability_;
         }
 
+        /** Set probability of an edge */
         void set_probability(double value)
         {
             probability_ = value;
