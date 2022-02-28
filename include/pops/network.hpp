@@ -549,6 +549,7 @@ protected:
         {
             if (total_cost_)
                 return total_cost_;
+            // This is short for ((size - 2) + (2 * 1/2)) * cost per cell.
             return (this->size() - 1) * cost_per_cell_;
         }
 
