@@ -846,11 +846,11 @@ protected:
     {
         auto it = segments_by_nodes_.find(std::make_pair(start, end));
         if (it != segments_by_nodes_.end()) {
-            return SegmentView(it->second.cbegin(), it->second.cend(), item.second);
+            return SegmentView(it->second.cbegin(), it->second.cend(), it->second);
         }
         it = segments_by_nodes_.find(std::make_pair(end, start));
         if (it != segments_by_nodes_.end()) {
-            return SegmentView(it->second.crbegin(), it->second.crend(), item.second);
+            return SegmentView(it->second.crbegin(), it->second.crend(), it->second);
         }
         throw std::invalid_argument(std::string(
             "No segment for given nodes: " + std::to_string(start) + " "
