@@ -230,13 +230,15 @@ public:
             if (survival_rate(i, j) < 1) {
                 int removed = 0;
                 // remove percentage of infestation/infection in the infected class
-                int removed_infected = infected(i, j) - infected(i, j) * survival_rate(i, j);
+                int removed_infected =
+                    infected(i, j) - infected(i, j) * survival_rate(i, j);
                 infected(i, j) -= removed_infected;
                 removed += removed_infected;
                 // remove the same percentage in each exposed cohort
                 int total_removed_exposed = 0;
                 for (auto& raster : exposed) {
-                    int removed_exposed = raster(i, j) - raster(i, j) * survival_rate(i, j);
+                    int removed_exposed =
+                        raster(i, j) - raster(i, j) * survival_rate(i, j);
                     raster(i, j) -= removed_exposed;
                     total_removed_exposed += removed_exposed;
                     removed += removed_exposed;
