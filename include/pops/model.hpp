@@ -189,6 +189,7 @@ public:
         std::vector<IntegerRaster>& mortality_tracker,
         IntegerRaster& died,
         const std::vector<FloatRaster>& temperatures,
+        const std::vector<FloatRaster>& survival_rates,
         const FloatRaster& weather_coefficient,
         Treatments<IntegerRaster, FloatRaster>& treatments,
         IntegerRaster& resistant,
@@ -210,6 +211,18 @@ public:
                 susceptible,
                 temperatures[lethal_step],
                 config_.lethal_temperature,
+                suitable_cells);
+        }
+        // removal of percentage of dispersers
+        if (config_.use_survival_rate && config_.survival_rate_schedule()[step]) {
+            int survival_step =
+                simulation_step_to_action_step(config_.survival_rate_schedule(), step);
+            simulation_.remove_percentage(
+                infected,
+                susceptible,
+                exposed,
+                total_exposed,
+                survival_rates[survival_step],
                 suitable_cells);
         }
         // actual spread

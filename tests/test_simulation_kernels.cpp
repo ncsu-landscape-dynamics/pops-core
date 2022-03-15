@@ -248,6 +248,7 @@ int test_simulation_with_kernels_generic(
     config.model_type = "SI";
     config.latency_period_steps = 3;
     config.use_lethal_temperature = false;
+    config.use_survival_rate = false;
     config.use_quarantine = false;
     config.use_spreadrates = true;
     config.spreadrate_frequency = "year";
@@ -355,6 +356,7 @@ int test_model_with_kernels_generic(
     config.model_type = "SI";
     config.latency_period_steps = 3;
     config.use_lethal_temperature = false;
+    config.use_survival_rate = false;
     config.use_quarantine = false;
     config.use_spreadrates = true;
     config.spreadrate_frequency = "year";
@@ -431,6 +433,7 @@ int test_model_with_kernels_generic(
             empty_integer,
             mortality_tracker,
             died,
+            empty_float,
             empty_float,
             empty_float[0],
             treatments,

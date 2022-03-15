@@ -207,6 +207,47 @@ public:
         }
     }
 
+    /** Removes percentage of exposed and infected
+     *
+     * @param infected Currently infected hosts
+     * @param susceptible Currently susceptible hosts
+     * @param exposed Exposed hosts per cohort
+     * @param total_exposed Total exposed in all exposed cohorts
+     * @param survival_rate Raster between 0 and 1 representing pest survival rate
+     * @param suitable_cells used to run model only where host are known to occur
+     */
+    void remove_percentage(
+        IntegerRaster& infected,
+        IntegerRaster& susceptible,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& total_exposed,
+        const FloatRaster& survival_rate,
+        const std::vector<std::vector<int>>& suitable_cells)
+    {
+        for (auto indices : suitable_cells) {
+            int i = indices[0];
+            int j = indices[1];
+            if (survival_rate(i, j) < 1) {
+                int removed = 0;
+                // remove percentage of infestation/infection in the infected class
+                int removed_infected = infected(i, j) - infected(i, j) * survival_rate(i, j);
+                infected(i, j) -= removed_infected;
+                removed += removed_infected;
+                // remove the same percentage in each exposed cohort
+                int total_removed_exposed = 0;
+                for (auto& raster : exposed) {
+                    int removed_exposed = raster(i, j) - raster(i, j) * survival_rate(i, j);
+                    raster(i, j) -= removed_exposed;
+                    total_removed_exposed += removed_exposed;
+                    removed += removed_exposed;
+                }
+                total_exposed(i, j) -= total_removed_exposed;
+                // move infested/infected host back to susceptible pool
+                susceptible(i, j) += removed;
+            }
+        }
+    }
+
     /** kills infected hosts based on mortality rate and timing. In the last year
      * of mortality tracking the first index all remaining tracked infected hosts
      * are removed. In indexes that are in the mortality_time_lag no mortality occurs.
