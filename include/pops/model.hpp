@@ -220,6 +220,7 @@ public:
             simulation_.remove_percentage(
                 infected,
                 susceptible,
+                mortality_tracker,
                 exposed,
                 total_exposed,
                 survival_rates[survival_step],
