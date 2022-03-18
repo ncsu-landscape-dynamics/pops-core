@@ -57,6 +57,7 @@ public:
     // survival rate
     bool use_survival_rate{false};
     int survival_rate_month{0};
+    int survival_rate_day{0};
     // SI/SEI
     std::string model_type;
     int latency_period_steps;
@@ -114,8 +115,8 @@ public:
             lethal_schedule_ =
                 scheduler_.schedule_action_yearly(lethal_temperature_month, 1);
         if (use_survival_rate)
-            survival_rate_schedule_ =
-                scheduler_.schedule_action_yearly(survival_rate_month, 1);
+            survival_rate_schedule_ = scheduler_.schedule_action_yearly(
+                survival_rate_month, survival_rate_day);
         if (use_spreadrates)
             spread_rate_schedule_ = schedule_from_string(
                 scheduler_, spreadrate_frequency, spreadrate_frequency_n);
