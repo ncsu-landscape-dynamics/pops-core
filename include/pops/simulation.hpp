@@ -258,27 +258,35 @@ public:
                 int removed = 0;
                 // remove percentage of infestation/infection in the infected class
                 int removed_infected =
-                    infected(i, j) - infected(i, j) * survival_rate(i, j);
+                    infected(i, j) - std::lround(infected(i, j) * survival_rate(i, j));
                 infected(i, j) -= removed_infected;
                 removed += removed_infected;
                 // remove the removed infected from mortality cohorts
-                std::vector<int> mortality_draw = draw_n_from_cohorts(
-                    mortality_tracker_vector, removed_infected, i, j, generator_);
-                int index = 0;
-                for (auto& raster : mortality_tracker_vector) {
-                    raster(i, j) -= mortality_draw[index];
-                    index += 1;
+                if (removed_infected > 0) {
+                    std::vector<int> mortality_draw = draw_n_from_cohorts(
+                        mortality_tracker_vector, removed_infected, i, j, generator_);
+                    int index = 0;
+                    for (auto& raster : mortality_tracker_vector) {
+                        raster(i, j) -= mortality_draw[index];
+                        index += 1;
+                    }
                 }
-                // remove the same percentage in each exposed cohort
-                int total_removed_exposed = 0;
-                for (auto& raster : exposed) {
-                    int removed_exposed =
-                        raster(i, j) - raster(i, j) * survival_rate(i, j);
-                    raster(i, j) -= removed_exposed;
-                    total_removed_exposed += removed_exposed;
-                    removed += removed_exposed;
-                }
+                // remove the same percentage for total exposed and remove randomly from
+                // each cohort
+                int total_removed_exposed =
+                    total_exposed(i, j)
+                    - std::lround(total_exposed(i, j) * survival_rate(i, j));
                 total_exposed(i, j) -= total_removed_exposed;
+                removed += total_removed_exposed;
+                if (total_removed_exposed > 0) {
+                    std::vector<int> exposed_draw = draw_n_from_cohorts(
+                        exposed, total_removed_exposed, i, j, generator_);
+                    int index = 0;
+                    for (auto& raster : exposed) {
+                        raster(i, j) -= exposed_draw[index];
+                        index += 1;
+                    }
+                }
                 // move infested/infected host back to susceptible pool
                 susceptible(i, j) += removed;
             }
