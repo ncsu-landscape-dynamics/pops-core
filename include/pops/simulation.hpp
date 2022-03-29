@@ -451,8 +451,6 @@ public:
                     generator_);
                 int index = 0;
                 for (auto& raster : mortality_tracker_vector) {
-                    std::cout << mortality_draw[index] << std::endl;
-                    std::cout << raster(row_from, col_from) << std::endl;
                     raster(row_from, col_from) -= mortality_draw[index];
                     raster(row_to, col_to) += mortality_draw[index];
                     index += 1;
