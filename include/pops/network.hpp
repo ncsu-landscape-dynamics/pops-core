@@ -64,27 +64,17 @@ public:
         return (this->size() - 1) * cost_per_cell_;
     }
 
+    void set_total_cost(double value)
+    {
+        total_cost_ = value;
+    }
+
     /** Get cost per cell for the segment (edge). */
     double cost_per_cell() const
     {
         if (total_cost_)
             return total_cost_ / (this->size() - 1);
         return cost_per_cell_;
-    }
-
-    void set_total_cost(double value)
-    {
-        total_cost_ = value;
-    }
-
-    void set_cost_per_cell(double value)
-    {
-        cost_per_cell_ = value;
-    }
-
-    void set_total_cost(double value)
-    {
-        total_cost_ = value;
     }
 
     void set_cost_per_cell(double value)
@@ -686,7 +676,6 @@ protected:
      */
     using NodeMatrix =
         std::map<NodeId, std::pair<std::vector<double>, std::vector<NodeId>>>;
-    using Cell = std::pair<RasterIndex, RasterIndex>;
 
     /** Smallest component of edge geometry */
     using Cell = std::pair<RasterIndex, RasterIndex>;
