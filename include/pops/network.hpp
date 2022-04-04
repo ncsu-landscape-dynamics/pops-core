@@ -192,6 +192,12 @@ public:
      * representation of the edge (here called a segment). Node coordinates are taken
      * from the first and last coordinate pair in the segment.
      *
+     * Optionally, a header can be provided in the CSV which can specify additional
+     * input format variations. The default format described above has either no header
+     * or `node_1,node_2,geometry`. To specify cost for each edge, an additional cost
+     * column is needed and needs to be placed after the node columns and before the
+     * geometry column, i.e., the header will look like `node_1,node_2,cost,geometry`.
+     *
      * The function can take any input stream which behaves like std::ifstream or
      * std::istringstream. These are also the two expected streams to be used
      * (for reading from a file and reading from a string, respectively).
