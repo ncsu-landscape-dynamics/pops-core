@@ -82,33 +82,32 @@ public:
         cost_per_cell_ = value;
     }
 
-        void set_total_cost(double value)
-        {
-            total_cost_ = value;
-        }
+    void set_total_cost(double value)
+    {
+        total_cost_ = value;
+    }
 
-        void set_cost_per_cell(double value)
-        {
-            cost_per_cell_ = value;
-        }
+    void set_cost_per_cell(double value)
+    {
+        cost_per_cell_ = value;
+    }
 
-        /** Get probability of an edge */
-        double probability() const
-        {
-            return probability_;
-        }
+    /** Get probability of an edge */
+    double probability() const
+    {
+        return probability_;
+    }
 
-        /** Set probability of an edge */
-        void set_probability(double value)
-        {
-            probability_ = value;
-        }
+    /** Set probability of an edge */
+    void set_probability(double value)
+    {
+        probability_ = value;
+    }
 
-    private:
-        double cost_per_cell_ = 0;
-        double total_cost_ = 0;
-        double probability_ = 0;
-
+private:
+    double cost_per_cell_ = 0;
+    double total_cost_ = 0;
+    double probability_ = 0;
 };
 
 /** Constant view of a edge geometry (to iterate a segment in either direction)
