@@ -59,6 +59,7 @@ int test_with_reduced_stochasticity()
     config.model_type = "SI";
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
+    config.use_survival_rate = false;
     config.use_quarantine = true;
     config.quarantine_frequency = "year";
     config.quarantine_frequency_n = 1;
@@ -124,6 +125,7 @@ int test_with_reduced_stochasticity()
         empty_integer,
         mortality_tracker,
         died,
+        empty_float,
         empty_float,
         empty_float[0],
         treatments,
@@ -212,6 +214,7 @@ int test_deterministic()
     config.model_type = "SI";
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
+    config.use_survival_rate = false;
     config.use_quarantine = false;
     config.use_spreadrates = true;
     config.spreadrate_frequency = "year";
@@ -264,6 +267,7 @@ int test_deterministic()
         empty_integer,
         mortality_tracker,
         died,
+        empty_float,
         empty_float,
         empty_float[0],
         treatments,
@@ -351,6 +355,7 @@ int test_deterministic_exponential()
     config.model_type = "SI";
     config.latency_period_steps = 0;
     config.use_lethal_temperature = false;
+    config.use_survival_rate = false;
     config.use_quarantine = false;
     config.use_spreadrates = true;
     config.spreadrate_frequency = "year";
@@ -404,6 +409,7 @@ int test_deterministic_exponential()
         empty_integer,
         mortality_tracker,
         died,
+        empty_float,
         empty_float,
         empty_float[0],
         treatments,
@@ -487,6 +493,7 @@ int test_model_sei_deterministic()
     config.model_type = "SEI";
     config.latency_period_steps = 11;
     config.use_lethal_temperature = false;
+    config.use_survival_rate = false;
     config.use_quarantine = false;
     config.use_spreadrates = true;
     config.spreadrate_frequency = "year";
@@ -549,6 +556,7 @@ int test_model_sei_deterministic()
             exposed,
             mortality_tracker,
             died,
+            empty_float,
             empty_float,
             empty_float[0],
             treatments,
@@ -627,6 +635,7 @@ int test_model_sei_deterministic_with_treatments()
     config.model_type = "SEI";
     config.latency_period_steps = 11;
     config.use_lethal_temperature = false;
+    config.use_survival_rate = false;
     config.use_quarantine = false;
     config.use_spreadrates = true;
     config.spreadrate_frequency = "year";
@@ -707,6 +716,7 @@ int test_model_sei_deterministic_with_treatments()
             exposed,
             mortality_tracker,
             died,
+            empty_float,
             empty_float,
             empty_float[0],
             treatments,

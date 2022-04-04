@@ -148,6 +148,7 @@ int test_model()
         empty_ints,
         zeros,
         empty_floats,
+        empty_floats,
         empty_floats[0],
         treatments,
         zeros,

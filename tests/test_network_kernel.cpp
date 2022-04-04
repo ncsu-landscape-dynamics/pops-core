@@ -128,6 +128,7 @@ int test_model_with_network()
             empty_ints,
             zeros,
             empty_floats,
+            empty_floats,
             empty_floats[0],
             treatments,
             zeros,
