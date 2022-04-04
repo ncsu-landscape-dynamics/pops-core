@@ -73,6 +73,7 @@ public:
     std::string anthro_direction;
     double network_min_distance{0};
     double network_max_distance{0};
+    bool network_snap{false};  ///< Snap resulting location to closest node in network
     double anthro_kappa{0};
     double shape{1.0};
     // Treatments
