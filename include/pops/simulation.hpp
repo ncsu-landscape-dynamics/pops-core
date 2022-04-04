@@ -55,6 +55,31 @@ std::vector<int> draw_n_from_v(std::vector<int> v, unsigned n, Generator& genera
     return v;
 }
 
+/** Draws n elements from a cohort of rasters. Expects n to be equal or less than
+ *  sum of cohorts at cell (i, j).
+ */
+template<typename Generator, typename IntegerRaster, typename RasterIndex = int>
+std::vector<int> draw_n_from_cohorts(
+    std::vector<IntegerRaster>& cohorts,
+    int n,
+    RasterIndex row,
+    RasterIndex col,
+    Generator& generator)
+{
+    std::vector<int> categories;
+    unsigned index = 0;
+    for (auto& raster : cohorts) {
+        categories.insert(categories.end(), raster(row, col), index);
+        index += 1;
+    }
+    std::vector<int> draw = draw_n_from_v(categories, n, generator);
+    std::vector<int> cohort_counts;
+    for (index = 0; index < cohorts.size(); index++) {
+        cohort_counts.push_back(std::count(draw.begin(), draw.end(), index));
+    }
+    return cohort_counts;
+}
+
 /** The type of a epidemiological model (SI or SEI)
  */
 enum class ModelType
@@ -207,6 +232,67 @@ public:
         }
     }
 
+    /** Removes percentage of exposed and infected
+     *
+     * @param infected Currently infected hosts
+     * @param susceptible Currently susceptible hosts
+     * @param mortality_tracker_vector Hosts that are infected at a specific time step
+     * @param exposed Exposed hosts per cohort
+     * @param total_exposed Total exposed in all exposed cohorts
+     * @param survival_rate Raster between 0 and 1 representing pest survival rate
+     * @param suitable_cells used to run model only where host are known to occur
+     */
+    void remove_percentage(
+        IntegerRaster& infected,
+        IntegerRaster& susceptible,
+        std::vector<IntegerRaster>& mortality_tracker_vector,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& total_exposed,
+        const FloatRaster& survival_rate,
+        const std::vector<std::vector<int>>& suitable_cells)
+    {
+        for (auto indices : suitable_cells) {
+            int i = indices[0];
+            int j = indices[1];
+            if (survival_rate(i, j) < 1) {
+                int removed = 0;
+                // remove percentage of infestation/infection in the infected class
+                int removed_infected =
+                    infected(i, j) - std::lround(infected(i, j) * survival_rate(i, j));
+                infected(i, j) -= removed_infected;
+                removed += removed_infected;
+                // remove the removed infected from mortality cohorts
+                if (removed_infected > 0) {
+                    std::vector<int> mortality_draw = draw_n_from_cohorts(
+                        mortality_tracker_vector, removed_infected, i, j, generator_);
+                    int index = 0;
+                    for (auto& raster : mortality_tracker_vector) {
+                        raster(i, j) -= mortality_draw[index];
+                        index += 1;
+                    }
+                }
+                // remove the same percentage for total exposed and remove randomly from
+                // each cohort
+                int total_removed_exposed =
+                    total_exposed(i, j)
+                    - std::lround(total_exposed(i, j) * survival_rate(i, j));
+                total_exposed(i, j) -= total_removed_exposed;
+                removed += total_removed_exposed;
+                if (total_removed_exposed > 0) {
+                    std::vector<int> exposed_draw = draw_n_from_cohorts(
+                        exposed, total_removed_exposed, i, j, generator_);
+                    int index = 0;
+                    for (auto& raster : exposed) {
+                        raster(i, j) -= exposed_draw[index];
+                        index += 1;
+                    }
+                }
+                // move infested/infected host back to susceptible pool
+                susceptible(i, j) += removed;
+            }
+        }
+    }
+
     /** kills infected hosts based on mortality rate and timing. In the last year
      * of mortality tracking the first index all remaining tracked infected hosts
      * are removed. In indexes that are in the mortality_time_lag no mortality occurs.
@@ -347,43 +433,26 @@ public:
             resistant_moved = std::count(draw.begin(), draw.end(), 4);
 
             if (exposed_moved > 0) {
+                std::vector<int> exposed_draw = draw_n_from_cohorts(
+                    exposed, exposed_moved, row_from, col_from, generator_);
                 int index = 0;
                 for (auto& raster : exposed) {
-                    auto exposed_count = raster(row_from, col_from);
-                    exposed_categories.insert(
-                        exposed_categories.end(), exposed_count, index);
-
-                    index += 1;
-                }
-                std::vector<int> exposed_draw =
-                    draw_n_from_v(exposed_categories, exposed_moved, generator_);
-                index = 0;
-                for (auto& raster : exposed) {
-                    auto exposed_moved_in_cohort =
-                        std::count(exposed_draw.begin(), exposed_draw.end(), index);
-                    raster(row_from, col_from) -= exposed_moved_in_cohort;
-                    raster(row_to, col_to) += exposed_moved_in_cohort;
+                    raster(row_from, col_from) -= exposed_draw[index];
+                    raster(row_to, col_to) += exposed_draw[index];
                     index += 1;
                 }
             }
-
             if (infected_moved > 0) {
-                std::vector<int> mortality_categories;
+                std::vector<int> mortality_draw = draw_n_from_cohorts(
+                    mortality_tracker_vector,
+                    infected_moved,
+                    row_from,
+                    col_from,
+                    generator_);
                 int index = 0;
                 for (auto& raster : mortality_tracker_vector) {
-                    auto mortality_count = raster(row_from, col_from);
-                    mortality_categories.insert(
-                        mortality_categories.end(), mortality_count, index);
-                    index += 1;
-                }
-                std::vector<int> mortality_draw =
-                    draw_n_from_v(mortality_categories, infected_moved, generator_);
-                index = 0;
-                for (auto& raster : mortality_tracker_vector) {
-                    auto mortality_moved_in_cohort =
-                        std::count(mortality_draw.begin(), mortality_draw.end(), index);
-                    raster(row_from, col_from) -= mortality_moved_in_cohort;
-                    raster(row_to, col_to) += mortality_moved_in_cohort;
+                    raster(row_from, col_from) -= mortality_draw[index];
+                    raster(row_to, col_to) += mortality_draw[index];
                     index += 1;
                 }
             }

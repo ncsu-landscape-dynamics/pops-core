@@ -30,6 +30,138 @@
 
 namespace pops {
 
+/** Edge geometry, i.e., cells connecting two nodes (aka segment) */
+template<typename RasterCell>
+class EdgeGeometry : public std::vector<RasterCell>
+{
+public:
+    using typename std::vector<RasterCell>::const_reference;
+    using typename std::vector<RasterCell>::size_type;
+
+    /** Get index from cost */
+    size_type index_from_cost(double cost) const
+    {
+        // This is like
+        // index = (max_index / total_cost) * cost
+        // but cost_per_cell == total_cost / max_index, so
+        // index = 1 / (total_cost / max_index) * cost.
+        return std::lround(cost / this->cost_per_cell());
+    }
+
+    /** Get cell by cost instead of an index */
+    const_reference cell_by_cost(double cost) const
+    {
+        auto index = this->index_from_cost(cost);
+        return this->operator[](index);
+    }
+
+    /** Get cost of the whole segment (edge). */
+    double cost() const
+    {
+        if (total_cost_)
+            return total_cost_;
+        // This is short for ((size - 2) + (2 * 1/2)) * cost per cell.
+        return (this->size() - 1) * cost_per_cell_;
+    }
+
+    /** Get cost per cell for the segment (edge). */
+    double cost_per_cell() const
+    {
+        if (total_cost_)
+            return total_cost_ / (this->size() - 1);
+        return cost_per_cell_;
+    }
+
+    void set_total_cost(double value)
+    {
+        total_cost_ = value;
+    }
+
+    void set_cost_per_cell(double value)
+    {
+        cost_per_cell_ = value;
+    }
+
+        void set_total_cost(double value)
+        {
+            total_cost_ = value;
+        }
+
+        void set_cost_per_cell(double value)
+        {
+            cost_per_cell_ = value;
+        }
+
+        /** Get probability of an edge */
+        double probability() const
+        {
+            return probability_;
+        }
+
+        /** Set probability of an edge */
+        void set_probability(double value)
+        {
+            probability_ = value;
+        }
+
+    private:
+        double cost_per_cell_ = 0;
+        double total_cost_ = 0;
+        double probability_ = 0;
+
+};
+
+/** Constant view of a edge geometry (to iterate a segment in either direction)
+ *
+ * Notably, the view uses iterators to flip the direction of the geometry,
+ * but the total cost is still for the whole geometry, i.e., this is not view of
+ * a part of the geometry, but view of a potentially reversed geometry.
+ */
+template<typename EdgeGeomertyType>
+class EdgeGeometryView : public ContainerView<EdgeGeomertyType>
+{
+public:
+    EdgeGeometryView(
+        typename EdgeGeomertyType::const_iterator first,
+        typename EdgeGeomertyType::const_iterator last,
+        const EdgeGeomertyType& segment)
+        : ContainerView<EdgeGeomertyType>(first, last), segment_(segment)
+    {}
+    EdgeGeometryView(
+        typename EdgeGeomertyType::const_reverse_iterator first,
+        typename EdgeGeomertyType::const_reverse_iterator last,
+        const EdgeGeomertyType& segment)
+        : ContainerView<EdgeGeomertyType>(first, last), segment_(segment)
+    {}
+
+    /** Get cell by cost instead of an index */
+    typename EdgeGeomertyType::const_reference cell_by_cost(double cost) const
+    {
+        // The index is without a direction, so we can use it in reverse too.
+        auto index = segment_.index_from_cost(cost);
+        return this->operator[](index);
+    }
+
+    /** Get cost of the whole underlying segment (edge).
+     *
+     * Notably, this function assumes that the view represents the whole segment,
+     * not just part of it.
+     */
+    double cost() const
+    {
+        return segment_.cost();
+    }
+
+    /** Get cost per cell for the underlying segment (edge). */
+    double cost_per_cell() const
+    {
+        return segment_.cost_per_cell();
+    }
+
+private:
+    const EdgeGeomertyType& segment_;
+};
+
 /**
  * Network structure and algorithms
  *
@@ -191,6 +323,12 @@ public:
      * Each line represents an edge (pair of connected nodes) and the spatial
      * representation of the edge (here called a segment). Node coordinates are taken
      * from the first and last coordinate pair in the segment.
+     *
+     * Optionally, a header can be provided in the CSV which can specify additional
+     * input format variations. The default format described above has either no header
+     * or `node_1,node_2,geometry`. To specify cost for each edge, an additional cost
+     * column is needed and needs to be placed after the node columns and before the
+     * geometry column, i.e., the header will look like `node_1,node_2,cost,geometry`.
      *
      * The function can take any input stream which behaves like std::ifstream or
      * std::istringstream. These are also the two expected streams to be used
@@ -551,124 +689,14 @@ protected:
         std::map<NodeId, std::pair<std::vector<double>, std::vector<NodeId>>>;
     using Cell = std::pair<RasterIndex, RasterIndex>;
 
+    /** Smallest component of edge geometry */
+    using Cell = std::pair<RasterIndex, RasterIndex>;
+
     /** Cells connecting two nodes (segment between nodes) */
-    class Segment : public std::vector<Cell>
-    {
-    public:
-        using typename std::vector<Cell>::const_reference;
-        using typename std::vector<Cell>::size_type;
+    using Segment = EdgeGeometry<Cell>;
 
-        /** Get index from cost */
-        size_type index_from_cost(double cost) const
-        {
-            // This is like
-            // index = (max_index / total_cost) * cost
-            // but cost_per_cell == total_cost / max_index, so
-            // index = 1 / (total_cost / max_index) * cost.
-            return std::lround(cost / this->cost_per_cell());
-        }
-
-        /** Get cell by cost instead of an index */
-        const_reference cell_by_cost(double cost) const
-        {
-            auto index = this->index_from_cost(cost);
-            return this->operator[](index);
-        }
-
-        /** Get cost of the whole segment (edge). */
-        double cost() const
-        {
-            if (total_cost_)
-                return total_cost_;
-            // This is short for ((size - 2) + (2 * 1/2)) * cost per cell.
-            return (this->size() - 1) * cost_per_cell_;
-        }
-
-        /** Get cost per cell for the segment (edge). */
-        double cost_per_cell() const
-        {
-            if (total_cost_)
-                return total_cost_ / (this->size() - 1);
-            return cost_per_cell_;
-        }
-
-        void set_total_cost(double value)
-        {
-            total_cost_ = value;
-        }
-
-        void set_cost_per_cell(double value)
-        {
-            cost_per_cell_ = value;
-        }
-
-        /** Get probability of an edge */
-        double probability() const
-        {
-            return probability_;
-        }
-
-        /** Set probability of an edge */
-        void set_probability(double value)
-        {
-            probability_ = value;
-        }
-
-    private:
-        double cost_per_cell_ = 0;
-        double total_cost_ = 0;
-        double probability_ = 0;
-    };
-
-    /** Constant view of a segment (to iterate a segment in either direction)
-     *
-     * Notably, the view uses iterators to flip the direction of the segment,
-     * but the total cost is still for the whole segment, i.e., this is not view of
-     * a part of the segment, but view of a potentially reversed segment.
-     */
-    class SegmentView : public ContainerView<Segment>
-    {
-    public:
-        SegmentView(
-            typename Segment::const_iterator first,
-            typename Segment::const_iterator last,
-            const Segment& segment)
-            : ContainerView<Segment>(first, last), segment_(segment)
-        {}
-        SegmentView(
-            typename Segment::const_reverse_iterator first,
-            typename Segment::const_reverse_iterator last,
-            const Segment& segment)
-            : ContainerView<Segment>(first, last), segment_(segment)
-        {}
-
-        /** Get cell by cost instead of an index */
-        typename Segment::const_reference cell_by_cost(double cost) const
-        {
-            // The index is without a direction, so we can use it in reverse too.
-            auto index = segment_.index_from_cost(cost);
-            return this->operator[](index);
-        }
-
-        /** Get cost of the whole underlying segment (edge).
-         *
-         * Notably, this function assumes that the view represents the whole segment,
-         * not just part of it.
-         */
-        double cost() const
-        {
-            return segment_.cost();
-        }
-
-        /** Get cost per cell for the underlying segment (edge). */
-        double cost_per_cell() const
-        {
-            return segment_.cost_per_cell();
-        }
-
-    private:
-        const Segment& segment_;
-    };
+    /** Constant view of a segment (to iterate a segment in either direction) */
+    using SegmentView = EdgeGeometryView<Segment>;
 
     /** Segments by nodes (edges) */
     using SegmentsByNodes = std::map<std::pair<NodeId, NodeId>, Segment>;
