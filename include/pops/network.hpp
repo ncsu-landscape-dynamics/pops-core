@@ -1046,9 +1046,9 @@ protected:
     NodeId next_probable_node(NodeId node, Generator& generator) const
     {
         // Get all candidate nodes.
-        const auto& record = node_matrix_.at(node);
-        const auto& probabilities = record.first;
-        const auto& nodes = record.second;
+        const auto& record{node_matrix_.at(node)};
+        const auto& probabilities{record.first};
+        const auto& nodes{record.second};
 
         // Resolve disconnected node and dead end cases.
         auto num_nodes = nodes.size();
