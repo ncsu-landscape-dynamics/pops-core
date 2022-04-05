@@ -513,7 +513,7 @@ public:
      * probable connections, most likely next step is a step back to the starting node
      * (or generally previous node for `num_steps >= 3`).
      *
-     * The function assumes a node is at the *row*, *col* coordinates , i.e., that this
+     * The function assumes a node is at the *row*, *col* coordinates, i.e., that this
      * was either checked beforehand or otherwise ensured. If there is no node, an
      * std::invalid_argument exception is thrown.
      *
