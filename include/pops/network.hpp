@@ -829,21 +829,24 @@ protected:
             }
             if (label == "probability") {
                 if (has_cost) {
-                    std::runtime_error(
+                    // Detailed check to give a more relevant error message.
+                    throw std::runtime_error(
                         "The cost column must be after the probability column");
                 }
                 if (column_number != 3) {
-                    std::runtime_error(
+                    throw std::runtime_error(
                         "The probability column must be the third column");
                 }
                 has_probability = true;
+                continue;
             }
             if (label == "cost") {
                 if (!(column_number == 3 || column_number == 4)) {
-                    std::runtime_error(
+                    throw std::runtime_error(
                         "The cost column must be the third or fourth column");
                 }
                 has_cost = true;
+                continue;
             }
         }
         return {has_cost, has_probability};

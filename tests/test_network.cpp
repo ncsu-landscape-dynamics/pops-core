@@ -359,6 +359,110 @@ int test_network_bad_probability_0_100()
     return 0;
 }
 
+int test_network_correct_column_order()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1, true};
+    std::stringstream network_stream{
+        "node_1,node_2,probability,cost,geometry"
+        "1,2,0,1000,21;7;22;7\n"
+        "1,4,1,2000,21;7;22;8\n"
+        "5,1,0.4,1500,27;1;21;7\n"
+        "2,8,0.8,1800,22;7;26;6\n"};
+    try {
+        network.load(network_stream);
+        return 0;
+    }
+    catch (const std::runtime_error& error) {
+        std::cerr << "Network loaded with correct column order (probability, cost)"
+                     "an std::runtime_error exception: "
+                  << error.what() << "\n";
+    }
+    return 1;
+}
+
+int test_network_cost_before_probability()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1, true};
+    std::stringstream network_stream{
+        "node_1,node_2,cost,probability,geometry"
+        "1,2,1001,0,21;7;22;7\n"
+        "1,4,2001,1,21;7;22;8\n"
+        "5,1,1501,0.4,27;1;21;7\n"
+        "2,8,1801,0.8,22;7;26;6\n"};
+    try {
+        network.load(network_stream);
+        std::cerr << "Network loaded without an exception "
+                     "for wrong column order (cost, probability)\n";
+        return 1;
+    }
+    catch (const std::runtime_error& error) {
+        // All is good. We expect and exception.
+    }
+    return 0;
+}
+
+int test_network_cost_last()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1, true};
+    std::stringstream network_stream{
+        "node_1,node_2,probability,geometry,cost\n"
+        "1,2,0,21;7;22;7,1000\n"
+        "1,4,1,21;7;22;8,2000\n"
+        "5,1,0.4,27;1;21;7,1500\n"
+        "2,8,0.8,22;7;26;6\n,1800"};
+    try {
+        network.load(network_stream);
+        std::cerr << "Network loaded without an exception "
+                     "for wrong column order (cost is last)\n";
+        return 1;
+    }
+    catch (const std::runtime_error& error) {
+        // All is good. We expect and exception.
+    }
+    return 0;
+}
+
+int test_network_probability_last()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1, true};
+    std::stringstream network_stream{
+        "node_1,node_2,geometry,probability\n"
+        "1,2,21;7;22;7,0.1\n"
+        "1,4,21;7;22;8,0.2\n"
+        "5,1,27;1;21;7,0.15\n"
+        "2,8,22;7;26;6\n,0.18"};
+    try {
+        network.load(network_stream);
+        std::cerr << "Network loaded without an exception "
+                     "for wrong column order (probability is last)\n";
+        return 1;
+    }
+    catch (const std::runtime_error& error) {
+        // All is good. We expect and exception.
+    }
+    return 0;
+}
+
 int test_step_network()
 {
     int ret = 0;
@@ -742,6 +846,10 @@ int run_tests()
     ret += test_network_bad_probability_0_100();
     ret += test_network_negative_probability();
     ret += test_network_correct_probability();
+    ret += test_network_correct_column_order();
+    ret += test_network_cost_before_probability();
+    ret += test_network_cost_last();
+    ret += test_network_probability_last();
 
     if (ret)
         std::cerr << "Number of errors in the network test: " << ret << "\n";
