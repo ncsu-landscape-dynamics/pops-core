@@ -456,14 +456,18 @@ public:
      * All previously visited nodes are tracked and, if possible, excluded
      * from further traveling.
      *
+     * The function assumes there is a node at the given *row* and *column*, i.e., that
+     * the decision to call this function was based on the caller knowing there is a
+     * node. If there is no node, an std::invalid_argument exception is thrown.
+     * If there is more than one node at the given *row* and *column*, a random node is
+     * picked and used for traveling.
+     *
      * @returns Final row and column pair
      */
     template<typename Generator>
     std::tuple<int, int> travel(
         RasterIndex row, RasterIndex col, double distance, Generator& generator) const
     {
-        // We assume there is a node here, i.e., that we are made decision
-        // to use this kernel knowing there is a node.
         auto node_id = get_random_node_at(row, col, generator);
         std::set<NodeId> visited_nodes;
         while (distance >= 0) {
@@ -516,6 +520,8 @@ public:
      * The function assumes a node is at the *row*, *col* coordinates, i.e., that this
      * was either checked beforehand or otherwise ensured. If there is no node, an
      * std::invalid_argument exception is thrown.
+     * If there is more than one node at the given *row* and *column*, a random node is
+     * picked and used for traveling.
      *
      * @returns Destination row and column pair
      */
