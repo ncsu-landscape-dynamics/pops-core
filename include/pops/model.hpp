@@ -1,7 +1,7 @@
 /*
  * Tests for the PoPS Model class.
  *
- * Copyright (C) 2020-2021 by the authors.
+ * Copyright (C) 2020-2022 by the authors.
  *
  * Authors: Vaclav Petras <wenzeslaus gmail com>
  *

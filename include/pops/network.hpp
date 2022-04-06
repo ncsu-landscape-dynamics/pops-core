@@ -1,7 +1,7 @@
 /*
  * PoPS model - network dispersal kernel
  *
- * Copyright (C) 2020-2021 by the authors.
+ * Copyright (C) 2020-2022 by the authors.
  *
  * Authors: Vaclav Petras (wenzeslaus gmail com)
  *
@@ -106,25 +106,25 @@ private:
  * but the total cost is still for the whole geometry, i.e., this is not view of
  * a part of the geometry, but view of a potentially reversed geometry.
  */
-template<typename EdgeGeomertyType>
-class EdgeGeometryView : public ContainerView<EdgeGeomertyType>
+template<typename EdgeGeometryType>
+class EdgeGeometryView : public ContainerView<EdgeGeometryType>
 {
 public:
     EdgeGeometryView(
-        typename EdgeGeomertyType::const_iterator first,
-        typename EdgeGeomertyType::const_iterator last,
-        const EdgeGeomertyType& segment)
-        : ContainerView<EdgeGeomertyType>(first, last), segment_(segment)
+        typename EdgeGeometryType::const_iterator first,
+        typename EdgeGeometryType::const_iterator last,
+        const EdgeGeometryType& segment)
+        : ContainerView<EdgeGeometryType>(first, last), segment_(segment)
     {}
     EdgeGeometryView(
-        typename EdgeGeomertyType::const_reverse_iterator first,
-        typename EdgeGeomertyType::const_reverse_iterator last,
-        const EdgeGeomertyType& segment)
-        : ContainerView<EdgeGeomertyType>(first, last), segment_(segment)
+        typename EdgeGeometryType::const_reverse_iterator first,
+        typename EdgeGeometryType::const_reverse_iterator last,
+        const EdgeGeometryType& segment)
+        : ContainerView<EdgeGeometryType>(first, last), segment_(segment)
     {}
 
     /** Get cell by cost instead of an index */
-    typename EdgeGeomertyType::const_reference cell_by_cost(double cost) const
+    typename EdgeGeometryType::const_reference cell_by_cost(double cost) const
     {
         // The index is without a direction, so we can use it in reverse too.
         auto index = segment_.index_from_cost(cost);
@@ -148,7 +148,7 @@ public:
     }
 
 private:
-    const EdgeGeomertyType& segment_;
+    const EdgeGeometryType& segment_;
 };
 
 /**
@@ -161,7 +161,7 @@ private:
  *
  * Nodes are the hop-on locations for dispersers. The dispersers can hop-off anywhere.
  *
- * The general workflow is contructing the object (with the constructor) and loading the
+ * The general workflow is constructing the object (with the constructor) and loading the
  * data (with the load() function). Then the network is ready to be used for simulating
  * trips over the network (with the travel() function).
  *
@@ -207,7 +207,7 @@ public:
     /**
      * @brief Create an empty network not meant for futher use.
      *
-     * This is useful when a network object is needed to contruct a kernel, but it will
+     * This is useful when a network object is needed to construct a kernel, but it will
      * not be used in runtime.
      *
      * @return New Network object
@@ -353,7 +353,7 @@ public:
      * a segment.
      *
      * Standalone nodes (without any connection) are theoretically allowed in the
-     * internal representation of the netwrok and handled
+     * internal representation of the network and handled
      * as no movement from the source cell, but the input always needs to contain an
      * edge.
      */
@@ -506,7 +506,7 @@ public:
      * Returns any node of the nodes connected to the start node possibly based on the
      * edge probability if probability was assigned to the edges.
      *
-     * If *num_steps* is greater than 1, multiple steps are perfomed and the last node
+     * If *num_steps* is greater than 1, multiple steps are performed and the last node
      * is returned. In each node, the probability to picking a specific connection are
      * either determined by the provided edge probabilities or are equal. Consequently,
      * previously visited nodes can be visited again. In other words, for highly
@@ -572,7 +572,7 @@ public:
             }
         }
         stats["num_nodes"] = node_ids.size();
-        // We store segements in both directions, so each segment is stored twice.
+        // We store segments in both directions, so each segment is stored twice.
         stats["num_segments"] = node_matrix_.size() / 2;
         std::set<NodeId> nodes_with_segments;
         for (const auto& item : node_matrix_) {
@@ -997,7 +997,7 @@ protected:
      *
      * The random node is picked from candidate nodes which are nodes connected to
      * a given node. The candidate nodes which are in the *ignore* list are excluded
-     * from the random selection. If all candiate nodes are in the *ignore* list,
+     * from the random selection. If all candidate nodes are in the *ignore* list,
      * the *ignore* list is ignored and all candidate nodes are used.
      *
      * The function always returns a node to go to even if it means going to an ignored

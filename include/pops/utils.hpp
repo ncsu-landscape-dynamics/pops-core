@@ -300,7 +300,7 @@ std::string quarantine_enum_to_string(Direction type)
  * size equal to two and contains row and column index. The type was chosen to work well
  * with Rcpp.
  *
- * First template parameter is the index type for the resulting sutibale cell indices.
+ * First template parameter is the index type for the resulting suitable cell indices.
  * Second template parameter is deduced automatically from the function parameter.
  */
 template<typename RasterIndex, typename RasterType>

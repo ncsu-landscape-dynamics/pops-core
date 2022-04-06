@@ -1,5 +1,5 @@
 /*
- * PoPS model - disperal kernels
+ * PoPS model - dispersal kernels
  *
  * Copyright (C) 2019-2021 by the authors.
  *
