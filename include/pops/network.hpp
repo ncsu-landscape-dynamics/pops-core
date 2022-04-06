@@ -738,8 +738,9 @@ protected:
      */
     static double probability_from_text(const std::string& text)
     {
+        double value{0};
         try {
-            return std::stod(text);
+            value = std::stod(text);
         }
         catch (const std::invalid_argument& err) {
             if (string_contains(text, '"') || string_contains(text, '\'')) {
@@ -764,6 +765,13 @@ protected:
                 std::string("Numerical value too large for connection probabilty: ")
                 + text);
         }
+        if (value < 0 || value > 1) {
+            throw std::invalid_argument(
+                std::string("Probability needs to be between 0 and 1, "
+                            "not ")
+                + text);
+        }
+        return value;
     }
 
     /**

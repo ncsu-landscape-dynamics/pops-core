@@ -282,6 +282,83 @@ int test_cost_network()
     return ret;
 }
 
+int test_network_negative_probability()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1, true};
+    std::stringstream network_stream{
+        "node_1,node_2,probability,geometry"
+        "1,2,0,21;7;22;7\n"
+        "1,4,1,21;7;22;8\n"
+        "5,1,-0.5,27;1;21;7\n"
+        "2,8,-80,22;7;26;6\n"};
+    try {
+        network.load(network_stream);
+        std::cerr << "Network loaded without an exception for negative probability\n";
+        return 1;
+    }
+    catch (const std::invalid_argument& error) {
+        // All is good. We expect and exception.
+    }
+    return 0;
+}
+
+int test_network_correct_probability()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1, true};
+    std::stringstream network_stream{
+        "node_1,node_2,probability,geometry"
+        "1,2,0,21;7;22;7\n"
+        "1,4,1,21;7;22;8\n"
+        "5,1,0.4,27;1;21;7\n"
+        "2,8,0.8,22;7;26;6\n"};
+    try {
+        network.load(network_stream);
+        return 0;
+    }
+    catch (const std::invalid_argument& error) {
+        std::cerr << "Network loaded with correct probability caused "
+                     "an std::invalid_argument exception: "
+                  << error.what() << "\n";
+    }
+    return 1;
+}
+
+int test_network_bad_probability_0_100()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1, true};
+    std::stringstream network_stream{
+        "node_1,node_2,probability,geometry"
+        "1,2,0,21;7;22;7\n"
+        "1,4,1,21;7;22;8\n"
+        "5,1,5,27;1;21;7\n"
+        "2,8,100,22;7;26;6\n"};
+    try {
+        network.load(network_stream);
+        std::cerr << "Network loaded without an exception "
+                     "for probability outside of [0,1]\n";
+        return 1;
+    }
+    catch (const std::invalid_argument& error) {
+        // All is good. We expect and exception.
+    }
+    return 0;
+}
+
 int test_step_network()
 {
     int ret = 0;
@@ -662,6 +739,9 @@ int run_tests()
     ret += test_snap_network();
     ret += test_cost_network();
     ret += test_step_network();
+    ret += test_network_bad_probability_0_100();
+    ret += test_network_negative_probability();
+    ret += test_network_correct_probability();
 
     if (ret)
         std::cerr << "Number of errors in the network test: " << ret << "\n";
