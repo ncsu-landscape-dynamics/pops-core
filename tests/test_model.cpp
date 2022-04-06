@@ -238,7 +238,8 @@ int test_deterministic()
     Raster<int> died(infected.rows(), infected.cols(), 0);
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
-    std::vector<Raster<double>> empty_float;
+    std::vector<Raster<double>> empty_floats;
+    Raster<double> empty_float;
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.use_treatments = false;
     config.ew_res = 30;
@@ -267,9 +268,9 @@ int test_deterministic()
         empty_integer,
         mortality_tracker,
         died,
+        empty_floats,
+        empty_floats,
         empty_float,
-        empty_float,
-        empty_float[0],
         treatments,
         zeros,
         outside_dispersers,
@@ -379,7 +380,8 @@ int test_deterministic_exponential()
     Raster<int> died(infected.rows(), infected.cols(), 0);
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
-    std::vector<Raster<double>> empty_float;
+    std::vector<Raster<double>> empty_floats;
+    Raster<double> empty_float;
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.use_treatments = false;
     config.ew_res = 30;
@@ -409,9 +411,9 @@ int test_deterministic_exponential()
         empty_integer,
         mortality_tracker,
         died,
+        empty_floats,
+        empty_floats,
         empty_float,
-        empty_float,
-        empty_float[0],
         treatments,
         zeros,
         outside_dispersers,
