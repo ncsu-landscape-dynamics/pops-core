@@ -511,11 +511,11 @@ public:
      * edge probability if probability was assigned to the edges.
      *
      * If *num_steps* is greater than 1, multiple steps are perfomed and the last node
-     * is returned. In each node, the probability to picking a specific connection are
-     * either determined by the provided edge probabilities or are equal. Consequently,
-     * previously visited nodes can be visited again. In other words, for highly
-     * probable connections, most likely next step is a step back to the starting node
-     * (or generally previous node for `num_steps >= 3`).
+     * is returned. In each node, the probability of picking a specific connection is
+     * either determined by the provided edge probabilities or is equal among the
+     * connections. Consequently, previously visited nodes can be visited again. In
+     * other words, for highly probable connections, most likely next step is a step
+     * back to the starting node (or generally previous node for `num_steps >= 3`).
      *
      * The function assumes a node is at the *row*, *col* coordinates, i.e., that this
      * was either checked beforehand or otherwise ensured. If there is no node, an
