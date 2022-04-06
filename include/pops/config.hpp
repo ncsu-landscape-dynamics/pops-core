@@ -71,7 +71,7 @@ public:
     std::string anthro_kernel_type;
     double anthro_scale{0};
     std::string anthro_direction;
-    double network_step{false};
+    bool network_step{false};
     double network_min_distance{0};
     double network_max_distance{0};
     bool network_snap{false};  ///< Snap resulting location to closest node in network
