@@ -765,11 +765,9 @@ protected:
                 std::string("Numerical value too large for connection probabilty: ")
                 + text);
         }
-        if (value < 0 || value > 1) {
+        if (value < 0) {
             throw std::invalid_argument(
-                std::string("Probability needs to be between 0 and 1, "
-                            "not ")
-                + text);
+                std::string("Probability needs to be >=0, not ") + text);
         }
         return value;
     }
