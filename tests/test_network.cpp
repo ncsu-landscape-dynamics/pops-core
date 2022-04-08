@@ -291,7 +291,7 @@ int test_network_negative_probability()
     bbox.west = 20;
     Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
-        "node_1,node_2,probability,geometry"
+        "node_1,node_2,probability,geometry\n"
         "1,2,0,21;7;22;7\n"
         "1,4,1,21;7;22;8\n"
         "5,1,-0.5,27;1;21;7\n"
@@ -316,7 +316,7 @@ int test_network_correct_probability()
     bbox.west = 20;
     Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
-        "node_1,node_2,probability,geometry"
+        "node_1,node_2,probability,geometry\n"
         "1,2,0,21;7;22;7\n"
         "1,4,1,21;7;22;8\n"
         "5,1,0.4,27;1;21;7\n"
@@ -342,7 +342,7 @@ int test_network_bad_probability_0_100()
     bbox.west = 20;
     Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
-        "node_1,node_2,probability,geometry"
+        "node_1,node_2,probability,geometry\n"
         "1,2,0,21;7;22;7\n"
         "1,4,1,21;7;22;8\n"
         "5,1,5,27;1;21;7\n"
@@ -368,7 +368,7 @@ int test_network_correct_column_order()
     bbox.west = 20;
     Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
-        "node_1,node_2,probability,cost,geometry"
+        "node_1,node_2,probability,cost,geometry\n"
         "1,2,0,1000,21;7;22;7\n"
         "1,4,1,2000,21;7;22;8\n"
         "5,1,0.4,1500,27;1;21;7\n"
@@ -394,7 +394,7 @@ int test_network_cost_before_probability()
     bbox.west = 20;
     Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
-        "node_1,node_2,cost,probability,geometry"
+        "node_1,node_2,cost,probability,geometry\n"
         "1,2,1001,0,21;7;22;7\n"
         "1,4,2001,1,21;7;22;8\n"
         "5,1,1501,0.4,27;1;21;7\n"
