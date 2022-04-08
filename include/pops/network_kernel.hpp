@@ -45,10 +45,16 @@ public:
      * @param network Existing network
      * @param min_distance Minimum travel distance
      * @param max_distance Maximum travel distance
+     * @param snap Snap result to the closest node
      */
     NetworkDispersalKernel(
-        const Network<RasterIndex>& network, double min_distance, double max_distance)
-        : network_(network), distance_distribution_(min_distance, max_distance)
+        const Network<RasterIndex>& network,
+        double min_distance,
+        double max_distance,
+        bool snap = false)
+        : network_(network),
+          distance_distribution_(min_distance, max_distance),
+          snap_(snap)
     {}
     /**
      * @brief Create kernel which steps from one node to another.
@@ -105,6 +111,8 @@ protected:
     std::uniform_real_distribution<double> distance_distribution_;
     /** Step through network instead of traveling between nodes */
     bool step_{false};
+    /** Snap to nodes when traveling between nodes */
+    bool snap_{false};
 };
 
 }  // namespace pops

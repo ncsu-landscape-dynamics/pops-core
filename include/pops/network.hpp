@@ -190,16 +190,14 @@ public:
      * @param bbox Bounding box of the raster grid (in real world coordinates)
      * @param ew_res East-west resolution of the raster grid
      * @param ns_res North-south resolution of the raster grid
-     * @param snap Snap result to the closest node
      */
-    Network(BBox<double> bbox, double ew_res, double ns_res, bool snap = false)
+    Network(BBox<double> bbox, double ew_res, double ns_res)
         : bbox_(bbox),
           ew_res_(ew_res),
           ns_res_(ns_res),
           max_row_(0),
           max_col_(0),
-          distance_per_cell_((ew_res + ns_res) / 2),
-          snap_(snap)
+          distance_per_cell_((ew_res + ns_res) / 2)
     {
         std::tie(max_row_, max_col_) = xy_to_row_col(bbox_.east, bbox_.south);
     }
@@ -462,11 +460,18 @@ public:
      * If there is more than one node at the given *row* and *column*, a random node is
      * picked and used for traveling.
      *
+     * If *snap* is true, then results are snapped to the closest node, otherwise
+     * result can be anywhere in between the nodes based on the edge geomerty (segment).
+     *
      * @returns Final row and column pair
      */
     template<typename Generator>
     std::tuple<int, int> travel(
-        RasterIndex row, RasterIndex col, double distance, Generator& generator) const
+        RasterIndex row,
+        RasterIndex col,
+        double distance,
+        Generator& generator,
+        bool snap = false) const
     {
         auto node_id = get_random_node_at(row, col, generator);
         std::set<NodeId> visited_nodes;
@@ -489,7 +494,7 @@ public:
                 distance -= segment.cost();
                 continue;
             }
-            if (snap_) {
+            if (snap) {
                 if (distance < segment.cost() / 2) {
                     // Less than half snaps to the start node.
                     return segment.front();
@@ -1088,7 +1093,6 @@ protected:
     RasterIndex max_row_;  ///< Maximum row index in the grid
     RasterIndex max_col_;  ///< Maximum column index in the grid
     double distance_per_cell_;  ///< Distance to travel through one cell (cost)
-    bool snap_ = false;
     /** Node IDs stored by row and column (multiple nodes per cell) */
     std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;
     NodeMatrix node_matrix_;  ///< List of node neighbors by node ID (edges)

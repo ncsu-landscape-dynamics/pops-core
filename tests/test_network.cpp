@@ -177,7 +177,7 @@ int test_snap_network()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{bbox, 1, 1, true};
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "1,2,21.4;7.5;22.3;7.2\n"
         "1,4,21.4;7.5;21.9;8.0;22.5;8.6\n"
@@ -204,8 +204,8 @@ int test_snap_network()
         }
         int end_row;
         int end_col;
-        std::tie(end_row, end_col) =
-            network.travel(start_row, start_col, std::get<0>(destination), generator);
+        std::tie(end_row, end_col) = network.travel(
+            start_row, start_col, std::get<0>(destination), generator, true);
         if (std::get<1>(destination) != end_row
             || std::get<2>(destination) != end_col) {
             std::cerr << "from (" << start_row << ", " << start_col << ") to ("
@@ -289,7 +289,7 @@ int test_network_negative_probability()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{bbox, 1, 1, true};
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "node_1,node_2,probability,geometry"
         "1,2,0,21;7;22;7\n"
@@ -314,7 +314,7 @@ int test_network_correct_probability()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{bbox, 1, 1, true};
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "node_1,node_2,probability,geometry"
         "1,2,0,21;7;22;7\n"
@@ -340,7 +340,7 @@ int test_network_bad_probability_0_100()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{bbox, 1, 1, true};
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "node_1,node_2,probability,geometry"
         "1,2,0,21;7;22;7\n"
@@ -366,7 +366,7 @@ int test_network_correct_column_order()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{bbox, 1, 1, true};
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "node_1,node_2,probability,cost,geometry"
         "1,2,0,1000,21;7;22;7\n"
@@ -392,7 +392,7 @@ int test_network_cost_before_probability()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{bbox, 1, 1, true};
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "node_1,node_2,cost,probability,geometry"
         "1,2,1001,0,21;7;22;7\n"
@@ -418,7 +418,7 @@ int test_network_cost_last()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{bbox, 1, 1, true};
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "node_1,node_2,probability,geometry,cost\n"
         "1,2,0,21;7;22;7,1000\n"
@@ -444,7 +444,7 @@ int test_network_probability_last()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{bbox, 1, 1, true};
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "node_1,node_2,geometry,probability\n"
         "1,2,21;7;22;7,0.1\n"
@@ -471,7 +471,7 @@ int test_step_network()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{bbox, 1, 1, true};
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "1,2,21;7;22;7\n"
         "1,4,21;7;22;8\n"
@@ -733,7 +733,7 @@ int create_network_from_files(int argc, char** argv)
     double nsres = config.get<double>("nsres");
     double ewres = config.get<double>("ewres");
 
-    Network<int> network(bbox, nsres, ewres, config.get("snap", false));
+    Network<int> network(bbox, nsres, ewres);
     network.load(network_stream);
 
     if (show_stats) {
@@ -761,6 +761,7 @@ int create_network_from_files(int argc, char** argv)
     if (trips || trace) {
         double min_distance = config.get("min_distance", 1.);
         double max_distance = config.get("max_distance", 1.);
+        bool snap = config.get("snap", false);
         double distance_increment = config.get("distance_increment", 1.);
         int seed = config.get("seed", 1);
         std::default_random_engine generator;
@@ -793,7 +794,7 @@ int create_network_from_files(int argc, char** argv)
                 int end_row;
                 int end_col;
                 std::tie(end_row, end_col) =
-                    network.travel(start_row, start_col, distance, generator);
+                    network.travel(start_row, start_col, distance, generator, snap);
                 trips.emplace_back(end_row, end_col, distance);
             }
             if (trace) {

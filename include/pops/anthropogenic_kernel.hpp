@@ -59,10 +59,11 @@ std::unique_ptr<KernelInterface<Generator>> create_anthro_kernel(
     else if (anthro_kernel == DispersalKernelType::Network) {
         using Kernel =
             DynamicWrapperKernel<NetworkDispersalKernel<RasterIndex>, Generator>;
-        if (config.network_step)
+        if (config.network_type == "step")
             return std::unique_ptr<Kernel>(new Kernel(network));
+        bool snap = config.network_type == "snap" ? true : false;
         return std::unique_ptr<Kernel>(new Kernel(
-            network, config.network_min_distance, config.network_max_distance));
+            network, config.network_min_distance, config.network_max_distance, snap));
     }
     else if (config.deterministic) {
         using Kernel = DynamicWrapperKernel<
