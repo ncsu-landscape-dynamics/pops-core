@@ -307,7 +307,7 @@ int test_network_negative_probability()
     return 0;
 }
 
-int test_network_correct_probability()
+int test_network_probability_0_1()
 {
     BBox<double> bbox;
     bbox.north = 10;
@@ -333,7 +333,7 @@ int test_network_correct_probability()
     return 1;
 }
 
-int test_network_bad_probability_0_100()
+int test_network_probability_0_100()
 {
     BBox<double> bbox;
     bbox.north = 10;
@@ -349,12 +349,12 @@ int test_network_bad_probability_0_100()
         "2,8,100,22;7;26;6\n"};
     try {
         network.load(network_stream);
-        std::cerr << "Network loaded without an exception "
-                     "for probability outside of [0,1]\n";
-        return 1;
+        return 0;
     }
     catch (const std::invalid_argument& error) {
-        // All is good. We expect and exception.
+        std::cerr << "Network loaded with correct probability [0,1] caused "
+                     "an std::invalid_argument exception: "
+                  << error.what() << "\n";
     }
     return 0;
 }
@@ -844,9 +844,9 @@ int run_tests()
     ret += test_snap_network();
     ret += test_cost_network();
     ret += test_step_network();
-    ret += test_network_bad_probability_0_100();
+    ret += test_network_probability_0_100();
+    ret += test_network_probability_0_1();
     ret += test_network_negative_probability();
-    ret += test_network_correct_probability();
     ret += test_network_correct_column_order();
     ret += test_network_cost_before_probability();
     ret += test_network_cost_last();
