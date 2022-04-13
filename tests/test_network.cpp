@@ -302,7 +302,7 @@ int test_network_negative_probability()
         return 1;
     }
     catch (const std::invalid_argument& error) {
-        // All is good. We expect and exception.
+        // All is good. We expect an exception.
     }
     return 0;
 }
@@ -406,7 +406,7 @@ int test_network_cost_before_probability()
         return 1;
     }
     catch (const std::runtime_error& error) {
-        // All is good. We expect and exception.
+        // All is good. We expect an exception.
     }
     return 0;
 }
@@ -432,7 +432,7 @@ int test_network_cost_last()
         return 1;
     }
     catch (const std::runtime_error& error) {
-        // All is good. We expect and exception.
+        // All is good. We expect an exception.
     }
     return 0;
 }
@@ -458,7 +458,7 @@ int test_network_probability_last()
         return 1;
     }
     catch (const std::runtime_error& error) {
-        // All is good. We expect and exception.
+        // All is good. We expect an exception.
     }
     return 0;
 }
