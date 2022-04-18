@@ -33,18 +33,18 @@ class NetworkDispersalKernel
 {
 public:
     /**
-     * @brief Create kernel which travels through the network including edges.
+     * @brief Create kernel which travels through a network.
      *
      * The kernel assumes that the *network* is already initialized. It does not modify
      * the network.
      *
      * The *min_distance* and *max_distance* parameters are used as a range for uniform
-     * real distribution which determines the travel distance through the network for
-     * one trip.
+     * real distribution which determines the travel distance (cost) through the network
+     * for one trip if the network movement is walking (and not teleporting).
      *
      * @param network Existing network
-     * @param min_distance Minimum travel distance
-     * @param max_distance Maximum travel distance
+     * @param min_distance Minimum travel distance (cost)
+     * @param max_distance Maximum travel distance (cost)
      * @param snap Snap result to the closest node
      */
     NetworkDispersalKernel(
@@ -80,7 +80,7 @@ public:
             return network_.step(row, col, generator);
         }
         double distance = distance_distribution_(generator);
-        std::tie(row, col) = network_.travel(row, col, distance, generator);
+        std::tie(row, col) = network_.walk(row, col, distance, generator);
 
         return std::make_tuple(row, col);
     }
@@ -107,7 +107,7 @@ public:
 protected:
     /** Reference to the network */
     const Network<RasterIndex>& network_;
-    /** Travel distance distribution */
+    /** Travel distance (cost) distribution */
     std::uniform_real_distribution<double> distance_distribution_;
     /** Step through network instead of traveling between nodes */
     bool step_{false};

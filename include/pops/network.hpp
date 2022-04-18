@@ -157,16 +157,16 @@ private:
  * The network consists of nodes connected by edges. Edges are spatially represented
  * as segments. Edges themselves don't carry cost and have meaning only as indicators of
  * existence of a connection between nodes. Cost for each edge is a travel distance
- * determined by advancing through cells in a segment.
+ * (cost) determined by advancing through all cells in a segment.
  *
  * Nodes are the hop-on locations for dispersers. The dispersers can hop-off anywhere.
  *
  * The general workflow is contructing the object (with the constructor) and loading the
  * data (with the load() function). Then the network is ready to be used for simulating
- * trips over the network (with the travel() function).
+ * trips over the network (with the walk() or teleport() functions).
  *
- * When the travel() function is used from a kernel, user of the network directly calls
- * only the setup functions.
+ * When the walk() or teleport() functions are used from a kernel, user of the network
+ * directly calls only the setup functions.
  *
  * The class exposes number of functions as public which are meant for testing or other
  * special workflows.
@@ -449,7 +449,7 @@ public:
     }
 
     /**
-     * Travel given distance in the network from given row and column.
+     * Walk a given distance (cost) in the network from given row and column.
      *
      * All previously visited nodes are tracked and, if possible, excluded
      * from further traveling.
@@ -458,7 +458,7 @@ public:
      * the decision to call this function was based on the caller knowing there is a
      * node. If there is no node, an std::invalid_argument exception is thrown.
      * If there is more than one node at the given *row* and *column*, a random node is
-     * picked and used for traveling.
+     * picked and used as a next walking destination.
      *
      * If *snap* is true, then results are snapped to the closest node, otherwise
      * result can be anywhere in between the nodes based on the edge geomerty (segment).
@@ -466,7 +466,7 @@ public:
      * @returns Final row and column pair
      */
     template<typename Generator>
-    std::tuple<int, int> travel(
+    std::tuple<int, int> walk(
         RasterIndex row,
         RasterIndex col,
         double distance,
@@ -526,7 +526,7 @@ public:
      * was either checked beforehand or otherwise ensured. If there is no node, an
      * std::invalid_argument exception is thrown.
      * If there is more than one node at the given *row* and *column*, a random node is
-     * picked and used for traveling.
+     * picked and used.
      *
      * @returns Destination row and column pair
      */
@@ -1092,7 +1092,7 @@ protected:
     double ns_res_;  ///< North-south resolution of the grid
     RasterIndex max_row_;  ///< Maximum row index in the grid
     RasterIndex max_col_;  ///< Maximum column index in the grid
-    double distance_per_cell_;  ///< Distance to travel through one cell (cost)
+    double distance_per_cell_;  ///< Distance (cost) to walk through one cell
     /** Node IDs stored by row and column (multiple nodes per cell) */
     std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;
     NodeMatrix node_matrix_;  ///< List of node neighbors by node ID (edges)
