@@ -71,7 +71,7 @@ public:
     std::string anthro_kernel_type;
     double anthro_scale{0};
     std::string anthro_direction;
-    std::string network_type;  ///< travel, snap, step
+    std::string network_movement;  ///< walk, jump, teleport
     double network_min_distance{0};
     double network_max_distance{0};
     double anthro_kappa{0};
