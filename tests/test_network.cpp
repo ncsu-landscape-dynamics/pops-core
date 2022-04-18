@@ -177,7 +177,7 @@ int test_snap_network()
     bbox.south = 0;
     bbox.east = 30;
     bbox.west = 20;
-    Network<int> network{bbox, 1, 1, true};
+    Network<int> network{bbox, 1, 1};
     std::stringstream network_stream{
         "1,2,21.4;7.5;22.3;7.2\n"
         "1,4,21.4;7.5;21.9;8.0;22.5;8.6\n"
@@ -204,8 +204,8 @@ int test_snap_network()
         }
         int end_row;
         int end_col;
-        std::tie(end_row, end_col) =
-            network.travel(start_row, start_col, std::get<0>(destination), generator);
+        std::tie(end_row, end_col) = network.travel(
+            start_row, start_col, std::get<0>(destination), generator, true);
         if (std::get<1>(destination) != end_row
             || std::get<2>(destination) != end_col) {
             std::cerr << "from (" << start_row << ", " << start_col << ") to ("
@@ -277,6 +277,240 @@ int test_cost_network()
     }
     if (ret) {
         // std::cout << "---\n";
+        // network.dump_yaml(std::cout);
+    }
+    return ret;
+}
+
+int test_network_negative_probability()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1};
+    std::stringstream network_stream{
+        "node_1,node_2,probability,geometry\n"
+        "1,2,0,21;7;22;7\n"
+        "1,4,1,21;7;22;8\n"
+        "5,1,-0.5,27;1;21;7\n"
+        "2,8,-80,22;7;26;6\n"};
+    try {
+        network.load(network_stream);
+        std::cerr << "Network loaded without an exception for negative probability\n";
+        return 1;
+    }
+    catch (const std::invalid_argument& error) {
+        // All is good. We expect an exception.
+    }
+    return 0;
+}
+
+int test_network_probability_0_1()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1};
+    std::stringstream network_stream{
+        "node_1,node_2,probability,geometry\n"
+        "1,2,0,21;7;22;7\n"
+        "1,4,1,21;7;22;8\n"
+        "5,1,0.4,27;1;21;7\n"
+        "2,8,0.8,22;7;26;6\n"};
+    try {
+        network.load(network_stream);
+        return 0;
+    }
+    catch (const std::invalid_argument& error) {
+        std::cerr << "Network loaded with correct probability caused "
+                     "an std::invalid_argument exception: "
+                  << error.what() << "\n";
+    }
+    return 1;
+}
+
+int test_network_probability_0_100()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1};
+    std::stringstream network_stream{
+        "node_1,node_2,probability,geometry\n"
+        "1,2,0,21;7;22;7\n"
+        "1,4,1,21;7;22;8\n"
+        "5,1,5,27;1;21;7\n"
+        "2,8,100,22;7;26;6\n"};
+    try {
+        network.load(network_stream);
+        return 0;
+    }
+    catch (const std::invalid_argument& error) {
+        std::cerr << "Network loaded with correct probability [0,1] caused "
+                     "an std::invalid_argument exception: "
+                  << error.what() << "\n";
+    }
+    return 0;
+}
+
+int test_network_correct_column_order()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1};
+    std::stringstream network_stream{
+        "node_1,node_2,probability,cost,geometry\n"
+        "1,2,0,1000,21;7;22;7\n"
+        "1,4,1,2000,21;7;22;8\n"
+        "5,1,0.4,1500,27;1;21;7\n"
+        "2,8,0.8,1800,22;7;26;6\n"};
+    try {
+        network.load(network_stream);
+        return 0;
+    }
+    catch (const std::runtime_error& error) {
+        std::cerr << "Network loaded with correct column order (probability, cost)"
+                     "an std::runtime_error exception: "
+                  << error.what() << "\n";
+    }
+    return 1;
+}
+
+int test_network_cost_before_probability()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1};
+    std::stringstream network_stream{
+        "node_1,node_2,cost,probability,geometry\n"
+        "1,2,1001,0,21;7;22;7\n"
+        "1,4,2001,1,21;7;22;8\n"
+        "5,1,1501,0.4,27;1;21;7\n"
+        "2,8,1801,0.8,22;7;26;6\n"};
+    try {
+        network.load(network_stream);
+        std::cerr << "Network loaded without an exception "
+                     "for wrong column order (cost, probability)\n";
+        return 1;
+    }
+    catch (const std::runtime_error& error) {
+        // All is good. We expect an exception.
+    }
+    return 0;
+}
+
+int test_network_cost_last()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1};
+    std::stringstream network_stream{
+        "node_1,node_2,probability,geometry,cost\n"
+        "1,2,0,21;7;22;7,1000\n"
+        "1,4,1,21;7;22;8,2000\n"
+        "5,1,0.4,27;1;21;7,1500\n"
+        "2,8,0.8,22;7;26;6\n,1800"};
+    try {
+        network.load(network_stream);
+        std::cerr << "Network loaded without an exception "
+                     "for wrong column order (cost is last)\n";
+        return 1;
+    }
+    catch (const std::runtime_error& error) {
+        // All is good. We expect an exception.
+    }
+    return 0;
+}
+
+int test_network_probability_last()
+{
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1};
+    std::stringstream network_stream{
+        "node_1,node_2,geometry,probability\n"
+        "1,2,21;7;22;7,0.1\n"
+        "1,4,21;7;22;8,0.2\n"
+        "5,1,27;1;21;7,0.15\n"
+        "2,8,22;7;26;6\n,0.18"};
+    try {
+        network.load(network_stream);
+        std::cerr << "Network loaded without an exception "
+                     "for wrong column order (probability is last)\n";
+        return 1;
+    }
+    catch (const std::runtime_error& error) {
+        // All is good. We expect an exception.
+    }
+    return 0;
+}
+
+int test_step_network()
+{
+    int ret = 0;
+    BBox<double> bbox;
+    bbox.north = 10;
+    bbox.south = 0;
+    bbox.east = 30;
+    bbox.west = 20;
+    Network<int> network{bbox, 1, 1};
+    std::stringstream network_stream{
+        "1,2,21;7;22;7\n"
+        "1,4,21;7;22;8\n"
+        "5,1,27;1;21;7\n"
+        "2,8,22;7;26;6\n"
+        "8,9,26;6;28;2\n"
+        "3,8,28;9;26;6\n"
+        "2,5,22;7;27;1\n"
+        "5,8,27;1;26;6\n"};
+    network.load(network_stream);
+
+    std::default_random_engine generator;
+    const int num_distances = 5;
+    std::array<std::tuple<int, int, int>, num_distances> destinations{
+        {{1, 4, 6}, {2, 3, 2}, {3, 9, 7}, {4, 4, 6}, {5, 1, 8}}};
+    for (const auto destination : destinations) {
+        generator.seed(42);
+        int start_row = 1;
+        int start_col = 8;
+        if (!network.has_node_at(start_row, start_col)) {
+            std::cerr << "Expected node at " << start_row << ", " << start_col << "\n";
+            ret += 1;
+            break;
+        }
+        int end_row;
+        int end_col;
+        std::tie(end_row, end_col) =
+            network.step(start_row, start_col, generator, std::get<0>(destination));
+        if (std::get<1>(destination) != end_row
+            || std::get<2>(destination) != end_col) {
+            std::cerr << "from (" << start_row << ", " << start_col << ") to ("
+                      << end_row << ", " << end_col << ") in "
+                      << std::get<0>(destination) << " but expected to arrive to ("
+                      << std::get<1>(destination) << ", " << std::get<2>(destination)
+                      << ")\n";
+            ret += 1;
+        }
+    }
+    if (ret) {
         // network.dump_yaml(std::cout);
     }
     return ret;
@@ -499,7 +733,7 @@ int create_network_from_files(int argc, char** argv)
     double nsres = config.get<double>("nsres");
     double ewres = config.get<double>("ewres");
 
-    Network<int> network(bbox, nsres, ewres, config.get("snap", false));
+    Network<int> network(bbox, nsres, ewres);
     network.load(network_stream);
 
     if (show_stats) {
@@ -527,6 +761,7 @@ int create_network_from_files(int argc, char** argv)
     if (trips || trace) {
         double min_distance = config.get("min_distance", 1.);
         double max_distance = config.get("max_distance", 1.);
+        bool snap = config.get("snap", false);
         double distance_increment = config.get("distance_increment", 1.);
         int seed = config.get("seed", 1);
         std::default_random_engine generator;
@@ -559,7 +794,7 @@ int create_network_from_files(int argc, char** argv)
                 int end_row;
                 int end_col;
                 std::tie(end_row, end_col) =
-                    network.travel(start_row, start_col, distance, generator);
+                    network.travel(start_row, start_col, distance, generator, snap);
                 trips.emplace_back(end_row, end_col, distance);
             }
             if (trace) {
@@ -608,6 +843,14 @@ int run_tests()
     ret += test_travel_network();
     ret += test_snap_network();
     ret += test_cost_network();
+    ret += test_step_network();
+    ret += test_network_probability_0_100();
+    ret += test_network_probability_0_1();
+    ret += test_network_negative_probability();
+    ret += test_network_correct_column_order();
+    ret += test_network_cost_before_probability();
+    ret += test_network_cost_last();
+    ret += test_network_probability_last();
 
     if (ret)
         std::cerr << "Number of errors in the network test: " << ret << "\n";
