@@ -169,7 +169,7 @@ int test_walk_network()
     return ret;
 }
 
-int test_snap_network()
+int test_jump_network()
 {
     int ret = 0;
     BBox<double> bbox;
@@ -761,7 +761,7 @@ int create_network_from_files(int argc, char** argv)
     if (trips || trace) {
         double min_distance = config.get("min_distance", 1.);
         double max_distance = config.get("max_distance", 1.);
-        bool snap = config.get("snap", false);
+        bool jump = config.get("jump", false);
         double distance_increment = config.get("distance_increment", 1.);
         int seed = config.get("seed", 1);
         std::default_random_engine generator;
@@ -794,7 +794,7 @@ int create_network_from_files(int argc, char** argv)
                 int end_row;
                 int end_col;
                 std::tie(end_row, end_col) =
-                    network.walk(start_row, start_col, distance, generator, snap);
+                    network.walk(start_row, start_col, distance, generator, jump);
                 trips.emplace_back(end_row, end_col, distance);
             }
             if (trace) {
@@ -841,7 +841,7 @@ int run_tests()
     ret += test_bbox_functions();
     ret += test_create_network();
     ret += test_walk_network();
-    ret += test_snap_network();
+    ret += test_jump_network();
     ret += test_cost_network();
     ret += test_step_network();
     ret += test_network_probability_0_100();

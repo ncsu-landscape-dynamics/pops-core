@@ -460,7 +460,7 @@ public:
      * If there is more than one node at the given *row* and *column*, a random node is
      * picked and used as a next walking destination.
      *
-     * If *snap* is true, then results are snapped to the closest node, otherwise
+     * If *jump* is true, then results are snapped to the closest node, otherwise
      * result can be anywhere in between the nodes based on the edge geomerty (segment).
      *
      * @returns Final row and column pair
@@ -471,7 +471,7 @@ public:
         RasterIndex col,
         double distance,
         Generator& generator,
-        bool snap = false) const
+        bool jump = false) const
     {
         auto node_id = get_random_node_at(row, col, generator);
         std::set<NodeId> visited_nodes;
@@ -494,7 +494,7 @@ public:
                 distance -= segment.cost();
                 continue;
             }
-            if (snap) {
+            if (jump) {
                 if (distance < segment.cost() / 2) {
                     // Less than half snaps to the start node.
                     return segment.front();
@@ -502,7 +502,7 @@ public:
                 // Half or more snaps to the end node.
                 return segment.back();
             }
-            // No snapping, advance in a segment.
+            // No jumping (snapping), advance in a segment.
             // This includes the special cases when distance is 0 or total segment cost.
             return segment.cell_by_cost(distance);
         }
