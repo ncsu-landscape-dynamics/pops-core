@@ -510,10 +510,11 @@ public:
     }
 
     /**
-     * Step to a different node in the network from given row and column.
+     * Teleport to a different node in the network from given row and column.
      *
      * Returns any node of the nodes connected to the start node possibly based on the
-     * edge probability if probability was assigned to the edges.
+     * edge probability if probability was assigned to the edges without considering
+     * cost to travel from one node to the next one.
      *
      * If *num_steps* is greater than 1, multiple steps are perfomed and the last node
      * is returned. In each node, the probability of picking a specific connection is
@@ -531,7 +532,7 @@ public:
      * @returns Destination row and column pair
      */
     template<typename Generator>
-    std::tuple<int, int> step(
+    std::tuple<int, int> teleport(
         RasterIndex row, RasterIndex col, Generator& generator, int num_steps = 1) const
     {
         auto node_id = get_random_node_at(row, col, generator);

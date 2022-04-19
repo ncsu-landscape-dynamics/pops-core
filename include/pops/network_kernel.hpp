@@ -57,7 +57,7 @@ public:
           jump_(jump)
     {}
     /**
-     * @brief Create kernel which steps from one node to another.
+     * @brief Create kernel which teleports from one node to another.
      *
      * The kernel assumes that the *network* is already initialized. It does not modify
      * the network.
@@ -65,7 +65,7 @@ public:
      * @param network Existing network
      */
     NetworkDispersalKernel(const Network<RasterIndex>& network)
-        : network_(network), step_{true}
+        : network_(network), teleport_{true}
     {}
 
     /*! \copybrief RadialDispersalKernel::operator()()
@@ -76,8 +76,8 @@ public:
     template<typename Generator>
     std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
-        if (step_) {
-            return network_.step(row, col, generator);
+        if (teleport_) {
+            return network_.teleport(row, col, generator);
         }
         double distance = distance_distribution_(generator);
         std::tie(row, col) = network_.walk(row, col, distance, generator);
@@ -110,7 +110,7 @@ protected:
     /** Travel distance (cost) distribution */
     std::uniform_real_distribution<double> distance_distribution_;
     /** Step through network instead of traveling between nodes */
-    bool step_{false};
+    bool teleport_{false};
     /** Snap to nodes when traveling between nodes */
     bool jump_{false};
 };

@@ -463,7 +463,7 @@ int test_network_probability_last()
     return 0;
 }
 
-int test_step_network()
+int test_teleport_network()
 {
     int ret = 0;
     BBox<double> bbox;
@@ -499,7 +499,7 @@ int test_step_network()
         int end_row;
         int end_col;
         std::tie(end_row, end_col) =
-            network.step(start_row, start_col, generator, std::get<0>(destination));
+            network.teleport(start_row, start_col, generator, std::get<0>(destination));
         if (std::get<1>(destination) != end_row
             || std::get<2>(destination) != end_col) {
             std::cerr << "from (" << start_row << ", " << start_col << ") to ("
@@ -843,7 +843,7 @@ int run_tests()
     ret += test_walk_network();
     ret += test_jump_network();
     ret += test_cost_network();
-    ret += test_step_network();
+    ret += test_teleport_network();
     ret += test_network_probability_0_100();
     ret += test_network_probability_0_1();
     ret += test_network_negative_probability();
