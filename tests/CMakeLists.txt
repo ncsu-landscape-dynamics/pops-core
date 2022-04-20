@@ -2,7 +2,7 @@
 # takes one parameter which is a filename without an extension
 function(add_pops_test NAME)
     # a test is an executable
-    add_executable("${NAME}" "${NAME}")
+    add_executable("${NAME}" "${NAME}.cpp")
 
     # make the PoPS library a dependency
     target_link_libraries(${NAME} pops)

@@ -157,16 +157,16 @@ private:
  * The network consists of nodes connected by edges. Edges are spatially represented
  * as segments. Edges themselves don't carry cost and have meaning only as indicators of
  * existence of a connection between nodes. Cost for each edge is a travel distance
- * determined by advancing through cells in a segment.
+ * (cost) determined by advancing through all cells in a segment.
  *
  * Nodes are the hop-on locations for dispersers. The dispersers can hop-off anywhere.
  *
  * The general workflow is constructing the object (with the constructor) and loading the
  * data (with the load() function). Then the network is ready to be used for simulating
- * trips over the network (with the travel() function).
+ * trips over the network (with the walk() or teleport() functions).
  *
- * When the travel() function is used from a kernel, user of the network directly calls
- * only the setup functions.
+ * When the walk() or teleport() functions are used from a kernel, user of the network
+ * directly calls only the setup functions.
  *
  * The class exposes number of functions as public which are meant for testing or other
  * special workflows.
@@ -190,16 +190,14 @@ public:
      * @param bbox Bounding box of the raster grid (in real world coordinates)
      * @param ew_res East-west resolution of the raster grid
      * @param ns_res North-south resolution of the raster grid
-     * @param snap Snap result to the closest node
      */
-    Network(BBox<double> bbox, double ew_res, double ns_res, bool snap = false)
+    Network(BBox<double> bbox, double ew_res, double ns_res)
         : bbox_(bbox),
           ew_res_(ew_res),
           ns_res_(ns_res),
           max_row_(0),
           max_col_(0),
-          distance_per_cell_((ew_res + ns_res) / 2),
-          snap_(snap)
+          distance_per_cell_((ew_res + ns_res) / 2)
     {
         std::tie(max_row_, max_col_) = xy_to_row_col(bbox_.east, bbox_.south);
     }
@@ -451,19 +449,30 @@ public:
     }
 
     /**
-     * Travel given distance in the network from given row and column.
+     * Walk a given distance (cost) in the network from given row and column.
      *
      * All previously visited nodes are tracked and, if possible, excluded
      * from further traveling.
      *
+     * The function assumes there is a node at the given *row* and *column*, i.e., that
+     * the decision to call this function was based on the caller knowing there is a
+     * node. If there is no node, an std::invalid_argument exception is thrown.
+     * If there is more than one node at the given *row* and *column*, a random node is
+     * picked and used as a next walking destination.
+     *
+     * If *jump* is true, then results are snapped to the closest node, otherwise
+     * result can be anywhere in between the nodes based on the edge geomerty (segment).
+     *
      * @returns Final row and column pair
      */
     template<typename Generator>
-    std::tuple<int, int> travel(
-        RasterIndex row, RasterIndex col, double distance, Generator& generator) const
+    std::tuple<int, int> walk(
+        RasterIndex row,
+        RasterIndex col,
+        double distance,
+        Generator& generator,
+        bool jump = false) const
     {
-        // We assume there is a node here, i.e., that we are made decision
-        // to use this kernel knowing there is a node.
         auto node_id = get_random_node_at(row, col, generator);
         std::set<NodeId> visited_nodes;
         while (distance >= 0) {
@@ -485,7 +494,7 @@ public:
                 distance -= segment.cost();
                 continue;
             }
-            if (snap_) {
+            if (jump) {
                 if (distance < segment.cost() / 2) {
                     // Less than half snaps to the start node.
                     return segment.front();
@@ -493,7 +502,7 @@ public:
                 // Half or more snaps to the end node.
                 return segment.back();
             }
-            // No snapping, advance in a segment.
+            // No jumping (snapping), advance in a segment.
             // This includes the special cases when distance is 0 or total segment cost.
             return segment.cell_by_cost(distance);
         }
@@ -501,26 +510,29 @@ public:
     }
 
     /**
-     * Step to a different node in the network from given row and column.
+     * Teleport to a different node in the network from given row and column.
      *
      * Returns any node of the nodes connected to the start node possibly based on the
-     * edge probability if probability was assigned to the edges.
+     * edge probability if probability was assigned to the edges without considering
+     * cost to travel from one node to the next one.
      *
      * If *num_steps* is greater than 1, multiple steps are performed and the last node
-     * is returned. In each node, the probability to picking a specific connection are
-     * either determined by the provided edge probabilities or are equal. Consequently,
-     * previously visited nodes can be visited again. In other words, for highly
-     * probable connections, most likely next step is a step back to the starting node
-     * (or generally previous node for `num_steps >= 3`).
+     * is returned. In each node, the probability of picking a specific connection is
+     * either determined by the provided edge probabilities or is equal among the
+     * connections. Consequently, previously visited nodes can be visited again. In
+     * other words, for highly probable connections, most likely next step is a step
+     * back to the starting node (or generally previous node for `num_steps >= 3`).
      *
      * The function assumes a node is at the *row*, *col* coordinates, i.e., that this
      * was either checked beforehand or otherwise ensured. If there is no node, an
      * std::invalid_argument exception is thrown.
+     * If there is more than one node at the given *row* and *column*, a random node is
+     * picked and used.
      *
      * @returns Destination row and column pair
      */
     template<typename Generator>
-    std::tuple<int, int> step(
+    std::tuple<int, int> teleport(
         RasterIndex row, RasterIndex col, Generator& generator, int num_steps = 1) const
     {
         auto node_id = get_random_node_at(row, col, generator);
@@ -732,8 +744,9 @@ protected:
      */
     static double probability_from_text(const std::string& text)
     {
+        double value{0};
         try {
-            return std::stod(text);
+            value = std::stod(text);
         }
         catch (const std::invalid_argument& err) {
             if (string_contains(text, '"') || string_contains(text, '\'')) {
@@ -758,6 +771,11 @@ protected:
                 std::string("Numerical value too large for connection probabilty: ")
                 + text);
         }
+        if (value < 0) {
+            throw std::invalid_argument(
+                std::string("Probability needs to be >=0, not ") + text);
+        }
+        return value;
     }
 
     /**
@@ -815,21 +833,24 @@ protected:
             }
             if (label == "probability") {
                 if (has_cost) {
-                    std::runtime_error(
+                    // Detailed check to give a more relevant error message.
+                    throw std::runtime_error(
                         "The cost column must be after the probability column");
                 }
                 if (column_number != 3) {
-                    std::runtime_error(
+                    throw std::runtime_error(
                         "The probability column must be the third column");
                 }
                 has_probability = true;
+                continue;
             }
             if (label == "cost") {
                 if (!(column_number == 3 || column_number == 4)) {
-                    std::runtime_error(
+                    throw std::runtime_error(
                         "The cost column must be the third or fourth column");
                 }
                 has_cost = true;
+                continue;
             }
         }
         return {has_cost, has_probability};
@@ -1072,8 +1093,7 @@ protected:
     double ns_res_;  ///< North-south resolution of the grid
     RasterIndex max_row_;  ///< Maximum row index in the grid
     RasterIndex max_col_;  ///< Maximum column index in the grid
-    double distance_per_cell_;  ///< Distance to travel through one cell (cost)
-    bool snap_ = false;
+    double distance_per_cell_;  ///< Distance (cost) to walk through one cell
     /** Node IDs stored by row and column (multiple nodes per cell) */
     std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;
     NodeMatrix node_matrix_;  ///< List of node neighbors by node ID (edges)
