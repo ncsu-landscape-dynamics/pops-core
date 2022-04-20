@@ -161,9 +161,9 @@ private:
  *
  * Nodes are the hop-on locations for dispersers. The dispersers can hop-off anywhere.
  *
- * The general workflow is constructing the object (with the constructor) and loading the
- * data (with the load() function). Then the network is ready to be used for simulating
- * trips over the network (with the walk() or teleport() functions).
+ * The general workflow is constructing the object (with the constructor) and loading
+ * the data (with the load() function). Then the network is ready to be used for
+ * simulating trips over the network (with the walk() or teleport() functions).
  *
  * When the walk() or teleport() functions are used from a kernel, user of the network
  * directly calls only the setup functions.
