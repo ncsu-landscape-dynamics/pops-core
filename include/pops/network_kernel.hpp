@@ -56,6 +56,7 @@ public:
           distance_distribution_(min_distance, max_distance),
           jump_(jump)
     {}
+
     /**
      * @brief Create kernel which teleports from one node to another.
      *
@@ -66,17 +67,6 @@ public:
      */
     NetworkDispersalKernel(const Network<RasterIndex>& network)
         : network_(network), teleport_{true}
-    {}
-    /**
-     * @brief Create kernel which steps from one node to another.
-     *
-     * The kernel assumes that the *network* is already initialized. It does not modify
-     * the network.
-     *
-     * @param network Existing network
-     */
-    NetworkDispersalKernel(const Network<RasterIndex>& network)
-        : network_(network), step_{true}
     {}
 
     /*! \copybrief RadialDispersalKernel::operator()()
