@@ -1,7 +1,7 @@
 /*
  * PoPS model - pest or pathogen spread simulation
  *
- * Copyright (C) 2015-2020 by the authors.
+ * Copyright (C) 2015-2022 by the authors.
  *
  * Authors: Zexi Chen (zchen22 ncsu edu)
  *          Vaclav Petras (wenzeslaus gmail com)
@@ -144,7 +144,7 @@ inline ModelType model_type_from_string(const char* text)
  * Template parameter RasterIndex is type used for maximum indices of
  * the used rasters and should be the same as what the actual raster
  * types are using. However, at the same time, comparison with signed
- * type are perfomed and a signed type might be required in the future.
+ * type are performed and a signed type might be required in the future.
  * A default is provided, but it can be changed in the future.
  */
 template<
@@ -739,9 +739,9 @@ public:
                 infected(row, col) += leaving;
             }
             // More pests than the target cell can accept.
-            // This can happen if there is simply not enough S hosts to accomodate all
+            // This can happen if there is simply not enough S hosts to accommodate all
             // the pests moving from the source or if multiple sources end up in the
-            // same target cell and there is not enough S hosts to accomodate all of
+            // same target cell and there is not enough S hosts to accommodate all of
             // them. The pests just disappear in both cases.
             else {
                 leaving = susceptible(row, col);

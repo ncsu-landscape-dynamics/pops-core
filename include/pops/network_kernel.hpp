@@ -56,6 +56,7 @@ public:
           distance_distribution_(min_distance, max_distance),
           jump_(jump)
     {}
+
     /**
      * @brief Create kernel which teleports from one node to another.
      *
