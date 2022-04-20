@@ -99,7 +99,7 @@ int test_bbox_functions()
     return ret;
 }
 
-int test_travel_network()
+int test_walk_network()
 {
     int ret = 0;
     BBox<double> bbox;
@@ -152,7 +152,7 @@ int test_travel_network()
         int end_row;
         int end_col;
         std::tie(end_row, end_col) =
-            network.travel(start_row, start_col, distance, generator);
+            network.walk(start_row, start_col, distance, generator);
         if (correct->first != end_row || correct->second != end_col) {
             std::cerr << "from (" << start_row << ", " << start_col << ") to ("
                       << end_row << ", " << end_col << ") in " << distance
@@ -169,7 +169,7 @@ int test_travel_network()
     return ret;
 }
 
-int test_snap_network()
+int test_jump_network()
 {
     int ret = 0;
     BBox<double> bbox;
@@ -204,7 +204,7 @@ int test_snap_network()
         }
         int end_row;
         int end_col;
-        std::tie(end_row, end_col) = network.travel(
+        std::tie(end_row, end_col) = network.walk(
             start_row, start_col, std::get<0>(destination), generator, true);
         if (std::get<1>(destination) != end_row
             || std::get<2>(destination) != end_col) {
@@ -264,7 +264,7 @@ int test_cost_network()
         int end_row;
         int end_col;
         std::tie(end_row, end_col) =
-            network.travel(start_row, start_col, std::get<0>(destination), generator);
+            network.walk(start_row, start_col, std::get<0>(destination), generator);
         if (std::get<1>(destination) != end_row
             || std::get<2>(destination) != end_col) {
             std::cerr << "from (" << start_row << ", " << start_col << ") to ("
@@ -463,7 +463,7 @@ int test_network_probability_last()
     return 0;
 }
 
-int test_step_network()
+int test_teleport_network()
 {
     int ret = 0;
     BBox<double> bbox;
@@ -499,7 +499,7 @@ int test_step_network()
         int end_row;
         int end_col;
         std::tie(end_row, end_col) =
-            network.step(start_row, start_col, generator, std::get<0>(destination));
+            network.teleport(start_row, start_col, generator, std::get<0>(destination));
         if (std::get<1>(destination) != end_row
             || std::get<2>(destination) != end_col) {
             std::cerr << "from (" << start_row << ", " << start_col << ") to ("
@@ -761,7 +761,7 @@ int create_network_from_files(int argc, char** argv)
     if (trips || trace) {
         double min_distance = config.get("min_distance", 1.);
         double max_distance = config.get("max_distance", 1.);
-        bool snap = config.get("snap", false);
+        bool jump = config.get("jump", false);
         double distance_increment = config.get("distance_increment", 1.);
         int seed = config.get("seed", 1);
         std::default_random_engine generator;
@@ -794,7 +794,7 @@ int create_network_from_files(int argc, char** argv)
                 int end_row;
                 int end_col;
                 std::tie(end_row, end_col) =
-                    network.travel(start_row, start_col, distance, generator, snap);
+                    network.walk(start_row, start_col, distance, generator, jump);
                 trips.emplace_back(end_row, end_col, distance);
             }
             if (trace) {
@@ -840,10 +840,10 @@ int run_tests()
 
     ret += test_bbox_functions();
     ret += test_create_network();
-    ret += test_travel_network();
-    ret += test_snap_network();
+    ret += test_walk_network();
+    ret += test_jump_network();
     ret += test_cost_network();
-    ret += test_step_network();
+    ret += test_teleport_network();
     ret += test_network_probability_0_100();
     ret += test_network_probability_0_1();
     ret += test_network_negative_probability();

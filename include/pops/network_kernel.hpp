@@ -33,31 +33,31 @@ class NetworkDispersalKernel
 {
 public:
     /**
-     * @brief Create kernel which travels through the network including edges.
+     * @brief Create kernel which travels through a network.
      *
      * The kernel assumes that the *network* is already initialized. It does not modify
      * the network.
      *
      * The *min_distance* and *max_distance* parameters are used as a range for uniform
-     * real distribution which determines the travel distance through the network for
-     * one trip.
+     * real distribution which determines the travel distance (cost) through the network
+     * for one trip if the network movement is walking (and not teleporting).
      *
      * @param network Existing network
-     * @param min_distance Minimum travel distance
-     * @param max_distance Maximum travel distance
-     * @param snap Snap result to the closest node
+     * @param min_distance Minimum travel distance (cost)
+     * @param max_distance Maximum travel distance (cost)
+     * @param jump End always on a node (snaps result to the closest node)
      */
     NetworkDispersalKernel(
         const Network<RasterIndex>& network,
         double min_distance,
         double max_distance,
-        bool snap = false)
+        bool jump = false)
         : network_(network),
           distance_distribution_(min_distance, max_distance),
-          snap_(snap)
+          jump_(jump)
     {}
     /**
-     * @brief Create kernel which steps from one node to another.
+     * @brief Create kernel which teleports from one node to another.
      *
      * The kernel assumes that the *network* is already initialized. It does not modify
      * the network.
@@ -65,7 +65,7 @@ public:
      * @param network Existing network
      */
     NetworkDispersalKernel(const Network<RasterIndex>& network)
-        : network_(network), step_{true}
+        : network_(network), teleport_{true}
     {}
 
     /*! \copybrief RadialDispersalKernel::operator()()
@@ -76,11 +76,11 @@ public:
     template<typename Generator>
     std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
-        if (step_) {
-            return network_.step(row, col, generator);
+        if (teleport_) {
+            return network_.teleport(row, col, generator);
         }
         double distance = distance_distribution_(generator);
-        std::tie(row, col) = network_.travel(row, col, distance, generator);
+        std::tie(row, col) = network_.walk(row, col, distance, generator);
 
         return std::make_tuple(row, col);
     }
@@ -107,12 +107,12 @@ public:
 protected:
     /** Reference to the network */
     const Network<RasterIndex>& network_;
-    /** Travel distance distribution */
+    /** Travel distance (cost) distribution */
     std::uniform_real_distribution<double> distance_distribution_;
     /** Step through network instead of traveling between nodes */
-    bool step_{false};
+    bool teleport_{false};
     /** Snap to nodes when traveling between nodes */
-    bool snap_{false};
+    bool jump_{false};
 };
 
 }  // namespace pops
