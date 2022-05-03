@@ -20,6 +20,7 @@
 #define POPS_SIMULATION_HPP
 
 #include <cmath>
+#include <memory>
 #include <tuple>
 #include <vector>
 #include <random>
@@ -120,6 +121,118 @@ inline ModelType model_type_from_string(const char* text)
     return model_type_from_string(text ? std::string(text) : std::string());
 }
 
+template<typename IntegerRaster, typename FloatRaster, typename RasterIndex = int>
+class Environment
+{
+public:
+    Environment() {}
+
+    void update_weather_coefficient(const FloatRaster& raster)
+    {
+        current_weather_coefficient = &raster;
+    }
+
+    double weather_coefficient_at(RasterIndex row, RasterIndex col) const
+    {
+        if (!current_weather_coefficient) {
+            throw std::logic_error("Weather coefficient used, but not provided");
+        }
+        return current_weather_coefficient->operator()(row, col);
+    }
+
+protected:
+    const FloatRaster* current_weather_coefficient{nullptr};
+};
+
+template<typename IntegerRaster, typename FloatRaster, typename RasterIndex = int>
+class SoilPool
+{
+public:
+    SoilPool(
+        std::vector<IntegerRaster>& rasters,
+        const Environment<IntegerRaster, FloatRaster, RasterIndex>& environment,
+        bool generate_stochasticity = true,
+        bool establishment_stochasticity = true,
+        double fixed_soil_probability = 0)
+        : active_{true},
+          rasters_(&rasters),
+          environment_(&environment),
+          generate_stochasticity_(generate_stochasticity),
+          establishment_stochasticity_(establishment_stochasticity),
+          fixed_soil_probability_(fixed_soil_probability)
+    {
+        if (rasters.empty()) {
+            throw std::logic_error(
+                "List of rasters of SpoilPool needs to have at least one item");
+        }
+    }
+
+    SoilPool() : active_{false} {}
+
+    bool active()
+    {
+        return active_;
+    }
+
+    template<typename Generator>
+    int dispersers_from(RasterIndex row, RasterIndex col, Generator& generator)
+    {
+        auto count = this->total_at(row, col);
+        double lambda = environment_->weather_coefficient_at(row, col);
+        if (this->generate_stochasticity_) {
+            std::poisson_distribution<int> distribution(lambda);
+            int dispersers = 0;
+            for (int k = 0; k < count; k++) {
+                dispersers += distribution(generator);
+            }
+            return dispersers;
+        }
+        else {
+            return lambda * count;
+        }
+    }
+    template<typename Generator>
+    void disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
+    {
+        double current_probability = environment_->weather_coefficient_at(row, col);
+        double tester = 1 - fixed_soil_probability_;
+        if (this->establishment_stochasticity_)
+            tester = distribution_uniform_(generator);
+        if (tester < current_probability) {
+            this->add_at(row, col);
+        }
+    }
+
+    void add_at(RasterIndex row, RasterIndex col, int value = 1)
+    {
+        rasters_->back()(row, col) += value;
+    }
+
+    int total_at(RasterIndex row, RasterIndex col)
+    {
+        int total = 0;
+        for (auto& raster : *rasters_) {
+            total += raster(row, col);
+        }
+        return total;
+    }
+
+    void next_step(int step)
+    {
+        UNUSED(step);
+        rotate_left_by_one(*rasters_);
+    }
+
+protected:
+    bool active_{false};
+    std::vector<IntegerRaster>* rasters_{nullptr};
+    const Environment<IntegerRaster, FloatRaster, RasterIndex>* environment_{nullptr};
+    bool generate_stochasticity_{false};
+    bool establishment_stochasticity_{false};
+    double fixed_soil_probability_{0};
+    std::uniform_real_distribution<double> distribution_uniform_{0.0, 1.0};
+};
+
 /*! The main class to control the spread simulation.
  *
  * The Simulation class handles the mechanics of the model, but the
@@ -163,6 +276,8 @@ private:
     ModelType model_type_;
     unsigned latency_period_;
     Generator generator_;
+    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
+        new SoilPool<IntegerRaster, FloatRaster, RasterIndex>()};
 
 public:
     /** Creates simulation object and seeds the internal random number generator.
@@ -521,6 +636,9 @@ public:
                 else {
                     dispersers_from_cell = lambda * infected(i, j);
                 }
+                if (soil_pool_ && soil_pool_->active())
+                    dispersers_from_cell +=
+                        soil_pool_->dispersers_from(i, j, generator_);
                 dispersers(i, j) = dispersers_from_cell;
                 established_dispersers(i, j) = dispersers_from_cell;
             }
@@ -605,6 +723,11 @@ public:
                     if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                         // export dispersers dispersed outside of modeled area
                         outside_dispersers.emplace_back(std::make_tuple(row, col));
+                        continue;
+                    }
+                    if (soil_pool_
+                        && soil_pool_->active() /* && to_soil_probabiliy */) {
+                        soil_pool_->disperser_to(i, j, generator_);
                         continue;
                     }
                     if (susceptible(row, col) > 0) {
@@ -895,6 +1018,12 @@ public:
             this->infect_exposed(
                 step, exposed, infected, mortality_tracker, total_exposed);
         }
+    }
+
+    void activate_soils(
+        std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool)
+    {
+        this->soil_pool_.reset(&soil_pool);
     }
 };
 

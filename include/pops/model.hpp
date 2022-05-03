@@ -55,6 +55,9 @@ protected:
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
     Simulation<IntegerRaster, FloatRaster, RasterIndex, Generator> simulation_;
     KernelFactory& kernel_factory_;
+    Environment<IntegerRaster, FloatRaster, RasterIndex> environment_;
+    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
+        nullptr};
     unsigned last_index{0};
 
     /**
@@ -201,6 +204,10 @@ public:
         const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
+        environment_.update_weather_coefficient(weather_coefficient);
+
+        if (soil_pool_ && soil_pool_->active())
+            soil_pool_->next_step(step);
 
         // removal of dispersers due to lethal temperatures
         if (config_.use_lethal_temperature && config_.lethal_schedule()[step]) {
@@ -328,6 +335,19 @@ public:
             quarantine.infection_escape_quarantine(
                 infected, quarantine_areas, action_step, suitable_cells);
         }
+    }
+
+    void activate_soils(std::vector<IntegerRaster>& rasters)
+    {
+        /* The soil pool can be created over and over again, but it depends on the
+         * environment, but as long as the environment is re-created, but only updated,
+         * all will work well. */
+        this->soil_pool_.reset(new SoilPool<IntegerRaster, FloatRaster, RasterIndex>(
+            rasters,
+            this->environment_,
+            config_.generate_stochasticity,
+            config_.establishment_stochasticity));
+        this->simulation_.activate_soils(*this->soil_pool_);
     }
 };
 
