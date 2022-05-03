@@ -1023,7 +1023,7 @@ public:
     void activate_soils(
         std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool)
     {
-        this->soil_pool_.reset(&soil_pool);
+        this->soil_pool_ = soil_pool;
     }
 };
 

@@ -347,7 +347,7 @@ public:
             this->environment_,
             config_.generate_stochasticity,
             config_.establishment_stochasticity));
-        this->simulation_.activate_soils(*this->soil_pool_);
+        this->simulation_.activate_soils(this->soil_pool_);
     }
 };
 
