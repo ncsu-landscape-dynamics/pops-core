@@ -56,7 +56,7 @@ public:
         const NetworkDispersalKernel<RasterIndex>& network_kernel,
         const DeterministicNeighborDispersalKernel& deterministic_neighbor_kernel =
             DeterministicNeighborDispersalKernel(Direction::None),
-        const bool dispersal_stochasticity = false)
+        const bool dispersal_stochasticity = true)
         : dispersal_kernel_type_(dispersal_kernel_type),
           // Here we initialize all kernels,
           // although we won't use all of them.
@@ -83,7 +83,7 @@ public:
         else if (dispersal_kernel_type_ == DispersalKernelType::Network) {
             return network_kernel_(generator, row, col);
         }
-        else if (dispersal_stochasticity_) {
+        else if (!dispersal_stochasticity_) {
             return deterministic_kernel_(generator, row, col);
         }
         else {
@@ -104,7 +104,7 @@ public:
         else if (dispersal_kernel_type_ == DispersalKernelType::Network) {
             return network_kernel_.is_cell_eligible(row, col);
         }
-        else if (dispersal_stochasticity_) {
+        else if (!dispersal_stochasticity_) {
             return true;
         }
         else {

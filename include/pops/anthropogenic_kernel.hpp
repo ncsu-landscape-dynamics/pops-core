@@ -65,7 +65,7 @@ std::unique_ptr<KernelInterface<Generator>> create_anthro_kernel(
         return std::unique_ptr<Kernel>(new Kernel(
             network, config.network_min_distance, config.network_max_distance, jump));
     }
-    else if (config.dispersal_stochasticity) {
+    else if (!config.dispersal_stochasticity) {
         using Kernel = DynamicWrapperKernel<
             DeterministicDispersalKernel<IntegerRaster>,
             Generator>;
