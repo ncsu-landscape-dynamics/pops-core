@@ -145,7 +145,7 @@ SwitchDispersalKernel<IntegerRaster, RasterIndex> create_static_natural_kernel(
         uniform_kernel,
         network_kernel,
         natural_neighbor_kernel,
-        config.deterministic);
+        config.dispersal_stochasticity);
     return selectable_kernel;
 }
 /**
@@ -193,7 +193,7 @@ SwitchDispersalKernel<IntegerRaster, RasterIndex> create_static_anthro_kernel(
         uniform_kernel,
         network_kernel,
         anthro_neighbor_kernel,
-        config.deterministic);
+        config.dispersal_stochasticity);
     return selectable_kernel;
 }
 
@@ -264,7 +264,7 @@ int test_simulation_with_kernels_generic(
 
     config.create_schedules();
 
-    config.deterministic = false;
+    config.dispersal_stochasticity = false;
 
     using IntRaster = Raster<int, int>;
     using DoubleRaster = Raster<double, int>;
@@ -375,7 +375,7 @@ int test_model_with_kernels_generic(
 
     config.create_schedules();
 
-    config.deterministic = false;
+    config.dispersal_stochasticity = false;
 
     Raster<int> infected{rows, cols, 10};
     // Susceptible and total are set in a way that there won't be any
