@@ -221,6 +221,7 @@ public:
     {
         UNUSED(step);
         rotate_left_by_one(*rasters_);
+        rasters_->back().fill(0);
     }
 
 protected:
