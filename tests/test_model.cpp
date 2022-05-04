@@ -229,7 +229,7 @@ int test_deterministic()
     config.mortality_frequency_n = 1;
     config.create_schedules();
 
-    config.dispersal_stochasticity = true;
+    config.dispersal_stochasticity = false;
 
     unsigned num_mortality_steps = 1;
     std::vector<Raster<int>> mortality_tracker(
@@ -371,7 +371,7 @@ int test_deterministic_exponential()
     config.mortality_frequency_n = 1;
     config.create_schedules();
 
-    config.dispersal_stochasticity = true;
+    config.dispersal_stochasticity = false;
 
     unsigned num_mortality_steps = 1;
     std::vector<Raster<int>> mortality_tracker(
@@ -510,7 +510,7 @@ int test_model_sei_deterministic()
     config.mortality_frequency_n = 1;
     config.create_schedules();
 
-    config.dispersal_stochasticity = true;
+    config.dispersal_stochasticity = false;
 
     std::vector<std::vector<int>> movements;
 
@@ -652,7 +652,7 @@ int test_model_sei_deterministic_with_treatments()
     config.mortality_frequency_n = 1;
     config.create_schedules();
 
-    config.dispersal_stochasticity = true;
+    config.dispersal_stochasticity = false;
 
     std::vector<std::vector<int>> movements;
 

@@ -264,7 +264,7 @@ int test_simulation_with_kernels_generic(
 
     config.create_schedules();
 
-    config.dispersal_stochasticity = false;
+    config.dispersal_stochasticity = true;
 
     using IntRaster = Raster<int, int>;
     using DoubleRaster = Raster<double, int>;
@@ -375,7 +375,7 @@ int test_model_with_kernels_generic(
 
     config.create_schedules();
 
-    config.dispersal_stochasticity = false;
+    config.dispersal_stochasticity = true;
 
     Raster<int> infected{rows, cols, 10};
     // Susceptible and total are set in a way that there won't be any
