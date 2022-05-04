@@ -46,7 +46,7 @@ public:
     bool generate_stochasticity{true};
     bool establishment_stochasticity{true};
     bool movement_stochasticity{true};
-    bool deterministic{false};
+    bool dispersal_stochasticity{false};
     double establishment_probability{0};
     // Temperature
     bool use_lethal_temperature{false};
