@@ -40,6 +40,7 @@ int test_soils()
     environment.update_weather_coefficient(weather);
 
     auto num_dispersers = soils.dispersers_from(1, 2, generator);
+    UNUSED(num_dispersers);
 
     return ret;
 }

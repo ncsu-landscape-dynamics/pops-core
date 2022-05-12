@@ -206,7 +206,7 @@ public:
     {
         environment_.update_weather_coefficient(weather_coefficient);
 
-        if (soil_pool_ && soil_pool_->active())
+        if (soil_pool_)
             soil_pool_->next_step(step);
 
         // removal of dispersers due to lethal temperatures
@@ -347,7 +347,8 @@ public:
             this->environment_,
             config_.generate_stochasticity,
             config_.establishment_stochasticity));
-        this->simulation_.activate_soils(this->soil_pool_);
+        this->simulation_.activate_soils(
+            this->soil_pool_, config_.dispersers_to_soils_percentage);
     }
 };
 

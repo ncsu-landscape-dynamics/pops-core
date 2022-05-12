@@ -154,8 +154,7 @@ public:
         bool generate_stochasticity = true,
         bool establishment_stochasticity = true,
         double fixed_soil_probability = 0)
-        : active_{true},
-          rasters_(&rasters),
+        : rasters_(&rasters),
           environment_(&environment),
           generate_stochasticity_(generate_stochasticity),
           establishment_stochasticity_(establishment_stochasticity),
@@ -165,13 +164,6 @@ public:
             throw std::logic_error(
                 "List of rasters of SpoilPool needs to have at least one item");
         }
-    }
-
-    SoilPool() : active_{false} {}
-
-    bool active()
-    {
-        return active_;
     }
 
     template<typename Generator>
@@ -191,6 +183,7 @@ public:
             return lambda * count;
         }
     }
+
     template<typename Generator>
     void disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
     {
@@ -201,6 +194,14 @@ public:
         if (tester < current_probability) {
             this->add_at(row, col);
         }
+    }
+
+    template<typename Generator>
+    void dispersers_to(
+        int dispersers, RasterIndex row, RasterIndex col, Generator& generator)
+    {
+        for (int i = 0; i < dispersers; i++)
+            this->disperser_to(row, col, generator);
     }
 
     void add_at(RasterIndex row, RasterIndex col, int value = 1)
@@ -225,7 +226,6 @@ public:
     }
 
 protected:
-    bool active_{false};
     std::vector<IntegerRaster>* rasters_{nullptr};
     const Environment<IntegerRaster, FloatRaster, RasterIndex>* environment_{nullptr};
     bool generate_stochasticity_{false};
@@ -278,7 +278,8 @@ private:
     unsigned latency_period_;
     Generator generator_;
     std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
-        new SoilPool<IntegerRaster, FloatRaster, RasterIndex>()};
+        nullptr};
+    double to_soil_percentage_{0};
 
 public:
     /** Creates simulation object and seeds the internal random number generator.
@@ -637,9 +638,16 @@ public:
                 else {
                     dispersers_from_cell = lambda * infected(i, j);
                 }
-                if (soil_pool_ && soil_pool_->active())
-                    dispersers_from_cell +=
-                        soil_pool_->dispersers_from(i, j, generator_);
+                if (soil_pool_) {
+                    /* From all the generated dispersers, some go to the soil in the
+                     * same cell and don't participate in the kernel-driven
+                     * dispersal.
+                     */
+                    auto dispersers_to_soil =
+                        std::round(to_soil_percentage_ * dispersers_from_cell);
+                    soil_pool_->dispersers_to(dispersers_to_soil, i, j, generator_);
+                    dispersers_from_cell -= dispersers_to_soil;
+                }
                 dispersers(i, j) = dispersers_from_cell;
                 established_dispersers(i, j) = dispersers_from_cell;
             }
@@ -724,11 +732,6 @@ public:
                     if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                         // export dispersers dispersed outside of modeled area
                         outside_dispersers.emplace_back(std::make_tuple(row, col));
-                        continue;
-                    }
-                    if (soil_pool_
-                        && soil_pool_->active() /* && to_soil_probabiliy */) {
-                        soil_pool_->disperser_to(i, j, generator_);
                         continue;
                     }
                     if (susceptible(row, col) > 0) {
@@ -1021,10 +1024,18 @@ public:
         }
     }
 
+    /**
+     * @brief Activate storage of dispersers in soil
+     *
+     * @param soil_pool Soils pool object to use for storage
+     * @param dispersers_percenatge Percentage of dispersers moving to the soil
+     */
     void activate_soils(
-        std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool)
+        std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool,
+        double dispersers_percentage)
     {
         this->soil_pool_ = soil_pool;
+        this->to_soil_percentage_ = dispersers_percentage;
     }
 };
 
