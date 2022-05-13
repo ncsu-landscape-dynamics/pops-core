@@ -97,7 +97,7 @@ protected:
             uniform_kernel,
             network_kernel,
             natural_neighbor_kernel,
-            config_.deterministic);
+            config_.dispersal_stochasticity);
         return selectable_kernel;
     }
 
