@@ -180,6 +180,15 @@ int test_deterministic()
     Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
+    // Limit established dispersers by number of available hosts.
+    for (int row = 0; row < susceptible.rows(); ++row) {
+        for (int col = 0; col < susceptible.cols(); ++col) {
+            if (expected_established_dispersers(row, col) > susceptible(row, col)) {
+                expected_established_dispersers(row, col) = susceptible(row, col);
+            }
+        }
+    }
+
     Raster<int> dispersers(infected.rows(), infected.cols());
     Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
@@ -395,6 +404,15 @@ int test_deterministic_exponential()
 
     auto expected_dispersers = config.reproductive_rate * infected;
     auto expected_established_dispersers = config.reproductive_rate * infected;
+
+    // Limit established dispersers by number of available hosts.
+    for (int row = 0; row < susceptible.rows(); ++row) {
+        for (int col = 0; col < susceptible.cols(); ++col) {
+            if (expected_established_dispersers(row, col) > susceptible(row, col)) {
+                expected_established_dispersers(row, col) = susceptible(row, col);
+            }
+        }
+    }
 
     int step = 0;
 
