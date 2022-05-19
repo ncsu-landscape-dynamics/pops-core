@@ -182,6 +182,7 @@ public:
         else {
             return lambda * count;
         }
+        // TODO: subtract as with mortality moves
     }
 
     template<typename Generator>
