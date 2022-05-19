@@ -735,72 +735,83 @@ public:
                         outside_dispersers.emplace_back(std::make_tuple(row, col));
                         continue;
                     }
-                    if (susceptible(row, col) > 0) {
-                        double probability_of_establishment =
-                            (double)(susceptible(row, col))
-                            / total_populations(row, col);
-                        double establishment_tester = 1 - establishment_probability;
-                        if (establishment_stochasticity_)
-                            establishment_tester = distribution_uniform(generator_);
-
-                        if (weather)
-                            probability_of_establishment *= weather_coefficient(i, j);
-                        if (establishment_tester < probability_of_establishment) {
-                            exposed_or_infected(row, col) += 1;
-                            susceptible(row, col) -= 1;
-                            if (model_type_ == ModelType::SusceptibleInfected) {
-                                mortality_tracker(row, col) += 1;
-                            }
-                            else if (
-                                model_type_ == ModelType::SusceptibleExposedInfected) {
-                                total_exposed(row, col) += 1;
-                            }
-                            else {
-                                throw std::runtime_error(
-                                    "Unknown ModelType value in "
-                                    "Simulation::disperse()");
-                            }
-                        }
-                        else {
-                            established_dispersers(i, j) -= 1;
-                        }
+                    auto dispersed = disperser_to(
+                        row,
+                        col,
+                        susceptible,
+                        exposed_or_infected,
+                        mortality_tracker,
+                        total_populations,
+                        total_exposed,
+                        weather,
+                        weather_coefficient,
+                        establishment_probability);
+                    if (!dispersed) {
+                        established_dispersers(i, j) -= 1;
                     }
                 }
             }
             if (soil_pool_) {
                 auto num_dispersers = soil_pool_->dispersers_from(i, j, generator_);
-                // TODO: move the below to a function
                 for (int k = 0; k < num_dispersers; k++) {
-                    if (susceptible(row, col) > 0) {
-                        double probability_of_establishment =
-                            (double)(susceptible(row, col))
-                            / total_populations(row, col);
-                        double establishment_tester = 1 - establishment_probability;
-                        if (establishment_stochasticity_)
-                            establishment_tester = distribution_uniform(generator_);
-
-                        if (weather)
-                            probability_of_establishment *= weather_coefficient(i, j);
-                        if (establishment_tester < probability_of_establishment) {
-                            exposed_or_infected(row, col) += 1;
-                            susceptible(row, col) -= 1;
-                            if (model_type_ == ModelType::SusceptibleInfected) {
-                                mortality_tracker(row, col) += 1;
-                            }
-                            else if (
-                                model_type_ == ModelType::SusceptibleExposedInfected) {
-                                total_exposed(row, col) += 1;
-                            }
-                            else {
-                                throw std::runtime_error(
-                                    "Unknown ModelType value in "
-                                    "Simulation::disperse()");
-                            }
-                        }
-                    }
+                    disperser_to(
+                        i,
+                        j,
+                        susceptible,
+                        exposed_or_infected,
+                        mortality_tracker,
+                        total_populations,
+                        total_exposed,
+                        weather,
+                        weather_coefficient,
+                        establishment_probability);
                 }
             }
         }
+    }
+
+    // private
+    int disperser_to(
+        RasterIndex row,
+        RasterIndex col,
+        IntegerRaster& susceptible,
+        IntegerRaster& exposed_or_infected,
+        IntegerRaster& mortality_tracker,
+        const IntegerRaster& total_populations,
+        IntegerRaster& total_exposed,
+        bool weather,
+        const FloatRaster& weather_coefficient,
+        double establishment_probability)
+    {
+        std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
+        if (susceptible(row, col) > 0) {
+            double probability_of_establishment =
+                (double)(susceptible(row, col)) / total_populations(row, col);
+            double establishment_tester = 1 - establishment_probability;
+            if (establishment_stochasticity_)
+                establishment_tester = distribution_uniform(generator_);
+
+            if (weather)
+                probability_of_establishment *=
+                    weather_coefficient(row, col);  // <-- origin row, col here!?
+            if (establishment_tester < probability_of_establishment) {
+                exposed_or_infected(row, col) += 1;
+                susceptible(row, col) -= 1;
+                if (model_type_ == ModelType::SusceptibleInfected) {
+                    mortality_tracker(row, col) += 1;
+                }
+                else if (model_type_ == ModelType::SusceptibleExposedInfected) {
+                    total_exposed(row, col) += 1;
+                }
+                else {
+                    throw std::runtime_error(
+                        "Unknown ModelType value in "
+                        "Simulation::disperse()");
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Move overflowing pest population to other hosts.
