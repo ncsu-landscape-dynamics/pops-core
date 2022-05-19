@@ -792,8 +792,7 @@ public:
                 establishment_tester = distribution_uniform(generator_);
 
             if (weather)
-                probability_of_establishment *=
-                    weather_coefficient(row, col);  // <-- origin row, col here!?
+                probability_of_establishment *= weather_coefficient(row, col);
             if (establishment_tester < probability_of_establishment) {
                 exposed_or_infected(row, col) += 1;
                 susceptible(row, col) -= 1;
