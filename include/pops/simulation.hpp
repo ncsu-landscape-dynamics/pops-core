@@ -766,6 +766,39 @@ public:
                     }
                 }
             }
+            if (soil_pool_) {
+                auto num_dispersers = soil_pool_->dispersers_from(i, j, generator_);
+                // TODO: move the below to a function
+                for (int k = 0; k < num_dispersers; k++) {
+                    if (susceptible(row, col) > 0) {
+                        double probability_of_establishment =
+                            (double)(susceptible(row, col))
+                            / total_populations(row, col);
+                        double establishment_tester = 1 - establishment_probability;
+                        if (establishment_stochasticity_)
+                            establishment_tester = distribution_uniform(generator_);
+
+                        if (weather)
+                            probability_of_establishment *= weather_coefficient(i, j);
+                        if (establishment_tester < probability_of_establishment) {
+                            exposed_or_infected(row, col) += 1;
+                            susceptible(row, col) -= 1;
+                            if (model_type_ == ModelType::SusceptibleInfected) {
+                                mortality_tracker(row, col) += 1;
+                            }
+                            else if (
+                                model_type_ == ModelType::SusceptibleExposedInfected) {
+                                total_exposed(row, col) += 1;
+                            }
+                            else {
+                                throw std::runtime_error(
+                                    "Unknown ModelType value in "
+                                    "Simulation::disperse()");
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
