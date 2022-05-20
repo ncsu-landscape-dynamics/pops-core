@@ -605,6 +605,7 @@ public:
                     if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                         // export dispersers dispersed outside of modeled area
                         outside_dispersers.emplace_back(std::make_tuple(row, col));
+                        established_dispersers(i, j) -= 1;
                         continue;
                     }
                     if (susceptible(row, col) > 0) {
@@ -616,7 +617,8 @@ public:
                             establishment_tester = distribution_uniform(generator_);
 
                         if (weather)
-                            probability_of_establishment *= weather_coefficient(i, j);
+                            probability_of_establishment *=
+                                weather_coefficient(row, col);
                         if (establishment_tester < probability_of_establishment) {
                             exposed_or_infected(row, col) += 1;
                             susceptible(row, col) -= 1;
@@ -636,6 +638,9 @@ public:
                         else {
                             established_dispersers(i, j) -= 1;
                         }
+                    }
+                    else {
+                        established_dispersers(i, j) -= 1;
                     }
                 }
             }
