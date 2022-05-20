@@ -180,6 +180,9 @@ int test_deterministic()
     Raster<int> expected_mortality_tracker = {{10, 0, 0}, {0, 10, 0}, {0, 0, 2}};
     Raster<int> expected_infected = {{15, 0, 0}, {0, 15, 0}, {0, 0, 4}};
 
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
+
     // Limit established dispersers by number of available hosts.
     for (int row = 0; row < susceptible.rows(); ++row) {
         for (int col = 0; col < susceptible.cols(); ++col) {
@@ -188,9 +191,6 @@ int test_deterministic()
             }
         }
     }
-
-    Raster<int> dispersers(infected.rows(), infected.cols());
-    Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
     std::vector<std::vector<int>> suitable_cells = {
