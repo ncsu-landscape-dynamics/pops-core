@@ -1,3 +1,26 @@
+class Host
+{
+    Raster infected;
+    vector<Raster> exposed;
+    Raster susceptible;
+    Raster total_hosts;  // computed on demand
+    Raster all_populations;  // computed on demand
+    Raster other_individuals;  // maybe environment.other_individuals (non hosts)
+    vector<cell> suitable_cells;
+    vector<Raster>mortality_tracker_vector;
+    Raster died;
+
+
+    dpouble establishment_probability_at(i, j)
+    {
+        ...
+    }
+}
+
+class Hosts
+{
+    vector<Host> hosts;
+}
 
 class Hosts
 {
@@ -13,6 +36,15 @@ class Hosts
 
     void disperser_to(i, j)
     {
+        vector probs;
+        for host in hosts {
+            probs.push_back(host.establishment_probability_at(i, j));
+        }
+        // decisions ...
+
+        host[index].add_disperser_at(i, j);
+
+        // This happens in the host[index]:
         if (establish) {
             if ("SI") {
                 infected(i, j) += 1;
@@ -20,7 +52,7 @@ class Hosts
             if ("SEI") {
                 exposed.back()(i, j) += 1;
             }
-            established_dispersers(i, j) += 1;
+            // established_dispersers(i, j) += 1;
         }
     }
     void step_forward() // or infect
@@ -49,8 +81,28 @@ class Hosts
 class Pests
 {
     Raster mobile_dispersers;
-    Raster in_cell_dispersers;
-    // maybe in soil stored dispersers
+    Raster immobile_dispersers;  // aka in soil storage
+
+    void immobile_dispersers_to(number, i, j)
+    {
+        // weather + ratios + stochasticity
+        immobile_dispersers(i, j) += number;
+    }
+    int immobile_dispersers_from(i, j)
+    {
+        // weather + ratios + stochasticity
+        number = 1;
+        immobile_dispersers(i, j) -= number;
+        return number;
+    }
+    int add_dispersers_at(dispersers, i, j)
+    {
+        // To soils
+        dispersers_to_soil = to_soil_percentage * dispersers;
+        this->immobile_dispersers_to(dispersers_to_soil, i, j);
+        dispersers -= dispersers_to_soil;
+        return dispersers;
+    }
 }
 
 class Spread
@@ -60,16 +112,44 @@ class Spread
     // and there would be no need to distinguish between generated dispersers,
     // but it would be much harder to track origin of established dispersers.
 
-    void disperse(Hosts hosts)
+    void action(Hosts hosts, Pests pests)
     {
-        for disperser in dispersers {
-            i, j = kernel(disperser);
-            hosts.disperser_to(i, j);
+        for i, j in hosts.suitable_cells {
+            // Generate
+            dispersers = hosts.dispersers_from(i, j);
+            // To soils
+            dispersers = pests.add_dispersers_at(dispersers, i, j);
+            
+            // Classic spread
+            for disperser in dispersers {
+                i, j, kernel_name = kernel(disperser);
+                //if (i, j is outside) {
+                //    pests.add_free(i, j);
+                //}
+                pests.add_landed(i, j);
+                established = hosts.disperser_to(i, j);
+                if (established) {
+                    pests.add_established(i, j, disperser, kernel_name);
+                }
+            }
+            // From soils
+            dispersers = pests.immobile_dispersers_from(i, j);
+            for disperser in dispersers {
+                established = hosts.disperser_to(i, j);
+                if (established)
+                    pests.add_established(i, j, i, j, "soil");
+            }
         }
     }
-    void infect(Hosts hosts)
-    {
+}
 
+class Soil
+{
+    void action(Hosts hosts, Pests pests)
+    {
+        for i, j in hosts.suitable_cells {
+            
+        }
     }
 }
 
@@ -123,15 +203,19 @@ class Mortality
 {
     void action(Hosts host)
     {
+        // Do all mortality in Hosts and Host and here just call the right method.
+        // Even mortality rate is linked to the host. Some don't die at all.
         for i, j in hosts.suitable_cells {
-            for item in hosts.mortality_at(i, j) {
-                if (index == 0)
-                    mortality = item;
-                else
-                    mortality = mortality_rate * item;
-                list.push_back(mortality);
+            for host in hosts {
+                for item in hosts.mortality_at(i, j) {
+                    if (index == 0)
+                        mortality = item;
+                    else
+                        mortality = mortality_rate * item;
+                    list.push_back(mortality);
+                }
+                hosts.kill_at(i, j, mortality);
             }
-            hosts.kill_at(i, j, mortality);
         }
     }
 }
@@ -143,6 +227,17 @@ class MoveOverpopulatedPests
         // generate_moves as from cell, to cell, count won't work because
         // 1) they need to be airborne first and
         // 2) only count for leaving=infected->susceptible is not tracked (no exposed and resistant)
+        for i, j in hosts.suitable_cells {
+            infected = hosts.infected_at(i, j);
+            if (infected / hosts.total_hosts_at(i, j) >= overpopulation_percentage) {
+                i, j = kernel(disperser);
+                hosts.disperser_from(i, j);
+                moves.push_back(i, j);
+            }
+        }
+        for i, j in moves {
+            hosts.disperser_to(i, j);
+        }
     }
 }
 
@@ -155,7 +250,8 @@ class Model
     remove_by_temperature.action(hosts);
     survival_rate.action(hosts);
 
-    move_overpopulated_pests
+    move_overpopulated_pests.action(hosts);
+    mortality.action(hosts);
 
     // The treatment would be wrapped in Treatments which has manage to decide
     // the time, but it does not need manage_mortality anymore because the
