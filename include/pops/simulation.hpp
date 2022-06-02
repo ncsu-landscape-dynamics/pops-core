@@ -733,6 +733,7 @@ public:
                     if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                         // export dispersers dispersed outside of modeled area
                         outside_dispersers.emplace_back(std::make_tuple(row, col));
+                        established_dispersers(i, j) -= 1;
                         continue;
                     }
                     auto dispersed = disperser_to(
