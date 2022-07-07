@@ -3,26 +3,99 @@ class Host
     Raster infected;
     vector<Raster> exposed;
     Raster susceptible;
-    Raster total_hosts;  // computed on demand
-    Raster all_populations;  // computed on demand
-    Raster other_individuals;  // maybe environment.other_individuals (non hosts)
     vector<cell> suitable_cells;
     vector<Raster>mortality_tracker_vector;
     Raster died;
 
-
-    dpouble establishment_probability_at(i, j)
+    double establishment_probability_at(i, j)
     {
-        ...
+        double probability = double(this->susceptible_at(row, col)) / environment.total_population_at(row, col);
+        if (weather)
+            probability *= weather_coefficient(i, j);
+        return probability;
+    }
+    double total_host_at(i, j)
+    {
+        return this->susceptible_at(row, col) + this->infected_at(row, col) + this->exposed_at(row, col);
+    }
+    double exposed_at(i, j)
+    {
+        sum = 0
+        for raster in exposed:
+            sum += raster(i, j);
+        return sum;
+    }
+    int susceptible_at(i, j)
+    {
+        return susceptible(i, j);
+    }
+    // interaction version
+    // int susceptible_at(i, j)
+    // {
+    //     return environment.susceptible_at("Oak", i, j);
+    // }
+    void add_disperser_at(i, j)
+    {
+        if ("SI") {
+            infected(i, j) += 1;
+        }
+        if ("SEI") {
+            exposed.back()(i, j) += 1;
+        }
+    }
+    void step_forward() // aka infect
+    {
+        if ("SEI") {
+            infected = exposed.front();
+            rotate_left_by_one(exposed);
+        }
+        if (mortality) {
+            rotate_left_by_one(mortality_tracker_vector);
+        }
     }
 }
 
-class Hosts
+class Environment
 {
-    vector<Host> hosts;
+    vector<Host*> hosts;  // non-owning reference
+    Raster other_individuals;  // non hosts
+    int total_population_at(i, j)
+    {
+        sum = other_individuals(i, j);
+        for host in hosts {
+            sum += host.total_host_at(i,j);
+        }
+        return sum;
+    }
 }
 
-class Hosts
+class HostPool
+{
+    vector<Host> hosts;
+    bool disperser_to(i, j)
+    {
+        vector probabilities;
+        for host in hosts {
+            probabilities.push_back(host.establishment_probability_at(i, j));
+        }
+        index = pick_host_index_by_probability(hosts, probabilities);
+        probability = probabilities[index];
+        if (establishment_stochasticity_)
+            tester = distribution_uniform(generator_);
+        else
+            tester = 1 - deterministic_probability;
+        if (tester < probability) {
+            // establish
+            host[index].add_disperser_at(i, j);
+            return true
+        }
+        // not established
+        return false;
+        
+    }
+}
+
+class OldHosts
 {
     Raster infected;
     vector<Raster> exposed;
@@ -55,6 +128,7 @@ class Hosts
             // established_dispersers(i, j) += 1;
         }
     }
+    
     void step_forward() // or infect
     {
         if ("SEI") {
@@ -65,7 +139,7 @@ class Hosts
             rotate_left_by_one(mortality_tracker_vector);
         }
     }
-    void apply_mortality_at(i, j, values)
+    void kill_at(i, j, values)
     {
         for value in values {
             mortality_tracker_vector[index](i, j) -= value;
@@ -78,7 +152,7 @@ class Hosts
     }
 }
 
-class Pests
+class PestPool
 {
     Raster mobile_dispersers;
     Raster immobile_dispersers;  // aka in soil storage
@@ -140,6 +214,7 @@ class Spread
                     pests.add_established(i, j, i, j, "soil");
             }
         }
+
     }
 }
 
