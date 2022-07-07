@@ -68,7 +68,7 @@ int test_soils_weather()
     weather *= coefficient;
     environment.update_weather_coefficient(weather);
 
-    // The int floor approximation below works only for some even numbers.,87
+    // The int floor approximation below works only for some even numbers.
     int initial_dispersers{12};
     soils.dispersers_to(initial_dispersers, 1, 2, generator);
     auto num_dispersers = soils.dispersers_from(1, 2, generator);
