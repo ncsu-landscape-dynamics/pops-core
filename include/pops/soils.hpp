@@ -38,12 +38,12 @@ public:
         const Environment<IntegerRaster, FloatRaster, RasterIndex>& environment,
         bool generate_stochasticity = true,
         bool establishment_stochasticity = true,
-        double fixed_soil_probability = 0)
+        double fixed_establishment_probability = 0)
         : rasters_(&rasters),
           environment_(&environment),
           generate_stochasticity_(generate_stochasticity),
           establishment_stochasticity_(establishment_stochasticity),
-          fixed_soil_probability_(fixed_soil_probability)
+          fixed_establishment_probability_(fixed_establishment_probability)
     {
         if (rasters.empty()) {
             throw std::logic_error(
@@ -56,25 +56,30 @@ public:
     {
         auto count = this->total_at(row, col);
         double lambda = environment_->weather_coefficient_at(row, col);
+        int dispersers = 0;
         if (this->generate_stochasticity_) {
             std::poisson_distribution<int> distribution(lambda);
-            int dispersers = 0;
             for (int k = 0; k < count; k++) {
                 dispersers += distribution(generator);
             }
-            return dispersers;
         }
         else {
-            return lambda * count;
+            dispersers = lambda * count;
         }
-        // TODO: subtract as with mortality moves
+        auto draw = draw_n_from_cohorts(*rasters_, dispersers, row, col, generator);
+        size_t index = 0;
+        for (auto count : draw) {
+            (*rasters_)[index](row, col) -= count;
+            ++index;
+        }
+        return dispersers;
     }
 
     template<typename Generator>
     void disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
     {
         double current_probability = environment_->weather_coefficient_at(row, col);
-        double tester = 1 - fixed_soil_probability_;
+        double tester = 1 - fixed_establishment_probability_;
         if (this->establishment_stochasticity_)
             tester = distribution_uniform_(generator);
         if (tester < current_probability) {
@@ -116,7 +121,7 @@ protected:
     const Environment<IntegerRaster, FloatRaster, RasterIndex>* environment_{nullptr};
     bool generate_stochasticity_{false};
     bool establishment_stochasticity_{false};
-    double fixed_soil_probability_{0};
+    double fixed_establishment_probability_{0};
     std::uniform_real_distribution<double> distribution_uniform_{0.0, 1.0};
 };
 

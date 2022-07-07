@@ -32,44 +32,6 @@
 
 namespace pops {
 
-/** Draws n elements from a vector. Expects n to be equal or less than v.size().
- */
-template<typename Generator>
-std::vector<int> draw_n_from_v(std::vector<int> v, unsigned n, Generator& generator)
-{
-    if (n > v.size())
-        n = v.size();
-
-    std::shuffle(v.begin(), v.end(), generator);
-    v.erase(v.begin() + n, v.end());
-    return v;
-}
-
-/** Draws n elements from a cohort of rasters. Expects n to be equal or less than
- *  sum of cohorts at cell (i, j).
- */
-template<typename Generator, typename IntegerRaster, typename RasterIndex = int>
-std::vector<int> draw_n_from_cohorts(
-    std::vector<IntegerRaster>& cohorts,
-    int n,
-    RasterIndex row,
-    RasterIndex col,
-    Generator& generator)
-{
-    std::vector<int> categories;
-    unsigned index = 0;
-    for (auto& raster : cohorts) {
-        categories.insert(categories.end(), raster(row, col), index);
-        index += 1;
-    }
-    std::vector<int> draw = draw_n_from_v(categories, n, generator);
-    std::vector<int> cohort_counts;
-    for (index = 0; index < cohorts.size(); index++) {
-        cohort_counts.push_back(std::count(draw.begin(), draw.end(), index));
-    }
-    return cohort_counts;
-}
-
 /** The type of a epidemiological model (SI or SEI)
  */
 enum class ModelType

@@ -33,15 +33,65 @@ int test_soils()
     std::vector<Raster<int>> rasters{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
     Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
     SoilPool<Raster<int>, Raster<double>, Raster<double>::IndexType> soils{
-        rasters, environment, false, false};
+        rasters, environment, false, false, 1};
     std::default_random_engine generator;
 
-    Raster<double> weather = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
     environment.update_weather_coefficient(weather);
 
+    int initial_dispersers{5};
+    soils.dispersers_to(initial_dispersers, 1, 2, generator);
     auto num_dispersers = soils.dispersers_from(1, 2, generator);
-    UNUSED(num_dispersers);
+    if (num_dispersers != initial_dispersers) {
+        std::cerr << "num_dispersers is " << num_dispersers << " (expected all)\n";
+        ++ret;
+    }
+    num_dispersers = soils.dispersers_from(1, 2, generator);
+    if (num_dispersers != 0) {
+        std::cerr << "num_dispersers is " << num_dispersers << " (expected none)\n";
+        ++ret;
+    }
+    return ret;
+}
 
+int test_soils_weather()
+{
+    int ret = 0;
+    std::vector<Raster<int>> rasters{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
+    SoilPool<Raster<int>, Raster<double>, Raster<double>::IndexType> soils{
+        rasters, environment, false, false, 1};
+    std::default_random_engine generator;
+
+    Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
+    double coefficient{0.5};
+    weather *= coefficient;
+    environment.update_weather_coefficient(weather);
+
+    // The int floor approximation below works only for some even numbers.,87
+    int initial_dispersers{12};
+    soils.dispersers_to(initial_dispersers, 1, 2, generator);
+    auto num_dispersers = soils.dispersers_from(1, 2, generator);
+    auto expected = int(initial_dispersers * coefficient);
+    if (num_dispersers != expected) {
+        std::cerr << "first num_dispersers is " << num_dispersers << " (expected "
+                  << expected << ")\n";
+        ++ret;
+    }
+    num_dispersers = soils.dispersers_from(1, 2, generator);
+    expected = int(initial_dispersers * coefficient * coefficient);
+    if (num_dispersers != expected) {
+        std::cerr << "second num_dispersers is " << num_dispersers << " (expected "
+                  << expected << ")\n";
+        ++ret;
+    }
+    num_dispersers = soils.dispersers_from(1, 2, generator);
+    expected = int(initial_dispersers * coefficient * coefficient * coefficient);
+    if (num_dispersers != expected) {
+        std::cerr << "third num_dispersers is " << num_dispersers << " (expected "
+                  << expected << ")\n";
+        ++ret;
+    }
     return ret;
 }
 
@@ -98,7 +148,6 @@ int test_soil_with_model()
         1, Raster<int>(infected.rows(), infected.cols(), 0));
 
     model.activate_soils(soil_reservoir);
-
     model.run_step(
         step++,
         infected,
@@ -123,9 +172,6 @@ int test_soil_with_model()
         movements,
         Network<int>::null_network(),
         suitable_cells);
-
-    // model.activate_soils(soil_reservoir);
-
     return ret;
 }
 
@@ -134,6 +180,7 @@ int main()
     int ret = 0;
 
     ret += test_soils();
+    ret += test_soils_weather();
     ret += test_soil_with_model();
 
     return ret;
