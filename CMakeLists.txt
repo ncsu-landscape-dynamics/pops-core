@@ -54,6 +54,7 @@ target_include_directories(pops INTERFACE include/)
 # Show files in IDEs
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     target_sources(pops INTERFACE
+        include/pops/environment.hpp
         include/pops/config.hpp
         include/pops/natural_anthropogenic_kernel.hpp
         include/pops/natural_kernel.hpp
@@ -86,6 +87,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/network.hpp
         include/pops/network_kernel.hpp
         include/pops/normal_kernel.hpp
+        include/pops/soils.hpp
         include/pops/weibull_kernel.hpp
     )
 endif()

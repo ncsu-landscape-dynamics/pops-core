@@ -84,6 +84,18 @@ pick_random_item(const Container& container, Generator& generator)
     return *std::next(container.begin(), index);
 }
 
+/** Rotate elements in a container to the left by one
+ *
+ * Rotates (moves) elements in a container to the left (anticlockwise)
+ * by one. The second element is moved to the front and the first
+ * element is moved to the back.
+ */
+template<typename Container>
+void rotate_left_by_one(Container& container)
+{
+    std::rotate(container.begin(), container.begin() + 1, container.end());
+}
+
 /**
  * \brief A const iterator which encapsulates either forward or reverse iterator.
  *
