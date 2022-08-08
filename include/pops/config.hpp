@@ -101,7 +101,7 @@ public:
     double overpopulation_percentage{0};
     double leaving_percentage{0};
     double leaving_scale_coefficient{1};
-    double dispersers_to_soils_percentage{0};
+    double dispersers_to_soils_percentage{0};  ///< Ratio of dispersers going into soil
 
     void create_schedules()
     {

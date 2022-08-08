@@ -57,7 +57,13 @@ protected:
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
     Simulation<IntegerRaster, FloatRaster, RasterIndex, Generator> simulation_;
     KernelFactory& kernel_factory_;
+    /**
+     * Surrounding environment (currently used for soils only)
+     */
     Environment<IntegerRaster, FloatRaster, RasterIndex> environment_;
+    /**
+     * Optionally created soil pool
+     */
     std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
         nullptr};
     unsigned last_index{0};
@@ -208,6 +214,7 @@ public:
     {
         environment_.update_weather_coefficient(weather_coefficient);
 
+        // Soil step is the same as simulation step.
         if (soil_pool_)
             soil_pool_->next_step(step);
 
@@ -339,11 +346,17 @@ public:
         }
     }
 
+    /**
+     * @brief Activate movement to and from soil pool
+     *
+     * The size of vector of rasters for cohorts is the number of simulation steps
+     * dispersers stay in the soil.
+     *
+     * @param rasters Vector of rasters for cohorts
+     */
     void activate_soils(std::vector<IntegerRaster>& rasters)
     {
-        /* The soil pool can be created over and over again, but it depends on the
-         * environment, but as long as the environment is re-created, but only updated,
-         * all will work well. */
+        // The soil pool is created again for every new activation.
         this->soil_pool_.reset(new SoilPool<IntegerRaster, FloatRaster, RasterIndex>(
             rasters,
             this->environment_,

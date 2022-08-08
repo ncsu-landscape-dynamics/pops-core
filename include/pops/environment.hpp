@@ -28,17 +28,36 @@
 
 namespace pops {
 
+/**
+ * Encapsulates surrounding environment
+ *
+ * Currently, only handles weather coefficient for soils. Holds only the current state.
+ */
 template<typename IntegerRaster, typename FloatRaster, typename RasterIndex = int>
 class Environment
 {
 public:
     Environment() {}
 
+    /**
+     * @brief Update the current weather coefficient
+     *
+     * @param raster Raster with the weather coefficient.
+     */
     void update_weather_coefficient(const FloatRaster& raster)
     {
         current_weather_coefficient = &raster;
     }
 
+    /**
+     * @brief Get weather coefficient at a given cell
+     *
+     * @param row Cell row number
+     * @param col Cell column number
+     * @return Current value at the given cell
+     *
+     * @throw std::logic_error when coefficient is not set
+     */
     double weather_coefficient_at(RasterIndex row, RasterIndex col) const
     {
         if (!current_weather_coefficient) {
@@ -48,6 +67,11 @@ public:
     }
 
 protected:
+    /**
+     * Current weather coefficient
+     *
+     * Value may not be set and these cases should produce exceptions.
+     */
     const FloatRaster* current_weather_coefficient{nullptr};
 };
 

@@ -27,6 +27,9 @@
 
 using namespace pops;
 
+/**
+ * Test basic storage to and retrieval from soils
+ */
 int test_soils()
 {
     int ret = 0;
@@ -54,6 +57,9 @@ int test_soils()
     return ret;
 }
 
+/**
+ * Test influence of weather for soils
+ */
 int test_soils_weather()
 {
     int ret = 0;
@@ -95,6 +101,9 @@ int test_soils_weather()
     return ret;
 }
 
+/**
+ * Test soils runs together with model
+ */
 int test_soil_with_model()
 {
     int ret = 0;
