@@ -20,6 +20,7 @@
 #define POPS_SIMULATION_HPP
 
 #include <cmath>
+#include <memory>
 #include <tuple>
 #include <vector>
 #include <random>
@@ -27,58 +28,9 @@
 #include <stdexcept>
 
 #include "utils.hpp"
+#include "soils.hpp"
 
 namespace pops {
-
-/** Rotate elements in a container to the left by one
- *
- * Rotates (moves) elements in a container to the left (anticlockwise)
- * by one. The second element is moved to the front and the first
- * element is moved to the back.
- */
-template<typename Container>
-void rotate_left_by_one(Container& container)
-{
-    std::rotate(container.begin(), container.begin() + 1, container.end());
-}
-
-/** Draws n elements from a vector. Expects n to be equal or less than v.size().
- */
-template<typename Generator>
-std::vector<int> draw_n_from_v(std::vector<int> v, unsigned n, Generator& generator)
-{
-    if (n > v.size())
-        n = v.size();
-
-    std::shuffle(v.begin(), v.end(), generator);
-    v.erase(v.begin() + n, v.end());
-    return v;
-}
-
-/** Draws n elements from a cohort of rasters. Expects n to be equal or less than
- *  sum of cohorts at cell (i, j).
- */
-template<typename Generator, typename IntegerRaster, typename RasterIndex = int>
-std::vector<int> draw_n_from_cohorts(
-    std::vector<IntegerRaster>& cohorts,
-    int n,
-    RasterIndex row,
-    RasterIndex col,
-    Generator& generator)
-{
-    std::vector<int> categories;
-    unsigned index = 0;
-    for (auto& raster : cohorts) {
-        categories.insert(categories.end(), raster(row, col), index);
-        index += 1;
-    }
-    std::vector<int> draw = draw_n_from_v(categories, n, generator);
-    std::vector<int> cohort_counts;
-    for (index = 0; index < cohorts.size(); index++) {
-        cohort_counts.push_back(std::count(draw.begin(), draw.end(), index));
-    }
-    return cohort_counts;
-}
 
 /** The type of a epidemiological model (SI or SEI)
  */
@@ -163,6 +115,82 @@ private:
     ModelType model_type_;
     unsigned latency_period_;
     Generator generator_;
+    /**
+     * Optional soil pool
+     */
+    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
+        nullptr};
+    /**
+     * Percentage (0-1 ratio) of disperers to be send to soil
+     */
+    double to_soil_percentage_{0};
+
+    /**
+     * @brief Move (add) disperser to a cell in the host pool
+     *
+     * Processes event when a disperser lands in a cell potentially establishing on a
+     * host. The disperser may or may not establish a based on host availability,
+     * weather, establishment probability, and stochasticity.
+     *
+     * Any new dispersers targeting host in the host pool should be added using this
+     * function.
+     *
+     * @param row Row number of the target cell
+     * @param col Column number of the target cell
+     * @param susceptible Raster of susceptible hosts
+     * @param exposed_or_infected Raster of exposed or infected hosts
+     * @param mortality_tracker Raster tracking hosts for mortality
+     * @param total_populations Raster of all individuals (hosts and non-hosts)
+     * @param total_exposed Raster tracking all exposed hosts
+     * @param weather Whether to use weather
+     * @param weather_coefficient Raster with weather coefficients per cell
+     * @param establishment_probability Fixed probability disperser establishment
+     *
+     * @return true if disperser has established in the cell, false otherwise
+     *
+     * @throw std::runtime_error if model type is unsupported (i.e., not SI or SEI)
+     */
+    int disperser_to(
+        RasterIndex row,
+        RasterIndex col,
+        IntegerRaster& susceptible,
+        IntegerRaster& exposed_or_infected,
+        IntegerRaster& mortality_tracker,
+        const IntegerRaster& total_populations,
+        IntegerRaster& total_exposed,
+        bool weather,
+        const FloatRaster& weather_coefficient,
+        double establishment_probability)
+    {
+        std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
+        if (susceptible(row, col) > 0) {
+            double probability_of_establishment =
+                (double)(susceptible(row, col)) / total_populations(row, col);
+            double establishment_tester = 1 - establishment_probability;
+            if (establishment_stochasticity_)
+                establishment_tester = distribution_uniform(generator_);
+
+            if (weather)
+                probability_of_establishment *= weather_coefficient(row, col);
+            if (establishment_tester < probability_of_establishment) {
+                exposed_or_infected(row, col) += 1;
+                susceptible(row, col) -= 1;
+                if (model_type_ == ModelType::SusceptibleInfected) {
+                    mortality_tracker(row, col) += 1;
+                }
+                else if (model_type_ == ModelType::SusceptibleExposedInfected) {
+                    total_exposed(row, col) += 1;
+                }
+                else {
+                    throw std::runtime_error(
+                        "Unknown ModelType value in "
+                        "Simulation::disperse()");
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 
 public:
     /** Creates simulation object and seeds the internal random number generator.
@@ -521,6 +549,14 @@ public:
                 else {
                     dispersers_from_cell = lambda * infected(i, j);
                 }
+                if (soil_pool_) {
+                    // From all the generated dispersers, some go to the soil in the
+                    // same cell and don't participate in the kernel-driven dispersal.
+                    auto dispersers_to_soil =
+                        std::round(to_soil_percentage_ * dispersers_from_cell);
+                    soil_pool_->dispersers_to(dispersers_to_soil, i, j, generator_);
+                    dispersers_from_cell -= dispersers_to_soil;
+                }
                 dispersers(i, j) = dispersers_from_cell;
                 established_dispersers(i, j) = dispersers_from_cell;
             }
@@ -608,40 +644,39 @@ public:
                         established_dispersers(i, j) -= 1;
                         continue;
                     }
-                    if (susceptible(row, col) > 0) {
-                        double probability_of_establishment =
-                            (double)(susceptible(row, col))
-                            / total_populations(row, col);
-                        double establishment_tester = 1 - establishment_probability;
-                        if (establishment_stochasticity_)
-                            establishment_tester = distribution_uniform(generator_);
-
-                        if (weather)
-                            probability_of_establishment *=
-                                weather_coefficient(row, col);
-                        if (establishment_tester < probability_of_establishment) {
-                            exposed_or_infected(row, col) += 1;
-                            susceptible(row, col) -= 1;
-                            if (model_type_ == ModelType::SusceptibleInfected) {
-                                mortality_tracker(row, col) += 1;
-                            }
-                            else if (
-                                model_type_ == ModelType::SusceptibleExposedInfected) {
-                                total_exposed(row, col) += 1;
-                            }
-                            else {
-                                throw std::runtime_error(
-                                    "Unknown ModelType value in "
-                                    "Simulation::disperse()");
-                            }
-                        }
-                        else {
-                            established_dispersers(i, j) -= 1;
-                        }
-                    }
-                    else {
+                    // Put a disperser to the host pool.
+                    auto dispersed = disperser_to(
+                        row,
+                        col,
+                        susceptible,
+                        exposed_or_infected,
+                        mortality_tracker,
+                        total_populations,
+                        total_exposed,
+                        weather,
+                        weather_coefficient,
+                        establishment_probability);
+                    if (!dispersed) {
                         established_dispersers(i, j) -= 1;
                     }
+                }
+            }
+            if (soil_pool_) {
+                // Get dispersers from the soil if there are any.
+                auto num_dispersers = soil_pool_->dispersers_from(i, j, generator_);
+                // Put each disperser to the host pool.
+                for (int k = 0; k < num_dispersers; k++) {
+                    disperser_to(
+                        i,
+                        j,
+                        susceptible,
+                        exposed_or_infected,
+                        mortality_tracker,
+                        total_populations,
+                        total_exposed,
+                        weather,
+                        weather_coefficient,
+                        establishment_probability);
                 }
             }
         }
@@ -900,6 +935,30 @@ public:
             this->infect_exposed(
                 step, exposed, infected, mortality_tracker, total_exposed);
         }
+    }
+
+    /**
+     * @brief Activate storage of dispersers in soil
+     *
+     * Calling this function activates the soils. By default, the soil pool is not used.
+     * The parameters are soil pool used to store the dispersers and
+     * a percentage (0-1 ratio) of dispersers which will be send to the soil (and may
+     * establish or not depending on the soil pool object).
+     *
+     * Soil pool is optional and implemented in more general (but experimental) way.
+     * This function needs to be called separately some time after the object is created
+     * to active the soil part of the simulation. This avoids the need for many
+     * constructors or many optional parameters which need default values.
+     *
+     * @param soil_pool Soils pool object to use for storage
+     * @param dispersers_percentage Percentage of dispersers moving to the soil
+     */
+    void activate_soils(
+        std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool,
+        double dispersers_percentage)
+    {
+        this->soil_pool_ = soil_pool;
+        this->to_soil_percentage_ = dispersers_percentage;
     }
 };
 

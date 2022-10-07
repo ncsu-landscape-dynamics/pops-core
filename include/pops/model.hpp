@@ -24,6 +24,7 @@
 #ifndef POPS_MODEL_HPP
 #define POPS_MODEL_HPP
 
+#include "environment.hpp"
 #include "config.hpp"
 #include "treatments.hpp"
 #include "spread_rate.hpp"
@@ -32,6 +33,7 @@
 #include "kernel.hpp"
 #include "scheduling.hpp"
 #include "quarantine.hpp"
+#include "soils.hpp"
 
 #include <vector>
 
@@ -55,6 +57,15 @@ protected:
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
     Simulation<IntegerRaster, FloatRaster, RasterIndex, Generator> simulation_;
     KernelFactory& kernel_factory_;
+    /**
+     * Surrounding environment (currently used for soils only)
+     */
+    Environment<IntegerRaster, FloatRaster, RasterIndex> environment_;
+    /**
+     * Optionally created soil pool
+     */
+    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
+        nullptr};
     unsigned last_index{0};
 
     /**
@@ -201,6 +212,11 @@ public:
         const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
+        environment_.update_weather_coefficient(weather_coefficient);
+
+        // Soil step is the same as simulation step.
+        if (soil_pool_)
+            soil_pool_->next_step(step);
 
         // removal of dispersers due to lethal temperatures
         if (config_.use_lethal_temperature && config_.lethal_schedule()[step]) {
@@ -328,6 +344,26 @@ public:
             quarantine.infection_escape_quarantine(
                 infected, quarantine_areas, action_step, suitable_cells);
         }
+    }
+
+    /**
+     * @brief Activate movement to and from soil pool
+     *
+     * The size of vector of rasters for cohorts is the number of simulation steps
+     * dispersers stay in the soil.
+     *
+     * @param rasters Vector of rasters for cohorts
+     */
+    void activate_soils(std::vector<IntegerRaster>& rasters)
+    {
+        // The soil pool is created again for every new activation.
+        this->soil_pool_.reset(new SoilPool<IntegerRaster, FloatRaster, RasterIndex>(
+            rasters,
+            this->environment_,
+            config_.generate_stochasticity,
+            config_.establishment_stochasticity));
+        this->simulation_.activate_soils(
+            this->soil_pool_, config_.dispersers_to_soils_percentage);
     }
 };
 
