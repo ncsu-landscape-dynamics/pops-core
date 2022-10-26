@@ -95,63 +95,6 @@ class HostPool
     }
 }
 
-class OldHosts
-{
-    Raster infected;
-    vector<Raster> exposed;
-    Raster susceptible;
-    Raster total_hosts;  // computed on demand
-    Raster all_populations;  // computed on demand
-    Raster other_individuals;  // maybe environment.other_individuals (non hosts)
-    vector<cell> suitable_cells;
-    vector<Raster>mortality_tracker_vector;
-    Raster died;
-
-    void disperser_to(i, j)
-    {
-        vector probs;
-        for host in hosts {
-            probs.push_back(host.establishment_probability_at(i, j));
-        }
-        // decisions ...
-
-        host[index].add_disperser_at(i, j);
-
-        // This happens in the host[index]:
-        if (establish) {
-            if ("SI") {
-                infected(i, j) += 1;
-            }
-            if ("SEI") {
-                exposed.back()(i, j) += 1;
-            }
-            // established_dispersers(i, j) += 1;
-        }
-    }
-    
-    void step_forward() // or infect
-    {
-        if ("SEI") {
-            infected = exposed.front();
-            rotate_left_by_one(exposed);
-        }
-        if (mortality) {
-            rotate_left_by_one(mortality_tracker_vector);
-        }
-    }
-    void kill_at(i, j, values)
-    {
-        for value in values {
-            mortality_tracker_vector[index](i, j) -= value;
-            died(i, j) += value;
-            if (infected(i, j) > 0)
-                infected(i, j) -= value;
-            if (total_hosts(i, j) > 0)
-                total_hosts(i, j) -= value;
-        }
-    }
-}
-
 class PestPool
 {
     Raster mobile_dispersers;
@@ -218,15 +161,6 @@ class Spread
     }
 }
 
-class Soil
-{
-    void action(Hosts hosts, Pests pests)
-    {
-        for i, j in hosts.suitable_cells {
-            
-        }
-    }
-}
 
 class SurvivalRate
 {
