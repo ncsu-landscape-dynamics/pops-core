@@ -72,6 +72,86 @@ inline ModelType model_type_from_string(const char* text)
     return model_type_from_string(text ? std::string(text) : std::string());
 }
 
+template<typename IntegerRaster, typename FloatRaster, typename RasterIndex>
+class HostPool
+{
+public:
+    HostPool(ModelType model_type) : model_type_(model_type) {}
+
+    /**
+     * @brief Move (add) disperser to a cell in the host pool
+     *
+     * Processes event when a disperser lands in a cell potentially establishing on a
+     * host. The disperser may or may not establish a based on host availability,
+     * weather, establishment probability, and stochasticity.
+     *
+     * Any new dispersers targeting host in the host pool should be added using this
+     * function.
+     *
+     * @param row Row number of the target cell
+     * @param col Column number of the target cell
+     * @param susceptible Raster of susceptible hosts
+     * @param exposed_or_infected Raster of exposed or infected hosts
+     * @param mortality_tracker Raster tracking hosts for mortality
+     * @param total_populations Raster of all individuals (hosts and non-hosts)
+     * @param total_exposed Raster tracking all exposed hosts
+     * @param weather Whether to use weather
+     * @param weather_coefficient Raster with weather coefficients per cell
+     * @param establishment_probability Fixed probability disperser establishment
+     *
+     * @return true if disperser has established in the cell, false otherwise
+     *
+     * @throw std::runtime_error if model type is unsupported (i.e., not SI or SEI)
+     */
+    template<typename Generator>
+    int disperser_to(
+        RasterIndex row,
+        RasterIndex col,
+        IntegerRaster& susceptible,
+        IntegerRaster& exposed_or_infected,
+        IntegerRaster& mortality_tracker,
+        const IntegerRaster& total_populations,
+        IntegerRaster& total_exposed,
+        bool weather,
+        const FloatRaster& weather_coefficient,
+        bool establishment_stochasticity,
+        double establishment_probability,
+        Generator generator)
+    {
+        std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
+        if (susceptible(row, col) > 0) {
+            double probability_of_establishment =
+                (double)(susceptible(row, col)) / total_populations(row, col);
+            double establishment_tester = 1 - establishment_probability;
+            if (establishment_stochasticity)
+                establishment_tester = distribution_uniform(generator);
+
+            if (weather)
+                probability_of_establishment *= weather_coefficient(row, col);
+            if (establishment_tester < probability_of_establishment) {
+                exposed_or_infected(row, col) += 1;
+                susceptible(row, col) -= 1;
+                if (model_type_ == ModelType::SusceptibleInfected) {
+                    mortality_tracker(row, col) += 1;
+                }
+                else if (model_type_ == ModelType::SusceptibleExposedInfected) {
+                    total_exposed(row, col) += 1;
+                }
+                else {
+                    throw std::runtime_error(
+                        "Unknown ModelType value in "
+                        "Simulation::disperse()");
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+private:
+    ModelType model_type_;
+};
+
 /*! The main class to control the spread simulation.
  *
  * The Simulation class handles the mechanics of the model, but the
@@ -124,73 +204,6 @@ private:
      * Percentage (0-1 ratio) of disperers to be send to soil
      */
     double to_soil_percentage_{0};
-
-    /**
-     * @brief Move (add) disperser to a cell in the host pool
-     *
-     * Processes event when a disperser lands in a cell potentially establishing on a
-     * host. The disperser may or may not establish a based on host availability,
-     * weather, establishment probability, and stochasticity.
-     *
-     * Any new dispersers targeting host in the host pool should be added using this
-     * function.
-     *
-     * @param row Row number of the target cell
-     * @param col Column number of the target cell
-     * @param susceptible Raster of susceptible hosts
-     * @param exposed_or_infected Raster of exposed or infected hosts
-     * @param mortality_tracker Raster tracking hosts for mortality
-     * @param total_populations Raster of all individuals (hosts and non-hosts)
-     * @param total_exposed Raster tracking all exposed hosts
-     * @param weather Whether to use weather
-     * @param weather_coefficient Raster with weather coefficients per cell
-     * @param establishment_probability Fixed probability disperser establishment
-     *
-     * @return true if disperser has established in the cell, false otherwise
-     *
-     * @throw std::runtime_error if model type is unsupported (i.e., not SI or SEI)
-     */
-    int disperser_to(
-        RasterIndex row,
-        RasterIndex col,
-        IntegerRaster& susceptible,
-        IntegerRaster& exposed_or_infected,
-        IntegerRaster& mortality_tracker,
-        const IntegerRaster& total_populations,
-        IntegerRaster& total_exposed,
-        bool weather,
-        const FloatRaster& weather_coefficient,
-        double establishment_probability)
-    {
-        std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
-        if (susceptible(row, col) > 0) {
-            double probability_of_establishment =
-                (double)(susceptible(row, col)) / total_populations(row, col);
-            double establishment_tester = 1 - establishment_probability;
-            if (establishment_stochasticity_)
-                establishment_tester = distribution_uniform(generator_);
-
-            if (weather)
-                probability_of_establishment *= weather_coefficient(row, col);
-            if (establishment_tester < probability_of_establishment) {
-                exposed_or_infected(row, col) += 1;
-                susceptible(row, col) -= 1;
-                if (model_type_ == ModelType::SusceptibleInfected) {
-                    mortality_tracker(row, col) += 1;
-                }
-                else if (model_type_ == ModelType::SusceptibleExposedInfected) {
-                    total_exposed(row, col) += 1;
-                }
-                else {
-                    throw std::runtime_error(
-                        "Unknown ModelType value in "
-                        "Simulation::disperse()");
-                }
-                return true;
-            }
-        }
-        return false;
-    }
 
 public:
     /** Creates simulation object and seeds the internal random number generator.
@@ -628,6 +641,8 @@ public:
         const std::vector<std::vector<int>>& suitable_cells,
         double establishment_probability = 0.5)
     {
+        HostPool<IntegerRaster, FloatRaster, RasterIndex> host_pool{model_type_};
+
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         int row;
         int col;
@@ -645,7 +660,7 @@ public:
                         continue;
                     }
                     // Put a disperser to the host pool.
-                    auto dispersed = disperser_to(
+                    auto dispersed = host_pool.disperser_to(
                         row,
                         col,
                         susceptible,
@@ -655,7 +670,9 @@ public:
                         total_exposed,
                         weather,
                         weather_coefficient,
-                        establishment_probability);
+                        establishment_stochasticity_,
+                        establishment_probability,
+                        generator_);
                     if (!dispersed) {
                         established_dispersers(i, j) -= 1;
                     }
@@ -666,7 +683,7 @@ public:
                 auto num_dispersers = soil_pool_->dispersers_from(i, j, generator_);
                 // Put each disperser to the host pool.
                 for (int k = 0; k < num_dispersers; k++) {
-                    disperser_to(
+                    host_pool.disperser_to(
                         i,
                         j,
                         susceptible,
@@ -676,7 +693,9 @@ public:
                         total_exposed,
                         weather,
                         weather_coefficient,
-                        establishment_probability);
+                        establishment_stochasticity_,
+                        establishment_probability,
+                        generator_);
                 }
             }
         }
