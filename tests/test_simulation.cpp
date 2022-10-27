@@ -618,6 +618,8 @@ int test_calling_all_functions()
     simulation.remove(
         infected,
         susceptible,
+        exposed,
+        total_exposed,
         mortality_tracker_vector,
         temperature,
         lethal_temperature,

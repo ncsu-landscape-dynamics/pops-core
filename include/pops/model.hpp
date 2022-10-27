@@ -225,6 +225,8 @@ public:
             simulation_.remove(
                 infected,
                 susceptible,
+                exposed,
+                total_exposed,
                 mortality_tracker,
                 temperatures[lethal_step],
                 config_.lethal_temperature,

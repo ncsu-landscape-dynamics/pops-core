@@ -76,8 +76,19 @@ template<typename IntegerRaster, typename FloatRaster, typename RasterIndex>
 class HostPool
 {
 public:
-    HostPool(ModelType model_type, std::vector<IntegerRaster>& mortality_tracker_vector)
-        : mortality_tracker_vector_(mortality_tracker_vector), model_type_(model_type)
+    HostPool(
+        ModelType model_type,
+        IntegerRaster& susceptible,
+        IntegerRaster& infected,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& total_exposed,
+        std::vector<IntegerRaster>& mortality_tracker_vector)
+        : susceptible_(susceptible),
+          infected_(infected),
+          exposed_(exposed),
+          total_exposed_(total_exposed),
+          mortality_tracker_vector_(mortality_tracker_vector),
+          model_type_(model_type)
     {}
 
     /**
@@ -151,16 +162,11 @@ public:
     }
 
     template<typename Generator>
-    void remove_infected_at(
-        RasterIndex i,
-        RasterIndex j,
-        int count,
-        IntegerRaster& infected,
-        IntegerRaster& susceptible,
-        Generator& generator)
+    void
+    remove_infected_at(RasterIndex i, RasterIndex j, int count, Generator& generator)
     {
         // remove percentage of infestation/infection in the infected class
-        infected(i, j) -= count;
+        infected_(i, j) -= count;
         // remove the removed infected from mortality cohorts
         if (count > 0) {
             std::vector<int> mortality_draw =
@@ -172,36 +178,74 @@ public:
             }
         }
         // move infested/infected host back to susceptible pool
-        susceptible(i, j) += count;
+        susceptible_(i, j) += count;
     }
 
     template<typename Generator>
-    void remove_exposed_at(
-        RasterIndex i,
-        RasterIndex j,
-        int count,
-        IntegerRaster& susceptible,
-        std::vector<IntegerRaster>& exposed,
-        IntegerRaster& total_exposed,
-        Generator& generator)
+    void
+    remove_exposed_at(RasterIndex i, RasterIndex j, int count, Generator& generator)
     {
         // remove the same percentage for total exposed and remove randomly from
         // each cohort
-        total_exposed(i, j) -= count;
+        total_exposed_(i, j) -= count;
         if (count > 0) {
             std::vector<int> exposed_draw =
-                draw_n_from_cohorts(exposed, count, i, j, generator);
+                draw_n_from_cohorts(exposed_, count, i, j, generator);
             int index = 0;
-            for (auto& raster : exposed) {
+            for (auto& raster : exposed_) {
                 raster(i, j) -= exposed_draw[index];
                 index += 1;
             }
         }
         // move infested/infected host back to susceptible pool
-        susceptible(i, j) += count;
+        susceptible_(i, j) += count;
+    }
+
+    // Brings exposed dependency to more items, needs to wait for more complete host.
+    /*
+    template<typename Generator>
+    void remove_infection_at(
+        RasterIndex i,
+        RasterIndex j,
+        double percentage,
+        IntegerRaster& infected,
+        IntegerRaster& susceptible,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& total_exposed,
+        Generator& generator)
+    {
+        this->remove_infected_at(i, j, 1, infected, susceptible, generator);
+        this->remove_exposed_at(i, j, 1, susceptible, exposed, generator);
+    }
+    */
+
+    int infected_at(RasterIndex i, RasterIndex j)
+    {
+        return infected_(i, j);
+    }
+
+    int susceptible_at(RasterIndex i, RasterIndex j)
+    {
+        return susceptible_(i, j);
+    }
+
+    int exposed_at(RasterIndex i, RasterIndex j)
+    {
+        // Future code could remove total exposed and compute that on the fly.
+        //        int sum = 0;
+        //        for (const auto& raster : exposed_)
+        //            sum += raster(i, j);
+        //        return sum;
+        return total_exposed_(i, j);
     }
 
 private:
+    IntegerRaster& susceptible_;
+    IntegerRaster& infected_;
+
+    std::vector<IntegerRaster>& exposed_;
+    IntegerRaster& total_exposed_;
+
     std::vector<IntegerRaster>& mortality_tracker_vector_;
 
     ModelType model_type_;
@@ -227,10 +271,6 @@ public:
     template<typename Generator>
     void action(
         Hosts& hosts,
-        IntegerRaster& infected,
-        IntegerRaster& susceptible,
-        std::vector<IntegerRaster>& exposed,
-        IntegerRaster& total_exposed,
         const std::vector<std::vector<int>>& suitable_cells,
         Generator& generator)
     {
@@ -239,23 +279,16 @@ public:
             int j = indices[1];
             if (survival_rate_(i, j) < 1) {
                 // remove percentage of infestation/infection in the infected class
+                auto infected = hosts.infected_at(i, j);
                 int removed_infected =
-                    infected(i, j) - std::lround(infected(i, j) * survival_rate_(i, j));
-                hosts.remove_infected_at(
-                    i, j, removed_infected, infected, susceptible, generator);
+                    infected - std::lround(infected * survival_rate_(i, j));
+                hosts.remove_infected_at(i, j, removed_infected, generator);
                 // remove the same percentage for total exposed and remove randomly from
                 // each cohort
+                auto exposed = hosts.exposed_at(i, j);
                 int total_removed_exposed =
-                    total_exposed(i, j)
-                    - std::lround(total_exposed(i, j) * survival_rate_(i, j));
-                hosts.remove_exposed_at(
-                    i,
-                    j,
-                    total_removed_exposed,
-                    susceptible,
-                    exposed,
-                    total_exposed,
-                    generator);
+                    exposed - std::lround(exposed * survival_rate_(i, j));
+                hosts.remove_exposed_at(i, j, total_removed_exposed, generator);
             }
         }
     }
@@ -279,8 +312,6 @@ public:
     template<typename Generator>
     void action(
         Hosts& hosts,
-        IntegerRaster& infected,
-        IntegerRaster& susceptible,
         const FloatRaster& temperature,
         double lethal_temperature,
         const std::vector<std::vector<int>>& suitable_cells,
@@ -290,8 +321,8 @@ public:
             int i = indices[0];
             int j = indices[1];
             if (temperature(i, j) < lethal_temperature) {
-                auto count = susceptible(i, j) += infected(i, j);
-                hosts.remove_infected_at(i, j, count, infected, susceptible, generator);
+                auto count = hosts.infected_at(i, j);
+                hosts.remove_infected_at(i, j, count, generator);
                 // now this includes also mortality, but it does not include exposed
             }
         }
@@ -466,26 +497,27 @@ public:
     void remove(
         IntegerRaster& infected,
         IntegerRaster& susceptible,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& total_exposed,
         std::vector<IntegerRaster>& mortality_tracker_vector,
         const FloatRaster& temperature,
         double lethal_temperature,
         const std::vector<std::vector<int>>& suitable_cells)
     {
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts(
-            model_type_, mortality_tracker_vector);
+            model_type_,
+            infected,
+            susceptible,
+            exposed,
+            total_exposed,
+            mortality_tracker_vector);
         RemoveByTemperature<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
             IntegerRaster,
             FloatRaster>
             remove;
         remove.action(
-            hosts,
-            infected,
-            susceptible,
-            temperature,
-            lethal_temperature,
-            suitable_cells,
-            generator_);
+            hosts, temperature, lethal_temperature, suitable_cells, generator_);
     }
 
     /** Removes percentage of exposed and infected
@@ -508,20 +540,18 @@ public:
         const std::vector<std::vector<int>>& suitable_cells)
     {
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts(
-            model_type_, mortality_tracker_vector);
+            model_type_,
+            susceptible,
+            infected,
+            exposed,
+            total_exposed,
+            mortality_tracker_vector);
         SurvivalRateAction<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
             IntegerRaster,
             FloatRaster>
             survival(survival_rate);
-        survival.action(
-            hosts,
-            infected,
-            susceptible,
-            exposed,
-            total_exposed,
-            suitable_cells,
-            generator_);
+        survival.action(hosts, suitable_cells, generator_);
     }
 
     /** kills infected hosts based on mortality rate and timing. In the last year
@@ -809,8 +839,13 @@ public:
         const std::vector<std::vector<int>>& suitable_cells,
         double establishment_probability = 0.5)
     {
-        std::vector<IntegerRaster> empty;
-        HostPool<IntegerRaster, FloatRaster, RasterIndex> host_pool{model_type_, empty};
+        // The interaction does not happen over the member variables yet, use empty
+        // variables. This requires SI/SEI to be fully resolved in host and not in
+        // disperse_and_infect.
+        IntegerRaster empty;
+        std::vector<IntegerRaster> empty_vector;
+        HostPool<IntegerRaster, FloatRaster, RasterIndex> host_pool{
+            model_type_, empty, empty, empty_vector, empty, empty_vector};
 
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         int row;
