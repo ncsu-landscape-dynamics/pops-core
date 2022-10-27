@@ -148,19 +148,74 @@ public:
         return false;
     }
 
+    template<typename Generator>
+    void remove_infected_at(
+        RasterIndex i,
+        RasterIndex j,
+        int count,
+        IntegerRaster& infected,
+        IntegerRaster& susceptible,
+        std::vector<IntegerRaster>& mortality_tracker_vector,
+        Generator& generator)
+    {
+        // remove percentage of infestation/infection in the infected class
+        infected(i, j) -= count;
+        // remove the removed infected from mortality cohorts
+        if (count > 0) {
+            std::vector<int> mortality_draw =
+                draw_n_from_cohorts(mortality_tracker_vector, count, i, j, generator);
+            int index = 0;
+            for (auto& raster : mortality_tracker_vector) {
+                raster(i, j) -= mortality_draw[index];
+                index += 1;
+            }
+        }
+        // move infested/infected host back to susceptible pool
+        susceptible(i, j) += count;
+    }
+
+    template<typename Generator>
+    void remove_exposed_at(
+        RasterIndex i,
+        RasterIndex j,
+        int count,
+        IntegerRaster& susceptible,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& total_exposed,
+        Generator& generator)
+    {
+        // remove the same percentage for total exposed and remove randomly from
+        // each cohort
+        total_exposed(i, j) -= count;
+        if (count > 0) {
+            std::vector<int> exposed_draw =
+                draw_n_from_cohorts(exposed, count, i, j, generator);
+            int index = 0;
+            for (auto& raster : exposed) {
+                raster(i, j) -= exposed_draw[index];
+                index += 1;
+            }
+        }
+        // move infested/infected host back to susceptible pool
+        susceptible(i, j) += count;
+    }
+
 private:
     ModelType model_type_;
 };
 
-template<typename IntegerRaster, typename FloatRaster>
-class PesticideTreatmentAction
+template<typename Hosts, typename IntegerRaster, typename FloatRaster>
+class SurvivalRateAction
 {
 public:
+    SurvivalRateAction(const FloatRaster& survival_rate) : survival_rate_(survival_rate)
+    {}
     /** Removes percentage of exposed and infected
      *
      * @param infected Currently infected hosts
      * @param susceptible Currently susceptible hosts
-     * @param mortality_tracker_vector Hosts that are infected at a specific time step
+     * @param mortality_tracker_vector Hosts that are infected at a specific time
+     * step
      * @param exposed Exposed hosts per cohort
      * @param total_exposed Total exposed in all exposed cohorts
      * @param survival_rate Raster between 0 and 1 representing pest survival rate
@@ -168,56 +223,49 @@ public:
      */
     template<typename Generator>
     void action(
+        Hosts& hosts,
         IntegerRaster& infected,
         IntegerRaster& susceptible,
         std::vector<IntegerRaster>& mortality_tracker_vector,
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& total_exposed,
-        const FloatRaster& survival_rate,
         const std::vector<std::vector<int>>& suitable_cells,
         Generator& generator)
     {
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
-            if (survival_rate(i, j) < 1) {
-                int removed = 0;
+            if (survival_rate_(i, j) < 1) {
                 // remove percentage of infestation/infection in the infected class
                 int removed_infected =
-                    infected(i, j) - std::lround(infected(i, j) * survival_rate(i, j));
-                infected(i, j) -= removed_infected;
-                removed += removed_infected;
-                // remove the removed infected from mortality cohorts
-                if (removed_infected > 0) {
-                    std::vector<int> mortality_draw = draw_n_from_cohorts(
-                        mortality_tracker_vector, removed_infected, i, j, generator);
-                    int index = 0;
-                    for (auto& raster : mortality_tracker_vector) {
-                        raster(i, j) -= mortality_draw[index];
-                        index += 1;
-                    }
-                }
+                    infected(i, j) - std::lround(infected(i, j) * survival_rate_(i, j));
+                hosts.remove_infected_at(
+                    i,
+                    j,
+                    removed_infected,
+                    infected,
+                    susceptible,
+                    mortality_tracker_vector,
+                    generator);
                 // remove the same percentage for total exposed and remove randomly from
                 // each cohort
                 int total_removed_exposed =
                     total_exposed(i, j)
-                    - std::lround(total_exposed(i, j) * survival_rate(i, j));
-                total_exposed(i, j) -= total_removed_exposed;
-                removed += total_removed_exposed;
-                if (total_removed_exposed > 0) {
-                    std::vector<int> exposed_draw = draw_n_from_cohorts(
-                        exposed, total_removed_exposed, i, j, generator);
-                    int index = 0;
-                    for (auto& raster : exposed) {
-                        raster(i, j) -= exposed_draw[index];
-                        index += 1;
-                    }
-                }
-                // move infested/infected host back to susceptible pool
-                susceptible(i, j) += removed;
+                    - std::lround(total_exposed(i, j) * survival_rate_(i, j));
+                hosts.remove_exposed_at(
+                    i,
+                    j,
+                    total_removed_exposed,
+                    susceptible,
+                    exposed,
+                    total_exposed,
+                    generator);
             }
         }
     }
+
+private:
+    const FloatRaster& survival_rate_;
 };
 
 template<typename IntegerRaster, typename FloatRaster>
@@ -423,14 +471,19 @@ public:
         const FloatRaster& survival_rate,
         const std::vector<std::vector<int>>& suitable_cells)
     {
-        PesticideTreatmentAction<IntegerRaster, FloatRaster> treatment;
-        treatment.action(
+        HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts(model_type_);
+        SurvivalRateAction<
+            HostPool<IntegerRaster, FloatRaster, RasterIndex>,
+            IntegerRaster,
+            FloatRaster>
+            survival(survival_rate);
+        survival.action(
+            hosts,
             infected,
             susceptible,
             mortality_tracker_vector,
             exposed,
             total_exposed,
-            survival_rate,
             suitable_cells,
             generator_);
     }
