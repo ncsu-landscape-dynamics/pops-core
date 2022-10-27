@@ -225,6 +225,7 @@ public:
             simulation_.remove(
                 infected,
                 susceptible,
+                mortality_tracker,
                 temperatures[lethal_step],
                 config_.lethal_temperature,
                 suitable_cells);

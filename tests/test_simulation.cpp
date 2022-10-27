@@ -616,7 +616,12 @@ int test_calling_all_functions()
     Simulation<Raster<int>, Raster<double>> simulation(
         seed, infected.rows(), infected.cols());
     simulation.remove(
-        infected, susceptible, temperature, lethal_temperature, suitable_cells);
+        infected,
+        susceptible,
+        mortality_tracker_vector,
+        temperature,
+        lethal_temperature,
+        suitable_cells);
     simulation.generate(
         dispersers,
         established_dispersers,
