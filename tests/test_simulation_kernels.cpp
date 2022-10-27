@@ -410,8 +410,7 @@ int test_model_with_kernels_generic(
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, 0, suitable_cells);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     Model<
         Raster<int>,
