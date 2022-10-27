@@ -116,7 +116,7 @@ public:
         const FloatRaster& weather_coefficient,
         bool establishment_stochasticity,
         double establishment_probability,
-        Generator generator)
+        Generator& generator)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         if (susceptible(row, col) > 0) {
@@ -150,6 +150,137 @@ public:
 
 private:
     ModelType model_type_;
+};
+
+template<typename IntegerRaster, typename FloatRaster>
+class PesticideTreatmentAction
+{
+public:
+    /** Removes percentage of exposed and infected
+     *
+     * @param infected Currently infected hosts
+     * @param susceptible Currently susceptible hosts
+     * @param mortality_tracker_vector Hosts that are infected at a specific time step
+     * @param exposed Exposed hosts per cohort
+     * @param total_exposed Total exposed in all exposed cohorts
+     * @param survival_rate Raster between 0 and 1 representing pest survival rate
+     * @param suitable_cells used to run model only where host are known to occur
+     */
+    template<typename Generator>
+    void action(
+        IntegerRaster& infected,
+        IntegerRaster& susceptible,
+        std::vector<IntegerRaster>& mortality_tracker_vector,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& total_exposed,
+        const FloatRaster& survival_rate,
+        const std::vector<std::vector<int>>& suitable_cells,
+        Generator& generator)
+    {
+        for (auto indices : suitable_cells) {
+            int i = indices[0];
+            int j = indices[1];
+            if (survival_rate(i, j) < 1) {
+                int removed = 0;
+                // remove percentage of infestation/infection in the infected class
+                int removed_infected =
+                    infected(i, j) - std::lround(infected(i, j) * survival_rate(i, j));
+                infected(i, j) -= removed_infected;
+                removed += removed_infected;
+                // remove the removed infected from mortality cohorts
+                if (removed_infected > 0) {
+                    std::vector<int> mortality_draw = draw_n_from_cohorts(
+                        mortality_tracker_vector, removed_infected, i, j, generator);
+                    int index = 0;
+                    for (auto& raster : mortality_tracker_vector) {
+                        raster(i, j) -= mortality_draw[index];
+                        index += 1;
+                    }
+                }
+                // remove the same percentage for total exposed and remove randomly from
+                // each cohort
+                int total_removed_exposed =
+                    total_exposed(i, j)
+                    - std::lround(total_exposed(i, j) * survival_rate(i, j));
+                total_exposed(i, j) -= total_removed_exposed;
+                removed += total_removed_exposed;
+                if (total_removed_exposed > 0) {
+                    std::vector<int> exposed_draw = draw_n_from_cohorts(
+                        exposed, total_removed_exposed, i, j, generator);
+                    int index = 0;
+                    for (auto& raster : exposed) {
+                        raster(i, j) -= exposed_draw[index];
+                        index += 1;
+                    }
+                }
+                // move infested/infected host back to susceptible pool
+                susceptible(i, j) += removed;
+            }
+        }
+    }
+};
+
+template<typename IntegerRaster, typename FloatRaster>
+class Mortality
+{
+public:
+    /** kills infected hosts based on mortality rate and timing. In the last year
+     * of mortality tracking the first index all remaining tracked infected hosts
+     * are removed. In indexes that are in the mortality_time_lag no mortality occurs.
+     * In all other indexes the number of tracked individuals is multiplied by the
+     * mortality rate to calculate the number of hosts that die that time step. The
+     * mortality_tracker_vector has a minimum size of mortality_time_lag + 1.
+     *
+     * @param infected Currently infected hosts
+     * @param total_hosts All hosts
+     * @param mortality_rate percent of infected hosts that die each time period
+     * @param mortality_time_lag time lag prior to mortality beginning
+     * @param died dead hosts during time step
+     * @param mortality_tracker_vector vector of matrices for tracking infected
+     * host infection over time. Expectation is that mortality tracker is of
+     * length (1/mortality_rate + mortality_time_lag)
+     * @param suitable_cells used to run model only where host are known to occur
+     */
+    void action(
+        IntegerRaster& infected,
+        IntegerRaster& total_hosts,
+        double mortality_rate,
+        int mortality_time_lag,
+        IntegerRaster& died,
+        std::vector<IntegerRaster>& mortality_tracker_vector,
+        const std::vector<std::vector<int>>& suitable_cells)
+    {
+        int max_index = mortality_tracker_vector.size() - mortality_time_lag - 1;
+
+        for (auto indices : suitable_cells) {
+            int i = indices[0];
+            int j = indices[1];
+            for (int index = 0; index <= max_index; index++) {
+                int mortality_in_index = 0;
+                if (mortality_tracker_vector[index](i, j) > 0) {
+                    // used to ensure that all infected hosts in the last year of
+                    // tracking mortality
+                    if (index == 0) {
+                        mortality_in_index = mortality_tracker_vector[index](i, j);
+                    }
+                    else {
+                        mortality_in_index =
+                            mortality_rate * mortality_tracker_vector[index](i, j);
+                    }
+                    mortality_tracker_vector[index](i, j) -= mortality_in_index;
+                    died(i, j) += mortality_in_index;
+                    if (infected(i, j) > 0) {
+                        infected(i, j) -= mortality_in_index;
+                    }
+                    if (total_hosts(i, j) > 0) {
+                        total_hosts(i, j) -= mortality_in_index;
+                    }
+                }
+            }
+        }
+
+        rotate_left_by_one(mortality_tracker_vector);
+    }
 };
 
 /*! The main class to control the spread simulation.
@@ -292,46 +423,16 @@ public:
         const FloatRaster& survival_rate,
         const std::vector<std::vector<int>>& suitable_cells)
     {
-        for (auto indices : suitable_cells) {
-            int i = indices[0];
-            int j = indices[1];
-            if (survival_rate(i, j) < 1) {
-                int removed = 0;
-                // remove percentage of infestation/infection in the infected class
-                int removed_infected =
-                    infected(i, j) - std::lround(infected(i, j) * survival_rate(i, j));
-                infected(i, j) -= removed_infected;
-                removed += removed_infected;
-                // remove the removed infected from mortality cohorts
-                if (removed_infected > 0) {
-                    std::vector<int> mortality_draw = draw_n_from_cohorts(
-                        mortality_tracker_vector, removed_infected, i, j, generator_);
-                    int index = 0;
-                    for (auto& raster : mortality_tracker_vector) {
-                        raster(i, j) -= mortality_draw[index];
-                        index += 1;
-                    }
-                }
-                // remove the same percentage for total exposed and remove randomly from
-                // each cohort
-                int total_removed_exposed =
-                    total_exposed(i, j)
-                    - std::lround(total_exposed(i, j) * survival_rate(i, j));
-                total_exposed(i, j) -= total_removed_exposed;
-                removed += total_removed_exposed;
-                if (total_removed_exposed > 0) {
-                    std::vector<int> exposed_draw = draw_n_from_cohorts(
-                        exposed, total_removed_exposed, i, j, generator_);
-                    int index = 0;
-                    for (auto& raster : exposed) {
-                        raster(i, j) -= exposed_draw[index];
-                        index += 1;
-                    }
-                }
-                // move infested/infected host back to susceptible pool
-                susceptible(i, j) += removed;
-            }
-        }
+        PesticideTreatmentAction<IntegerRaster, FloatRaster> treatment;
+        treatment.action(
+            infected,
+            susceptible,
+            mortality_tracker_vector,
+            exposed,
+            total_exposed,
+            survival_rate,
+            suitable_cells,
+            generator_);
     }
 
     /** kills infected hosts based on mortality rate and timing. In the last year
@@ -360,37 +461,15 @@ public:
         std::vector<IntegerRaster>& mortality_tracker_vector,
         const std::vector<std::vector<int>>& suitable_cells)
     {
-
-        int max_index = mortality_tracker_vector.size() - mortality_time_lag - 1;
-
-        for (auto indices : suitable_cells) {
-            int i = indices[0];
-            int j = indices[1];
-            for (int index = 0; index <= max_index; index++) {
-                int mortality_in_index = 0;
-                if (mortality_tracker_vector[index](i, j) > 0) {
-                    // used to ensure that all infected hosts in the last year of
-                    // tracking mortality
-                    if (index == 0) {
-                        mortality_in_index = mortality_tracker_vector[index](i, j);
-                    }
-                    else {
-                        mortality_in_index =
-                            mortality_rate * mortality_tracker_vector[index](i, j);
-                    }
-                    mortality_tracker_vector[index](i, j) -= mortality_in_index;
-                    died(i, j) += mortality_in_index;
-                    if (infected(i, j) > 0) {
-                        infected(i, j) -= mortality_in_index;
-                    }
-                    if (total_hosts(i, j) > 0) {
-                        total_hosts(i, j) -= mortality_in_index;
-                    }
-                }
-            }
-        }
-
-        rotate_left_by_one(mortality_tracker_vector);
+        Mortality<IntegerRaster, FloatRaster> mortality;
+        mortality.action(
+            infected,
+            total_hosts,
+            mortality_rate,
+            mortality_time_lag,
+            died,
+            mortality_tracker_vector,
+            suitable_cells);
     }
 
     /** Moves hosts from one location to another
