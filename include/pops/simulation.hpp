@@ -82,13 +82,19 @@ public:
         IntegerRaster& infected,
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& total_exposed,
-        std::vector<IntegerRaster>& mortality_tracker_vector)
+        IntegerRaster& resistant,
+        std::vector<IntegerRaster>& mortality_tracker_vector,
+        IntegerRaster& total_hosts,
+        std::vector<std::vector<int>>& suitable_cells)
         : susceptible_(susceptible),
           infected_(infected),
           exposed_(exposed),
           total_exposed_(total_exposed),
+          resistant_(resistant),
           mortality_tracker_vector_(mortality_tracker_vector),
-          model_type_(model_type)
+          total_hosts_(total_hosts),
+          model_type_(model_type),
+          suitable_cells_(suitable_cells)
     {}
 
     /**
@@ -189,6 +195,88 @@ public:
     }
 
     template<typename Generator>
+    int move_hosts_from_to(
+        RasterIndex row_from,
+        RasterIndex col_from,
+        RasterIndex row_to,
+        RasterIndex col_to,
+        int count,
+        Generator& generator)
+    {
+        int total_hosts_moved{count};
+        if (count > total_hosts_(row_from, col_from)) {
+            total_hosts_moved = total_hosts_(row_from, col_from);
+        }
+        int total_infecteds = infected_(row_from, col_from);
+        int suscepts = susceptible_(row_from, col_from);
+        int expose = total_exposed_(row_from, col_from);
+        int resist = resistant_(row_from, col_from);
+        // set up vector of numeric categories (infected = 1, susceptible = 2,
+        // exposed = 3) for drawing # moved in each category
+        std::vector<int> categories(total_infecteds, 1);
+        categories.insert(categories.end(), suscepts, 2);
+        categories.insert(categories.end(), expose, 3);
+        categories.insert(categories.end(), resist, 4);
+
+        std::vector<int> draw = draw_n_from_v(categories, total_hosts_moved, generator);
+        int infected_moved = std::count(draw.begin(), draw.end(), 1);
+        int susceptible_moved = std::count(draw.begin(), draw.end(), 2);
+        int exposed_moved = std::count(draw.begin(), draw.end(), 3);
+        int resistant_moved = std::count(draw.begin(), draw.end(), 4);
+
+        if (exposed_moved > 0) {
+            std::vector<int> exposed_draw = draw_n_from_cohorts(
+                exposed_, exposed_moved, row_from, col_from, generator);
+            int index = 0;
+            for (auto& raster : exposed_) {
+                raster(row_from, col_from) -= exposed_draw[index];
+                raster(row_to, col_to) += exposed_draw[index];
+                index += 1;
+            }
+        }
+        if (infected_moved > 0) {
+            std::vector<int> mortality_draw = draw_n_from_cohorts(
+                mortality_tracker_vector_,
+                infected_moved,
+                row_from,
+                col_from,
+                generator);
+            int index = 0;
+            for (auto& raster : mortality_tracker_vector_) {
+                raster(row_from, col_from) -= mortality_draw[index];
+                raster(row_to, col_to) += mortality_draw[index];
+                index += 1;
+            }
+        }
+        // check that the location with host movement is in suitable cells.
+        // Since suitable-cells comes from the total hosts originally. The
+        // the first check is for total_hosts
+        if (total_hosts_(row_to, col_to) == 0) {
+            for (auto indices : suitable_cells_) {
+                int i = indices[0];
+                int j = indices[1];
+                if ((i == row_to) && (j == col_to)) {
+                    std::vector<int> added_index = {row_to, col_to};
+                    suitable_cells_.push_back(added_index);
+                    break;
+                }
+            }
+        }
+
+        infected_(row_from, col_from) -= infected_moved;
+        susceptible_(row_from, col_from) -= susceptible_moved;
+        total_hosts_(row_from, col_from) -= total_hosts_moved;
+        total_exposed_(row_from, col_from) -= exposed_moved;
+        resistant_(row_from, col_from) -= resistant_moved;
+        infected_(row_to, col_to) += infected_moved;
+        susceptible_(row_to, col_to) += susceptible_moved;
+        total_hosts_(row_to, col_to) += total_hosts_moved;
+        total_exposed_(row_to, col_to) += exposed_moved;
+        resistant_(row_to, col_to) += resistant_moved;
+        return total_hosts_moved;
+    }
+
+    template<typename Generator>
     void
     remove_infected_at(RasterIndex i, RasterIndex j, int count, Generator& generator)
     {
@@ -279,9 +367,15 @@ private:
     std::vector<IntegerRaster>& exposed_;
     IntegerRaster& total_exposed_;
 
+    IntegerRaster& resistant_;
+
     std::vector<IntegerRaster>& mortality_tracker_vector_;
 
+    IntegerRaster& total_hosts_;
+
     ModelType model_type_;
+
+    std::vector<std::vector<int>>& suitable_cells_;
 };
 
 template<typename Hosts, typename IntegerRaster, typename FloatRaster>
@@ -475,6 +569,64 @@ private:
     RasterIndex cols_;
 };
 
+template<
+    typename Hosts,
+    typename IntegerRaster,
+    typename FloatRaster,
+    typename RasterIndex>
+class HostMovement
+{
+public:
+    /** Moves hosts from one location to another
+     *
+     * @note Note that unlike the other functions, here, *total_hosts*,
+     * i.e., number of hosts is required, not number of all hosts
+     * and non-host individuals.
+     *
+     * @param infected Currently infected hosts
+     * @param susceptible Currently susceptible hosts
+     * @param mortality_tracker_vector Hosts that are infected at a specific time step
+     * @param total_hosts All host individuals in the area. Is equal to
+     *        infected + exposed + susceptible in the cell.
+     * @param total_exposed Total exposed in all exposed cohorts
+     * @param exposed Exposed hosts per cohort
+     * @param resistant Resistant hosts
+     * @param step the current step of the simulation
+     * @param last_index the last index to not be used from movements
+     * @param movements a vector of ints with row_from, col_from, row_to, col_to, and
+     *        num_hosts
+     * @param movement_schedule a vector matching movements with the step at which the
+     *        movement from movements are applied
+     * @param suitable_cells List of indices of cells with hosts
+     *
+     * @note Mortality and non-host individuals are not supported in movements.
+     */
+    template<typename Generator>
+    unsigned movement(
+        Hosts& hosts,
+        unsigned step,
+        unsigned last_index,
+        const std::vector<std::vector<int>>& movements,
+        std::vector<unsigned> movement_schedule,
+        Generator& generator)
+    {
+        for (unsigned i = last_index; i < movements.size(); i++) {
+            auto moved = movements[i];
+            unsigned move_schedule = movement_schedule[i];
+            if (move_schedule != step) {
+                return i;
+            }
+            int row_from = moved[0];
+            int col_from = moved[1];
+            int row_to = moved[2];
+            int col_to = moved[3];
+            hosts.move_hosts_from_to(
+                row_from, col_from, row_to, col_to, moved[4], generator);
+        }
+        return movements.size();
+    }
+};
+
 template<typename IntegerRaster, typename FloatRaster>
 class Mortality
 {
@@ -648,15 +800,19 @@ public:
         std::vector<IntegerRaster>& mortality_tracker_vector,
         const FloatRaster& temperature,
         double lethal_temperature,
-        const std::vector<std::vector<int>>& suitable_cells)
+        std::vector<std::vector<int>>& suitable_cells)
     {
+        IntegerRaster empty;
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts(
             model_type_,
             infected,
             susceptible,
             exposed,
             total_exposed,
-            mortality_tracker_vector);
+            empty,
+            mortality_tracker_vector,
+            empty,
+            suitable_cells);
         RemoveByTemperature<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
             IntegerRaster,
@@ -683,15 +839,19 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& total_exposed,
         const FloatRaster& survival_rate,
-        const std::vector<std::vector<int>>& suitable_cells)
+        std::vector<std::vector<int>>& suitable_cells)
     {
+        IntegerRaster empty;
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts(
             model_type_,
             susceptible,
             infected,
             exposed,
             total_exposed,
-            mortality_tracker_vector);
+            empty,
+            mortality_tracker_vector,
+            empty,
+            suitable_cells);
         SurvivalRateAction<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
             IntegerRaster,
@@ -775,99 +935,24 @@ public:
         std::vector<unsigned> movement_schedule,
         std::vector<std::vector<int>>& suitable_cells)
     {
-        for (unsigned i = last_index; i < movements.size(); i++) {
-            auto moved = movements[i];
-            unsigned move_schedule = movement_schedule[i];
-            if (move_schedule != step) {
-                return i;
-            }
-            int infected_moved = 0;
-            int exposed_moved = 0;
-            int susceptible_moved = 0;
-            int resistant_moved = 0;
-            int total_hosts_moved = 0;
-            int row_from = moved[0];
-            int col_from = moved[1];
-            int row_to = moved[2];
-            int col_to = moved[3];
-            int hosts = moved[4];
-            std::vector<int> exposed_categories;
-            std::vector<int> mortality_categories;
-            if (hosts > total_hosts(row_from, col_from)) {
-                total_hosts_moved = total_hosts(row_from, col_from);
-            }
-            else {
-                total_hosts_moved = hosts;
-            }
-            auto total_infecteds = infected(row_from, col_from);
-            auto suscepts = susceptible(row_from, col_from);
-            auto expose = total_exposed(row_from, col_from);
-            auto resist = resistant(row_from, col_from);
-            // set up vector of numeric categories (infected = 1, susceptible = 2,
-            // exposed = 3) for drawing # moved in each category
-            std::vector<int> categories(total_infecteds, 1);
-            categories.insert(categories.end(), suscepts, 2);
-            categories.insert(categories.end(), expose, 3);
-            categories.insert(categories.end(), resist, 4);
-
-            std::vector<int> draw =
-                draw_n_from_v(categories, total_hosts_moved, generator_);
-            infected_moved = std::count(draw.begin(), draw.end(), 1);
-            susceptible_moved = std::count(draw.begin(), draw.end(), 2);
-            exposed_moved = std::count(draw.begin(), draw.end(), 3);
-            resistant_moved = std::count(draw.begin(), draw.end(), 4);
-
-            if (exposed_moved > 0) {
-                std::vector<int> exposed_draw = draw_n_from_cohorts(
-                    exposed, exposed_moved, row_from, col_from, generator_);
-                int index = 0;
-                for (auto& raster : exposed) {
-                    raster(row_from, col_from) -= exposed_draw[index];
-                    raster(row_to, col_to) += exposed_draw[index];
-                    index += 1;
-                }
-            }
-            if (infected_moved > 0) {
-                std::vector<int> mortality_draw = draw_n_from_cohorts(
-                    mortality_tracker_vector,
-                    infected_moved,
-                    row_from,
-                    col_from,
-                    generator_);
-                int index = 0;
-                for (auto& raster : mortality_tracker_vector) {
-                    raster(row_from, col_from) -= mortality_draw[index];
-                    raster(row_to, col_to) += mortality_draw[index];
-                    index += 1;
-                }
-            }
-            // check that the location with host movement is in suitable cells.
-            // Since suitable-cells comes from the total hosts originally. The
-            // the first check is for total_hosts
-            if (total_hosts(row_to, col_to) == 0) {
-                for (auto indices : suitable_cells) {
-                    int i = indices[0];
-                    int j = indices[1];
-                    if ((i == row_to) && (j == col_to)) {
-                        std::vector<int> added_index = {row_to, col_to};
-                        suitable_cells.push_back(added_index);
-                        break;
-                    }
-                }
-            }
-
-            infected(row_from, col_from) -= infected_moved;
-            susceptible(row_from, col_from) -= susceptible_moved;
-            total_hosts(row_from, col_from) -= total_hosts_moved;
-            total_exposed(row_from, col_from) -= exposed_moved;
-            resistant(row_from, col_from) -= resistant_moved;
-            infected(row_to, col_to) += infected_moved;
-            susceptible(row_to, col_to) += susceptible_moved;
-            total_hosts(row_to, col_to) += total_hosts_moved;
-            total_exposed(row_to, col_to) += exposed_moved;
-            resistant(row_to, col_to) += resistant_moved;
-        }
-        return movements.size();
+        HostMovement<
+            HostPool<IntegerRaster, FloatRaster, RasterIndex>,
+            IntegerRaster,
+            FloatRaster,
+            RasterIndex>
+            host_movement{};
+        HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
+            model_type_,
+            susceptible,
+            infected,
+            exposed,
+            total_exposed,
+            resistant,
+            mortality_tracker_vector,
+            total_hosts,
+            suitable_cells};
+        return host_movement.movement(
+            hosts, step, last_index, movements, movement_schedule, generator_);
     }
 
     /** Generates dispersers based on infected
@@ -982,7 +1067,7 @@ public:
         bool weather,
         const FloatRaster& weather_coefficient,
         DispersalKernel& dispersal_kernel,
-        const std::vector<std::vector<int>>& suitable_cells,
+        std::vector<std::vector<int>>& suitable_cells,
         double establishment_probability = 0.5)
     {
         // The interaction does not happen over the member variables yet, use empty
@@ -991,7 +1076,15 @@ public:
         IntegerRaster empty;
         std::vector<IntegerRaster> empty_vector;
         HostPool<IntegerRaster, FloatRaster, RasterIndex> host_pool{
-            model_type_, empty, empty, empty_vector, empty, empty_vector};
+            model_type_,
+            empty,
+            empty,
+            empty_vector,
+            empty,
+            empty,
+            empty_vector,
+            empty,
+            suitable_cells};
 
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         int row;
@@ -1089,14 +1182,22 @@ public:
         const IntegerRaster& total_hosts,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         DispersalKernel& dispersal_kernel,
-        const std::vector<std::vector<int>>& suitable_cells,
+        std::vector<std::vector<int>>& suitable_cells,
         double overpopulation_percentage,
         double leaving_percentage)
     {
         IntegerRaster empty;
         std::vector<IntegerRaster> empty_vector;
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
-            model_type_, susceptible, infected, empty_vector, empty, empty_vector};
+            model_type_,
+            susceptible,
+            infected,
+            empty_vector,
+            empty,
+            empty,
+            empty_vector,
+            empty,
+            suitable_cells};
         MoveOverpopulatedPests<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
             IntegerRaster,
@@ -1224,7 +1325,7 @@ public:
         bool weather,
         const FloatRaster& weather_coefficient,
         DispersalKernel& dispersal_kernel,
-        const std::vector<std::vector<int>>& suitable_cells,
+        std::vector<std::vector<int>>& suitable_cells,
         double establishment_probability = 0.5)
     {
         auto* infected_or_exposed = &infected;
