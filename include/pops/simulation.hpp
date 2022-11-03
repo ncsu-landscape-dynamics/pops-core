@@ -84,6 +84,7 @@ public:
         IntegerRaster& total_exposed,
         IntegerRaster& resistant,
         std::vector<IntegerRaster>& mortality_tracker_vector,
+        IntegerRaster& died,
         IntegerRaster& total_hosts,
         std::vector<std::vector<int>>& suitable_cells)
         : susceptible_(susceptible),
@@ -92,6 +93,7 @@ public:
           total_exposed_(total_exposed),
           resistant_(resistant),
           mortality_tracker_vector_(mortality_tracker_vector),
+          died_(died),
           total_hosts_(total_hosts),
           model_type_(model_type),
           suitable_cells_(suitable_cells)
@@ -334,6 +336,35 @@ public:
     }
     */
 
+    // TODO: Rate and time lag will eventually go to constructor (host properties).
+    void apply_mortality_at(
+        RasterIndex i, RasterIndex j, double mortality_rate, int mortality_time_lag)
+    {
+        int max_index = mortality_tracker_vector_.size() - mortality_time_lag - 1;
+        for (int index = 0; index <= max_index; index++) {
+            int mortality_in_index = 0;
+            if (mortality_tracker_vector_[index](i, j) > 0) {
+                // used to ensure that all infected hosts in the last year of
+                // tracking mortality
+                if (index == 0) {
+                    mortality_in_index = mortality_tracker_vector_[index](i, j);
+                }
+                else {
+                    mortality_in_index =
+                        mortality_rate * mortality_tracker_vector_[index](i, j);
+                }
+                mortality_tracker_vector_[index](i, j) -= mortality_in_index;
+                died_(i, j) += mortality_in_index;
+                if (infected_(i, j) > 0) {
+                    infected_(i, j) -= mortality_in_index;
+                }
+                if (total_hosts_(i, j) > 0) {
+                    total_hosts_(i, j) -= mortality_in_index;
+                }
+            }
+        }
+    }
+
     int infected_at(RasterIndex i, RasterIndex j)
     {
         return infected_(i, j);
@@ -360,6 +391,11 @@ public:
         return susceptible_at(i, j) /*+ exposed_at(i, j)*/ + infected_at(i, j);
     }
 
+    void step_forward_mortality()
+    {
+        rotate_left_by_one(mortality_tracker_vector_);
+    }
+
 private:
     IntegerRaster& susceptible_;
     IntegerRaster& infected_;
@@ -370,6 +406,7 @@ private:
     IntegerRaster& resistant_;
 
     std::vector<IntegerRaster>& mortality_tracker_vector_;
+    IntegerRaster& died_;
 
     IntegerRaster& total_hosts_;
 
@@ -627,7 +664,7 @@ public:
     }
 };
 
-template<typename IntegerRaster, typename FloatRaster>
+template<typename Hosts, typename IntegerRaster, typename FloatRaster>
 class Mortality
 {
 public:
@@ -649,44 +686,16 @@ public:
      * @param suitable_cells used to run model only where host are known to occur
      */
     void action(
-        IntegerRaster& infected,
-        IntegerRaster& total_hosts,
+        Hosts& hosts,
         double mortality_rate,
         int mortality_time_lag,
-        IntegerRaster& died,
-        std::vector<IntegerRaster>& mortality_tracker_vector,
         const std::vector<std::vector<int>>& suitable_cells)
     {
-        int max_index = mortality_tracker_vector.size() - mortality_time_lag - 1;
-
         for (auto indices : suitable_cells) {
-            int i = indices[0];
-            int j = indices[1];
-            for (int index = 0; index <= max_index; index++) {
-                int mortality_in_index = 0;
-                if (mortality_tracker_vector[index](i, j) > 0) {
-                    // used to ensure that all infected hosts in the last year of
-                    // tracking mortality
-                    if (index == 0) {
-                        mortality_in_index = mortality_tracker_vector[index](i, j);
-                    }
-                    else {
-                        mortality_in_index =
-                            mortality_rate * mortality_tracker_vector[index](i, j);
-                    }
-                    mortality_tracker_vector[index](i, j) -= mortality_in_index;
-                    died(i, j) += mortality_in_index;
-                    if (infected(i, j) > 0) {
-                        infected(i, j) -= mortality_in_index;
-                    }
-                    if (total_hosts(i, j) > 0) {
-                        total_hosts(i, j) -= mortality_in_index;
-                    }
-                }
-            }
+            hosts.apply_mortality_at(
+                indices[0], indices[1], mortality_rate, mortality_time_lag);
         }
-
-        rotate_left_by_one(mortality_tracker_vector);
+        hosts.step_forward_mortality();
     }
 };
 
@@ -812,6 +821,7 @@ public:
             empty,
             mortality_tracker_vector,
             empty,
+            empty,
             suitable_cells);
         RemoveByTemperature<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
@@ -851,6 +861,7 @@ public:
             empty,
             mortality_tracker_vector,
             empty,
+            empty,
             suitable_cells);
         SurvivalRateAction<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
@@ -884,17 +895,27 @@ public:
         int mortality_time_lag,
         IntegerRaster& died,
         std::vector<IntegerRaster>& mortality_tracker_vector,
-        const std::vector<std::vector<int>>& suitable_cells)
+        std::vector<std::vector<int>>& suitable_cells)
     {
-        Mortality<IntegerRaster, FloatRaster> mortality;
-        mortality.action(
+        IntegerRaster empty;
+        std::vector<IntegerRaster> empty_vector;
+        HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
+            model_type_,
+            empty,
             infected,
-            total_hosts,
-            mortality_rate,
-            mortality_time_lag,
-            died,
+            empty_vector,
+            empty,
+            empty,
             mortality_tracker_vector,
-            suitable_cells);
+            died,
+            total_hosts,
+            suitable_cells};
+        Mortality<
+            HostPool<IntegerRaster, FloatRaster, RasterIndex>,
+            IntegerRaster,
+            FloatRaster>
+            mortality;
+        mortality.action(hosts, mortality_rate, mortality_time_lag, suitable_cells);
     }
 
     /** Moves hosts from one location to another
@@ -941,6 +962,7 @@ public:
             FloatRaster,
             RasterIndex>
             host_movement{};
+        IntegerRaster empty;
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
             model_type_,
             susceptible,
@@ -949,6 +971,7 @@ public:
             total_exposed,
             resistant,
             mortality_tracker_vector,
+            empty,
             total_hosts,
             suitable_cells};
         return host_movement.movement(
@@ -1084,6 +1107,7 @@ public:
             empty,
             empty_vector,
             empty,
+            empty,
             suitable_cells};
 
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
@@ -1196,6 +1220,7 @@ public:
             empty,
             empty,
             empty_vector,
+            empty,
             empty,
             suitable_cells};
         MoveOverpopulatedPests<
