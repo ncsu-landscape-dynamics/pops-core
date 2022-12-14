@@ -54,6 +54,7 @@ public:
     int lethal_temperature_month{0};
     bool weather{false};
     bool weather_size{0};
+    std::string weather_type;
     double reproductive_rate{0};
     // survival rate
     bool use_survival_rate{false};
@@ -212,6 +213,14 @@ public:
             throw std::logic_error(
                 "Schedules were not created before calling weather_table()");
         return weather_table_;
+    }
+
+    unsigned simulation_step_to_weather_step(unsigned step)
+    {
+        if (!schedules_created_)
+            throw std::logic_error(
+                "Schedules were not created before calling simulation_step_to_weather_step()");
+        return weather_table_.at(step);
     }
 
     unsigned num_mortality_steps()

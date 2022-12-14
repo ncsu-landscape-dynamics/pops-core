@@ -347,6 +347,15 @@ public:
     }
 
     /**
+     * @brief Get surrounding environment
+     * @return Environment object by reference
+     */
+    Environment<IntegerRaster, FloatRaster, RasterIndex>& environment()
+    {
+        return environment_;
+    }
+
+    /**
      * @brief Activate movement to and from soil pool
      *
      * The size of vector of rasters for cohorts is the number of simulation steps

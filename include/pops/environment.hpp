@@ -49,6 +49,20 @@ public:
         current_weather_coefficient = &raster;
     }
 
+    void
+    update_weather_from_distribution(const FloatRaster& mean, const FloatRaster& stddev)
+    {
+        // probably just pseudo-code, see what works with Rcpp
+        stored_weather_coefficient = FloatRaster(mean.rows(), mean.cols());
+        // possibly use suitable cells here
+        for (RasterIndex i = 0; i < mean.rows(); ++i) {
+            for (RasterIndex j = 0; i < mean.rows(); ++i) {
+                // TODO: compute
+            }
+        }
+        current_weather_coefficient = &stored_weather_coefficient;
+    }
+
     /**
      * @brief Get weather coefficient at a given cell
      *
@@ -73,6 +87,7 @@ protected:
      * Value may not be set and these cases should produce exceptions.
      */
     const FloatRaster* current_weather_coefficient{nullptr};
+    FloatRaster stored_weather_coefficient;
 };
 
 }  // namespace pops

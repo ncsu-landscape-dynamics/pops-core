@@ -309,8 +309,16 @@ public:
 
     std::vector<unsigned> schedule_weather(unsigned weather_size) const
     {
-        for (unsigned i = 0; i < ;) {
+        std::vector<unsigned> table{num_steps};
+        unsigned weather_index = 0;
+        for (unsigned i = 0; i < num_steps; ++i) {
+            table[i] = weather_index;
+            if (weather_index + 1 < weather_size)
+                weather_index++;
+            else
+                weather_index = 0;
         }
+        return table;
     }
 
     /**
