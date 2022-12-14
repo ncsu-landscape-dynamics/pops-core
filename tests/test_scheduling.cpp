@@ -415,7 +415,7 @@ int test_schedule_weather()
 
     Scheduler scheduling(st, end, StepUnit::Month, 1);
     std::vector<unsigned> indices = scheduling.schedule_weather(12);
-    if (indices.get_num_steps() != scheduling.get_num_steps()) {
+    if (indices.size() != scheduling.get_num_steps()) {
         std::cout << "Failed scheduling of weather" << std::endl;
         num_errors++;
     }
