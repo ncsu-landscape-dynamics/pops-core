@@ -307,18 +307,27 @@ public:
         throw std::invalid_argument("Date is outside of schedule");
     }
 
+    /**
+     * @brief Creates a mapping between the simulation step
+     * and index in the weather file.
+     *
+     * Assumes beginning of the simulation corresponds
+     * to the first weather raster. Once there are no more rasters
+     * simulation uses rasters again from the beginning of the weather file.
+     *
+     * @param weather_size number of rasters in weather file
+     * @return vector of indices
+     */
     std::vector<unsigned> schedule_weather(unsigned weather_size) const
     {
-        std::vector<unsigned> table{num_steps};
+        std::vector<unsigned> indices(num_steps);
         unsigned weather_index = 0;
-        for (unsigned i = 0; i < num_steps; ++i) {
-            table[i] = weather_index;
-            if (weather_index + 1 < weather_size)
-                weather_index++;
-            else
+        for (unsigned i = 0; i < num_steps; i++) {
+            indices[i] = weather_index++;
+            if (weather_index == weather_size)
                 weather_index = 0;
         }
-        return table;
+        return indices;
     }
 
     /**
