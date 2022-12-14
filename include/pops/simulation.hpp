@@ -960,6 +960,11 @@ public:
         this->soil_pool_ = soil_pool;
         this->to_soil_percentage_ = dispersers_percentage;
     }
+
+    Generator& random_number_generator()
+    {
+        return generator_;
+    }
 };
 
 }  // namespace pops

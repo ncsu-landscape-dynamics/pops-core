@@ -346,6 +346,11 @@ public:
         }
     }
 
+    Generator& random_number_generator()
+    {
+        return simulation_.random_number_generator();
+    }
+
     /**
      * @brief Get surrounding environment
      * @return Environment object by reference
