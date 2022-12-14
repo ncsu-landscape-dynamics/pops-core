@@ -53,6 +53,7 @@ public:
     double lethal_temperature{-273.15};  // 0 K
     int lethal_temperature_month{0};
     bool weather{false};
+    bool weather_size{0};
     double reproductive_rate{0};
     // survival rate
     bool use_survival_rate{false};
@@ -125,6 +126,7 @@ public:
         if (use_quarantine)
             quarantine_schedule_ = schedule_from_string(
                 scheduler_, quarantine_frequency, quarantine_frequency_n);
+        weather_table_ = scheduler_.schedule_weather(weather_size);
         schedules_created_ = true;
     }
 
@@ -202,6 +204,14 @@ public:
             throw std::logic_error(
                 "Schedules were not created before calling output_schedule()");
         return output_schedule_;
+    }
+
+    const std::vector<unsigned>& weather_table() const
+    {
+        if (!schedules_created_)
+            throw std::logic_error(
+                "Schedules were not created before calling weather_table()");
+        return weather_table_;
     }
 
     unsigned num_mortality_steps()
@@ -336,6 +346,7 @@ private:
     std::vector<bool> survival_rate_schedule_;
     std::vector<bool> spread_rate_schedule_;
     std::vector<bool> quarantine_schedule_;
+    std::vector<unsigned> weather_table_;
 };
 
 }  // namespace pops

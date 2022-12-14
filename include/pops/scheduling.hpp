@@ -306,6 +306,13 @@ public:
         }
         throw std::invalid_argument("Date is outside of schedule");
     }
+
+    std::vector<unsigned> schedule_weather(unsigned weather_size) const
+    {
+        for (unsigned i = 0; i < ;) {
+        }
+    }
+
     /**
      * @brief Prints schedule for debugging purposes.
      * @param schedule vector of bools to print along the steps
