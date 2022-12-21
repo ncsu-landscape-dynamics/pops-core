@@ -29,6 +29,32 @@
 namespace pops {
 
 /**
+ * @brief Type of weather
+ *
+ * This includes all the ways of how weather coefficient for one step can be obtained.
+ */
+enum class WeatherType
+{
+    Deterministic,  ///< Weather is taken from a time series
+    Probabilistic,  ///< Weather is generated from a distribution
+};
+
+/*! Get a corresponding enum value for a string which represents a weather type.
+ *
+ * Throws an std::invalid_argument exception if the values was not
+ * found or is not supported (which is the same thing).
+ */
+inline WeatherType weather_type_from_string(const std::string& text)
+{
+    if (text == "Deterministic" || text == "Deterministic")
+        return WeatherType::Deterministic;
+    if (text == "probabilistic" || text == "Probabilistic")
+        return WeatherType::Probabilistic;
+    throw std::invalid_argument(
+        "weather_type_from_string: Invalid value '" + text + "' provided");
+}
+
+/**
  * Encapsulates surrounding environment
  *
  * Currently, only handles weather coefficient for soils. Holds only the current state.
