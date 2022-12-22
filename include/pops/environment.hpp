@@ -37,6 +37,7 @@ enum class WeatherType
 {
     Deterministic,  ///< Weather is taken from a time series
     Probabilistic,  ///< Weather is generated from a distribution
+    None,  ///< No weather
 };
 
 /*! Get a corresponding enum value for a string which represents a weather type.
@@ -46,10 +47,12 @@ enum class WeatherType
  */
 inline WeatherType weather_type_from_string(const std::string& text)
 {
-    if (text == "Deterministic" || text == "Deterministic")
+    if (text == "deterministic" || text == "Deterministic")
         return WeatherType::Deterministic;
     if (text == "probabilistic" || text == "Probabilistic")
         return WeatherType::Probabilistic;
+    if (text.empty() || text == "none" || text == "None" || text == "NONE")
+        return WeatherType::None;
     throw std::invalid_argument(
         "weather_type_from_string: Invalid value '" + text + "' provided");
 }
