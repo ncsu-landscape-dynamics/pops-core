@@ -212,8 +212,6 @@ public:
         const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
-        environment_.update_weather_coefficient(weather_coefficient);
-
         // Soil step is the same as simulation step.
         if (soil_pool_)
             soil_pool_->next_step(step);

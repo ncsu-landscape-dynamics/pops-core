@@ -108,6 +108,21 @@ public:
         return current_weather_coefficient->operator()(row, col);
     }
 
+    /**
+     * @brief Get weather coefficient raster
+     *
+     * @return Reference to the current weather coefficient raster
+     *
+     * @throw std::logic_error when coefficient is not set
+     */
+    const FloatRaster& weather_coefficient() const
+    {
+        if (!current_weather_coefficient) {
+            throw std::logic_error("Weather coefficient used, but not provided");
+        }
+        return *current_weather_coefficient;
+    }
+
 protected:
     /**
      * Current weather coefficient

@@ -155,6 +155,7 @@ int test_soil_with_model()
     std::vector<Raster<int>> soil_reservoir(
         1, Raster<int>(infected.rows(), infected.cols(), 0));
 
+    model.environment().update_weather_coefficient(weather);
     model.activate_soils(soil_reservoir);
     model.run_step(
         step++,
