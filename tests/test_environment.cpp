@@ -50,14 +50,11 @@ int test_environment_string_values()
     weather_type_from_string("Deterministic");
     weather_type_from_string("probabilistic");
     weather_type_from_string("Probabilistic");
-    try {
-        weather_type_from_string("");
-        weather_type_from_string("does-not-exist");
-    }
-    catch (const std::invalid_argument&) {
-        // return 0;
-    }
-    for (const auto& value : {"", "does-not-exist"}) {
+    weather_type_from_string("");
+    weather_type_from_string("none");
+    weather_type_from_string("None");
+    weather_type_from_string("NONE");
+    for (const auto& value : {"does-not-exist", "PROBABILISTIC", "prob"}) {
         bool thrown = throws_exception<std::invalid_argument>(
             [&value] { weather_type_from_string(value); });
         if (!thrown) {
