@@ -131,8 +131,7 @@ int test_model()
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, 0, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, 0, suitable_cells);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
     std::vector<std::vector<int>> movements;
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     // Run
