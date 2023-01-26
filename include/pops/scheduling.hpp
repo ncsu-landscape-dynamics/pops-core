@@ -320,6 +320,10 @@ public:
      */
     std::vector<unsigned> schedule_weather(unsigned weather_size) const
     {
+        if (weather_size <= 0)
+            throw std::invalid_argument(
+                "Scheduler::schedule_weather: weather_size must be greater than zero, not "
+                + std::to_string(weather_size));
         std::vector<unsigned> indices(num_steps);
         unsigned weather_index = 0;
         for (unsigned i = 0; i < num_steps; i++) {

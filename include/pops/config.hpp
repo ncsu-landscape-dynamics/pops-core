@@ -53,7 +53,7 @@ public:
     double lethal_temperature{-273.15};  // 0 K
     int lethal_temperature_month{0};
     bool weather{false};
-    bool weather_size{0};
+    int weather_size{0};
     std::string weather_type;
     double reproductive_rate{0};
     // survival rate
