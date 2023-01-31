@@ -127,7 +127,8 @@ public:
         if (use_quarantine)
             quarantine_schedule_ = schedule_from_string(
                 scheduler_, quarantine_frequency, quarantine_frequency_n);
-        weather_table_ = scheduler_.schedule_weather(weather_size);
+        if (weather_size)
+            weather_table_ = scheduler_.schedule_weather(weather_size);
         schedules_created_ = true;
     }
 
@@ -212,6 +213,9 @@ public:
         if (!schedules_created_)
             throw std::logic_error(
                 "Schedules were not created before calling weather_table()");
+        if (!weather_size)
+            throw std::logic_error(
+                "weather_table() is not available when weather_size is zero");
         return weather_table_;
     }
 
@@ -220,6 +224,9 @@ public:
         if (!schedules_created_)
             throw std::logic_error(
                 "Schedules were not created before calling simulation_step_to_weather_step()");
+        if (!weather_size)
+            throw std::logic_error(
+                "simulation_step_to_weather_step() is not available when weather_size is zero");
         return weather_table_.at(step);
     }
 
