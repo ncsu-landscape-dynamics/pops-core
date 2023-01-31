@@ -43,7 +43,6 @@ int test_with_cauchy_deterministic_kernel()
     Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
     Raster<int> total_hosts = susceptible;
     Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     Raster<int> total_exposed = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<std::vector<int>> movements = {
         {0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
@@ -80,7 +79,6 @@ int test_with_cauchy_deterministic_kernel()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
@@ -103,7 +101,6 @@ int test_with_cauchy_deterministic_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         deterministicKernel,
         suitable_cell,
         establishment_probability);
@@ -135,7 +132,6 @@ int test_with_exponential_deterministic_kernel()
     Raster<int> total_hosts = susceptible;
     Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     Raster<int> total_exposed = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
@@ -171,7 +167,6 @@ int test_with_exponential_deterministic_kernel()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
@@ -194,7 +189,6 @@ int test_with_exponential_deterministic_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         deterministicKernel,
         suitable_cell,
         establishment_probability);
@@ -227,7 +221,6 @@ int test_with_weibull_deterministic_kernel()
     Raster<int> total_hosts = susceptible;
     Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     Raster<int> total_exposed = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
@@ -262,7 +255,6 @@ int test_with_weibull_deterministic_kernel()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
@@ -285,7 +277,6 @@ int test_with_weibull_deterministic_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         deterministicKernel,
         suitable_cell,
         establishment_probability);
@@ -317,7 +308,6 @@ int test_with_log_normal_deterministic_kernel()
     Raster<int> total_hosts = susceptible;
     Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     Raster<int> total_exposed = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
@@ -352,7 +342,6 @@ int test_with_log_normal_deterministic_kernel()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
@@ -375,7 +364,6 @@ int test_with_log_normal_deterministic_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         deterministicKernel,
         suitable_cell,
         establishment_probability);
@@ -408,7 +396,6 @@ int test_with_normal_deterministic_kernel()
     Raster<int> total_hosts = susceptible;
     Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     Raster<int> total_exposed = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
@@ -443,7 +430,6 @@ int test_with_normal_deterministic_kernel()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
@@ -466,7 +452,6 @@ int test_with_normal_deterministic_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         deterministicKernel,
         suitable_cell,
         establishment_probability);
@@ -498,7 +483,6 @@ int test_with_hyperbolic_secant_deterministic_kernel()
     Raster<int> total_hosts = susceptible;
     Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     Raster<int> total_exposed = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
@@ -533,7 +517,6 @@ int test_with_hyperbolic_secant_deterministic_kernel()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
@@ -557,7 +540,6 @@ int test_with_hyperbolic_secant_deterministic_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         deterministicKernel,
         suitable_cell,
         establishment_probability);
@@ -590,7 +572,6 @@ int test_with_power_law_deterministic_kernel()
     Raster<int> total_hosts = susceptible;
     Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     Raster<int> total_exposed = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
@@ -625,7 +606,6 @@ int test_with_power_law_deterministic_kernel()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
@@ -648,7 +628,6 @@ int test_with_power_law_deterministic_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         deterministicKernel,
         suitable_cell,
         establishment_probability);
@@ -679,7 +658,6 @@ int test_with_logistic_deterministic_kernel()
     Raster<int> total_hosts = susceptible;
     Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     Raster<int> total_exposed = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
@@ -714,7 +692,6 @@ int test_with_logistic_deterministic_kernel()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
@@ -737,7 +714,6 @@ int test_with_logistic_deterministic_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         deterministicKernel,
         suitable_cell,
         establishment_probability);
@@ -768,7 +744,6 @@ int test_with_gamma_deterministic_kernel()
     Raster<int> total_hosts = susceptible;
     Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     Raster<int> total_exposed = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
@@ -803,7 +778,6 @@ int test_with_gamma_deterministic_kernel()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
@@ -826,7 +800,6 @@ int test_with_gamma_deterministic_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         deterministicKernel,
         suitable_cell,
         establishment_probability);
@@ -858,7 +831,6 @@ int test_with_exponential_power_deterministic_kernel()
     Raster<int> total_hosts = susceptible;
     Raster<double> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}, {0, 1, 1, 0, 2}};
     Raster<double> temperature = {{5, 0, 0}, {0, 0, 0}, {0, 0, 2}};
-    Raster<double> weather_coefficient = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     Raster<int> total_exposed = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
@@ -893,7 +865,6 @@ int test_with_exponential_power_deterministic_kernel()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cell);
     auto expected_dispersers = reproductive_rate * infected;
@@ -917,7 +888,6 @@ int test_with_exponential_power_deterministic_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         deterministicKernel,
         suitable_cell,
         establishment_probability);

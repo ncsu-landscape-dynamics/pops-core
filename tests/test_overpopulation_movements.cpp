@@ -107,7 +107,6 @@ int test_model()
     // Empty data
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     std::vector<Raster<double>> empty_floats;
-    Raster<double> empty_float;
     std::vector<Raster<int>> empty_ints;
     // Config
     Config config;
@@ -149,7 +148,6 @@ int test_model()
         zeros,
         empty_floats,
         empty_floats,
-        empty_float,
         treatments,
         zeros,
         outside_dispersers,

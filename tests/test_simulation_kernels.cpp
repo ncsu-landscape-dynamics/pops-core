@@ -281,7 +281,6 @@ int test_simulation_with_kernels_generic(
     // chanage the susceptible/total ratio much
     // we want to minimize the dilution effect
     IntRaster total_hosts = susceptible;
-    DoubleRaster weather_coefficient{rows, cols, 0};
     std::vector<std::vector<int>> suitable_cells =
         find_suitable_cells<int>(susceptible);
 
@@ -316,7 +315,6 @@ int test_simulation_with_kernels_generic(
             total_exposed,
             outside_dispersers,
             config.weather,
-            weather_coefficient,
             kernel,
             suitable_cells);
     }
@@ -434,7 +432,6 @@ int test_model_with_kernels_generic(
             died,
             empty_float,
             empty_float,
-            empty_float[0],
             treatments,
             zeros,
             outside_dispersers,

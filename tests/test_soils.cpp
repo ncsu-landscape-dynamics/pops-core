@@ -171,7 +171,6 @@ int test_soil_with_model()
         died,
         empty_floats,
         empty_floats,
-        weather,
         treatments,
         zeros,
         outside_dispersers,
