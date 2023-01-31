@@ -133,7 +133,9 @@ public:
               config.establishment_stochasticity,
               config.movement_stochasticity),
           kernel_factory_(kernel_factory)
-    {}
+    {
+        simulation_.set_environment(&this->environment());
+    }
 
     /**
      * @brief Run one step of the simulation.
@@ -201,7 +203,6 @@ public:
         IntegerRaster& died,
         const std::vector<FloatRaster>& temperatures,
         const std::vector<FloatRaster>& survival_rates,
-        const FloatRaster& weather_coefficient,
         Treatments<IntegerRaster, FloatRaster>& treatments,
         IntegerRaster& resistant,
         std::vector<std::tuple<int, int>>& outside_dispersers,  // out
@@ -247,7 +248,6 @@ public:
                 established_dispersers,
                 infected,
                 config_.weather,
-                weather_coefficient,
                 config_.reproductive_rate,
                 suitable_cells);
 
@@ -267,7 +267,6 @@ public:
                 total_exposed,
                 outside_dispersers,
                 config_.weather,
-                weather_coefficient,
                 dispersal_kernel,
                 suitable_cells,
                 config_.establishment_probability);
