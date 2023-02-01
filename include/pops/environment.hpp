@@ -82,11 +82,22 @@ public:
     void update_weather_from_distribution(
         const FloatRaster& mean, const FloatRaster& stddev, Generator& generator)
     {
-        // probably just pseudo-code, see what works with Rcpp
+        if (mean.rows() != stddev.rows()) {
+            throw std::invalid_argument(
+                "Mean and stddev need to have the same number of rows ("
+                + std::to_string(mean.rows()) + " != " + std::to_string(stddev.rows())
+                + ")");
+        }
+        if (mean.cols() != stddev.cols()) {
+            throw std::invalid_argument(
+                "Mean and stddev need to have the same number of columns ("
+                + std::to_string(mean.cols()) + " != " + std::to_string(stddev.cols())
+                + ")");
+        }
         stored_weather_coefficient = FloatRaster(mean.rows(), mean.cols());
         // possibly use suitable cells here
         for (RasterIndex i = 0; i < mean.rows(); ++i) {
-            for (RasterIndex j = 0; i < mean.rows(); ++i) {
+            for (RasterIndex j = 0; j < mean.cols(); ++j) {
                 std::normal_distribution<double> distribution{mean(i, j), stddev(i, j)};
                 stored_weather_coefficient(i, j) = distribution(generator);
             }
