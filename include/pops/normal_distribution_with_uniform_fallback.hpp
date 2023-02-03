@@ -51,6 +51,9 @@ public:
           normal_distribution_(mean, stddev),
           uniform_distribution_(low, high)
     {}
+    /**
+     * Get a random value from the distribution.
+     */
     template<class Generator>
     Real operator()(Generator& generator)
     {

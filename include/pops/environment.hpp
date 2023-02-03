@@ -79,6 +79,24 @@ public:
         current_weather_coefficient = &raster;
     }
 
+    /**
+     * @brief Update the current weather coefficient using mean and standard deviation
+     *
+     * Normal distribution is used to generate new value for each cell using *mean*
+     * and *stddev*. Generated values which would fall out of the range for weather
+     * coefficient, i.e., outside of 0-1 interval, are replaced by random value from
+     * a uniform distribution.
+     *
+     * The values in *mean* are checked to be in the 0-1 interval because it is assumed
+     * that the range for mean should be the same as for the actual coefficient value.
+     * The values in *stddev* are not checked.
+     *
+     * @param mean Raster of mean weather coefficient for each cell
+     * @param stddev Raster of standard deviation of weather coefficient for each cell
+     *
+     * @throw std::invalid_argument when dimensions of *mean* and *stddev* differ or
+     * when mean is out of range
+     */
     template<typename Generator>
     void update_weather_from_distribution(
         const FloatRaster& mean, const FloatRaster& stddev, Generator& generator)

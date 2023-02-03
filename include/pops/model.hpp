@@ -343,6 +343,10 @@ public:
         }
     }
 
+    /**
+     * @brief Get the associated random number generator
+     * @return Reference to the generator
+     */
     Generator& random_number_generator()
     {
         return simulation_.random_number_generator();

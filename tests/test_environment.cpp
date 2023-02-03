@@ -31,6 +31,13 @@
 
 using namespace pops;
 
+/**
+ * Return true if the *operation* throws an exception.
+ *
+ * Specify exception using the template parameter and the operation using a lambda
+ * function.
+ *
+ */
 template<typename Exception, typename Operation>
 bool throws_exception(Operation operation)
 {
@@ -94,6 +101,9 @@ int test_raster_access_rejected()
     return 1;
 }
 
+/**
+ * Check that deterministic weather can be updated in two steps.
+ */
 int test_update_deterministic_weather()
 {
     int num_errors = 0;
@@ -129,6 +139,11 @@ int test_update_deterministic_weather()
     return num_errors;
 }
 
+/**
+ * Check that probabilistic weather can be updated in two steps.
+ *
+ * First check with stddev==zero, then check with a tolerance for a given seed.
+ */
 int test_update_probabilistic_weather()
 {
     int num_errors = 0;
@@ -199,6 +214,9 @@ int test_update_probabilistic_weather_dimensions()
     return num_errors;
 }
 
+/**
+ * Check that a generated probabilistic weather coefficient is in the expected range.
+ */
 int test_update_probabilistic_weather_range()
 {
     int num_errors = 0;
@@ -229,6 +247,9 @@ int test_update_probabilistic_weather_range()
     return num_errors;
 }
 
+/**
+ * Check that only mean in the expected range is accepted.
+ */
 int test_update_probabilistic_weather_mean_in_range()
 {
     int num_errors = 0;

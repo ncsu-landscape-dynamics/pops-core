@@ -25,7 +25,6 @@
  */
 
 #include <iostream>
-#include <fstream>
 
 #include <pops/normal_distribution_with_uniform_fallback.hpp>
 
@@ -34,6 +33,9 @@ using std::cout;
 
 using namespace pops;
 
+/**
+ * Check that the distribution produces values in a specified range.
+ */
 int test_normal_with_uniform_fallback()
 {
     int num_errors = 0;
