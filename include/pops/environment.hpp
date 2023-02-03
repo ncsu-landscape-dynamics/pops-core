@@ -24,6 +24,7 @@
 #include <string>
 #include <stdexcept>
 
+#include "normal_distribution_with_uniform_fallback.hpp"
 #include "utils.hpp"
 
 namespace pops {
@@ -98,7 +99,25 @@ public:
         // possibly use suitable cells here
         for (RasterIndex i = 0; i < mean.rows(); ++i) {
             for (RasterIndex j = 0; j < mean.cols(); ++j) {
-                std::normal_distribution<double> distribution{mean(i, j), stddev(i, j)};
+                auto mean_value = mean(i, j);
+                // In general, to get a specific shape of the distribution, mean can be
+                // anything, but we limit that assuming that mean which is out of the
+                // desired coefficient range is an erroneous value.
+                // Notably, this test is not perfomed for deterministic weather.
+                if (mean_value < weather_coefficient_min
+                    || mean_value > weather_coefficient_max) {
+                    throw std::invalid_argument(
+                        std::string("Weather coefficient mean is expected to be ")
+                        + "between " + std::to_string(weather_coefficient_min) + " and "
+                        + std::to_string(weather_coefficient_max) + ", but is "
+                        + std::to_string(mean_value) + " at (" + std::to_string(i)
+                        + ", " + std::to_string(j) + ")");
+                }
+                NormalDistributionWithUniformFallback<double> distribution{
+                    mean_value,
+                    stddev(i, j),
+                    weather_coefficient_min,
+                    weather_coefficient_max};
                 stored_weather_coefficient(i, j) = distribution(generator);
             }
         }
@@ -138,6 +157,9 @@ public:
     }
 
 protected:
+    static constexpr double weather_coefficient_min = 0;
+    static constexpr double weather_coefficient_max = 1;
+
     /**
      * Current weather coefficient
      *
