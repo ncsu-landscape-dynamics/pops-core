@@ -53,8 +53,8 @@ public:
     double lethal_temperature{-273.15};  // 0 K
     int lethal_temperature_month{0};
     bool weather{false};
-    int weather_size{0};
-    std::string weather_type;
+    int weather_size{0};  ///< Number of weather steps (size of weather time series)
+    std::string weather_type;  ///< probabilistic, deterministic
     double reproductive_rate{0};
     // survival rate
     bool use_survival_rate{false};
@@ -208,6 +208,10 @@ public:
         return output_schedule_;
     }
 
+    /**
+     * @brief Get weather table for converting simulation steps to weather steps
+     * @return Weather table as a vector of weather steps by reference
+     */
     const std::vector<unsigned>& weather_table() const
     {
         if (!schedules_created_)
@@ -219,6 +223,11 @@ public:
         return weather_table_;
     }
 
+    /**
+     * @brief Convert simulation step to weather step
+     * @param step Simulation step
+     * @return Weather step (usable as an index of the weather array)
+     */
     unsigned simulation_step_to_weather_step(unsigned step)
     {
         if (!schedules_created_)
