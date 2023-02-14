@@ -128,7 +128,6 @@ int test_model_with_network()
             zeros,
             empty_floats,
             empty_floats,
-            empty_floats[0],
             treatments,
             zeros,
             outside_dispersers,
