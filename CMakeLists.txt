@@ -89,6 +89,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/normal_distribution_with_uniform_fallback.hpp
         include/pops/normal_kernel.hpp
         include/pops/soils.hpp
+        include/pops/simple_generator.hpp
         include/pops/weibull_kernel.hpp
     )
 endif()

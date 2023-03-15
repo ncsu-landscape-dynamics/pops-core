@@ -30,6 +30,7 @@
 #include <pops/lognormal_kernel.hpp>
 #include <pops/gamma_kernel.hpp>
 #include <pops/simulation.hpp>
+#include <pops/simple_generator.hpp>
 
 using std::string;
 using std::cout;
@@ -64,6 +65,7 @@ int test_with_cauchy_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
+    unsigned seed = 42;
     // Cauchy
     Simulation<Raster<int>, Raster<double>> simulation(
         42,
@@ -74,13 +76,15 @@ int test_with_cauchy_deterministic_kernel()
         generate_stochasticity,
         establishment_stochasticity,
         movement_stochasticity);
+    SimpleGeneratorProvider generator(seed);
     simulation.generate(
         dispersers,
         established_dispersers,
         infected,
         weather,
         reproductive_rate,
-        suitable_cell);
+        suitable_cell,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Cauchy: dispersers (actual, expected):\n"
@@ -103,7 +107,8 @@ int test_with_cauchy_deterministic_kernel()
         weather,
         deterministicKernel,
         suitable_cell,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Cauchy: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be 0\n";
@@ -153,6 +158,7 @@ int test_with_exponential_deterministic_kernel()
     // We want everything to establish.
     double establishment_probability = 1;
     // Exponential
+    SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         42,
         infected.rows(),
@@ -168,7 +174,8 @@ int test_with_exponential_deterministic_kernel()
         infected,
         weather,
         reproductive_rate,
-        suitable_cell);
+        suitable_cell,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Exponential: dispersers (actual, expected):\n"
@@ -191,7 +198,8 @@ int test_with_exponential_deterministic_kernel()
         weather,
         deterministicKernel,
         suitable_cell,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Exponential: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be 0\n";
@@ -241,6 +249,7 @@ int test_with_weibull_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
+    SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         42,
         infected.rows(),
@@ -256,7 +265,8 @@ int test_with_weibull_deterministic_kernel()
         infected,
         weather,
         reproductive_rate,
-        suitable_cell);
+        suitable_cell,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Weibull: dispersers (actual, expected):\n"
@@ -279,7 +289,8 @@ int test_with_weibull_deterministic_kernel()
         weather,
         deterministicKernel,
         suitable_cell,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Weibull: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be 0\n";
@@ -328,6 +339,7 @@ int test_with_log_normal_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
+    SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         42,
         infected.rows(),
@@ -343,7 +355,8 @@ int test_with_log_normal_deterministic_kernel()
         infected,
         weather,
         reproductive_rate,
-        suitable_cell);
+        suitable_cell,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel LogNormal: dispersers (actual, expected):\n"
@@ -366,7 +379,8 @@ int test_with_log_normal_deterministic_kernel()
         weather,
         deterministicKernel,
         suitable_cell,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (outside_dispersers.size() != 8) {
         cout << "Deterministic Kernel LogNormal: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be 8\n";
@@ -416,6 +430,7 @@ int test_with_normal_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
+    SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         42,
         infected.rows(),
@@ -431,7 +446,8 @@ int test_with_normal_deterministic_kernel()
         infected,
         weather,
         reproductive_rate,
-        suitable_cell);
+        suitable_cell,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Normal: dispersers (actual, expected):\n"
@@ -454,7 +470,8 @@ int test_with_normal_deterministic_kernel()
         weather,
         deterministicKernel,
         suitable_cell,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Normal: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be 0\n";
@@ -503,6 +520,7 @@ int test_with_hyperbolic_secant_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
+    SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         42,
         infected.rows(),
@@ -518,7 +536,8 @@ int test_with_hyperbolic_secant_deterministic_kernel()
         infected,
         weather,
         reproductive_rate,
-        suitable_cell);
+        suitable_cell,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout
@@ -542,7 +561,8 @@ int test_with_hyperbolic_secant_deterministic_kernel()
         weather,
         deterministicKernel,
         suitable_cell,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel HyperbolicSecant: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be 0\n";
@@ -592,6 +612,7 @@ int test_with_power_law_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
+    SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         42,
         infected.rows(),
@@ -607,7 +628,8 @@ int test_with_power_law_deterministic_kernel()
         infected,
         weather,
         reproductive_rate,
-        suitable_cell);
+        suitable_cell,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel PowerLaw: dispersers (actual, expected):\n"
@@ -630,7 +652,8 @@ int test_with_power_law_deterministic_kernel()
         weather,
         deterministicKernel,
         suitable_cell,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (outside_dispersers.size() != 1) {
         cout << "Deterministic Kernel PowerLaw: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be 0\n";
@@ -678,6 +701,7 @@ int test_with_logistic_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
+    SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         42,
         infected.rows(),
@@ -693,7 +717,8 @@ int test_with_logistic_deterministic_kernel()
         infected,
         weather,
         reproductive_rate,
-        suitable_cell);
+        suitable_cell,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Logistic: dispersers (actual, expected):\n"
@@ -716,7 +741,8 @@ int test_with_logistic_deterministic_kernel()
         weather,
         deterministicKernel,
         suitable_cell,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Logistic: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be 0\n";
@@ -764,6 +790,7 @@ int test_with_gamma_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
+    SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         42,
         infected.rows(),
@@ -779,7 +806,8 @@ int test_with_gamma_deterministic_kernel()
         infected,
         weather,
         reproductive_rate,
-        suitable_cell);
+        suitable_cell,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "Deterministic Kernel Gamma: dispersers (actual, expected):\n"
@@ -802,7 +830,8 @@ int test_with_gamma_deterministic_kernel()
         weather,
         deterministicKernel,
         suitable_cell,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (outside_dispersers.size() != 8) {
         cout << "Deterministic Kernel Gamma: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be 8\n";
@@ -851,6 +880,7 @@ int test_with_exponential_power_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
+    SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         42,
         infected.rows(),
@@ -866,7 +896,8 @@ int test_with_exponential_power_deterministic_kernel()
         infected,
         weather,
         reproductive_rate,
-        suitable_cell);
+        suitable_cell,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout
@@ -890,7 +921,8 @@ int test_with_exponential_power_deterministic_kernel()
         weather,
         deterministicKernel,
         suitable_cell,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (outside_dispersers.size() != 0) {
         cout << "Deterministic Kernel Exponential Power: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be 0\n";

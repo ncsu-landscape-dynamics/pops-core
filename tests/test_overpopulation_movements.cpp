@@ -46,6 +46,7 @@ int test_infected_arrive()
     DeterministicNeighborDispersalKernel kernel{Direction::E};
     double overpopulation_percentage = 0.75;
     double leaving_percentage = 0.5;
+    SimpleGeneratorProvider generator(seed);
     simulation.move_overpopulated_pests(
         susceptible,
         infected,
@@ -54,7 +55,8 @@ int test_infected_arrive()
         kernel,
         suitable_cells,
         overpopulation_percentage,
-        leaving_percentage);
+        leaving_percentage,
+        generator);
     int ret = 0;
     Raster<int> expected_infected = {{8, 8}, {0, 0}};
     if (expected_infected != infected) {
@@ -74,7 +76,8 @@ int test_infected_arrive()
         kernel,
         suitable_cells,
         overpopulation_percentage,
-        leaving_percentage);
+        leaving_percentage,
+        generator);
     expected_infected = {{8, 4}, {0, 0}};
     if (expected_infected != infected) {
         std::cerr << "Unexpected infected: \n" << infected << "\n";

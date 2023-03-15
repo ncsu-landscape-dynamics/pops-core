@@ -25,6 +25,7 @@
 
 #include <pops/raster.hpp>
 #include <pops/simulation.hpp>
+#include <pops/simple_generator.hpp>
 
 #include <map>
 #include <iostream>
@@ -59,6 +60,7 @@ int test_survive()
     std::vector<Raster<int>> expected_mortality_tracker = {
         {{2, 0}, {0, 0}}, {{0, 0}, {0, 0}}};
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
         42, infected.rows(), infected.cols());
     simulation.remove_percentage(
@@ -68,7 +70,8 @@ int test_survive()
         exposed,
         total_exposed,
         survival_rate,
-        suitable_cells);
+        suitable_cells,
+        generator);
     if (infected != expected_infected) {
         cout << "infected (actual, expected):\n"
              << infected << "  !=\n"

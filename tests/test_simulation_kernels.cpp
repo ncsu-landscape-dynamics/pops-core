@@ -292,7 +292,8 @@ int test_simulation_with_kernels_generic(
         config.latency_period_steps + 1,
         IntRaster(infected.rows(), infected.cols(), 0));
 
-    Simulation<IntRaster, DoubleRaster, int, std::default_random_engine> simulation(
+    SimpleGeneratorProvider generator(42);
+    Simulation<IntRaster, DoubleRaster, int> simulation(
         config.random_seed,
         config.rows,
         config.cols,
@@ -316,7 +317,9 @@ int test_simulation_with_kernels_generic(
             outside_dispersers,
             config.weather,
             kernel,
-            suitable_cells);
+            suitable_cells,
+            0.5,
+            generator);
     }
     return 0;
 }

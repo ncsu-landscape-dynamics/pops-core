@@ -36,6 +36,8 @@ class Config
 public:
     // Seed
     int random_seed{0};
+    bool multiple_random_seeds{false};
+    std::map<std::string, unsigned> random_seeds;
     // Size
     int rows{0};
     int cols{0};

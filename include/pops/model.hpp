@@ -34,6 +34,7 @@
 #include "scheduling.hpp"
 #include "quarantine.hpp"
 #include "soils.hpp"
+#include "simple_generator.hpp"
 
 #include <vector>
 
@@ -50,12 +51,15 @@ class Model
 {
 protected:
     Config config_;
+
+    RandomNumberGeneratorProvider<Generator> generators_;
+
     DispersalKernelType natural_kernel;
     DispersalKernelType anthro_kernel;
     UniformDispersalKernel uniform_kernel;
     DeterministicNeighborDispersalKernel natural_neighbor_kernel;
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
-    Simulation<IntegerRaster, FloatRaster, RasterIndex, Generator> simulation_;
+    Simulation<IntegerRaster, FloatRaster, RasterIndex> simulation_;
     KernelFactory& kernel_factory_;
     /**
      * Surrounding environment (currently used for soils only)
@@ -118,6 +122,7 @@ public:
         KernelFactory& kernel_factory =
             create_dynamic_kernel<Generator, IntegerRaster, RasterIndex>)
         : config_(config),
+          generators_(config),
           natural_kernel(kernel_type_from_string(config.natural_kernel_type)),
           anthro_kernel(kernel_type_from_string(config.anthro_kernel_type)),
           uniform_kernel(config.rows, config.cols),
@@ -239,7 +244,8 @@ public:
                 exposed,
                 total_exposed,
                 survival_rates[survival_step],
-                suitable_cells);
+                suitable_cells,
+                generators_);
         }
         // actual spread
         if (config_.spread_schedule()[step]) {
@@ -249,7 +255,8 @@ public:
                 infected,
                 config_.weather,
                 config_.reproductive_rate,
-                suitable_cells);
+                suitable_cells,
+                generators_);
 
             auto dispersal_kernel = kernel_factory_(config_, dispersers, network);
             auto overpopulation_kernel =
@@ -269,7 +276,8 @@ public:
                 config_.weather,
                 dispersal_kernel,
                 suitable_cells,
-                config_.establishment_probability);
+                config_.establishment_probability,
+                generators_);
             if (config_.use_overpopulation_movements) {
                 simulation_.move_overpopulated_pests(
                     susceptible,
@@ -279,7 +287,8 @@ public:
                     overpopulation_kernel,
                     suitable_cells,
                     config_.overpopulation_percentage,
-                    config_.leaving_percentage);
+                    config_.leaving_percentage,
+                    generators_);
             }
             if (config_.use_movements) {
                 // to do fix movements to use entire mortality tracker
@@ -295,7 +304,8 @@ public:
                     last_index,
                     movements,
                     config_.movement_schedule,
-                    suitable_cells);
+                    suitable_cells,
+                    generators_);
             }
         }
         // treatments
@@ -344,12 +354,14 @@ public:
     }
 
     /**
-     * @brief Get the associated random number generator
+     * @brief Get the associated random number generator for weather
      * @return Reference to the generator
+     *
+     * Kept for backwards compatibility.
      */
     Generator& random_number_generator()
     {
-        return simulation_.random_number_generator();
+        return generators_.weather();
     }
 
     /**
