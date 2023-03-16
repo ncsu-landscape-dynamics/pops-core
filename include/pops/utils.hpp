@@ -16,7 +16,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef UNUSED
+#ifdef UNUSED
+#undef UNUSED
+#endif
 /*!
  * Macro to mark unused variables (including parameters) and silence the warning
  * while documenting that it is intentionally unused.
@@ -31,10 +33,10 @@
  *
  * To be replaced by `[[maybe_unused]]` once we migrate to C++17 or higher.
  *
- * We assume that if UNUSED is defined elsewhere, it can be used instead.
+ * We remove any existing UNUSED definition from elsewhere, to ensure we have one
+ * which is compatible with our code.
  */
 #define UNUSED(expr) (void)(expr)
-#endif
 
 // We assume that if the constants are defined elsewhere, they can be used instead.
 #ifndef M_PI
