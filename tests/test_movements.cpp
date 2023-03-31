@@ -67,7 +67,7 @@ int test_move_all_no_exposed()
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     simulation.movement(
         infected,
         susceptible,
@@ -164,7 +164,7 @@ int test_move_all_exposed()
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     simulation.movement(
         infected,
         susceptible,
@@ -263,7 +263,7 @@ int test_move_add_suitable_cell()
         {0, 0}, {0, 1}, {1, 0}, {1, 1}};
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     simulation.movement(
         infected,
         susceptible,

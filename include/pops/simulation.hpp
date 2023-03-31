@@ -210,7 +210,6 @@ public:
      * @param movement_stochasticity Enable stochasticity in movement of hosts
      */
     Simulation(
-        unsigned random_seed,
         RasterIndex rows,
         RasterIndex cols,
         ModelType model_type = ModelType::SusceptibleInfected,

@@ -292,9 +292,8 @@ int test_simulation_with_kernels_generic(
         config.latency_period_steps + 1,
         IntRaster(infected.rows(), infected.cols(), 0));
 
-    SimpleGeneratorProvider generator(42);
+    SimpleGeneratorProvider generator(config.random_seed);
     Simulation<IntRaster, DoubleRaster, int> simulation(
-        config.random_seed,
         config.rows,
         config.cols,
         model_type_from_string(config.model_type),

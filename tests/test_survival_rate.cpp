@@ -62,7 +62,7 @@ int test_survive()
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     simulation.remove_percentage(
         infected,
         susceptible,

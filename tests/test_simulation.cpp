@@ -96,7 +96,7 @@ int test_with_neighbor_kernel()
     DeterministicNeighborDispersalKernel kernel(Direction::E);
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     dispersers = reproductive_rate * infected;
     // cout << dispersers;
     simulation.disperse(
@@ -162,7 +162,6 @@ int test_with_reduced_stochasticity()
     DeterministicNeighborDispersalKernel kernel(Direction::E);
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -296,10 +295,8 @@ int test_with_sei()
     DeterministicNeighborDispersalKernel kernel(Direction::E);
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42,
         infected.rows(),
         infected.cols(),
-
         model_type_from_string("SEI"),
         latency_period_steps);
     dispersers = reproductive_rate * infected;
@@ -520,11 +517,11 @@ int test_SI_versus_SEI0()
     SimpleGeneratorProvider generator_SI_2(42);
     SimpleGeneratorProvider generator_SEI0(42);
     Simulation<Raster<int>, Raster<double>> simulation_SI_1(
-        42, rows, cols, model_type_from_string("SI"));
+        rows, cols, model_type_from_string("SI"));
     Simulation<Raster<int>, Raster<double>> simulation_SI_2(
-        42, rows, cols, model_type_from_string("SI"));
+        rows, cols, model_type_from_string("SI"));
     Simulation<Raster<int>, Raster<double>> simulation_SEI0(
-        42, rows, cols, model_type_from_string("SEI"), latency_period_steps);
+        rows, cols, model_type_from_string("SEI"), latency_period_steps);
     int ret = 0;
     for (int step = 0; step < 10; ++step) {
         simulation_SI_1.disperse_and_infect(
@@ -630,9 +627,9 @@ int test_calling_all_functions()
     Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
     environment.update_weather_coefficient(weather_coefficient);
 
-    SimpleGeneratorProvider generator(42);
+    SimpleGeneratorProvider generator(seed);
     Simulation<Raster<int>, Raster<double>> simulation(
-        seed, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     simulation.set_environment(&environment);
     simulation.remove(
         infected, susceptible, temperature, lethal_temperature, suitable_cells);

@@ -68,7 +68,6 @@ int test_with_cauchy_deterministic_kernel()
     unsigned seed = 42;
     // Cauchy
     Simulation<Raster<int>, Raster<double>> simulation(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -160,7 +159,6 @@ int test_with_exponential_deterministic_kernel()
     // Exponential
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -251,7 +249,6 @@ int test_with_weibull_deterministic_kernel()
     double establishment_probability = 1;
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -341,7 +338,6 @@ int test_with_log_normal_deterministic_kernel()
     double establishment_probability = 1;
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -432,7 +428,6 @@ int test_with_normal_deterministic_kernel()
     double establishment_probability = 1;
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -522,7 +517,6 @@ int test_with_hyperbolic_secant_deterministic_kernel()
     double establishment_probability = 1;
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -614,7 +608,6 @@ int test_with_power_law_deterministic_kernel()
     double establishment_probability = 1;
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -703,7 +696,6 @@ int test_with_logistic_deterministic_kernel()
     double establishment_probability = 1;
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -792,7 +784,6 @@ int test_with_gamma_deterministic_kernel()
     double establishment_probability = 1;
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -882,7 +873,6 @@ int test_with_exponential_power_deterministic_kernel()
     double establishment_probability = 1;
     SimpleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),

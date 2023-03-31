@@ -42,7 +42,7 @@ int test_infected_arrive()
     std::vector<std::vector<int>> suitable_cells =
         find_suitable_cells<int>(total_hosts);
     Simulation<Raster<int>, Raster<double>> simulation(
-        seed, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     DeterministicNeighborDispersalKernel kernel{Direction::E};
     double overpopulation_percentage = 0.75;
     double leaving_percentage = 0.5;

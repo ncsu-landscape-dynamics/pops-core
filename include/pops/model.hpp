@@ -129,7 +129,6 @@ public:
           natural_neighbor_kernel(direction_from_string(config.natural_direction)),
           anthro_neighbor_kernel(direction_from_string(config.anthro_direction)),
           simulation_(
-              config.random_seed,
               config.rows,
               config.cols,
               model_type_from_string(config.model_type),
