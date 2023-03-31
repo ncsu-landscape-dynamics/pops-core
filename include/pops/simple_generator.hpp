@@ -56,7 +56,7 @@ public:
     virtual ~RandomNumberGeneratorProviderInterface() = default;
 };
 
-class SimpleGeneratorProvider
+class SingleGeneratorProvider
     : public RandomNumberGeneratorProviderInterface<std::default_random_engine>
 {
 public:
@@ -69,7 +69,7 @@ public:
      * Seeds first generator with the seed and then each subsequent generator with
      * seed += 1.
      */
-    SimpleGeneratorProvider(unsigned seed = 1)
+    SingleGeneratorProvider(unsigned seed)
     {
         this->seed(seed);
     }
@@ -139,7 +139,7 @@ private:
 };
 
 template<typename Generator>
-class RandomNumberGeneratorProviderImpl
+class IsolatedRandomNumberGeneratorProvider
     : public RandomNumberGeneratorProviderInterface<Generator>
 {
 public:
@@ -150,16 +150,16 @@ public:
      * Seeds first generator with the seed and then each subsequent generator with
      * seed += 1.
      */
-    RandomNumberGeneratorProviderImpl(unsigned seed)
+    IsolatedRandomNumberGeneratorProvider(unsigned seed)
     {
         this->seed(seed);
     }
-    RandomNumberGeneratorProviderImpl(const std::map<std::string, unsigned>& seeds)
+    IsolatedRandomNumberGeneratorProvider(const std::map<std::string, unsigned>& seeds)
     {
         this->seed(seeds);
     }
 
-    RandomNumberGeneratorProviderImpl(Config config)
+    IsolatedRandomNumberGeneratorProvider(Config config)
     {
         this->seed(config);
     }
@@ -257,7 +257,7 @@ public:
         this->seed(seed);
     }
     RandomNumberGeneratorProvider(const std::map<std::string, unsigned>& seeds)
-        : impl(new RandomNumberGeneratorProviderImpl<Generator>())
+        : impl(new IsolatedRandomNumberGeneratorProvider<Generator>())
     {
         this->seed(seeds);
     }
@@ -265,11 +265,10 @@ public:
     RandomNumberGeneratorProvider(Config config) : impl(nullptr)
     {
         if (config.multiple_random_seeds) {
-            impl.reset(new RandomNumberGeneratorProviderImpl<Generator>(config));
+            impl.reset(new IsolatedRandomNumberGeneratorProvider<Generator>(config));
         }
         else {
-            impl.reset(new SimpleGeneratorProvider());
-            impl->seed(config.random_seed);
+            impl.reset(new SingleGeneratorProvider(config.random_seed));
         }
     }
 

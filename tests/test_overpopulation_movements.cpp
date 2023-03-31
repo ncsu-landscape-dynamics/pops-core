@@ -46,7 +46,7 @@ int test_infected_arrive()
     DeterministicNeighborDispersalKernel kernel{Direction::E};
     double overpopulation_percentage = 0.75;
     double leaving_percentage = 0.5;
-    SimpleGeneratorProvider generator(seed);
+    SingleGeneratorProvider generator(seed);
     simulation.move_overpopulated_pests(
         susceptible,
         infected,

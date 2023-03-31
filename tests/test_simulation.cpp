@@ -94,7 +94,7 @@ int test_with_neighbor_kernel()
     bool weather = false;
     double reproductive_rate = 2;
     DeterministicNeighborDispersalKernel kernel(Direction::E);
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
         infected.rows(), infected.cols());
     dispersers = reproductive_rate * infected;
@@ -160,7 +160,7 @@ int test_with_reduced_stochasticity()
     // We want everything to establish.
     double establishment_probability = 1;
     DeterministicNeighborDispersalKernel kernel(Direction::E);
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
         infected.rows(),
         infected.cols(),
@@ -293,7 +293,7 @@ int test_with_sei()
         latency_period_steps + 1, Raster<int>(infected.rows(), infected.cols(), 0));
 
     DeterministicNeighborDispersalKernel kernel(Direction::E);
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
         infected.rows(),
         infected.cols(),
@@ -513,9 +513,9 @@ int test_SI_versus_SEI0()
         latency_period_steps + 1, Raster<int>(rows, cols, 0));
 
     DeterministicNeighborDispersalKernel kernel(Direction::E);
-    SimpleGeneratorProvider generator_SI_1(42);
-    SimpleGeneratorProvider generator_SI_2(42);
-    SimpleGeneratorProvider generator_SEI0(42);
+    SingleGeneratorProvider generator_SI_1(42);
+    SingleGeneratorProvider generator_SI_2(42);
+    SingleGeneratorProvider generator_SEI0(42);
     Simulation<Raster<int>, Raster<double>> simulation_SI_1(
         rows, cols, model_type_from_string("SI"));
     Simulation<Raster<int>, Raster<double>> simulation_SI_2(
@@ -627,7 +627,7 @@ int test_calling_all_functions()
     Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
     environment.update_weather_coefficient(weather_coefficient);
 
-    SimpleGeneratorProvider generator(seed);
+    SingleGeneratorProvider generator(seed);
     Simulation<Raster<int>, Raster<double>> simulation(
         infected.rows(), infected.cols());
     simulation.set_environment(&environment);

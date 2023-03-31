@@ -75,7 +75,7 @@ int test_with_cauchy_deterministic_kernel()
         generate_stochasticity,
         establishment_stochasticity,
         movement_stochasticity);
-    SimpleGeneratorProvider generator(seed);
+    SingleGeneratorProvider generator(seed);
     simulation.generate(
         dispersers,
         established_dispersers,
@@ -157,7 +157,7 @@ int test_with_exponential_deterministic_kernel()
     // We want everything to establish.
     double establishment_probability = 1;
     // Exponential
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         infected.rows(),
         infected.cols(),
@@ -247,7 +247,7 @@ int test_with_weibull_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         infected.rows(),
         infected.cols(),
@@ -336,7 +336,7 @@ int test_with_log_normal_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         infected.rows(),
         infected.cols(),
@@ -426,7 +426,7 @@ int test_with_normal_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         infected.rows(),
         infected.cols(),
@@ -515,7 +515,7 @@ int test_with_hyperbolic_secant_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         infected.rows(),
         infected.cols(),
@@ -606,7 +606,7 @@ int test_with_power_law_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         infected.rows(),
         infected.cols(),
@@ -694,7 +694,7 @@ int test_with_logistic_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         infected.rows(),
         infected.cols(),
@@ -782,7 +782,7 @@ int test_with_gamma_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         infected.rows(),
         infected.cols(),
@@ -871,7 +871,7 @@ int test_with_exponential_power_deterministic_kernel()
     bool movement_stochasticity = false;
     // We want everything to establish.
     double establishment_probability = 1;
-    SimpleGeneratorProvider generator(42);
+    SingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> s2(
         infected.rows(),
         infected.cols(),
