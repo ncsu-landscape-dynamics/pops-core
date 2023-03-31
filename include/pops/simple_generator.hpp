@@ -56,7 +56,8 @@ public:
     virtual ~RandomNumberGeneratorProviderInterface() = default;
 };
 
-class SimpleGeneratorProvider: public RandomNumberGeneratorProviderInterface<std::default_random_engine>
+class SimpleGeneratorProvider
+    : public RandomNumberGeneratorProviderInterface<std::default_random_engine>
 {
 public:
     using Generator = std::default_random_engine;
@@ -81,16 +82,19 @@ public:
     void seed(const std::map<std::string, unsigned>& seeds)
     {
         UNUSED(seeds);
-        throw std::invalid_argument("Multiple seeds are not supported by SimpleGeneratorProvider (only one seed is supported)");
+        throw std::invalid_argument(
+            "Multiple seeds are not supported by SimpleGeneratorProvider (only one seed is supported)");
     }
 
     void seed(Config config)
     {
         if (config.multiple_random_seeds) {
-            throw std::invalid_argument("Config cannot have multiple_random_seeds set for SimpleGeneratorProvider (only random_seed is supported)");
+            throw std::invalid_argument(
+                "Config cannot have multiple_random_seeds set for SimpleGeneratorProvider (only random_seed is supported)");
         }
         if (!config.random_seeds.empty()) {
-            throw std::invalid_argument("Config cannot have random_seeds set for SimpleGeneratorProvider (only random_seed is supported)");
+            throw std::invalid_argument(
+                "Config cannot have random_seeds set for SimpleGeneratorProvider (only random_seed is supported)");
         }
         general_generator_.seed(config.random_seed);
     }
@@ -135,7 +139,8 @@ private:
 };
 
 template<typename Generator>
-class RandomNumberGeneratorProviderImpl : public RandomNumberGeneratorProviderInterface<Generator>
+class RandomNumberGeneratorProviderImpl
+    : public RandomNumberGeneratorProviderInterface<Generator>
 {
 public:
     /**
@@ -257,12 +262,12 @@ public:
         this->seed(seeds);
     }
 
-    RandomNumberGeneratorProvider(Config config):
-        impl(nullptr)
+    RandomNumberGeneratorProvider(Config config) : impl(nullptr)
     {
         if (config.multiple_random_seeds) {
             impl.reset(new RandomNumberGeneratorProviderImpl<Generator>(config));
-        } else {
+        }
+        else {
             impl.reset(new SimpleGeneratorProvider());
             impl->seed(config.random_seed);
         }
@@ -302,6 +307,7 @@ public:
     {
         return impl->soil();
     }
+
 private:
     std::unique_ptr<RandomNumberGeneratorProviderInterface<Generator>> impl;
 };
