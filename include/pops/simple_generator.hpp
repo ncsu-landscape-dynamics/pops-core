@@ -56,12 +56,10 @@ public:
     virtual ~RandomNumberGeneratorProviderInterface() = default;
 };
 
-class SingleGeneratorProvider
-    : public RandomNumberGeneratorProviderInterface<std::default_random_engine>
+template<typename Generator>
+class SingleGeneratorProvider : public RandomNumberGeneratorProviderInterface<Generator>
 {
 public:
-    using Generator = std::default_random_engine;
-
     /**
      * @brief RandomNumberGeneratorProvider
      * @param seed
@@ -137,6 +135,9 @@ public:
 private:
     Generator general_generator_;
 };
+
+using DefaultSingleGeneratorProvider =
+    SingleGeneratorProvider<std::default_random_engine>;
 
 template<typename Generator>
 class IsolatedRandomNumberGeneratorProvider
@@ -258,7 +259,7 @@ public:
             impl.reset(new IsolatedRandomNumberGeneratorProvider<Generator>(seed));
         }
         else {
-            impl.reset(new SingleGeneratorProvider(seed));
+            impl.reset(new SingleGeneratorProvider<Generator>(seed));
         }
     }
     RandomNumberGeneratorProvider(const std::map<std::string, unsigned>& seeds)
@@ -273,7 +274,7 @@ public:
             impl.reset(new IsolatedRandomNumberGeneratorProvider<Generator>(config));
         }
         else {
-            impl.reset(new SingleGeneratorProvider(config.random_seed));
+            impl.reset(new SingleGeneratorProvider<Generator>(config.random_seed));
         }
     }
 
