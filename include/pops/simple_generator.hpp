@@ -252,9 +252,14 @@ public:
      * Seeds first generator with the seed and then each subsequent generator with
      * seed += 1.
      */
-    RandomNumberGeneratorProvider(unsigned seed)
+    RandomNumberGeneratorProvider(unsigned seed, bool isolated = false)
     {
-        this->seed(seed);
+        if (isolated) {
+            impl.reset(new IsolatedRandomNumberGeneratorProvider<Generator>(seed));
+        }
+        else {
+            impl.reset(new SingleGeneratorProvider(seed));
+        }
     }
     RandomNumberGeneratorProvider(const std::map<std::string, unsigned>& seeds)
         : impl(new IsolatedRandomNumberGeneratorProvider<Generator>())
@@ -270,6 +275,11 @@ public:
         else {
             impl.reset(new SingleGeneratorProvider(config.random_seed));
         }
+    }
+
+    void seed(unsigned seed)
+    {
+        return impl->seed(seed);
     }
 
     Generator& general()

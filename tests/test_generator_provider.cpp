@@ -50,18 +50,51 @@ int test_single_generator_results_same()
     return ret;
 }
 
+int test_multiple_generator_results_same()
+{
+    int ret = 0;
+    unsigned seed = 42;
+    RandomNumberGeneratorProvider<std::default_random_engine> generator1(seed, true);
+    RandomNumberGeneratorProvider<std::default_random_engine> generator2(seed, true);
+    int a = 13;
+    int b = 27;
+    std::uniform_int_distribution<int> distribution1(a, b);
+    std::uniform_int_distribution<int> distribution2(a, b);
+    int repetions = 10;
+    for (int i = 0; i < repetions; ++i) {
+        int number1 = distribution1(generator1.weather());
+        int number2 = distribution2(generator2.weather());
+        if (number1 != number2) {
+            std::cerr << "test multiple generator - weather (" << i
+                      << "): generator 1: " << number1 << " generator 2: " << number2
+                      << "\n";
+            ret += 1;
+        }
+        number1 = distribution1(generator1.overpopulation());
+        number2 = distribution1(generator2.overpopulation());
+        if (number1 != number2) {
+            std::cerr << "test multiple generator - overpopulation (" << i
+                      << "): generator 1: " << number1 << " generator 2: " << number2
+                      << "\n";
+            ret += 1;
+        }
+    }
+    return ret;
+}
+
 int run_tests()
 {
     int ret = 0;
 
-    ret += test_generator();
+    ret += test_single_generator_results_same();
+    ret += test_multiple_generator_results_independent();
 
     if (ret)
         std::cerr << "Number of errors in the network test: " << ret << "\n";
     return ret;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char**)
 {
     if (argc > 1)
         return 1;
