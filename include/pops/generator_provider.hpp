@@ -24,18 +24,9 @@
 #ifndef POPS_SIMPLE_GENERATOR_HPP
 #define POPS_SIMPLE_GENERATOR_HPP
 
-#include "environment.hpp"
-#include "config.hpp"
-#include "treatments.hpp"
-#include "spread_rate.hpp"
-#include "simulation.hpp"
-#include "switch_kernel.hpp"
-#include "kernel.hpp"
-#include "scheduling.hpp"
-#include "quarantine.hpp"
-#include "soils.hpp"
-
 #include <vector>
+
+#include "config.hpp"
 
 namespace pops {
 

@@ -27,7 +27,7 @@
 #include <pops/radial_kernel.hpp>
 #include <pops/neighbor_kernel.hpp>
 #include <pops/simulation.hpp>
-#include <pops/simple_generator.hpp>
+#include <pops/generator_provider.hpp>
 
 #include <map>
 #include <iostream>

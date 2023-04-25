@@ -1,11 +1,35 @@
+/*
+ * Test random number generator provider classes.
+ *
+ * Copyright (C) 2023 by the authors.
+ *
+ * Authors: Vaclav Petras <wenzeslaus gmail com>
+ *
+ * This file is part of PoPS.
+
+ * PoPS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+
+ * PoPS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <fstream>
 #include <regex>
 #include <random>
 
-#include <pops/simple_generator.hpp>
+#include <pops/generator_provider.hpp>
 
 using namespace pops;
 
+/** Return 1 and print message if two number are different, zero otherwise */
 int assert_pair_equals(
     std::string test_name,
     int test_number,
@@ -23,6 +47,7 @@ int assert_pair_equals(
     return 0;
 }
 
+/** Return 1 and print message if two number are the same, zero otherwise */
 int assert_pair_not_equals(
     std::string test_name,
     int test_number,
@@ -41,8 +66,8 @@ int assert_pair_not_equals(
 }
 
 /**
- * Check that accessing different generators gives the same result as accesing
- * a single one.
+ * Check that accessing different simple generators gives the same result as accesing
+ * a single one when the seed is the same.
  */
 int test_single_generator_results_same()
 {
@@ -87,6 +112,11 @@ int test_single_generator_results_same()
     return ret;
 }
 
+/**
+ * Check that accessing different generators gives the same result as accesing
+ * a single one when the initial seed is the same but independent seeds are used
+ * within each provider.
+ */
 int test_multiple_generator_results_same()
 {
     int ret = 0;
@@ -121,6 +151,12 @@ int test_multiple_generator_results_same()
     return ret;
 }
 
+/**
+ * Check that accessing different generators gives the same result as accesing
+ * a single one when the seed is the same when one is used differently.
+ * (This is similar to how different model runs would turn off and on different parts
+ * of the model.)
+ */
 int test_multiple_generator_results_independent()
 {
     int ret = 0;
@@ -159,6 +195,10 @@ int test_multiple_generator_results_independent()
     return ret;
 }
 
+/**
+ * Check that multiple custom seeds give same results for same seeds and different
+ * results for different seeds.
+ */
 int test_multiple_seeds()
 {
     int ret = 0;
@@ -232,6 +272,7 @@ int test_multiple_seeds()
     return ret;
 }
 
+/** Run all tests and collect the resulting return value. */
 int run_tests()
 {
     int ret = 0;
@@ -246,6 +287,7 @@ int run_tests()
     return ret;
 }
 
+/** Run the test or error when command line parameters are provided. */
 int main(int argc, char**)
 {
     if (argc > 1)

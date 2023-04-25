@@ -26,6 +26,7 @@
 
 #include "normal_distribution_with_uniform_fallback.hpp"
 #include "utils.hpp"
+#include "generator_provider.hpp"
 
 namespace pops {
 
@@ -93,10 +94,22 @@ public:
      *
      * @param mean Raster of mean weather coefficient for each cell
      * @param stddev Raster of standard deviation of weather coefficient for each cell
+     * @param generator Random number generator provider
      *
      * @throw std::invalid_argument when dimensions of *mean* and *stddev* differ or
      * when mean is out of range
      */
+    template<typename Generator>
+    void update_weather_from_distribution(
+        const FloatRaster& mean,
+        const FloatRaster& stddev,
+        RandomNumberGeneratorProvider<Generator>& generator)
+    {
+        update_weather_from_distribution(mean, stddev, generator.weather());
+    }
+
+    // Actual implementation kept separate for backwards compatibility; will be removed
+    // in future versions.
     template<typename Generator>
     void update_weather_from_distribution(
         const FloatRaster& mean, const FloatRaster& stddev, Generator& generator)

@@ -30,7 +30,7 @@
 #include <pops/lognormal_kernel.hpp>
 #include <pops/gamma_kernel.hpp>
 #include <pops/simulation.hpp>
-#include <pops/simple_generator.hpp>
+#include <pops/generator_provider.hpp>
 
 using std::string;
 using std::cout;

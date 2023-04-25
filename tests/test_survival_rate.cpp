@@ -25,7 +25,7 @@
 
 #include <pops/raster.hpp>
 #include <pops/simulation.hpp>
-#include <pops/simple_generator.hpp>
+#include <pops/generator_provider.hpp>
 
 #include <map>
 #include <iostream>
