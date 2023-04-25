@@ -178,13 +178,14 @@ public:
 
     void seed(const std::map<std::string, unsigned>& seeds)
     {
-        general_generator_.seed(seeds.at("general"));
-        weather_generator_.seed(seeds.at("weather"));
-        lethal_temperature_generator_.seed(seeds.at("lethal_temperature"));
-        movement_generator_.seed(seeds.at("movement"));
-        overpopulation_generator_.seed(seeds.at("overpopulation"));
-        survival_rate_generator_.seed(seeds.at("survival_rate"));
-        soil_generator_.seed(seeds.at("soil"));
+        this->set_seed_by_name(seeds, "general", general_generator_);
+        this->set_seed_by_name(seeds, "weather", weather_generator_);
+        this->set_seed_by_name(
+            seeds, "lethal_temperature", lethal_temperature_generator_);
+        this->set_seed_by_name(seeds, "movement", movement_generator_);
+        this->set_seed_by_name(seeds, "overpopulation", overpopulation_generator_);
+        this->set_seed_by_name(seeds, "survival_rate", survival_rate_generator_);
+        this->set_seed_by_name(seeds, "soil", soil_generator_);
     }
 
     void seed(Config config)
@@ -233,6 +234,20 @@ public:
     }
 
 private:
+    void set_seed_by_name(
+        const std::map<std::string, unsigned>& seeds,
+        const char* key,
+        Generator& generator)
+    {
+        try {
+            generator.seed(seeds.at(key));
+        }
+        catch (const std::out_of_range& error) {
+            throw std::invalid_argument(
+                std::string("Seed '") + key + "' missing from the seeds configuration");
+        }
+    }
+
     Generator general_generator_;
     Generator weather_generator_;
     Generator lethal_temperature_generator_;  // Not need at this point.
@@ -263,10 +278,8 @@ public:
         }
     }
     RandomNumberGeneratorProvider(const std::map<std::string, unsigned>& seeds)
-        : impl(new IsolatedRandomNumberGeneratorProvider<Generator>())
-    {
-        this->seed(seeds);
-    }
+        : impl(new IsolatedRandomNumberGeneratorProvider<Generator>(seeds))
+    {}
 
     RandomNumberGeneratorProvider(Config config) : impl(nullptr)
     {
