@@ -28,8 +28,48 @@
 #include "utils.hpp"
 
 #include <vector>
+#include <iostream>
+#include <regex>
+#include <string>
+#include <sstream>
 
 namespace pops {
+
+std::map<std::string, unsigned> read_key_number_pairs(
+    std::istream& stream, char record_separator, char key_value_separator)
+{
+    std::map<std::string, unsigned> config;
+    std::string line;
+    std::string expression_string(R"(\s*([^= ]+)[\s]*=[\s]*([^ ]+))");
+    std::replace(
+        expression_string.begin(), expression_string.end(), '=', key_value_separator);
+    std::regex expression(expression_string);
+    while (std::getline(stream, line, record_separator)) {
+        std::smatch match;
+        if (regex_search(line, match, expression) && match.size() == 3) {
+            std::string value(match[2]);
+            config[match[1]] = std::stoul(value.c_str());
+        }
+        else {
+            throw std::invalid_argument(std::string("Incorrect format of: ") + line);
+        }
+    }
+    return config;
+}
+
+std::map<std::string, unsigned> read_key_number_pairs(
+    const std::string& text, char record_separator, char key_value_separator)
+{
+    std::istringstream stream(text);
+    return read_key_number_pairs(stream, record_separator, key_value_separator);
+}
+
+std::map<std::string, unsigned>
+read_key_number_pairs(const char* text, char record_separator, char key_value_separator)
+{
+    std::string std_text(text);
+    return read_key_number_pairs(std_text, record_separator, key_value_separator);
+}
 
 class Config
 {
@@ -351,6 +391,13 @@ public:
     {
         season_start_month_ = std::stoi(start);
         season_end_month_ = std::stoi(end);
+    }
+
+    void
+    read_seeds(const std::string& text, char record_separator, char key_value_separator)
+    {
+        this->random_seeds =
+            read_key_number_pairs(text, record_separator, key_value_separator);
     }
 
 private:

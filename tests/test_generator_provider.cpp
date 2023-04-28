@@ -21,8 +21,6 @@
  * along with PoPS. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <fstream>
-#include <regex>
 #include <random>
 
 #include <pops/generator_provider.hpp>
@@ -272,6 +270,72 @@ int test_multiple_seeds()
     return ret;
 }
 
+template<typename Type>
+int assert_value_equals_value(std::string test_name, Type first, Type second)
+{
+    if (first != second) {
+        std::cerr << test_name << ": " << first << " != " << second << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+int assert_value_under_key(
+    std::string test_name,
+    const std::map<std::string, unsigned>& seeds,
+    std::string key,
+    unsigned value)
+{
+    int ret = 0;
+    if (!container_contains(seeds, key)) {
+        std::cerr << test_name << ": key '" << key << "' not in the map\n";
+        ++ret;
+    }
+    if (!ret)
+        ret += assert_value_equals_value<unsigned>(test_name, seeds.at(key), value);
+    if (ret) {
+        std::cerr << "map contains:\n";
+        for (const auto& item : seeds) {
+            std::cerr << " " << item.first << ": " << item.second << "\n";
+        }
+    }
+    return ret;
+}
+
+int test_seed_config_parameter_style()
+{
+    int ret = 0;
+    std::string text(
+        "weather = 252 , lethal_temperature =562,survival_rate=252,soil=462");
+    Config config;
+    config.read_seeds(text, ',', '=');
+    const auto& seeds = config.random_seeds;
+    ret += assert_value_under_key(
+        "test_seed_config_parameter_style", seeds, "weather", 252);
+    ret += assert_value_under_key(
+        "test_seed_config_parameter_style", seeds, "lethal_temperature", 562);
+    ret += assert_value_under_key(
+        "test_seed_config_parameter_style", seeds, "survival_rate", 252);
+    ret +=
+        assert_value_under_key("test_seed_config_parameter_style", seeds, "soil", 462);
+    return 0;
+}
+
+int test_seed_config_yaml_style()
+{
+    int ret = 0;
+    std::string text(
+        "weather: 252\nlethal_temperature: 562\nsurvival_rate:252\nsoil:462");
+    auto seeds = read_key_number_pairs(text, '\n', ':');
+    ret += assert_value_under_key("test_seed_config_yaml_style", seeds, "weather", 252);
+    ret += assert_value_under_key(
+        "test_seed_config_yaml_style", seeds, "lethal_temperature", 562);
+    ret += assert_value_under_key(
+        "test_seed_config_yaml_style", seeds, "survival_rate", 252);
+    ret += assert_value_under_key("test_seed_config_yaml_style", seeds, "soil", 462);
+    return 0;
+}
+
 /** Run all tests and collect the resulting return value. */
 int run_tests()
 {
@@ -281,6 +345,8 @@ int run_tests()
     ret += test_multiple_generator_results_same();
     ret += test_multiple_generator_results_independent();
     ret += test_multiple_seeds();
+    ret += test_seed_config_parameter_style();
+    ret += test_seed_config_yaml_style();
 
     if (ret)
         std::cerr << "Number of errors in the generator provider test: " << ret << "\n";
