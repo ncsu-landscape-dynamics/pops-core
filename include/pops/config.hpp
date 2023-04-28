@@ -35,10 +35,14 @@
 
 namespace pops {
 
-std::map<std::string, unsigned> read_key_number_pairs(
-    std::istream& stream, char record_separator, char key_value_separator)
+template<typename Value, typename Conversion>
+std::map<std::string, Value> read_key_value_pairs(
+    std::istream& stream,
+    char record_separator,
+    char key_value_separator,
+    Conversion conversion)
 {
-    std::map<std::string, unsigned> config;
+    std::map<std::string, Value> config;
     std::string line;
     std::string expression_string(R"(\s*([^= ]+)[\s]*=[\s]*([^ ]+))");
     std::replace(
@@ -48,7 +52,7 @@ std::map<std::string, unsigned> read_key_number_pairs(
         std::smatch match;
         if (regex_search(line, match, expression) && match.size() == 3) {
             std::string value(match[2]);
-            config[match[1]] = std::stoul(value.c_str());
+            config[match[1]] = conversion(value.c_str());
         }
         else {
             throw std::invalid_argument(std::string("Incorrect format of: ") + line);
@@ -57,18 +61,28 @@ std::map<std::string, unsigned> read_key_number_pairs(
     return config;
 }
 
-std::map<std::string, unsigned> read_key_number_pairs(
-    const std::string& text, char record_separator, char key_value_separator)
+template<typename Value, typename Conversion>
+std::map<std::string, Value> read_key_value_pairs(
+    const std::string& text,
+    char record_separator,
+    char key_value_separator,
+    Conversion conversion)
 {
     std::istringstream stream(text);
-    return read_key_number_pairs(stream, record_separator, key_value_separator);
+    return read_key_value_pairs<Value>(
+        stream, record_separator, key_value_separator, conversion);
 }
 
-std::map<std::string, unsigned>
-read_key_number_pairs(const char* text, char record_separator, char key_value_separator)
+template<typename Value, typename Conversion>
+std::map<std::string, Value> read_key_value_pairs(
+    const char* text,
+    char record_separator,
+    char key_value_separator,
+    Conversion conversion)
 {
     std::string std_text(text);
-    return read_key_number_pairs(std_text, record_separator, key_value_separator);
+    return read_key_value_pairs<Value>(
+        std_text, record_separator, key_value_separator, conversion);
 }
 
 class Config
@@ -396,8 +410,10 @@ public:
     void
     read_seeds(const std::string& text, char record_separator, char key_value_separator)
     {
-        this->random_seeds =
-            read_key_number_pairs(text, record_separator, key_value_separator);
+        this->random_seeds = read_key_value_pairs<unsigned>(
+            text, record_separator, key_value_separator, [](std::string text) {
+                return std::stoul(text);
+            });
     }
 
 private:

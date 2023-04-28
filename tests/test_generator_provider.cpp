@@ -326,7 +326,9 @@ int test_seed_config_yaml_style()
     int ret = 0;
     std::string text(
         "weather: 252\nlethal_temperature: 562\nsurvival_rate:252\nsoil:462");
-    auto seeds = read_key_number_pairs(text, '\n', ':');
+    Config config;
+    config.read_seeds(text, '\n', ':');
+    const auto& seeds = config.random_seeds;
     ret += assert_value_under_key("test_seed_config_yaml_style", seeds, "weather", 252);
     ret += assert_value_under_key(
         "test_seed_config_yaml_style", seeds, "lethal_temperature", 562);
