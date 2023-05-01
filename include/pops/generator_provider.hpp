@@ -233,7 +233,7 @@ private:
         try {
             generator.seed(seeds.at(key));
         }
-        catch (const std::out_of_range& error) {
+        catch (const std::out_of_range&) {
             throw std::invalid_argument(
                 std::string("Seed '") + key + "' missing from the seeds configuration");
         }

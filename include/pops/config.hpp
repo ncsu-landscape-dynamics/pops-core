@@ -414,6 +414,7 @@ public:
             text, record_separator, key_value_separator, [](std::string text) {
                 return std::stoul(text);
             });
+        this->multiple_random_seeds = true;
     }
 
 private:

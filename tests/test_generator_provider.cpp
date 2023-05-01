@@ -318,7 +318,12 @@ int test_seed_config_parameter_style()
         "test_seed_config_parameter_style", seeds, "survival_rate", 252);
     ret +=
         assert_value_under_key("test_seed_config_parameter_style", seeds, "soil", 462);
-    return 0;
+    if (config.multiple_random_seeds != true) {
+        std::cerr << "test_seed_config_parameter_style: config.multiple_random_seeds"
+                     " not set to true\n";
+        ++ret;
+    }
+    return ret;
 }
 
 int test_seed_config_yaml_style()
@@ -335,7 +340,12 @@ int test_seed_config_yaml_style()
     ret += assert_value_under_key(
         "test_seed_config_yaml_style", seeds, "survival_rate", 252);
     ret += assert_value_under_key("test_seed_config_yaml_style", seeds, "soil", 462);
-    return 0;
+    if (config.multiple_random_seeds != true) {
+        std::cerr << "test_seed_config_parameter_style: config.multiple_random_seeds"
+                     " not set to true\n";
+        ++ret;
+    }
+    return ret;
 }
 
 /** Run all tests and collect the resulting return value. */
