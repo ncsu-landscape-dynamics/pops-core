@@ -669,7 +669,7 @@ public:
             int j = indices[1];
             if (dispersers(i, j) > 0) {
                 for (int k = 0; k < dispersers(i, j); k++) {
-                    std::tie(row, col) = dispersal_kernel(generator.general(), i, j);
+                    std::tie(row, col) = dispersal_kernel(generator, i, j);
                     if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                         // export dispersers dispersed outside of modeled area
                         outside_dispersers.emplace_back(std::make_tuple(row, col));

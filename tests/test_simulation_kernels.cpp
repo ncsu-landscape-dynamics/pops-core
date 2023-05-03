@@ -72,10 +72,10 @@ public:
         // switch in between the supported kernels
         if (!use_anthropogenic_kernel_
             || !anthropogenic_kernel_.is_cell_eligible(row, col)
-            || bernoulli_distribution(generator)) {
-            return natural_kernel_(generator, row, col);
+            || bernoulli_distribution(generator.anthropogenic_dispersal())) {
+            return natural_kernel_(generator.natural_dispersal(), row, col);
         }
-        return anthropogenic_kernel_(generator, row, col);
+        return anthropogenic_kernel_(generator.anthropogenic_dispersal(), row, col);
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()
