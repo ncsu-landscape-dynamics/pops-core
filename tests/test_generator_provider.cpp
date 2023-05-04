@@ -202,6 +202,8 @@ int test_multiple_seeds()
     int ret = 0;
     std::map<std::string, unsigned> seeds{
         {{"general", 42},
+         {"natural_dispersal", 342},
+         {"anthropogenic_dispersal", 342},
          {"weather", 252},
          {"lethal_temperature", 462},
          {"movement", 72},
