@@ -7,15 +7,9 @@ authors:
   - family-names: Jones
     given-names: Chris M.
     orcid: https://orcid.org/0000-0002-0229-2970
-  - family-names: Lawrimore
-    given-names: Margaret A.
-    orcid: https://orcid.org/0000-0003-2266-3588
   - family-names: Petrasova
     given-names: Anna
     orcid: https://orcid.org/0000-0002-5120-5538
-  - family-names: Tonini
-    given-names: Francesco
-    orcid: https://orcid.org/0000-0003-4721-1297
 date-released: 2021-12-02
 title: PoPS Core: C++ library for the Pest or Pathogen Spread Model 
 version: 2.0.0
