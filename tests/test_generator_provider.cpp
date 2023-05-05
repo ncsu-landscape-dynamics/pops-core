@@ -88,14 +88,14 @@ int test_single_generator_results_same()
             number2,
             "weather",
             "disperser_generation");
-        number1 = distribution1(generator1.lethal_temperature());
+        number1 = distribution1(generator1.establishment());
         number2 = distribution2(generator2.disperser_generation());
         ret += assert_pair_equals(
             "test_single_generator_results_same",
             i,
             number1,
             number2,
-            "lethal_temperature",
+            "establishment()",
             "disperser_generation");
         number1 = distribution1(generator1.movement());
         number2 = distribution2(generator2.disperser_generation());
@@ -204,9 +204,8 @@ int test_multiple_seeds()
         {{"disperser_generation", 42},
          {"natural_dispersal", 342},
          {"anthropogenic_dispersal", 342},
-         {"establishment", 342},
+         {"establishment", 462},
          {"weather", 252},
-         {"lethal_temperature", 462},
          {"movement", 72},
          {"overpopulation", 42},
          {"survival_rate", 252},
@@ -216,7 +215,7 @@ int test_multiple_seeds()
     int b = 1278;  // Wide range to minimize overlap by chance for some seeds.
     std::uniform_int_distribution<int> disperser_generation_distribution(a, b);
     std::uniform_int_distribution<int> weather_distribution(a, b);
-    std::uniform_int_distribution<int> lethal_temperature_distribution(a, b);
+    std::uniform_int_distribution<int> establishment_distribution(a, b);
     std::uniform_int_distribution<int> movement_distribution(a, b);
     std::uniform_int_distribution<int> overpopulation_distribution(a, b);
     std::uniform_int_distribution<int> survival_rate_distribution(a, b);
@@ -226,8 +225,7 @@ int test_multiple_seeds()
         int disperser_generation =
             disperser_generation_distribution(generator.disperser_generation());
         int weather = weather_distribution(generator.weather());
-        int lethal_temperature =
-            lethal_temperature_distribution(generator.lethal_temperature());
+        int establishment = establishment_distribution(generator.establishment());
         int movement = movement_distribution(generator.movement());
         int overpopulation = overpopulation_distribution(generator.overpopulation());
         int survival_rate = survival_rate_distribution(generator.survival_rate());
@@ -247,19 +245,14 @@ int test_multiple_seeds()
             "weather",
             "survival_rate");
         ret += assert_pair_equals(
-            "test_multiple_seeds",
-            i,
-            lethal_temperature,
-            soil,
-            "lethal_temperature",
-            "soil");
+            "test_multiple_seeds", i, establishment, soil, "establishment", "soil");
         // These are seed-dependent.
         ret += assert_pair_not_equals(
             "test_multiple_seeds",
             i,
-            lethal_temperature,
+            establishment,
             movement,
-            "lethal_temperature",
+            "establishment",
             "movement");
         ret += assert_pair_not_equals(
             "test_multiple_seeds",
@@ -309,15 +302,14 @@ int assert_value_under_key(
 int test_seed_config_parameter_style()
 {
     int ret = 0;
-    std::string text(
-        "weather = 252 , lethal_temperature =562,survival_rate=252,soil=462");
+    std::string text("weather = 252 , establishment =562,survival_rate=252,soil=462");
     Config config;
     config.read_seeds(text, ',', '=');
     const auto& seeds = config.random_seeds;
     ret += assert_value_under_key(
         "test_seed_config_parameter_style", seeds, "weather", 252);
     ret += assert_value_under_key(
-        "test_seed_config_parameter_style", seeds, "lethal_temperature", 562);
+        "test_seed_config_parameter_style", seeds, "establishment", 562);
     ret += assert_value_under_key(
         "test_seed_config_parameter_style", seeds, "survival_rate", 252);
     ret +=
@@ -333,14 +325,13 @@ int test_seed_config_parameter_style()
 int test_seed_config_yaml_style()
 {
     int ret = 0;
-    std::string text(
-        "weather: 252\nlethal_temperature: 562\nsurvival_rate:252\nsoil:462");
+    std::string text("weather: 252\nestablishment: 562\nsurvival_rate:252\nsoil:462");
     Config config;
     config.read_seeds(text, '\n', ':');
     const auto& seeds = config.random_seeds;
     ret += assert_value_under_key("test_seed_config_yaml_style", seeds, "weather", 252);
     ret += assert_value_under_key(
-        "test_seed_config_yaml_style", seeds, "lethal_temperature", 562);
+        "test_seed_config_yaml_style", seeds, "establishment", 562);
     ret += assert_value_under_key(
         "test_seed_config_yaml_style", seeds, "survival_rate", 252);
     ret += assert_value_under_key("test_seed_config_yaml_style", seeds, "soil", 462);
@@ -368,7 +359,7 @@ int test_seed_config_validate_validates()
 {
     std::string text(
         "disperser_generation=1,natural_dispersal=2,anthropogenic_dispersal=1,"
-        "establishment=2,weather=2,lethal_temperature=3,movement=4,"
+        "establishment=2,weather=2,establishment=3,movement=4,"
         "overpopulation=5,survival_rate=6,soil=7");
     Config config;
     config.read_seeds(text, ',', '=');
@@ -381,8 +372,7 @@ int test_seed_config_validate_validates()
 int test_seed_config_validate_throws()
 {
     int ret = 0;
-    std::string text(
-        "weather = 252 , lethal_temperature =562,survival_rate=252,soil=462");
+    std::string text("weather = 252 , establishment =562,survival_rate=252,soil=462");
     Config config;
     config.read_seeds(text, ',', '=');
     bool thrown = throws_exception<std::invalid_argument>(
