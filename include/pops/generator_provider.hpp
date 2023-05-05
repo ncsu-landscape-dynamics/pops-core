@@ -25,6 +25,9 @@
 #define POPS_SIMPLE_GENERATOR_HPP
 
 #include <random>
+#include <map>
+#include <string>
+#include <exception>
 
 #include "config.hpp"
 

@@ -417,6 +417,31 @@ public:
         this->multiple_random_seeds = true;
     }
 
+    void read_seeds(const std::vector<unsigned>& seeds)
+    {
+        static const std::vector<std::string> names{
+            "disperser_generation",
+            "natural_dispersal",
+            "anthropogenic_dispersal",
+            "establishment",
+            "weather",
+            "movement",
+            "overpopulation",
+            "survival_rate",
+            "soil"};
+        if (names.size() != seeds.size()) {
+            throw std::invalid_argument(
+                "read_seeds: wrong number of seeds (" + std::to_string(seeds.size())
+                + " instead of " + std::to_string(names.size()) + ")");
+        }
+        size_t i = 0;
+        for (const auto& name : names) {
+            this->random_seeds[name] = seeds.at(i);
+            ++i;
+        }
+        this->multiple_random_seeds = true;
+    }
+
 private:
     Date date_start_{"0-01-01"};
     Date date_end_{"0-01-02"};

@@ -27,6 +27,18 @@
 
 using namespace pops;
 
+template<typename Exception, typename Operation>
+bool throws_exception(Operation operation)
+{
+    try {
+        operation();
+    }
+    catch (const Exception&) {
+        return true;
+    }
+    return false;
+}
+
 /** Return 1 and print message if two number are different, zero otherwise */
 int assert_pair_equals(
     std::string test_name,
@@ -343,16 +355,36 @@ int test_seed_config_yaml_style()
     return ret;
 }
 
-template<typename Exception, typename Operation>
-bool throws_exception(Operation operation)
+int test_seed_config_vector_works()
 {
-    try {
-        operation();
+    int ret = 0;
+    Config config;
+    // Letting exceptions handle the error states here.
+    config.read_seeds({1, 2, 3, 4, 5, 6, 7, 8, 9});
+    bool thrown = throws_exception<std::invalid_argument>(
+        [&config] { validate_random_number_generator_provider_config(config); });
+    if (thrown) {
+        std::cerr << "test_seed_config_vector_works: "
+                     "List of seed names in Config is not in sync with providers\n";
+        ++ret;
     }
-    catch (const Exception&) {
-        return true;
+    return ret;
+}
+
+int test_seed_config_vector_incomplete_list_recognized()
+{
+    int ret = 0;
+    Config config;
+    bool thrown = throws_exception<std::invalid_argument>([&config] {
+        config.read_seeds({1, 2, 3});
+    });
+    if (!thrown) {
+        std::cerr << "test_seed_config_vector_incomplete_list_recognized: "
+                     "An incomplete list of seeds wrongly accepted\n";
+        ++ret;
     }
-    return false;
+    validate_random_number_generator_provider_config(config);
+    return ret;
 }
 
 int test_seed_config_validate_validates()
@@ -404,6 +436,8 @@ int run_tests()
     ret += test_multiple_seeds();
     ret += test_seed_config_parameter_style();
     ret += test_seed_config_yaml_style();
+    ret += test_seed_config_vector_works();
+    ret += test_seed_config_vector_incomplete_list_recognized();
     ret += test_seed_config_validate_validates();
     ret += test_seed_config_validate_throws();
 
