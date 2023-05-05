@@ -24,7 +24,7 @@
 #ifndef POPS_SIMPLE_GENERATOR_HPP
 #define POPS_SIMPLE_GENERATOR_HPP
 
-#include <vector>
+#include <random>
 
 #include "config.hpp"
 
@@ -36,10 +36,11 @@ class RandomNumberGeneratorProviderInterface
 public:
     virtual void seed(unsigned seed) = 0;
     virtual void seed(const std::map<std::string, unsigned>& seeds) = 0;
-    virtual void seed(Config config) = 0;
-    virtual Generator& general() = 0;
+    virtual void seed(const Config& config) = 0;
+    virtual Generator& disperser_generation() = 0;
     virtual Generator& natural_dispersal() = 0;
     virtual Generator& anthropogenic_dispersal() = 0;
+    virtual Generator& establishment() = 0;
     virtual Generator& weather() = 0;
     virtual Generator& lethal_temperature() = 0;
     virtual Generator& movement() = 0;
@@ -77,7 +78,7 @@ public:
             "Multiple seeds are not supported by SimpleGeneratorProvider (only one seed is supported)");
     }
 
-    void seed(Config config)
+    void seed(const Config& config)
     {
         if (config.multiple_random_seeds) {
             throw std::invalid_argument(
@@ -95,12 +96,22 @@ public:
         return general_generator_;
     }
 
+    Generator& disperser_generation()
+    {
+        return general();
+    }
+
     Generator& natural_dispersal()
     {
         return general();
     }
 
     Generator& anthropogenic_dispersal()
+    {
+        return general();
+    }
+
+    Generator& establishment()
     {
         return general();
     }
@@ -185,16 +196,17 @@ public:
         this->seed(seeds);
     }
 
-    IsolatedRandomNumberGeneratorProvider(Config config)
+    IsolatedRandomNumberGeneratorProvider(const Config& config)
     {
         this->seed(config);
     }
 
     void seed(unsigned seed)
     {
-        general_generator_.seed(seed++);
+        disperser_generation_generator_.seed(seed++);
         natural_dispersal_generator_.seed(seed++);
         anthropogenic_dispersal_generator_.seed(seed++);
+        establishment_generator_.seed(seed++);
         weather_generator_.seed(seed++);
         lethal_temperature_generator_.seed(seed++);
         movement_generator_.seed(seed++);
@@ -205,11 +217,13 @@ public:
 
     void seed(const std::map<std::string, unsigned>& seeds)
     {
-        this->set_seed_by_name(seeds, "general", general_generator_);
+        this->set_seed_by_name(
+            seeds, "disperser_generation", disperser_generation_generator_);
         this->set_seed_by_name(
             seeds, "natural_dispersal", natural_dispersal_generator_);
         this->set_seed_by_name(
             seeds, "anthropogenic_dispersal", anthropogenic_dispersal_generator_);
+        this->set_seed_by_name(seeds, "establishment", establishment_generator_);
         this->set_seed_by_name(seeds, "weather", weather_generator_);
         this->set_seed_by_name(
             seeds, "lethal_temperature", lethal_temperature_generator_);
@@ -219,7 +233,7 @@ public:
         this->set_seed_by_name(seeds, "soil", soil_generator_);
     }
 
-    void seed(Config config)
+    void seed(const Config& config)
     {
         if (!config.random_seeds.empty()) {
             this->seed(config.random_seeds);
@@ -229,9 +243,9 @@ public:
         }
     }
 
-    Generator& general()
+    Generator& disperser_generation()
     {
-        return general_generator_;
+        return disperser_generation_generator_;
     }
 
     Generator& natural_dispersal()
@@ -242,6 +256,11 @@ public:
     Generator& anthropogenic_dispersal()
     {
         return anthropogenic_dispersal_generator_;
+    }
+
+    Generator& establishment()
+    {
+        return establishment_generator_;
     }
 
     Generator& weather()
@@ -289,9 +308,10 @@ private:
         }
     }
 
-    Generator general_generator_;
+    Generator disperser_generation_generator_;
     Generator natural_dispersal_generator_;
     Generator anthropogenic_dispersal_generator_;
+    Generator establishment_generator_;
     Generator weather_generator_;
     Generator lethal_temperature_generator_;  // Not need at this point.
     Generator movement_generator_;
@@ -326,7 +346,7 @@ public:
           isolated_(true)
     {}
 
-    RandomNumberGeneratorProvider(Config config) : impl(nullptr)
+    RandomNumberGeneratorProvider(const Config& config) : impl(nullptr)
     {
         if (config.multiple_random_seeds) {
             impl.reset(new IsolatedRandomNumberGeneratorProvider<Generator>(config));
@@ -343,9 +363,9 @@ public:
         return impl->seed(seed);
     }
 
-    Generator& general()
+    Generator& disperser_generation()
     {
-        return impl->general();
+        return impl->disperser_generation();
     }
 
     Generator& natural_dispersal()
@@ -356,6 +376,11 @@ public:
     Generator& anthropogenic_dispersal()
     {
         return impl->anthropogenic_dispersal();
+    }
+
+    Generator& establishment()
+    {
+        return impl->establishment();
     }
 
     Generator& weather()
@@ -407,7 +432,7 @@ public:
                 "RandomNumberGeneratorProvider used as a single generator "
                 "but it is set to provide isolated generators");
         }
-        return impl->general().operator()();
+        return impl->disperser_generation().operator()();
     }
 
     void discard(unsigned long long n)
@@ -417,7 +442,7 @@ public:
                 "RandomNumberGeneratorProvider used as a single generator "
                 "but it is set to provide isolated generators");
         }
-        impl->general().disard(n);
+        impl->disperser_generation().disard(n);
     }
 
 private:

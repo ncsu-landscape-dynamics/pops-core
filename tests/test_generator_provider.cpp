@@ -80,32 +80,32 @@ int test_single_generator_results_same()
     int repetions = 10;
     for (int i = 0; i < repetions; ++i) {
         int number1 = distribution1(generator1.weather());
-        int number2 = distribution2(generator2.general());
+        int number2 = distribution2(generator2.disperser_generation());
         ret += assert_pair_equals(
             "test_single_generator_results_same",
             i,
             number1,
             number2,
             "weather",
-            "general");
+            "disperser_generation");
         number1 = distribution1(generator1.lethal_temperature());
-        number2 = distribution2(generator2.general());
+        number2 = distribution2(generator2.disperser_generation());
         ret += assert_pair_equals(
             "test_single_generator_results_same",
             i,
             number1,
             number2,
             "lethal_temperature",
-            "general");
+            "disperser_generation");
         number1 = distribution1(generator1.movement());
-        number2 = distribution2(generator2.general());
+        number2 = distribution2(generator2.disperser_generation());
         ret += assert_pair_equals(
             "test_single_generator_results_same",
             i,
             number1,
             number2,
             "movement",
-            "general");
+            "disperser_generation");
     }
     return ret;
 }
@@ -201,9 +201,10 @@ int test_multiple_seeds()
 {
     int ret = 0;
     std::map<std::string, unsigned> seeds{
-        {{"general", 42},
+        {{"disperser_generation", 42},
          {"natural_dispersal", 342},
          {"anthropogenic_dispersal", 342},
+         {"establishment", 342},
          {"weather", 252},
          {"lethal_temperature", 462},
          {"movement", 72},
@@ -213,7 +214,7 @@ int test_multiple_seeds()
     RandomNumberGeneratorProvider<std::default_random_engine> generator(seeds);
     int a = 13;
     int b = 1278;  // Wide range to minimize overlap by chance for some seeds.
-    std::uniform_int_distribution<int> general_distribution(a, b);
+    std::uniform_int_distribution<int> disperser_generation_distribution(a, b);
     std::uniform_int_distribution<int> weather_distribution(a, b);
     std::uniform_int_distribution<int> lethal_temperature_distribution(a, b);
     std::uniform_int_distribution<int> movement_distribution(a, b);
@@ -222,7 +223,8 @@ int test_multiple_seeds()
     std::uniform_int_distribution<int> soil_distribution(a, b);
     int repetions = 10;
     for (int i = 0; i < repetions; ++i) {
-        int general = general_distribution(generator.general());
+        int disperser_generation =
+            disperser_generation_distribution(generator.disperser_generation());
         int weather = weather_distribution(generator.weather());
         int lethal_temperature =
             lethal_temperature_distribution(generator.lethal_temperature());
@@ -233,9 +235,9 @@ int test_multiple_seeds()
         ret += assert_pair_equals(
             "test_multiple_seeds",
             i,
-            general,
+            disperser_generation,
             overpopulation,
-            "general",
+            "disperser_generation",
             "overpopulation");
         ret += assert_pair_equals(
             "test_multiple_seeds",

@@ -575,7 +575,8 @@ public:
                 if (dispersers_stochasticity_) {
                     std::poisson_distribution<int> distribution(lambda);
                     for (int k = 0; k < infected(i, j); k++) {
-                        dispersers_from_cell += distribution(generator.general());
+                        dispersers_from_cell +=
+                            distribution(generator.disperser_generation());
                     }
                 }
                 else {
@@ -687,7 +688,7 @@ public:
                         total_exposed,
                         weather,
                         establishment_probability,
-                        generator.general());
+                        generator.establishment());
                     if (!dispersed) {
                         established_dispersers(i, j) -= 1;
                     }
