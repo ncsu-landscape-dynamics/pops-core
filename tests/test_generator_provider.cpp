@@ -352,6 +352,57 @@ int test_seed_config_yaml_style()
     return ret;
 }
 
+template<typename Exception, typename Operation>
+bool throws_exception(Operation operation)
+{
+    try {
+        operation();
+    }
+    catch (const Exception&) {
+        return true;
+    }
+    return false;
+}
+
+int test_seed_config_validate_validates()
+{
+    std::string text(
+        "disperser_generation=1,natural_dispersal=2,anthropogenic_dispersal=1,"
+        "establishment=2,weather=2,lethal_temperature=3,movement=4,"
+        "overpopulation=5,survival_rate=6,soil=7");
+    Config config;
+    config.read_seeds(text, ',', '=');
+    validate_random_number_generator_provider_config(config);
+    validate_random_number_generator_provider_seeds(config.random_seeds);
+    // Letting exceptions handle the error states.
+    return 0;
+}
+
+int test_seed_config_validate_throws()
+{
+    int ret = 0;
+    std::string text(
+        "weather = 252 , lethal_temperature =562,survival_rate=252,soil=462");
+    Config config;
+    config.read_seeds(text, ',', '=');
+    bool thrown = throws_exception<std::invalid_argument>(
+        [&config] { validate_random_number_generator_provider_config(config); });
+    if (!thrown) {
+        std::cerr << "An incomplete list of seeds wrongly accepted "
+                  << "by validate_random_number_generator_provider_config()\n";
+        ++ret;
+    }
+    thrown = throws_exception<std::invalid_argument>([&config] {
+        validate_random_number_generator_provider_seeds(config.random_seeds);
+    });
+    if (!thrown) {
+        std::cerr << "An incomplete list of seeds wrongly accepted "
+                  << "by validate_random_number_generator_provider_seeds()\n";
+        ++ret;
+    }
+    return ret;
+}
+
 /** Run all tests and collect the resulting return value. */
 int run_tests()
 {
@@ -363,6 +414,8 @@ int run_tests()
     ret += test_multiple_seeds();
     ret += test_seed_config_parameter_style();
     ret += test_seed_config_yaml_style();
+    ret += test_seed_config_validate_validates();
+    ret += test_seed_config_validate_throws();
 
     if (ret)
         std::cerr << "Number of errors in the generator provider test: " << ret << "\n";

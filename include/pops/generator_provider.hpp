@@ -450,6 +450,19 @@ private:
     bool isolated_ = false;
 };
 
+void validate_random_number_generator_provider_config(const Config& config)
+{
+    IsolatedRandomNumberGeneratorProvider<std::default_random_engine> provider(config);
+    UNUSED(provider);
+}
+
+void validate_random_number_generator_provider_seeds(
+    const std::map<std::string, unsigned>& seeds)
+{
+    IsolatedRandomNumberGeneratorProvider<std::default_random_engine> provider(seeds);
+    UNUSED(provider);
+}
+
 }  // namespace pops
 
 #endif  // POPS_SIMPLE_GENERATOR_HPP
