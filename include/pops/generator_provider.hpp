@@ -33,6 +33,12 @@
 
 namespace pops {
 
+/**
+ * Interface for generator providers.
+ *
+ * Now used only internally to switch between providers single
+ * and multiple seeds.
+ */
 template<typename Generator>
 class RandomNumberGeneratorProviderInterface
 {
@@ -52,27 +58,35 @@ public:
     virtual ~RandomNumberGeneratorProviderInterface() = default;
 };
 
+/**
+ * Provider which always supplies only one generator based on one seed.
+ *
+ * Satisfies UniformRandomBitGenerator, so it can be used in place of
+ * standard generators. This makes testing of other components easier
+ * as this generator object can be used directly or, more importantly,
+ * standard generator can be used in its place.
+ */
 template<typename Generator>
 class SingleGeneratorProvider : public RandomNumberGeneratorProviderInterface<Generator>
 {
 public:
     /**
-     * @brief RandomNumberGeneratorProvider
-     * @param seed
-     *
-     * Seeds first generator with the seed and then each subsequent generator with
-     * seed += 1.
+     * @brief Seeds the underlying generator
+     * @param seed for the underlying generator
      */
     SingleGeneratorProvider(unsigned seed)
     {
         this->seed(seed);
     }
 
+    /* Re-seed the generator */
     void seed(unsigned seed)
     {
         general_generator_.seed(seed);
     }
 
+    /* This overload always throws std::invalid_argument because only one seed is
+     * supported. */
     void seed(const std::map<std::string, unsigned>& seeds)
     {
         UNUSED(seeds);
@@ -80,6 +94,10 @@ public:
             "Multiple seeds are not supported by SimpleGeneratorProvider (only one seed is supported)");
     }
 
+    /* Re-seeds the generator
+     *
+     * Throws std::invalid_argument if configuration contains multiple seeds.
+     */
     void seed(const Config& config)
     {
         if (config.multiple_random_seeds) {
@@ -151,10 +169,12 @@ public:
     {
         return Generator::min();
     }
+
     static result_type max()
     {
         return Generator::max();
     }
+
     result_type operator()()
     {
         return general_generator_();
@@ -169,18 +189,20 @@ private:
     Generator general_generator_;
 };
 
+/** Default generator provider to be used for tests and development */
 using DefaultSingleGeneratorProvider =
     SingleGeneratorProvider<std::default_random_engine>;
 
+/** Generator provider providing multiple isolated generators
+ *
+ * All ways of seeding result is multiple independent generators.
+ */
 template<typename Generator>
 class IsolatedRandomNumberGeneratorProvider
     : public RandomNumberGeneratorProviderInterface<Generator>
 {
 public:
     /**
-     * @brief RandomNumberGeneratorProvider
-     * @param seed
-     *
      * Seeds first generator with the seed and then each subsequent generator with
      * seed += 1.
      */
@@ -188,16 +210,26 @@ public:
     {
         this->seed(seed);
     }
+
+    /**
+     * Seeds generators by name.
+     */
     IsolatedRandomNumberGeneratorProvider(const std::map<std::string, unsigned>& seeds)
     {
         this->seed(seeds);
     }
 
+    /**
+     * Seeds generators according to the configuration. If named seeds are available,
+     * generators are initialized by name, otherwise single seed is incremented for
+     * each generator.
+     */
     IsolatedRandomNumberGeneratorProvider(const Config& config)
     {
         this->seed(config);
     }
 
+    /** Re-seed with single value incremeneted for each generator. */
     void seed(unsigned seed)
     {
         disperser_generation_generator_.seed(seed++);
@@ -211,6 +243,7 @@ public:
         soil_generator_.seed(seed);
     }
 
+    /** Re-seed generators by name. */
     void seed(const std::map<std::string, unsigned>& seeds)
     {
         this->set_seed_by_name(
@@ -227,6 +260,7 @@ public:
         this->set_seed_by_name(seeds, "soil", soil_generator_);
     }
 
+    /** Re-seed using named seeds, otherwise increment single seed */
     void seed(const Config& config)
     {
         if (!config.random_seeds.empty()) {
@@ -283,6 +317,7 @@ public:
     }
 
 private:
+    /** Seed a given generator by value associated with the key */
     void set_seed_by_name(
         const std::map<std::string, unsigned>& seeds,
         const char* key,
@@ -308,16 +343,30 @@ private:
     Generator soil_generator_;
 };
 
+/**
+ * Generator provider which can switch between using single seed and
+ * multiple seeds.
+ *
+ * Depending on how the object is seeded, result is single generator or
+ * multiple independent generators.
+ *
+ * Satisfies UniformRandomBitGenerator, so it can be used in place of
+ * standard generators. This makes testing of other components easier
+ * as this generator object can be used directly or, more importantly,
+ * standard generator can be used in its place.
+ *
+ * However, unlike the simple generator for single seed, this will throw
+ * an exception if used directly as UniformRandomBitGenerato, but the
+ * object was seeded with multiple seeds.
+ */
 template<typename Generator>
 class RandomNumberGeneratorProvider
 {
 public:
     /**
-     * @brief RandomNumberGeneratorProvider
-     * @param seed
-     *
      * Seeds first generator with the seed and then each subsequent generator with
-     * seed += 1.
+     * seed += 1. *isolated* decides if single generator is created or if multiple
+     * isolated generators are created and seed is incremeneted as needed.
      */
     RandomNumberGeneratorProvider(unsigned seed, bool isolated = false)
         : isolated_(isolated)
@@ -329,11 +378,17 @@ public:
             impl.reset(new SingleGeneratorProvider<Generator>(seed));
         }
     }
+
+    /** Creates multiple isolated generators based on named seeds */
     RandomNumberGeneratorProvider(const std::map<std::string, unsigned>& seeds)
         : impl(new IsolatedRandomNumberGeneratorProvider<Generator>(seeds)),
           isolated_(true)
     {}
 
+    /**
+     * Result can be multiple independent generators or a single generator
+     * based on the configuration.
+     */
     RandomNumberGeneratorProvider(const Config& config) : impl(nullptr)
     {
         if (config.multiple_random_seeds) {
@@ -344,11 +399,6 @@ public:
             impl.reset(new SingleGeneratorProvider<Generator>(config.random_seed));
             isolated_ = false;
         }
-    }
-
-    void seed(unsigned seed)
-    {
-        return impl->seed(seed);
     }
 
     Generator& disperser_generation()
@@ -404,10 +454,13 @@ public:
     {
         return Generator::min();
     }
+
     static result_type max()
     {
         return Generator::max();
     }
+
+    /* Throws std::runtime_error if using multiple isolated generators */
     result_type operator()()
     {
         if (isolated_) {
@@ -418,6 +471,7 @@ public:
         return impl->disperser_generation().operator()();
     }
 
+    /* Throws std::runtime_error if using multiple isolated generators */
     void discard(unsigned long long n)
     {
         if (isolated_) {
@@ -433,12 +487,22 @@ private:
     bool isolated_ = false;
 };
 
+/**
+ * Try constructing a provider
+ *
+ * Throws the underlying exception. Does nothing on success.
+ */
 void validate_random_number_generator_provider_config(const Config& config)
 {
     IsolatedRandomNumberGeneratorProvider<std::default_random_engine> provider(config);
     UNUSED(provider);
 }
 
+/**
+ * Try constructing a provider
+ *
+ * Throws the underlying exception. Does nothing on success.
+ */
 void validate_random_number_generator_provider_seeds(
     const std::map<std::string, unsigned>& seeds)
 {

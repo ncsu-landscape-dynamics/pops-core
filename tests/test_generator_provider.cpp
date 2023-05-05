@@ -27,6 +27,13 @@
 
 using namespace pops;
 
+/**
+ * Return true if the *operation* throws an exception.
+ *
+ * Specify exception using the template parameter and the operation using a lambda
+ * function.
+ *
+ */
 template<typename Exception, typename Operation>
 bool throws_exception(Operation operation)
 {
@@ -73,6 +80,41 @@ int assert_pair_not_equals(
         return 1;
     }
     return 0;
+}
+
+/** Return 1 and print message if values don't equal, 0 otherwise. */
+template<typename Type>
+int assert_value_equals_value(std::string test_name, Type first, Type second)
+{
+    if (first != second) {
+        std::cerr << test_name << ": " << first << " != " << second << "\n";
+        return 1;
+    }
+    return 0;
+}
+
+/** Return 1 and print message if key is not present or value is not expected, 0
+ * otherwise. */
+int assert_value_under_key(
+    std::string test_name,
+    const std::map<std::string, unsigned>& seeds,
+    std::string key,
+    unsigned value)
+{
+    int ret = 0;
+    if (!container_contains(seeds, key)) {
+        std::cerr << test_name << ": key '" << key << "' not in the map\n";
+        ++ret;
+    }
+    if (!ret)
+        ret += assert_value_equals_value<unsigned>(test_name, seeds.at(key), value);
+    if (ret) {
+        std::cerr << "map contains:\n";
+        for (const auto& item : seeds) {
+            std::cerr << " " << item.first << ": " << item.second << "\n";
+        }
+    }
+    return ret;
 }
 
 /**
@@ -279,38 +321,7 @@ int test_multiple_seeds()
     return ret;
 }
 
-template<typename Type>
-int assert_value_equals_value(std::string test_name, Type first, Type second)
-{
-    if (first != second) {
-        std::cerr << test_name << ": " << first << " != " << second << "\n";
-        return 1;
-    }
-    return 0;
-}
-
-int assert_value_under_key(
-    std::string test_name,
-    const std::map<std::string, unsigned>& seeds,
-    std::string key,
-    unsigned value)
-{
-    int ret = 0;
-    if (!container_contains(seeds, key)) {
-        std::cerr << test_name << ": key '" << key << "' not in the map\n";
-        ++ret;
-    }
-    if (!ret)
-        ret += assert_value_equals_value<unsigned>(test_name, seeds.at(key), value);
-    if (ret) {
-        std::cerr << "map contains:\n";
-        for (const auto& item : seeds) {
-            std::cerr << " " << item.first << ": " << item.second << "\n";
-        }
-    }
-    return ret;
-}
-
+/** Check that reading of seeds works for key=value parameter style */
 int test_seed_config_parameter_style()
 {
     int ret = 0;
@@ -334,6 +345,7 @@ int test_seed_config_parameter_style()
     return ret;
 }
 
+/** Check that reading of seeds works for YAML config style */
 int test_seed_config_yaml_style()
 {
     int ret = 0;
@@ -355,6 +367,12 @@ int test_seed_config_yaml_style()
     return ret;
 }
 
+/**
+ * Check that ordered seeds are accepted and all are assigned
+ *
+ * Importantly, this tests that the two parts of source code which have
+ * a list of seeds by name are in sync.
+ */
 int test_seed_config_vector_works()
 {
     int ret = 0;
@@ -371,6 +389,7 @@ int test_seed_config_vector_works()
     return ret;
 }
 
+/** Check that reading of seeds from list fails if there is not enough values */
 int test_seed_config_vector_incomplete_list_recognized()
 {
     int ret = 0;
@@ -387,7 +406,8 @@ int test_seed_config_vector_incomplete_list_recognized()
     return ret;
 }
 
-int test_seed_config_validate_validates()
+/** Check that a valid list of seeds successfully validates */
+int test_seed_config_validate_validates_valid()
 {
     std::string text(
         "disperser_generation=1,natural_dispersal=2,anthropogenic_dispersal=1,"
@@ -401,10 +421,11 @@ int test_seed_config_validate_validates()
     return 0;
 }
 
+/** Check that incomplete list of seeds causes exception */
 int test_seed_config_validate_throws()
 {
     int ret = 0;
-    std::string text("weather = 252 , establishment =562,survival_rate=252,soil=462");
+    std::string text("weather=252,establishment=562,survival_rate=252,soil=462");
     Config config;
     config.read_seeds(text, ',', '=');
     bool thrown = throws_exception<std::invalid_argument>(
@@ -438,7 +459,7 @@ int run_tests()
     ret += test_seed_config_yaml_style();
     ret += test_seed_config_vector_works();
     ret += test_seed_config_vector_incomplete_list_recognized();
-    ret += test_seed_config_validate_validates();
+    ret += test_seed_config_validate_validates_valid();
     ret += test_seed_config_validate_throws();
 
     if (ret)

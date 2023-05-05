@@ -35,6 +35,25 @@
 
 namespace pops {
 
+/**
+ * Read key-value pairs from text into a map
+ *
+ * Text can be, e.g., comma-separated pairs of key and value where
+ * key and value are separated by equal (key=value,key2=value2) or
+ * YAML-style lines of `key: value`.
+ *
+ * Both separators are a single character and need to be different from
+ * each other. Common separators such as comma, semicolor, or colon will
+ * work. Special characters for regular expressions such as bracket or asterisk
+ * will confuse the parser.
+ *
+ * @param stream Text as stream
+ * @param record_separator Character which separates individual records
+ * @param key_value_separator Character which separates the key and value
+ * @param conversion Function to convert string to value (use lambda)
+ *
+ * @see Other overloads.
+ */
 template<typename Value, typename Conversion>
 std::map<std::string, Value> read_key_value_pairs(
     std::istream& stream,
@@ -61,6 +80,11 @@ std::map<std::string, Value> read_key_value_pairs(
     return config;
 }
 
+/**
+ * Read key-value pairs from text from string into a map
+ *
+ * @see Other overloads.
+ */
 template<typename Value, typename Conversion>
 std::map<std::string, Value> read_key_value_pairs(
     const std::string& text,
@@ -73,6 +97,11 @@ std::map<std::string, Value> read_key_value_pairs(
         stream, record_separator, key_value_separator, conversion);
 }
 
+/**
+ * Read key-value pairs from text from string into a map
+ *
+ * @see Other overloads.
+ */
 template<typename Value, typename Conversion>
 std::map<std::string, Value> read_key_value_pairs(
     const char* text,
@@ -85,6 +114,7 @@ std::map<std::string, Value> read_key_value_pairs(
         std_text, record_separator, key_value_separator, conversion);
 }
 
+/** Configuration for Model */
 class Config
 {
 public:
@@ -407,6 +437,13 @@ public:
         season_end_month_ = std::stoi(end);
     }
 
+    /**
+     * Read seeds from text.
+     *
+     * @note All seeds are mandatory regardless of the other configuration value.
+     *
+     * @see read_key_value_pairs() for parameters and behavior.
+     */
     void
     read_seeds(const std::string& text, char record_separator, char key_value_separator)
     {
@@ -417,6 +454,11 @@ public:
         this->multiple_random_seeds = true;
     }
 
+    /**
+     * Read seeds from vector unsigned ints (list of integers).
+     *
+     * @note All seeds are mandatory regardless of the other configuration value.
+     */
     void read_seeds(const std::vector<unsigned>& seeds)
     {
         static const std::vector<std::string> names{
