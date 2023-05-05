@@ -101,17 +101,6 @@ public:
      */
     template<typename Generator>
     void update_weather_from_distribution(
-        const FloatRaster& mean,
-        const FloatRaster& stddev,
-        RandomNumberGeneratorProvider<Generator>& generator)
-    {
-        update_weather_from_distribution(mean, stddev, generator.weather());
-    }
-
-    // Actual implementation kept separate for backwards compatibility; will be removed
-    // in future versions.
-    template<typename Generator>
-    void update_weather_from_distribution(
         const FloatRaster& mean, const FloatRaster& stddev, Generator& generator)
     {
         if (mean.rows() != stddev.rows()) {
@@ -149,7 +138,7 @@ public:
                     stddev(i, j),
                     weather_coefficient_min,
                     weather_coefficient_max};
-                stored_weather_coefficient(i, j) = distribution(generator);
+                stored_weather_coefficient(i, j) = distribution(generator.weather());
             }
         }
         current_weather_coefficient = &stored_weather_coefficient;

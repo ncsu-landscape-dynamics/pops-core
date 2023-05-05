@@ -351,21 +351,10 @@ public:
     }
 
     /**
-     * @brief Get the associated random number generator for weather
-     * @return Reference to the generator
-     *
-     * Kept for backwards compatibility. Will be removed in future versions.
-     */
-    Generator& random_number_generator()
-    {
-        return generator_provider_.weather();
-    }
-
-    /**
      * @brief Get the associated random number generator provider
      * @return Reference to the generator provider
      */
-    RandomNumberGeneratorProvider<Generator>& random_number_generator_provider()
+    RandomNumberGeneratorProvider<Generator>& random_number_generator()
     {
         return generator_provider_;
     }
