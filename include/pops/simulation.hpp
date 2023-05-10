@@ -134,7 +134,7 @@ public:
         const IntegerRaster& total_populations,
         IntegerRaster& total_exposed,
         bool weather,
-        const FloatRaster& weather_coefficient,
+        const Environment<IntegerRaster, FloatRaster, RasterIndex>& environment,
         bool establishment_stochasticity,
         double establishment_probability,
         Generator& generator)
@@ -148,7 +148,8 @@ public:
                 establishment_tester = distribution_uniform(generator);
 
             if (weather)
-                probability_of_establishment *= weather_coefficient(row, col);
+                probability_of_establishment *=
+                    environment.weather_coefficient_at(row, col);
             if (establishment_tester < probability_of_establishment) {
                 exposed_or_infected(row, col) += 1;
                 susceptible(row, col) -= 1;
@@ -1159,7 +1160,7 @@ public:
                         total_populations,
                         total_exposed,
                         weather,
-                        weather_coefficient,
+                        *environment(),
                         establishment_stochasticity_,
                         establishment_probability,
                         generator_);
@@ -1182,7 +1183,7 @@ public:
                         total_populations,
                         total_exposed,
                         weather,
-                        weather_coefficient,
+                        *environment(),
                         establishment_stochasticity_,
                         establishment_probability,
                         generator_);
