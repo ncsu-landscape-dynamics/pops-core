@@ -810,13 +810,20 @@ public:
 
     /**
      * @brief Get environment used in the simulation
+     *
+     * @param allow_empty if true, empty (non-functional) environment is returned
      * @return Const pointer to the environment
      * @throw std::logic_error when environment is not set
      */
-    const Environment<IntegerRaster, FloatRaster, RasterIndex>* environment()
+    const Environment<IntegerRaster, FloatRaster, RasterIndex>*
+    environment(bool allow_empty = false)
     {
-        if (!this->environment_)
+        static Environment<IntegerRaster, FloatRaster, RasterIndex> empty;
+        if (!this->environment_) {
+            if (allow_empty)
+                return &empty;
             throw std::logic_error("Environment used in Simulation, but not provided");
+        }
         return this->environment_;
     }
 
@@ -1160,7 +1167,7 @@ public:
                         total_populations,
                         total_exposed,
                         weather,
-                        *environment(),
+                        *environment(!weather),
                         establishment_stochasticity_,
                         establishment_probability,
                         generator_);
@@ -1183,7 +1190,7 @@ public:
                         total_populations,
                         total_exposed,
                         weather,
-                        *environment(),
+                        *environment(!weather),
                         establishment_stochasticity_,
                         establishment_probability,
                         generator_);
