@@ -128,31 +128,29 @@ public:
     int disperser_to(
         RasterIndex row,
         RasterIndex col,
-        IntegerRaster& susceptible,
         IntegerRaster& exposed_or_infected,
         IntegerRaster& mortality_tracker,
         const IntegerRaster& total_populations,
-        IntegerRaster& total_exposed,
         const Environment<IntegerRaster, FloatRaster, RasterIndex>& environment,
         bool establishment_stochasticity,
         double establishment_probability,
         Generator& generator)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
-        if (susceptible(row, col) > 0) {
+        if (susceptible_(row, col) > 0) {
             double probability_of_establishment = establishment_probability_at(
-                row, col, susceptible, total_populations, environment);
+                row, col, susceptible_, total_populations, environment);
             double establishment_tester = 1 - establishment_probability;
             if (establishment_stochasticity)
                 establishment_tester = distribution_uniform(generator);
             if (establishment_tester < probability_of_establishment) {
                 exposed_or_infected(row, col) += 1;
-                susceptible(row, col) -= 1;
+                susceptible_(row, col) -= 1;
                 if (model_type_ == ModelType::SusceptibleInfected) {
                     mortality_tracker(row, col) += 1;
                 }
                 else if (model_type_ == ModelType::SusceptibleExposedInfected) {
-                    total_exposed(row, col) += 1;
+                    total_exposed_(row, col) += 1;
                 }
                 else {
                     throw std::runtime_error(
@@ -1139,10 +1137,10 @@ public:
         std::vector<IntegerRaster> empty_vector;
         HostPool<IntegerRaster, FloatRaster, RasterIndex> host_pool{
             model_type_,
-            empty,
+            susceptible,
             empty,
             empty_vector,
-            empty,
+            total_exposed,
             empty,
             empty_vector,
             empty,
@@ -1169,11 +1167,9 @@ public:
                     auto dispersed = host_pool.disperser_to(
                         row,
                         col,
-                        susceptible,
                         exposed_or_infected,
                         mortality_tracker,
                         total_populations,
-                        total_exposed,
                         *environment(!weather),
                         establishment_stochasticity_,
                         establishment_probability,
@@ -1191,11 +1187,9 @@ public:
                     host_pool.disperser_to(
                         i,
                         j,
-                        susceptible,
                         exposed_or_infected,
                         mortality_tracker,
                         total_populations,
-                        total_exposed,
                         *environment(!weather),
                         establishment_stochasticity_,
                         establishment_probability,
