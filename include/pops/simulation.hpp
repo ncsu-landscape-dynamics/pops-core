@@ -79,8 +79,8 @@ public:
     HostPool(
         ModelType model_type,
         IntegerRaster& susceptible,
-        IntegerRaster& infected,
         std::vector<IntegerRaster>& exposed,
+        IntegerRaster& infected,
         IntegerRaster& total_exposed,
         IntegerRaster& resistant,
         std::vector<IntegerRaster>& mortality_tracker_vector,
@@ -128,7 +128,6 @@ public:
     int disperser_to(
         RasterIndex row,
         RasterIndex col,
-        IntegerRaster& exposed_or_infected,
         IntegerRaster& mortality_tracker,
         const IntegerRaster& total_populations,
         const Environment<IntegerRaster, FloatRaster, RasterIndex>& environment,
@@ -144,7 +143,7 @@ public:
             if (establishment_stochasticity)
                 establishment_tester = distribution_uniform(generator);
             if (establishment_tester < probability_of_establishment) {
-                exposed_or_infected(row, col) += 1;
+                add_disperser_at(row, col);
                 susceptible_(row, col) -= 1;
                 if (model_type_ == ModelType::SusceptibleInfected) {
                     mortality_tracker(row, col) += 1;
@@ -161,6 +160,20 @@ public:
             }
         }
         return false;
+    }
+
+    void add_disperser_at(RasterIndex i, RasterIndex j)
+    {
+        if (model_type_ == ModelType::SusceptibleInfected) {
+            infected_(i, j) += 1;
+        }
+        else if (model_type_ == ModelType::SusceptibleExposedInfected) {
+            exposed_.back()(i, j) += 1;
+        }
+        else {
+            throw std::runtime_error(
+                "Unknown ModelType value in HostPool::add_disperser_at()");
+        }
     }
 
     double establishment_probability_at(
@@ -855,8 +868,8 @@ public:
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts(
             model_type_,
             infected,
-            susceptible,
             exposed,
+            susceptible,
             total_exposed,
             empty,
             mortality_tracker_vector,
@@ -895,8 +908,8 @@ public:
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts(
             model_type_,
             susceptible,
-            infected,
             exposed,
+            infected,
             total_exposed,
             empty,
             mortality_tracker_vector,
@@ -942,8 +955,8 @@ public:
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
             model_type_,
             empty,
-            infected,
             empty_vector,
+            infected,
             empty,
             empty,
             mortality_tracker_vector,
@@ -1006,8 +1019,8 @@ public:
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
             model_type_,
             susceptible,
-            infected,
             exposed,
+            infected,
             total_exposed,
             resistant,
             mortality_tracker_vector,
@@ -1120,7 +1133,8 @@ public:
         const IntegerRaster& dispersers,
         IntegerRaster& established_dispersers,
         IntegerRaster& susceptible,
-        IntegerRaster& exposed_or_infected,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& infected,
         IntegerRaster& mortality_tracker,
         const IntegerRaster& total_populations,
         IntegerRaster& total_exposed,
@@ -1138,8 +1152,8 @@ public:
         HostPool<IntegerRaster, FloatRaster, RasterIndex> host_pool{
             model_type_,
             susceptible,
-            empty,
-            empty_vector,
+            exposed,
+            infected,
             total_exposed,
             empty,
             empty_vector,
@@ -1167,7 +1181,6 @@ public:
                     auto dispersed = host_pool.disperser_to(
                         row,
                         col,
-                        exposed_or_infected,
                         mortality_tracker,
                         total_populations,
                         *environment(!weather),
@@ -1187,7 +1200,6 @@ public:
                     host_pool.disperser_to(
                         i,
                         j,
-                        exposed_or_infected,
                         mortality_tracker,
                         total_populations,
                         *environment(!weather),
@@ -1197,6 +1209,39 @@ public:
                 }
             }
         }
+    }
+
+    // For backwards compatibility for tests.
+    template<typename DispersalKernel>
+    void disperse(
+        const IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
+        IntegerRaster& susceptible,
+        IntegerRaster& infected,
+        IntegerRaster& mortality_tracker,
+        const IntegerRaster& total_populations,
+        IntegerRaster& total_exposed,
+        std::vector<std::tuple<int, int>>& outside_dispersers,
+        bool weather,
+        DispersalKernel& dispersal_kernel,
+        std::vector<std::vector<int>>& suitable_cells,
+        double establishment_probability = 0.5)
+    {
+        std::vector<IntegerRaster> empty_vector;
+        disperse(
+            dispersers,
+            established_dispersers,
+            susceptible,
+            empty_vector,
+            infected,
+            mortality_tracker,
+            total_populations,
+            total_exposed,
+            outside_dispersers,
+            weather,
+            dispersal_kernel,
+            suitable_cells,
+            establishment_probability);
     }
 
     /** Move overflowing pest population to other hosts.
@@ -1247,8 +1292,8 @@ public:
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
             model_type_,
             susceptible,
-            infected,
             empty_vector,
+            infected,
             empty,
             empty,
             empty_vector,
@@ -1384,17 +1429,12 @@ public:
         std::vector<std::vector<int>>& suitable_cells,
         double establishment_probability = 0.5)
     {
-        auto* infected_or_exposed = &infected;
-        if (model_type_ == ModelType::SusceptibleExposedInfected) {
-            // The empty - not yet exposed - raster is in the back
-            // and will become youngest exposed one.
-            infected_or_exposed = &exposed.back();
-        }
         this->disperse(
             dispersers,
             established_dispersers,
             susceptible,
-            *infected_or_exposed,
+            exposed,
+            infected,
             mortality_tracker,
             total_populations,
             total_exposed,
