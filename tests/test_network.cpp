@@ -193,7 +193,7 @@ int test_jump_network()
     const int num_distances = 5;
     std::array<std::tuple<double, int, int>, num_distances> destinations{
         {{1, 1, 8}, {1.9, 1, 8}, {2.1, 3, 6}, {5.9, 3, 6}, {6.1, 2, 2}}};
-    for (const auto destination : destinations) {
+    for (const auto& destination : destinations) {
         generator.seed(42);
         int start_row = 1;
         int start_col = 8;
@@ -253,7 +253,7 @@ int test_cost_network()
          {190, 3, 5},
          {210, 3, 5},
          {230, 3, 4}}};
-    for (const auto destination : destinations) {
+    for (const auto& destination : destinations) {
         generator.seed(42);
         int start_row = 8;
         int start_col = 7;
@@ -487,7 +487,7 @@ int test_teleport_network()
     const int num_distances = 5;
     std::array<std::tuple<int, int, int>, num_distances> destinations{
         {{1, 4, 6}, {2, 3, 2}, {3, 9, 7}, {4, 4, 6}, {5, 1, 8}}};
-    for (const auto destination : destinations) {
+    for (const auto& destination : destinations) {
         generator.seed(42);
         int start_row = 1;
         int start_col = 8;
