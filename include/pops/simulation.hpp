@@ -1234,6 +1234,7 @@ public:
         double overpopulation_percentage,
         double leaving_percentage)
     {
+        UNUSED(total_hosts);  // Total hosts is computed now.
         IntegerRaster empty;
         std::vector<IntegerRaster> empty_vector;
         HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
