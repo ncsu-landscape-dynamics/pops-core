@@ -107,7 +107,6 @@ int test_model()
     // Empty data
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     std::vector<Raster<double>> empty_floats;
-    Raster<double> empty_float;
     std::vector<Raster<int>> empty_ints;
     // Config
     Config config;
@@ -131,8 +130,7 @@ int test_model()
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, 0, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, 0, suitable_cells);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
     std::vector<std::vector<int>> movements;
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     // Run
@@ -150,7 +148,6 @@ int test_model()
         zeros,
         empty_floats,
         empty_floats,
-        empty_float,
         treatments,
         zeros,
         outside_dispersers,

@@ -742,6 +742,8 @@ private:
     ModelType model_type_;
     unsigned latency_period_;
     Generator generator_;
+    /// Non-owning pointer to environment for weather
+    const Environment<IntegerRaster, FloatRaster, RasterIndex>* environment_{nullptr};
     /**
      * Optional soil pool
      */
@@ -792,6 +794,30 @@ public:
     }
 
     Simulation() = delete;
+
+    /**
+     * @brief Set environment used for weather to provided environment
+     * @param environment Pointer to an existing environment
+     *
+     * The simulation object does not take ownership of the environment.
+     */
+    void set_environment(
+        const Environment<IntegerRaster, FloatRaster, RasterIndex>* environment)
+    {
+        this->environment_ = environment;
+    }
+
+    /**
+     * @brief Get environment used in the simulation
+     * @return Const pointer to the environment
+     * @throw std::logic_error when environment is not set
+     */
+    const Environment<IntegerRaster, FloatRaster, RasterIndex>* environment()
+    {
+        if (!this->environment_)
+            throw std::logic_error("Environment used in Simulation, but not provided");
+        return this->environment_;
+    }
 
     /** removes infected based on min or max temperature tolerance
      *
@@ -983,7 +1009,6 @@ public:
      * @param[out] dispersers  (existing values are ignored)
      * @param infected Currently infected hosts
      * @param weather Whether to use the weather coefficient
-     * @param weather_coefficient Spatially explicit weather coefficient
      * @param reproductive_rate reproductive rate (used unmodified when weather
      *        coefficient is not used)
      * @param[in] suitable_cells List of indices of cells with hosts
@@ -993,7 +1018,6 @@ public:
         IntegerRaster& established_dispersers,
         const IntegerRaster& infected,
         bool weather,
-        const FloatRaster& weather_coefficient,
         double reproductive_rate,
         const std::vector<std::vector<int>>& suitable_cells)
     {
@@ -1003,7 +1027,8 @@ public:
             int j = indices[1];
             if (infected(i, j) > 0) {
                 if (weather)
-                    lambda = reproductive_rate * weather_coefficient(i, j);
+                    lambda =
+                        reproductive_rate * environment()->weather_coefficient_at(i, j);
                 int dispersers_from_cell = 0;
                 if (dispersers_stochasticity_) {
                     std::poisson_distribution<int> distribution(lambda);
@@ -1068,7 +1093,6 @@ public:
      * @param[in] total_populations All host and non-host individuals in the area
      * @param[in,out] outside_dispersers Dispersers escaping the raster
      * @param weather Whether or not weather coefficients should be used
-     * @param[in] weather_coefficient Weather coefficient for each location
      * @param dispersal_kernel Dispersal kernel to move dispersers
      * @param establishment_probability Probability of establishment with no
      *        stochasticity
@@ -1088,7 +1112,6 @@ public:
         IntegerRaster& total_exposed,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         bool weather,
-        const FloatRaster& weather_coefficient,
         DispersalKernel& dispersal_kernel,
         std::vector<std::vector<int>>& suitable_cells,
         double establishment_probability = 0.5)
@@ -1348,7 +1371,6 @@ public:
         IntegerRaster& total_exposed,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         bool weather,
-        const FloatRaster& weather_coefficient,
         DispersalKernel& dispersal_kernel,
         std::vector<std::vector<int>>& suitable_cells,
         double establishment_probability = 0.5)
@@ -1369,7 +1391,6 @@ public:
             total_exposed,
             outside_dispersers,
             weather,
-            weather_coefficient,
             dispersal_kernel,
             suitable_cells,
             establishment_probability);
@@ -1401,6 +1422,11 @@ public:
     {
         this->soil_pool_ = soil_pool;
         this->to_soil_percentage_ = dispersers_percentage;
+    }
+
+    Generator& random_number_generator()
+    {
+        return generator_;
     }
 };
 

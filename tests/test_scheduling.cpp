@@ -406,6 +406,26 @@ int test_get_step_length()
     return num_errors;
 }
 
+int test_schedule_weather()
+{
+    int num_errors = 0;
+
+    Date st(2020, 1, 1);
+    Date end(2022, 12, 31);
+
+    Scheduler scheduling(st, end, StepUnit::Month, 1);
+    std::vector<unsigned> indices = scheduling.schedule_weather(12);
+    if (indices.size() != scheduling.get_num_steps()) {
+        std::cout << "Failed scheduling of weather" << std::endl;
+        num_errors++;
+    }
+    if (indices[12] != 0) {
+        std::cout << "Failed scheduling of weather" << std::endl;
+        num_errors++;
+    }
+    return num_errors;
+}
+
 int main()
 {
     int num_errors = 0;
@@ -423,6 +443,7 @@ int main()
     num_errors += test_unit_enum_from_string();
     num_errors += test_get_step_length();
     num_errors += test_schedule_from_string();
+    num_errors += test_schedule_weather();
 
     std::cout << "Test scheduling number of errors: " << num_errors << std::endl;
     return num_errors;

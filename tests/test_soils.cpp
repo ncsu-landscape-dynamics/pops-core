@@ -148,14 +148,14 @@ int test_soil_with_model()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, 0, suitable_cells);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     Raster<double> weather = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 
     std::vector<Raster<int>> soil_reservoir(
         1, Raster<int>(infected.rows(), infected.cols(), 0));
 
+    model.environment().update_weather_coefficient(weather);
     model.activate_soils(soil_reservoir);
     model.run_step(
         step++,
@@ -171,7 +171,6 @@ int test_soil_with_model()
         died,
         empty_floats,
         empty_floats,
-        weather,
         treatments,
         zeros,
         outside_dispersers,

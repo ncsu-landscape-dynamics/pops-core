@@ -81,7 +81,6 @@ int test_with_neighbor_kernel()
     // we want to minimize the dilution effect
     Raster<int> total_hosts = susceptible;
     Raster<double> temperature = {{5, 0}, {0, 0}};
-    Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
     Raster<int> total_exposed = {{0, 0}, {0, 0}};
     Raster<int> expected_mortality_tracker = {{0, 10}, {0, 0}};
     auto expected_infected = expected_mortality_tracker + infected;
@@ -108,7 +107,6 @@ int test_with_neighbor_kernel()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         kernel,
         suitable_cells);
     if (!outside_dispersers.empty()) {
@@ -138,7 +136,6 @@ int test_with_reduced_stochasticity()
     Raster<int> susceptible = {{10, 20}, {14, 15}};
     Raster<int> total_hosts = susceptible;
     Raster<double> temperature = {{5, 0}, {0, 0}};
-    Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
     Raster<int> total_exposed = {{0, 0}, {0, 0}};
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
@@ -173,7 +170,6 @@ int test_with_reduced_stochasticity()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cells);
     auto expected_dispersers = reproductive_rate * infected;
@@ -193,7 +189,6 @@ int test_with_reduced_stochasticity()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         kernel,
         suitable_cells,
         establishment_probability);
@@ -274,7 +269,6 @@ int test_with_sei()
     // we want to minimize the dilution effect
     Raster<int> total_hosts = susceptible;
     Raster<double> temperature = {{5, 0}, {0, 0}};
-    Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
 
     Raster<int> expected_infected = infected;
@@ -316,7 +310,6 @@ int test_with_sei()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         kernel,
         suitable_cells);
     if (infected != expected_infected) {
@@ -345,7 +338,6 @@ int test_with_sei()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         kernel,
         suitable_cells);
     print_vector(exposed);
@@ -363,7 +355,6 @@ int test_with_sei()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         kernel,
         suitable_cells);
     print_vector(exposed);
@@ -392,7 +383,6 @@ int test_with_sei()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         kernel,
         suitable_cells);
     print_vector(exposed);
@@ -430,7 +420,6 @@ int test_with_sei()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         kernel,
         suitable_cells);
     print_vector(exposed);
@@ -450,7 +439,6 @@ int test_with_sei()
             total_exposed,
             outside_dispersers,
             weather,
-            weather_coefficient,
             kernel,
             suitable_cells);
         print_vector(exposed);
@@ -488,7 +476,6 @@ int test_SI_versus_SEI0()
     auto total_hosts_2 = susceptible_2;
     auto total_hosts_3 = susceptible_3;
     Raster<double> temperature = {{5, 0}, {0, 0}};
-    Raster<double> weather_coefficient = {{0, 0}, {0, 0}};
     auto rows = infected_1.rows();
     auto cols = infected_1.cols();
 
@@ -529,7 +516,6 @@ int test_SI_versus_SEI0()
             total_exposed_1,
             outside_dispersers_1,
             weather,
-            weather_coefficient,
             kernel,
             suitable_cells);
         simulation_SI_2.disperse(
@@ -542,7 +528,6 @@ int test_SI_versus_SEI0()
             total_exposed_2,
             outside_dispersers_2,
             weather,
-            weather_coefficient,
             kernel,
             suitable_cells);
         simulation_SEI0.disperse_and_infect(
@@ -557,7 +542,6 @@ int test_SI_versus_SEI0()
             total_exposed_3,
             outside_dispersers_3,
             weather,
-            weather_coefficient,
             kernel,
             suitable_cells);
         ret += disperse_and_infect_postcondition(step, exposed);
@@ -613,8 +597,13 @@ int test_calling_all_functions()
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
+
+    Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
+    environment.update_weather_coefficient(weather_coefficient);
+
     Simulation<Raster<int>, Raster<double>> simulation(
         seed, infected.rows(), infected.cols());
+    simulation.set_environment(&environment);
     simulation.remove(
         infected,
         susceptible,
@@ -629,7 +618,6 @@ int test_calling_all_functions()
         established_dispersers,
         infected,
         weather,
-        weather_coefficient,
         reproductive_rate,
         suitable_cells);
     RadialDispersalKernel<Raster<int>> kernel(
@@ -657,7 +645,6 @@ int test_calling_all_functions()
         total_exposed,
         outside_dispersers,
         weather,
-        weather_coefficient,
         kernel,
         suitable_cells);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;

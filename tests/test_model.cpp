@@ -103,7 +103,7 @@ int test_with_reduced_stochasticity()
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
     QuarantineEscape<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, quarantine_num_steps, suitable_cells);
+        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
 
     auto expected_dispersers = config.reproductive_rate * infected;
     auto expected_established_dispersers = config.reproductive_rate * infected;
@@ -127,7 +127,6 @@ int test_with_reduced_stochasticity()
         died,
         empty_float,
         empty_float,
-        empty_float[0],
         treatments,
         zeros,
         outside_dispersers,
@@ -249,8 +248,7 @@ int test_deterministic()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, 0, suitable_cells);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     auto expected_dispersers = config.reproductive_rate * infected;
     auto expected_established_dispersers = config.reproductive_rate * infected;
@@ -281,7 +279,6 @@ int test_deterministic()
         died,
         empty_floats,
         empty_floats,
-        empty_float,
         treatments,
         zeros,
         outside_dispersers,
@@ -401,8 +398,7 @@ int test_deterministic_exponential()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, 0, suitable_cells);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     auto expected_dispersers = config.reproductive_rate * infected;
     auto expected_established_dispersers = config.reproductive_rate * infected;
@@ -433,7 +429,6 @@ int test_deterministic_exponential()
         died,
         empty_floats,
         empty_floats,
-        empty_float,
         treatments,
         zeros,
         outside_dispersers,
@@ -554,8 +549,7 @@ int test_model_sei_deterministic()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, 0, suitable_cells);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     // There should be still the original number of infected when dispersers are
     // created.
@@ -580,7 +574,6 @@ int test_model_sei_deterministic()
             died,
             empty_float,
             empty_float,
-            empty_float[0],
             treatments,
             zeros,
             outside_dispersers,
@@ -702,8 +695,7 @@ int test_model_sei_deterministic_with_treatments()
         get_number_of_scheduled_actions(config.spread_rate_schedule());
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, 0, suitable_cells);
+    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     // There should be still the original number of infected when dispersers are
     // created.
@@ -740,7 +732,6 @@ int test_model_sei_deterministic_with_treatments()
             died,
             empty_float,
             empty_float,
-            empty_float[0],
             treatments,
             zeros,
             outside_dispersers,
