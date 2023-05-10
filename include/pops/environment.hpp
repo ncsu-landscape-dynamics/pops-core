@@ -77,6 +77,7 @@ public:
     void update_weather_coefficient(const FloatRaster& raster)
     {
         current_weather_coefficient = &raster;
+        weather_ = true;
     }
 
     /**
@@ -140,6 +141,7 @@ public:
             }
         }
         current_weather_coefficient = &stored_weather_coefficient;
+        weather_ = true;
     }
 
     /**
@@ -157,6 +159,14 @@ public:
             throw std::logic_error("Weather coefficient used, but not provided");
         }
         return current_weather_coefficient->operator()(row, col);
+    }
+
+    double influence_probability_of_establishment_at(
+        RasterIndex row, RasterIndex col, double value) const
+    {
+        if (!weather_)
+            return value;
+        return value * weather_coefficient_at(row, col);
     }
 
     /**
@@ -185,6 +195,7 @@ protected:
      */
     const FloatRaster* current_weather_coefficient{nullptr};
     FloatRaster stored_weather_coefficient;
+    bool weather_{false};
 };
 
 }  // namespace pops

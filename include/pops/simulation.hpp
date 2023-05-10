@@ -133,7 +133,6 @@ public:
         IntegerRaster& mortality_tracker,
         const IntegerRaster& total_populations,
         IntegerRaster& total_exposed,
-        bool weather,
         const Environment<IntegerRaster, FloatRaster, RasterIndex>& environment,
         bool establishment_stochasticity,
         double establishment_probability,
@@ -141,15 +140,11 @@ public:
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         if (susceptible(row, col) > 0) {
-            double probability_of_establishment =
-                (double)(susceptible(row, col)) / total_populations(row, col);
+            double probability_of_establishment = establishment_probability_at(
+                row, col, susceptible, total_populations, environment);
             double establishment_tester = 1 - establishment_probability;
             if (establishment_stochasticity)
                 establishment_tester = distribution_uniform(generator);
-
-            if (weather)
-                probability_of_establishment *=
-                    environment.weather_coefficient_at(row, col);
             if (establishment_tester < probability_of_establishment) {
                 exposed_or_infected(row, col) += 1;
                 susceptible(row, col) -= 1;
@@ -168,6 +163,19 @@ public:
             }
         }
         return false;
+    }
+
+    double establishment_probability_at(
+        RasterIndex row,
+        RasterIndex col,
+        IntegerRaster& susceptible,
+        const IntegerRaster& total_populations,
+        const Environment<IntegerRaster, FloatRaster, RasterIndex>& environment)
+    {
+        double probability_of_establishment =
+            (double)(susceptible(row, col)) / total_populations(row, col);
+        return environment.influence_probability_of_establishment_at(
+            row, col, probability_of_establishment);
     }
 
     int pest_from(RasterIndex i, RasterIndex j, int count)
@@ -1166,7 +1174,6 @@ public:
                         mortality_tracker,
                         total_populations,
                         total_exposed,
-                        weather,
                         *environment(!weather),
                         establishment_stochasticity_,
                         establishment_probability,
@@ -1189,7 +1196,6 @@ public:
                         mortality_tracker,
                         total_populations,
                         total_exposed,
-                        weather,
                         *environment(!weather),
                         establishment_stochasticity_,
                         establishment_probability,
