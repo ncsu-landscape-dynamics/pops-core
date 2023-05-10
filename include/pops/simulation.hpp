@@ -86,6 +86,8 @@ public:
         std::vector<IntegerRaster>& mortality_tracker_vector,
         IntegerRaster& died,
         IntegerRaster& total_hosts,
+        bool establishment_stochasticity,
+        double establishment_probability,
         std::vector<std::vector<int>>& suitable_cells)
         : susceptible_(susceptible),
           infected_(infected),
@@ -96,6 +98,8 @@ public:
           died_(died),
           total_hosts_(total_hosts),
           model_type_(model_type),
+          establishment_stochasticity_(establishment_stochasticity),
+          deterministic_establishment_probability_(establishment_probability),
           suitable_cells_(suitable_cells)
     {}
 
@@ -131,16 +135,14 @@ public:
         IntegerRaster& mortality_tracker,
         const IntegerRaster& total_populations,
         const Environment<IntegerRaster, FloatRaster, RasterIndex>& environment,
-        bool establishment_stochasticity,
-        double establishment_probability,
         Generator& generator)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         if (susceptible_(row, col) > 0) {
             double probability_of_establishment = establishment_probability_at(
                 row, col, susceptible_, total_populations, environment);
-            double establishment_tester = 1 - establishment_probability;
-            if (establishment_stochasticity)
+            double establishment_tester = 1 - deterministic_establishment_probability_;
+            if (establishment_stochasticity_)
                 establishment_tester = distribution_uniform(generator);
             if (establishment_tester < probability_of_establishment) {
                 add_disperser_at(row, col);
@@ -431,6 +433,9 @@ private:
     IntegerRaster& total_hosts_;
 
     ModelType model_type_;
+
+    bool establishment_stochasticity_{true};
+    double deterministic_establishment_probability_{0};
 
     std::vector<std::vector<int>>& suitable_cells_;
 };
@@ -875,6 +880,8 @@ public:
             mortality_tracker_vector,
             empty,
             empty,
+            false,
+            0,
             suitable_cells);
         RemoveByTemperature<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
@@ -915,6 +922,8 @@ public:
             mortality_tracker_vector,
             empty,
             empty,
+            false,
+            0,
             suitable_cells);
         SurvivalRateAction<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
@@ -962,6 +971,8 @@ public:
             mortality_tracker_vector,
             died,
             total_hosts,
+            false,
+            0,
             suitable_cells};
         Mortality<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
@@ -1026,6 +1037,8 @@ public:
             mortality_tracker_vector,
             empty,
             total_hosts,
+            false,
+            0,
             suitable_cells};
         return host_movement.movement(
             hosts, step, last_index, movements, movement_schedule, generator_);
@@ -1159,6 +1172,8 @@ public:
             empty_vector,
             empty,
             empty,
+            establishment_stochasticity_,
+            establishment_probability,
             suitable_cells};
 
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
@@ -1184,8 +1199,6 @@ public:
                         mortality_tracker,
                         total_populations,
                         *environment(!weather),
-                        establishment_stochasticity_,
-                        establishment_probability,
                         generator_);
                     if (!dispersed) {
                         established_dispersers(i, j) -= 1;
@@ -1203,8 +1216,6 @@ public:
                         mortality_tracker,
                         total_populations,
                         *environment(!weather),
-                        establishment_stochasticity_,
-                        establishment_probability,
                         generator_);
                 }
             }
@@ -1299,6 +1310,8 @@ public:
             empty_vector,
             empty,
             empty,
+            false,
+            0,
             suitable_cells};
         MoveOverpopulatedPests<
             HostPool<IntegerRaster, FloatRaster, RasterIndex>,
