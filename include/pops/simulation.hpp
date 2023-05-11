@@ -1164,10 +1164,8 @@ public:
             environment_->set_total_population(&total_populations);
         }
 
-        std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         int row;
         int col;
-
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
