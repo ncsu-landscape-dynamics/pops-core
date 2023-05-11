@@ -31,7 +31,7 @@ public:
     // virtual ~HostPoolInterface() = 0;
     virtual int
     disperser_to(RasterIndex row, RasterIndex col, Generator& generator) = 0;
-    virtual void add_disperser_at(RasterIndex i, RasterIndex j) = 0;
+    virtual void add_disperser_at(RasterIndex row, RasterIndex col) = 0;
     virtual double establishment_probability_at(
         RasterIndex row, RasterIndex col, IntegerRaster& susceptible) = 0;
     virtual int pest_from(RasterIndex i, RasterIndex j, int count) = 0;

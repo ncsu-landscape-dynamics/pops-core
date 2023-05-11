@@ -150,31 +150,22 @@ public:
                 establishment_tester = distribution_uniform(generator);
             if (establishment_tester < probability_of_establishment) {
                 add_disperser_at(row, col);
-                susceptible_(row, col) -= 1;
-                if (model_type_ == ModelType::SusceptibleInfected) {
-                    mortality_tracker_vector_.back()(row, col) += 1;
-                }
-                else if (model_type_ == ModelType::SusceptibleExposedInfected) {
-                    total_exposed_(row, col) += 1;
-                }
-                else {
-                    throw std::runtime_error(
-                        "Unknown ModelType value in "
-                        "Simulation::disperse()");
-                }
                 return true;
             }
         }
         return false;
     }
 
-    void add_disperser_at(RasterIndex i, RasterIndex j)
+    void add_disperser_at(RasterIndex row, RasterIndex col)
     {
+        susceptible_(row, col) -= 1;
         if (model_type_ == ModelType::SusceptibleInfected) {
-            infected_(i, j) += 1;
+            infected_(row, col) += 1;
+            mortality_tracker_vector_.back()(row, col) += 1;
         }
         else if (model_type_ == ModelType::SusceptibleExposedInfected) {
-            exposed_.back()(i, j) += 1;
+            exposed_.back()(row, col) += 1;
+            total_exposed_(row, col) += 1;
         }
         else {
             throw std::runtime_error(
