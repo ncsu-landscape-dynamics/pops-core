@@ -889,7 +889,7 @@ public:
             mortality_tracker_vector,
             empty,
             empty,
-            *environment(),
+            *environment(true),
             false,
             0,
             suitable_cells);
@@ -928,7 +928,7 @@ public:
             mortality_tracker_vector,
             empty,
             empty,
-            *environment(),
+            *environment(true),
             false,
             0,
             suitable_cells);
@@ -975,7 +975,7 @@ public:
             mortality_tracker_vector,
             died,
             total_hosts,
-            *environment(),
+            *environment(true),
             false,
             0,
             suitable_cells};
@@ -1034,7 +1034,7 @@ public:
             mortality_tracker_vector,
             empty,
             total_hosts,
-            *environment(),
+            *environment(true),
             false,
             0,
             suitable_cells};
@@ -1299,7 +1299,7 @@ public:
             empty_vector,
             empty,
             empty,
-            *environment(),
+            *environment(true),
             false,
             0,
             suitable_cells};
