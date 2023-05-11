@@ -29,6 +29,7 @@
 
 #include "utils.hpp"
 #include "soils.hpp"
+#include "host_pool_interface.hpp"
 
 namespace pops {
 
@@ -72,10 +73,18 @@ inline ModelType model_type_from_string(const char* text)
     return model_type_from_string(text ? std::string(text) : std::string());
 }
 
-template<typename IntegerRaster, typename FloatRaster, typename RasterIndex>
+template<
+    typename IntegerRaster,
+    typename FloatRaster,
+    typename RasterIndex,
+    typename Generator>
 class HostPool
+    : public HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>
 {
 public:
+    using Environment1 =
+        EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>;
+
     HostPool(
         ModelType model_type,
         IntegerRaster& susceptible,
@@ -128,13 +137,12 @@ public:
      *
      * @throw std::runtime_error if model type is unsupported (i.e., not SI or SEI)
      */
-    template<typename Generator>
     int disperser_to(
         RasterIndex row,
         RasterIndex col,
         IntegerRaster& mortality_tracker,
         const IntegerRaster& total_populations,
-        const Environment<IntegerRaster, FloatRaster, RasterIndex>& environment,
+        const Environment1& environment,
         Generator& generator)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
@@ -183,7 +191,7 @@ public:
         RasterIndex col,
         IntegerRaster& susceptible,
         const IntegerRaster& total_populations,
-        const Environment<IntegerRaster, FloatRaster, RasterIndex>& environment)
+        const Environment1& environment)
     {
         double probability_of_establishment =
             (double)(susceptible(row, col)) / total_populations(row, col);
@@ -218,7 +226,6 @@ public:
         return count;
     }
 
-    template<typename Generator>
     int move_hosts_from_to(
         RasterIndex row_from,
         RasterIndex col_from,
@@ -300,7 +307,6 @@ public:
         return total_hosts_moved;
     }
 
-    template<typename Generator>
     void
     remove_infected_at(RasterIndex i, RasterIndex j, int count, Generator& generator)
     {
@@ -320,7 +326,6 @@ public:
         susceptible_(i, j) += count;
     }
 
-    template<typename Generator>
     void
     remove_exposed_at(RasterIndex i, RasterIndex j, int count, Generator& generator)
     {
@@ -780,6 +785,9 @@ private:
     double to_soil_percentage_{0};
 
 public:
+    using StandardHostPool =
+        HostPool<IntegerRaster, FloatRaster, RasterIndex, Generator>;
+
     /** Creates simulation object and seeds the internal random number generator.
      *
      * The same random number generator is used throughout the simulation
@@ -870,7 +878,7 @@ public:
         std::vector<std::vector<int>>& suitable_cells)
     {
         IntegerRaster empty;
-        HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts(
+        StandardHostPool hosts(
             model_type_,
             infected,
             exposed,
@@ -883,11 +891,7 @@ public:
             false,
             0,
             suitable_cells);
-        RemoveByTemperature<
-            HostPool<IntegerRaster, FloatRaster, RasterIndex>,
-            IntegerRaster,
-            FloatRaster>
-            remove;
+        RemoveByTemperature<StandardHostPool, IntegerRaster, FloatRaster> remove;
         remove.action(
             hosts, temperature, lethal_temperature, suitable_cells, generator_);
     }
@@ -912,7 +916,7 @@ public:
         std::vector<std::vector<int>>& suitable_cells)
     {
         IntegerRaster empty;
-        HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts(
+        StandardHostPool hosts(
             model_type_,
             susceptible,
             exposed,
@@ -925,11 +929,8 @@ public:
             false,
             0,
             suitable_cells);
-        SurvivalRateAction<
-            HostPool<IntegerRaster, FloatRaster, RasterIndex>,
-            IntegerRaster,
-            FloatRaster>
-            survival(survival_rate);
+        SurvivalRateAction<StandardHostPool, IntegerRaster, FloatRaster> survival(
+            survival_rate);
         survival.action(hosts, suitable_cells, generator_);
     }
 
@@ -961,7 +962,7 @@ public:
     {
         IntegerRaster empty;
         std::vector<IntegerRaster> empty_vector;
-        HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
+        StandardHostPool hosts{
             model_type_,
             empty,
             empty_vector,
@@ -974,11 +975,7 @@ public:
             false,
             0,
             suitable_cells};
-        Mortality<
-            HostPool<IntegerRaster, FloatRaster, RasterIndex>,
-            IntegerRaster,
-            FloatRaster>
-            mortality;
+        Mortality<StandardHostPool, IntegerRaster, FloatRaster> mortality;
         mortality.action(hosts, mortality_rate, mortality_time_lag, suitable_cells);
     }
 
@@ -1020,14 +1017,10 @@ public:
         std::vector<unsigned> movement_schedule,
         std::vector<std::vector<int>>& suitable_cells)
     {
-        HostMovement<
-            HostPool<IntegerRaster, FloatRaster, RasterIndex>,
-            IntegerRaster,
-            FloatRaster,
-            RasterIndex>
+        HostMovement<StandardHostPool, IntegerRaster, FloatRaster, RasterIndex>
             host_movement{};
         IntegerRaster empty;
-        HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
+        StandardHostPool hosts{
             model_type_,
             susceptible,
             exposed,
@@ -1162,7 +1155,7 @@ public:
         // disperse_and_infect.
         IntegerRaster empty;
         std::vector<IntegerRaster> empty_vector;
-        HostPool<IntegerRaster, FloatRaster, RasterIndex> host_pool{
+        StandardHostPool host_pool{
             model_type_,
             susceptible,
             exposed,
@@ -1300,7 +1293,7 @@ public:
         UNUSED(total_hosts);  // Total hosts is computed now.
         IntegerRaster empty;
         std::vector<IntegerRaster> empty_vector;
-        HostPool<IntegerRaster, FloatRaster, RasterIndex> hosts{
+        StandardHostPool hosts{
             model_type_,
             susceptible,
             empty_vector,
@@ -1314,7 +1307,7 @@ public:
             0,
             suitable_cells};
         MoveOverpopulatedPests<
-            HostPool<IntegerRaster, FloatRaster, RasterIndex>,
+            StandardHostPool,
             IntegerRaster,
             FloatRaster,
             RasterIndex>

@@ -24,8 +24,10 @@
 #include <string>
 #include <stdexcept>
 
+#include "environment_interface.hpp"
 #include "normal_distribution_with_uniform_fallback.hpp"
 #include "utils.hpp"
+#include "host_pool_interface.hpp"
 
 namespace pops {
 
@@ -63,8 +65,14 @@ inline WeatherType weather_type_from_string(const std::string& text)
  *
  * Currently, only handles weather coefficient for soils. Holds only the current state.
  */
-template<typename IntegerRaster, typename FloatRaster, typename RasterIndex = int>
+// TODO: remove defaults for template parameters
+template<
+    typename IntegerRaster,
+    typename FloatRaster,
+    typename RasterIndex = int,
+    typename Generator = std::default_random_engine>
 class Environment
+    : public EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>
 {
 public:
     Environment() {}
@@ -98,7 +106,6 @@ public:
      * @throw std::invalid_argument when dimensions of *mean* and *stddev* differ or
      * when mean is out of range
      */
-    template<typename Generator>
     void update_weather_from_distribution(
         const FloatRaster& mean, const FloatRaster& stddev, Generator& generator)
     {
