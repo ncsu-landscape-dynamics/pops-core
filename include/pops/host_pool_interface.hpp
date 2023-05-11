@@ -20,20 +20,20 @@
 
 namespace pops {
 
-template<typename IntegerRaster, typename FloatRaster, typename RasterIndex, typename Generator>
+template<
+    typename IntegerRaster,
+    typename FloatRaster,
+    typename RasterIndex,
+    typename Generator>
 class HostPoolInterface
 {
 public:
-    //virtual ~HostPoolInterface() = 0;
-    virtual int disperser_to(
-        RasterIndex row,
-        RasterIndex col,
-        Generator& generator) = 0;
+    // virtual ~HostPoolInterface() = 0;
+    virtual int
+    disperser_to(RasterIndex row, RasterIndex col, Generator& generator) = 0;
     virtual void add_disperser_at(RasterIndex i, RasterIndex j) = 0;
     virtual double establishment_probability_at(
-        RasterIndex row,
-        RasterIndex col,
-        IntegerRaster& susceptible) = 0;
+        RasterIndex row, RasterIndex col, IntegerRaster& susceptible) = 0;
     virtual int pest_from(RasterIndex i, RasterIndex j, int count) = 0;
     virtual int pests_to(RasterIndex row, RasterIndex col, int count) = 0;
     virtual int move_hosts_from_to(
@@ -43,10 +43,10 @@ public:
         RasterIndex col_to,
         int count,
         Generator& generator) = 0;
-    virtual void
-    remove_infected_at(RasterIndex i, RasterIndex j, int count, Generator& generator) = 0;
-    virtual void
-    remove_exposed_at(RasterIndex i, RasterIndex j, int count, Generator& generator) = 0;
+    virtual void remove_infected_at(
+        RasterIndex i, RasterIndex j, int count, Generator& generator) = 0;
+    virtual void remove_exposed_at(
+        RasterIndex i, RasterIndex j, int count, Generator& generator) = 0;
 
     // Brings exposed dependency to more items, needs to wait for more complete host.
     /*
@@ -64,7 +64,10 @@ public:
 
     // TODO: Rate and time lag will eventually go to constructor (host properties).
     virtual void apply_mortality_at(
-        RasterIndex i, RasterIndex j, double mortality_rate, int mortality_time_lag) = 0;
+        RasterIndex i,
+        RasterIndex j,
+        double mortality_rate,
+        int mortality_time_lag) = 0;
     virtual int infected_at(RasterIndex i, RasterIndex j) const = 0;
     virtual int susceptible_at(RasterIndex i, RasterIndex j) const = 0;
     virtual int exposed_at(RasterIndex i, RasterIndex j) const = 0;
@@ -74,4 +77,4 @@ public:
 
 }  // namespace pops
 
-#endif // POPS_HOST_POOL_INTERFACE_HPP
+#endif  // POPS_HOST_POOL_INTERFACE_HPP

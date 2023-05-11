@@ -18,7 +18,11 @@
 
 namespace pops {
 
-template<typename IntegerRaster, typename FloatRaster, typename RasterIndex, typename Generator>
+template<
+    typename IntegerRaster,
+    typename FloatRaster,
+    typename RasterIndex,
+    typename Generator>
 class HostPoolInterface;
 
 template<
@@ -29,7 +33,7 @@ template<
 class EnvironmentInterface
 {
 public:
-    //virtual ~EnvironmentInterface() = 0;
+    // virtual ~EnvironmentInterface() = 0;
     virtual void update_weather_coefficient(const FloatRaster& raster) = 0;
     virtual void update_weather_from_distribution(
         const FloatRaster& mean, const FloatRaster& stddev, Generator& generator) = 0;
@@ -40,10 +44,12 @@ public:
     // in general, we may have other individuals-non const
     virtual void set_other_individuals(const IntegerRaster* individuals) = 0;
     virtual void set_total_population(const IntegerRaster* individuals) = 0;
-    virtual void add_host(const HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>* host) = 0;
+    virtual void add_host(
+        const HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>*
+            host) = 0;
     virtual const FloatRaster& weather_coefficient() const = 0;
 };
 
 }  // namespace pops
 
-#endif // POPS_ENVIRONMENT_INTERFACE_HPP
+#endif  // POPS_ENVIRONMENT_INTERFACE_HPP

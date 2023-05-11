@@ -55,7 +55,9 @@ target_include_directories(pops INTERFACE include/)
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     target_sources(pops INTERFACE
         include/pops/environment.hpp
+        include/pops/environment_interface.hpp
         include/pops/config.hpp
+        include/pops/host_pool_interface.hpp
         include/pops/natural_anthropogenic_kernel.hpp
         include/pops/natural_kernel.hpp
         include/pops/anthropogenic_kernel.hpp
