@@ -30,15 +30,13 @@ public:
         RasterIndex col,
         IntegerRaster& mortality_tracker,
         const IntegerRaster& total_populations,
-        const EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>& environment,
         Generator& generator) = 0;
     virtual void add_disperser_at(RasterIndex i, RasterIndex j) = 0;
     virtual double establishment_probability_at(
         RasterIndex row,
         RasterIndex col,
         IntegerRaster& susceptible,
-        const IntegerRaster& total_populations,
-        const EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>& environment) = 0;
+        const IntegerRaster& total_populations) = 0;
     virtual int pest_from(RasterIndex i, RasterIndex j, int count) = 0;
     virtual int pests_to(RasterIndex row, RasterIndex col, int count) = 0;
     virtual int move_hosts_from_to(

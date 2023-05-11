@@ -95,6 +95,7 @@ public:
         std::vector<IntegerRaster>& mortality_tracker_vector,
         IntegerRaster& died,
         IntegerRaster& total_hosts,
+        const Environment1& environment,
         bool establishment_stochasticity,
         double establishment_probability,
         std::vector<std::vector<int>>& suitable_cells)
@@ -106,6 +107,7 @@ public:
           mortality_tracker_vector_(mortality_tracker_vector),
           died_(died),
           total_hosts_(total_hosts),
+          environment_(environment),
           model_type_(model_type),
           establishment_stochasticity_(establishment_stochasticity),
           deterministic_establishment_probability_(establishment_probability),
@@ -142,13 +144,12 @@ public:
         RasterIndex col,
         IntegerRaster& mortality_tracker,
         const IntegerRaster& total_populations,
-        const Environment1& environment,
         Generator& generator)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         if (susceptible_(row, col) > 0) {
-            double probability_of_establishment = establishment_probability_at(
-                row, col, susceptible_, total_populations, environment);
+            double probability_of_establishment =
+                establishment_probability_at(row, col, susceptible_, total_populations);
             double establishment_tester = 1 - deterministic_establishment_probability_;
             if (establishment_stochasticity_)
                 establishment_tester = distribution_uniform(generator);
@@ -190,12 +191,11 @@ public:
         RasterIndex row,
         RasterIndex col,
         IntegerRaster& susceptible,
-        const IntegerRaster& total_populations,
-        const Environment1& environment)
+        const IntegerRaster& total_populations)
     {
         double probability_of_establishment =
             (double)(susceptible(row, col)) / total_populations(row, col);
-        return environment.influence_probability_of_establishment_at(
+        return environment_.influence_probability_of_establishment_at(
             row, col, probability_of_establishment);
     }
 
@@ -436,6 +436,7 @@ private:
     IntegerRaster& died_;
 
     IntegerRaster& total_hosts_;
+    const Environment1& environment_;
 
     ModelType model_type_;
 
@@ -888,6 +889,7 @@ public:
             mortality_tracker_vector,
             empty,
             empty,
+            *environment(),
             false,
             0,
             suitable_cells);
@@ -926,6 +928,7 @@ public:
             mortality_tracker_vector,
             empty,
             empty,
+            *environment(),
             false,
             0,
             suitable_cells);
@@ -972,6 +975,7 @@ public:
             mortality_tracker_vector,
             died,
             total_hosts,
+            *environment(),
             false,
             0,
             suitable_cells};
@@ -1030,6 +1034,7 @@ public:
             mortality_tracker_vector,
             empty,
             total_hosts,
+            *environment(),
             false,
             0,
             suitable_cells};
@@ -1165,6 +1170,7 @@ public:
             empty_vector,
             empty,
             empty,
+            *environment(!weather),
             establishment_stochasticity_,
             establishment_probability,
             suitable_cells};
@@ -1187,12 +1193,7 @@ public:
                     }
                     // Put a disperser to the host pool.
                     auto dispersed = host_pool.disperser_to(
-                        row,
-                        col,
-                        mortality_tracker,
-                        total_populations,
-                        *environment(!weather),
-                        generator_);
+                        row, col, mortality_tracker, total_populations, generator_);
                     if (!dispersed) {
                         established_dispersers(i, j) -= 1;
                     }
@@ -1204,12 +1205,7 @@ public:
                 // Put each disperser to the host pool.
                 for (int k = 0; k < num_dispersers; k++) {
                     host_pool.disperser_to(
-                        i,
-                        j,
-                        mortality_tracker,
-                        total_populations,
-                        *environment(!weather),
-                        generator_);
+                        i, j, mortality_tracker, total_populations, generator_);
                 }
             }
         }
@@ -1303,6 +1299,7 @@ public:
             empty_vector,
             empty,
             empty,
+            *environment(),
             false,
             0,
             suitable_cells};
