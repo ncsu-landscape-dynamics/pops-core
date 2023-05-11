@@ -28,7 +28,6 @@ public:
     virtual int disperser_to(
         RasterIndex row,
         RasterIndex col,
-        IntegerRaster& mortality_tracker,
         Generator& generator) = 0;
     virtual void add_disperser_at(RasterIndex i, RasterIndex j) = 0;
     virtual double establishment_probability_at(

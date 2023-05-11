@@ -265,7 +265,7 @@ public:
                 susceptible,
                 exposed,
                 infected,
-                mortality_tracker.back(),
+                mortality_tracker,
                 total_populations,
                 total_exposed,
                 outside_dispersers,

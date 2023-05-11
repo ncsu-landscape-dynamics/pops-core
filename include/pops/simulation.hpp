@@ -139,11 +139,7 @@ public:
      *
      * @throw std::runtime_error if model type is unsupported (i.e., not SI or SEI)
      */
-    int disperser_to(
-        RasterIndex row,
-        RasterIndex col,
-        IntegerRaster& mortality_tracker,
-        Generator& generator)
+    int disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         if (susceptible_(row, col) > 0) {
@@ -156,7 +152,7 @@ public:
                 add_disperser_at(row, col);
                 susceptible_(row, col) -= 1;
                 if (model_type_ == ModelType::SusceptibleInfected) {
-                    mortality_tracker(row, col) += 1;
+                    mortality_tracker_vector_.back()(row, col) += 1;
                 }
                 else if (model_type_ == ModelType::SusceptibleExposedInfected) {
                     total_exposed_(row, col) += 1;
@@ -1145,7 +1141,7 @@ public:
         IntegerRaster& susceptible,
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& infected,
-        IntegerRaster& mortality_tracker,
+        std::vector<IntegerRaster>& mortality_tracker,
         const IntegerRaster& total_populations,
         IntegerRaster& total_exposed,
         std::vector<std::tuple<int, int>>& outside_dispersers,
@@ -1158,7 +1154,6 @@ public:
         // variables. This requires SI/SEI to be fully resolved in host and not in
         // disperse_and_infect.
         IntegerRaster empty;
-        std::vector<IntegerRaster> empty_vector;
         StandardHostPool host_pool{
             model_type_,
             susceptible,
@@ -1166,7 +1161,7 @@ public:
             infected,
             total_exposed,
             empty,
-            empty_vector,
+            mortality_tracker,
             empty,
             empty,
             *environment(!weather),
@@ -1195,8 +1190,7 @@ public:
                         continue;
                     }
                     // Put a disperser to the host pool.
-                    auto dispersed =
-                        host_pool.disperser_to(row, col, mortality_tracker, generator_);
+                    auto dispersed = host_pool.disperser_to(row, col, generator_);
                     if (!dispersed) {
                         established_dispersers(i, j) -= 1;
                     }
@@ -1207,13 +1201,13 @@ public:
                 auto num_dispersers = soil_pool_->dispersers_from(i, j, generator_);
                 // Put each disperser to the host pool.
                 for (int k = 0; k < num_dispersers; k++) {
-                    host_pool.disperser_to(i, j, mortality_tracker, generator_);
+                    host_pool.disperser_to(i, j, generator_);
                 }
             }
         }
     }
 
-    // For backwards compatibility for tests.
+    // For backwards compatibility for tests (without exposed and mortality)
     template<typename DispersalKernel>
     void disperse(
         const IntegerRaster& dispersers,
@@ -1229,6 +1223,8 @@ public:
         std::vector<std::vector<int>>& suitable_cells,
         double establishment_probability = 0.5)
     {
+        std::vector<IntegerRaster> tmp;
+        tmp.push_back(mortality_tracker);
         std::vector<IntegerRaster> empty_vector;
         disperse(
             dispersers,
@@ -1236,7 +1232,7 @@ public:
             susceptible,
             empty_vector,
             infected,
-            mortality_tracker,
+            tmp,  // mortality
             total_populations,
             total_exposed,
             outside_dispersers,
@@ -1244,6 +1240,7 @@ public:
             dispersal_kernel,
             suitable_cells,
             establishment_probability);
+        mortality_tracker = tmp.back();
     }
 
     /** Move overflowing pest population to other hosts.
@@ -1425,7 +1422,7 @@ public:
         IntegerRaster& susceptible,
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& infected,
-        IntegerRaster& mortality_tracker,
+        std::vector<IntegerRaster>& mortality_tracker,
         const IntegerRaster& total_populations,
         IntegerRaster& total_exposed,
         std::vector<std::tuple<int, int>>& outside_dispersers,
@@ -1450,8 +1447,45 @@ public:
             establishment_probability);
         if (model_type_ == ModelType::SusceptibleExposedInfected) {
             this->infect_exposed(
-                step, exposed, infected, mortality_tracker, total_exposed);
+                step, exposed, infected, mortality_tracker.back(), total_exposed);
         }
+    }
+
+    template<typename DispersalKernel>
+    void disperse_and_infect(
+        unsigned step,
+        const IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
+        IntegerRaster& susceptible,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& infected,
+        IntegerRaster& mortality_tracker,
+        const IntegerRaster& total_populations,
+        IntegerRaster& total_exposed,
+        std::vector<std::tuple<int, int>>& outside_dispersers,
+        bool weather,
+        DispersalKernel& dispersal_kernel,
+        std::vector<std::vector<int>>& suitable_cells,
+        double establishment_probability = 0.5)
+    {
+        std::vector<IntegerRaster> tmp;
+        tmp.push_back(mortality_tracker);
+        disperse_and_infect(
+            step,
+            dispersers,
+            established_dispersers,
+            susceptible,
+            exposed,
+            infected,
+            tmp,
+            total_populations,
+            total_exposed,
+            outside_dispersers,
+            weather,
+            dispersal_kernel,
+            suitable_cells,
+            establishment_probability);
+        mortality_tracker = tmp.back();
     }
 
     /**
