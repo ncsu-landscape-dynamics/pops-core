@@ -56,7 +56,7 @@
 template<typename Container, typename Value>
 bool container_contains(const Container& container, const Value& value)
 {
-    return container.find(value) != container.end();
+    return std::find(container.begin(), container.end(), value) != container.end();
 }
 
 /**
