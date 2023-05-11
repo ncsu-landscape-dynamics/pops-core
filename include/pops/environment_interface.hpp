@@ -38,6 +38,8 @@ public:
     virtual void update_weather_from_distribution(
         const FloatRaster& mean, const FloatRaster& stddev, Generator& generator) = 0;
     virtual double weather_coefficient_at(RasterIndex row, RasterIndex col) const = 0;
+    virtual double influence_reproductive_rate_at(
+        RasterIndex row, RasterIndex col, double value) const = 0;
     virtual double influence_probability_of_establishment_at(
         RasterIndex row, RasterIndex col, double value) const = 0;
     virtual int total_population_at(RasterIndex row, RasterIndex col) const = 0;

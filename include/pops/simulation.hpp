@@ -96,6 +96,8 @@ public:
         IntegerRaster& died,
         IntegerRaster& total_hosts,
         const Environment1& environment,
+        bool dispersers_stochasticity,
+        double reproductive_rate,
         bool establishment_stochasticity,
         double establishment_probability,
         std::vector<std::vector<int>>& suitable_cells)
@@ -109,6 +111,8 @@ public:
           total_hosts_(total_hosts),
           environment_(environment),
           model_type_(model_type),
+          dispersers_stochasticity_(dispersers_stochasticity),
+          reproductive_rate_(reproductive_rate),
           establishment_stochasticity_(establishment_stochasticity),
           deterministic_establishment_probability_(establishment_probability),
           suitable_cells_(suitable_cells)
@@ -171,6 +175,25 @@ public:
             throw std::runtime_error(
                 "Unknown ModelType value in HostPool::add_disperser_at()");
         }
+    }
+
+    int dispersers_from(RasterIndex row, RasterIndex col, Generator& generator) const
+    {
+        if (infected_at(row, col) <= 0)
+            return 0;
+        double lambda =
+            environment_.influence_reproductive_rate_at(row, col, reproductive_rate_);
+        int dispersers_from_cell = 0;
+        if (dispersers_stochasticity_) {
+            std::poisson_distribution<int> distribution(lambda);
+            for (int k = 0; k < infected_at(row, col); k++) {
+                dispersers_from_cell += distribution(generator);
+            }
+        }
+        else {
+            dispersers_from_cell = lambda * infected_at(row, col);
+        }
+        return dispersers_from_cell;
     }
 
     double establishment_probability_at(
@@ -424,6 +447,8 @@ private:
 
     ModelType model_type_;
 
+    bool dispersers_stochasticity_{false};
+    double reproductive_rate_{0};
     bool establishment_stochasticity_{true};
     double deterministic_establishment_probability_{0};
 
@@ -878,6 +903,8 @@ public:
             *environment(true),
             false,
             0,
+            false,
+            0,
             suitable_cells);
         RemoveByTemperature<StandardHostPool, IntegerRaster, FloatRaster> remove;
         remove.action(
@@ -915,6 +942,8 @@ public:
             empty,
             empty,
             *environment(true),
+            false,
+            0,
             false,
             0,
             suitable_cells);
@@ -962,6 +991,8 @@ public:
             died,
             total_hosts,
             *environment(true),
+            false,
+            0,
             false,
             0,
             suitable_cells};
@@ -1023,6 +1054,8 @@ public:
             *environment(true),
             false,
             0,
+            false,
+            0,
             suitable_cells};
         return host_movement.movement(
             hosts, step, last_index, movements, movement_schedule, generator_);
@@ -1045,24 +1078,29 @@ public:
         double reproductive_rate,
         const std::vector<std::vector<int>>& suitable_cells)
     {
-        double lambda = reproductive_rate;
+        IntegerRaster empty;
+        std::vector<IntegerRaster> empty_vector;
+        StandardHostPool host_pool{
+            model_type_,
+            empty,
+            empty_vector,
+            const_cast<IntegerRaster&>(infected),
+            empty,
+            empty,
+            empty_vector,
+            empty,
+            empty,
+            *environment(!weather),
+            dispersers_stochasticity_,
+            reproductive_rate,
+            false,
+            0,
+            const_cast<std::vector<std::vector<int>>&>(suitable_cells)};
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
             if (infected(i, j) > 0) {
-                if (weather)
-                    lambda =
-                        reproductive_rate * environment()->weather_coefficient_at(i, j);
-                int dispersers_from_cell = 0;
-                if (dispersers_stochasticity_) {
-                    std::poisson_distribution<int> distribution(lambda);
-                    for (int k = 0; k < infected(i, j); k++) {
-                        dispersers_from_cell += distribution(generator_);
-                    }
-                }
-                else {
-                    dispersers_from_cell = lambda * infected(i, j);
-                }
+                int dispersers_from_cell = host_pool.dispersers_from(i, j, generator_);
                 if (soil_pool_) {
                     // From all the generated dispersers, some go to the soil in the
                     // same cell and don't participate in the kernel-driven dispersal.
@@ -1156,6 +1194,8 @@ public:
             empty,
             empty,
             *environment(!weather),
+            false,
+            0,
             establishment_stochasticity_,
             establishment_probability,
             suitable_cells};
@@ -1288,6 +1328,8 @@ public:
             empty,
             empty,
             *environment(true),
+            false,
+            0,
             false,
             0,
             suitable_cells};

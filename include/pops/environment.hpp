@@ -168,6 +168,14 @@ public:
         return current_weather_coefficient->operator()(row, col);
     }
 
+    double
+    influence_reproductive_rate_at(RasterIndex row, RasterIndex col, double value) const
+    {
+        if (!weather_)
+            return value;
+        return value * weather_coefficient_at(row, col);
+    }
+
     double influence_probability_of_establishment_at(
         RasterIndex row, RasterIndex col, double value) const
     {
