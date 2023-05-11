@@ -143,13 +143,12 @@ public:
         RasterIndex row,
         RasterIndex col,
         IntegerRaster& mortality_tracker,
-        const IntegerRaster& total_populations,
         Generator& generator)
     {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         if (susceptible_(row, col) > 0) {
             double probability_of_establishment =
-                establishment_probability_at(row, col, susceptible_, total_populations);
+                establishment_probability_at(row, col, susceptible_);
             double establishment_tester = 1 - deterministic_establishment_probability_;
             if (establishment_stochasticity_)
                 establishment_tester = distribution_uniform(generator);
@@ -188,13 +187,11 @@ public:
     }
 
     double establishment_probability_at(
-        RasterIndex row,
-        RasterIndex col,
-        IntegerRaster& susceptible,
-        const IntegerRaster& total_populations)
+        RasterIndex row, RasterIndex col, IntegerRaster& susceptible)
     {
         double probability_of_establishment =
-            (double)(susceptible(row, col)) / total_populations(row, col);
+            (double)(susceptible(row, col))
+            / environment_.total_population_at(row, col);
         return environment_.influence_probability_of_establishment_at(
             row, col, probability_of_establishment);
     }
@@ -392,17 +389,17 @@ public:
         }
     }
 
-    int infected_at(RasterIndex i, RasterIndex j)
+    int infected_at(RasterIndex i, RasterIndex j) const
     {
         return infected_(i, j);
     }
 
-    int susceptible_at(RasterIndex i, RasterIndex j)
+    int susceptible_at(RasterIndex i, RasterIndex j) const
     {
         return susceptible_(i, j);
     }
 
-    int exposed_at(RasterIndex i, RasterIndex j)
+    int exposed_at(RasterIndex i, RasterIndex j) const
     {
         // Future code could remove total exposed and compute that on the fly.
         //        int sum = 0;
@@ -412,7 +409,7 @@ public:
         return total_exposed_(i, j);
     }
 
-    int total_hosts_at(RasterIndex i, RasterIndex j)
+    int total_hosts_at(RasterIndex i, RasterIndex j) const
     {
         // computed instead of using a raster
         return susceptible_at(i, j) /*+ exposed_at(i, j)*/ + infected_at(i, j);
@@ -774,7 +771,8 @@ private:
     unsigned latency_period_;
     Generator generator_;
     /// Non-owning pointer to environment for weather
-    const Environment<IntegerRaster, FloatRaster, RasterIndex>* environment_{nullptr};
+    // can be const in simulation, except for need to add host now
+    Environment<IntegerRaster, FloatRaster, RasterIndex>* environment_{nullptr};
     /**
      * Optional soil pool
      */
@@ -835,8 +833,9 @@ public:
      *
      * The simulation object does not take ownership of the environment.
      */
-    void set_environment(
-        const Environment<IntegerRaster, FloatRaster, RasterIndex>* environment)
+    // parameter and attribute should be const
+    void
+    set_environment(Environment<IntegerRaster, FloatRaster, RasterIndex>* environment)
     {
         this->environment_ = environment;
     }
@@ -1174,6 +1173,10 @@ public:
             establishment_stochasticity_,
             establishment_probability,
             suitable_cells};
+        // This would be part of the main initialization process.
+        if (environment_) {
+            environment_->set_total_population(&total_populations);
+        }
 
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         int row;
@@ -1192,8 +1195,8 @@ public:
                         continue;
                     }
                     // Put a disperser to the host pool.
-                    auto dispersed = host_pool.disperser_to(
-                        row, col, mortality_tracker, total_populations, generator_);
+                    auto dispersed =
+                        host_pool.disperser_to(row, col, mortality_tracker, generator_);
                     if (!dispersed) {
                         established_dispersers(i, j) -= 1;
                     }
@@ -1204,8 +1207,7 @@ public:
                 auto num_dispersers = soil_pool_->dispersers_from(i, j, generator_);
                 // Put each disperser to the host pool.
                 for (int k = 0; k < num_dispersers; k++) {
-                    host_pool.disperser_to(
-                        i, j, mortality_tracker, total_populations, generator_);
+                    host_pool.disperser_to(i, j, mortality_tracker, generator_);
                 }
             }
         }

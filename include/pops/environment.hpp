@@ -176,6 +176,39 @@ public:
         return value * weather_coefficient_at(row, col);
     }
 
+    int total_population_at(RasterIndex row, RasterIndex col) const
+    {
+        // If total population is used, use that instead of computing it.
+        if (total_population_)
+            return total_population_->operator()(row, col);
+        int sum = 0;
+        if (other_individuals_)
+            sum += other_individuals_->operator()(row, col);
+        for (const auto& host : hosts_)
+            sum += host->total_hosts_at(row, col);
+        return sum;
+    }
+
+    void set_other_individuals(const IntegerRaster* individuals)
+    {
+        other_individuals_ = individuals;
+    }
+
+    void set_total_population(const IntegerRaster* individuals)
+    {
+        total_population_ = individuals;
+    }
+
+    void add_host(
+        const HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>*
+            host)
+    {
+        // no-op if already there, may become an error in the future
+        if (container_contains(hosts_, host))
+            return;
+        hosts_.push_back(host);
+    }
+
     /**
      * @brief Get weather coefficient raster
      *
@@ -203,6 +236,15 @@ protected:
     const FloatRaster* current_weather_coefficient{nullptr};
     FloatRaster stored_weather_coefficient;
     bool weather_{false};
+
+    std::vector<const HostPoolInterface<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        Generator>*>
+        hosts_;  // host, non-owning
+    const IntegerRaster* other_individuals_{nullptr};  // non-hosts, non-owning
+    const IntegerRaster* total_population_{nullptr};  // non-hosts, non-owning
 };
 
 }  // namespace pops

@@ -18,6 +18,9 @@
 
 namespace pops {
 
+template<typename IntegerRaster, typename FloatRaster, typename RasterIndex, typename Generator>
+class HostPoolInterface;
+
 template<
     typename IntegerRaster,
     typename FloatRaster,
@@ -33,6 +36,11 @@ public:
     virtual double weather_coefficient_at(RasterIndex row, RasterIndex col) const = 0;
     virtual double influence_probability_of_establishment_at(
         RasterIndex row, RasterIndex col, double value) const = 0;
+    virtual int total_population_at(RasterIndex row, RasterIndex col) const = 0;
+    // in general, we may have other individuals-non const
+    virtual void set_other_individuals(const IntegerRaster* individuals) = 0;
+    virtual void set_total_population(const IntegerRaster* individuals) = 0;
+    virtual void add_host(const HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>* host) = 0;
     virtual const FloatRaster& weather_coefficient() const = 0;
 };
 

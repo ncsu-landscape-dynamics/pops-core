@@ -29,14 +29,12 @@ public:
         RasterIndex row,
         RasterIndex col,
         IntegerRaster& mortality_tracker,
-        const IntegerRaster& total_populations,
         Generator& generator) = 0;
     virtual void add_disperser_at(RasterIndex i, RasterIndex j) = 0;
     virtual double establishment_probability_at(
         RasterIndex row,
         RasterIndex col,
-        IntegerRaster& susceptible,
-        const IntegerRaster& total_populations) = 0;
+        IntegerRaster& susceptible) = 0;
     virtual int pest_from(RasterIndex i, RasterIndex j, int count) = 0;
     virtual int pests_to(RasterIndex row, RasterIndex col, int count) = 0;
     virtual int move_hosts_from_to(
@@ -68,10 +66,10 @@ public:
     // TODO: Rate and time lag will eventually go to constructor (host properties).
     virtual void apply_mortality_at(
         RasterIndex i, RasterIndex j, double mortality_rate, int mortality_time_lag) = 0;
-    virtual int infected_at(RasterIndex i, RasterIndex j) = 0;
-    virtual int susceptible_at(RasterIndex i, RasterIndex j) = 0;
-    virtual int exposed_at(RasterIndex i, RasterIndex j) = 0;
-    virtual int total_hosts_at(RasterIndex i, RasterIndex j) = 0;
+    virtual int infected_at(RasterIndex i, RasterIndex j) const = 0;
+    virtual int susceptible_at(RasterIndex i, RasterIndex j) const = 0;
+    virtual int exposed_at(RasterIndex i, RasterIndex j) const = 0;
+    virtual int total_hosts_at(RasterIndex i, RasterIndex j) const = 0;
     virtual void step_forward_mortality() = 0;
 };
 
