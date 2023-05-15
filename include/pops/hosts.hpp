@@ -168,6 +168,13 @@ class Spread
             }
         }
     }
+
+    void action(Hosts hosts, Pests pests)
+    {
+        // reproductive_rate_ is attribute
+        this->generate(hosts, pests, dispersers_, established_dispersers_);
+        this->disperse(hosts, pests, dispersers_, established_dispersers_);
+    }
 };
 
 template<typename Hosts>

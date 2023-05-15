@@ -100,6 +100,8 @@ public:
         double reproductive_rate,
         bool establishment_stochasticity,
         double establishment_probability,
+        RasterIndex rows,
+        RasterIndex cols,
         std::vector<std::vector<int>>& suitable_cells)
         : susceptible_(susceptible),
           infected_(infected),
@@ -115,6 +117,8 @@ public:
           reproductive_rate_(reproductive_rate),
           establishment_stochasticity_(establishment_stochasticity),
           deterministic_establishment_probability_(establishment_probability),
+          rows_(rows),
+          cols_(cols),
           suitable_cells_(suitable_cells)
     {}
 
@@ -430,6 +434,11 @@ public:
         rotate_left_by_one(mortality_tracker_vector_);
     }
 
+    bool is_outside(RasterIndex row, RasterIndex col)
+    {
+        return row < 0 || row >= rows_ || col < 0 || col >= cols_;
+    }
+
 private:
     IntegerRaster& susceptible_;
     IntegerRaster& infected_;
@@ -452,7 +461,144 @@ private:
     bool establishment_stochasticity_{true};
     double deterministic_establishment_probability_{0};
 
+    RasterIndex rows_{0};
+    RasterIndex cols_{0};
+
     std::vector<std::vector<int>>& suitable_cells_;
+};
+
+template<
+    typename Hosts,
+    typename IntegerRaster,
+    typename FloatRaster,
+    typename RasterIndex>
+class SpreadAction
+{
+public:
+    /** Creates dispersal locations for the dispersing individuals
+     *
+     * Depending on what data is provided as the *exposed_or_infected*
+     * parameter, this function can be part of the S to E step or the
+     * S to I step.
+     *
+     * Typically, the generate() function is called beforehand to
+     * create dispersers. In SEI model, the infect_exposed() function is
+     * typically called afterwards.
+     *
+     * DispersalKernel is callable object or function with one parameter
+     * which is the random number engine (generator). The return value
+     * is row and column in the raster (or outside of it). The current
+     * position is passed as parameters. The return value is in the
+     * form of a tuple with row and column so that std::tie() is usable
+     * on the result, i.e. function returning
+     * `std::make_tuple(row, column)` fulfills this requirement.
+     *
+     * The *total_populations* can be total number of hosts in the basic case
+     * or it can be the total size of population of all relevant species
+     * both host and non-host if dilution effect should be applied.
+     *
+     * If establishment stochasticity is disabled,
+     * *establishment_probability* is used to decide whether or not
+     * a disperser is established in a cell. Value 1 means that all
+     * dispersers will establish and value 0 means that no dispersers
+     * will establish.
+     *
+     * @param[in] dispersers Dispersing individuals ready to be dispersed
+     * @param[in,out] susceptible Susceptible hosts
+     * @param[in,out] exposed_or_infected Exposed or infected hosts
+     * @param[in,out] mortality_tracker Newly infected hosts (if applicable)
+     * @param[in, out] total_exposed Total exposed in all exposed cohorts
+     * @param[in] total_populations All host and non-host individuals in the area
+     * @param[in,out] outside_dispersers Dispersers escaping the raster
+     * @param weather Whether or not weather coefficients should be used
+     * @param dispersal_kernel Dispersal kernel to move dispersers
+     * @param establishment_probability Probability of establishment with no
+     *        stochasticity
+     * @param[in] suitable_cells List of indices of cells with hosts
+     *
+     * @note If the parameters or their default values don't correspond
+     * with the disperse_and_infect() function, it is a bug.
+     */
+    template<typename DispersalKernel, typename Generator>
+    void disperse(
+        const IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
+        std::vector<std::tuple<int, int>>& outside_dispersers,
+        DispersalKernel& dispersal_kernel,
+        Hosts& host_pool,
+        const std::vector<std::vector<int>>& suitable_cells,
+        Generator& generator_)
+    {
+        // The interaction does not happen over the member variables yet, use empty
+        // variables. This requires SI/SEI to be fully resolved in host and not in
+        // disperse_and_infect.
+        int row;
+        int col;
+        for (auto indices : suitable_cells) {
+            int i = indices[0];
+            int j = indices[1];
+            if (dispersers(i, j) > 0) {
+                for (int k = 0; k < dispersers(i, j); k++) {
+                    std::tie(row, col) = dispersal_kernel(generator_, i, j);
+                    // if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
+                    if (host_pool.is_outside(row, col)) {
+                        // export dispersers dispersed outside of modeled area
+                        outside_dispersers.emplace_back(std::make_tuple(row, col));
+                        established_dispersers(i, j) -= 1;
+                        continue;
+                    }
+                    // Put a disperser to the host pool.
+                    auto dispersed = host_pool.disperser_to(row, col, generator_);
+                    if (!dispersed) {
+                        established_dispersers(i, j) -= 1;
+                    }
+                }
+            }
+            if (soil_pool_) {
+                // Get dispersers from the soil if there are any.
+                auto num_dispersers = soil_pool_->dispersers_from(i, j, generator_);
+                // Put each disperser to the host pool.
+                for (int k = 0; k < num_dispersers; k++) {
+                    host_pool.disperser_to(i, j, generator_);
+                }
+            }
+        }
+    }
+
+    /**
+     * @brief Activate storage of dispersers in soil
+     *
+     * Calling this function activates the soils. By default, the soil pool is not used.
+     * The parameters are soil pool used to store the dispersers and
+     * a percentage (0-1 ratio) of dispersers which will be send to the soil (and may
+     * establish or not depending on the soil pool object).
+     *
+     * Soil pool is optional and implemented in more general (but experimental) way.
+     * This function needs to be called separately some time after the object is created
+     * to active the soil part of the simulation. This avoids the need for many
+     * constructors or many optional parameters which need default values.
+     *
+     * @param soil_pool Soils pool object to use for storage
+     * @param dispersers_percentage Percentage of dispersers moving to the soil
+     */
+    void activate_soils(
+        std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool,
+        double dispersers_percentage)
+    {
+        this->soil_pool_ = soil_pool;
+        this->to_soil_percentage_ = dispersers_percentage;
+    }
+
+private:
+    /**
+     * Optional soil pool
+     */
+    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
+        nullptr};
+    /**
+     * Percentage (0-1 ratio) of disperers to be send to soil
+     */
+    double to_soil_percentage_{0};
 };
 
 template<typename Hosts, typename IntegerRaster, typename FloatRaster>
@@ -905,6 +1051,8 @@ public:
             0,
             false,
             0,
+            0,
+            0,
             suitable_cells);
         RemoveByTemperature<StandardHostPool, IntegerRaster, FloatRaster> remove;
         remove.action(
@@ -945,6 +1093,8 @@ public:
             false,
             0,
             false,
+            0,
+            0,
             0,
             suitable_cells);
         SurvivalRateAction<StandardHostPool, IntegerRaster, FloatRaster> survival(
@@ -994,6 +1144,8 @@ public:
             false,
             0,
             false,
+            0,
+            0,
             0,
             suitable_cells};
         Mortality<StandardHostPool, IntegerRaster, FloatRaster> mortality;
@@ -1056,6 +1208,8 @@ public:
             0,
             false,
             0,
+            0,
+            0,
             suitable_cells};
         return host_movement.movement(
             hosts, step, last_index, movements, movement_schedule, generator_);
@@ -1094,6 +1248,8 @@ public:
             dispersers_stochasticity_,
             reproductive_rate,
             false,
+            0,
+            0,
             0,
             const_cast<std::vector<std::vector<int>>&>(suitable_cells)};
         for (auto indices : suitable_cells) {
@@ -1198,42 +1354,25 @@ public:
             0,
             establishment_stochasticity_,
             establishment_probability,
+            rows_,
+            cols_,
             suitable_cells};
         // This would be part of the main initialization process.
         if (environment_) {
             environment_->set_total_population(&total_populations);
         }
 
-        int row;
-        int col;
-        for (auto indices : suitable_cells) {
-            int i = indices[0];
-            int j = indices[1];
-            if (dispersers(i, j) > 0) {
-                for (int k = 0; k < dispersers(i, j); k++) {
-                    std::tie(row, col) = dispersal_kernel(generator_, i, j);
-                    if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
-                        // export dispersers dispersed outside of modeled area
-                        outside_dispersers.emplace_back(std::make_tuple(row, col));
-                        established_dispersers(i, j) -= 1;
-                        continue;
-                    }
-                    // Put a disperser to the host pool.
-                    auto dispersed = host_pool.disperser_to(row, col, generator_);
-                    if (!dispersed) {
-                        established_dispersers(i, j) -= 1;
-                    }
-                }
-            }
-            if (soil_pool_) {
-                // Get dispersers from the soil if there are any.
-                auto num_dispersers = soil_pool_->dispersers_from(i, j, generator_);
-                // Put each disperser to the host pool.
-                for (int k = 0; k < num_dispersers; k++) {
-                    host_pool.disperser_to(i, j, generator_);
-                }
-            }
-        }
+        SpreadAction<StandardHostPool, IntegerRaster, FloatRaster, RasterIndex>
+            spread_action;
+        spread_action.activate_soils(soil_pool_, to_soil_percentage_);
+        spread_action.disperse(
+            dispersers,
+            established_dispersers,
+            outside_dispersers,
+            dispersal_kernel,
+            host_pool,
+            suitable_cells,
+            generator_);
     }
 
     // For backwards compatibility for tests (without exposed and mortality)
@@ -1331,6 +1470,8 @@ public:
             false,
             0,
             false,
+            0,
+            0,
             0,
             suitable_cells};
         MoveOverpopulatedPests<
