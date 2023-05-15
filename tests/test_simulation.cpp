@@ -665,6 +665,9 @@ int main()
     ret += test_with_sei();
     ret += test_SI_versus_SEI0();
 
+    (ret ? std::cerr : std::cout)
+        << "test_simulation: number of errors: " << ret << "\n";
+
     return ret;
 }
 

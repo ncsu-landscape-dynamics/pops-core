@@ -78,7 +78,6 @@ int test_with_reduced_stochasticity()
     config.create_schedules();
 
     unsigned num_mortality_steps = 1;
-    std::cerr << "num_mortality_steps: " << num_mortality_steps << "\n";
     std::vector<Raster<int>> mortality_tracker(
         num_mortality_steps, Raster<int>(infected.rows(), infected.cols(), 0));
 
