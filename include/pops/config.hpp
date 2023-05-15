@@ -90,6 +90,7 @@ public:
     bool use_quarantine{false};
     std::string quarantine_frequency;
     unsigned quarantine_frequency_n;
+    std::string quarantine_directions;
     // Movements
     bool use_movements{false};
     std::vector<unsigned> movement_schedule;
