@@ -33,7 +33,7 @@ using namespace pops;
 int test_soils()
 {
     int ret = 0;
-    std::vector<Raster<int>> rasters{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    std::vector<Raster<int>> rasters{{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}};
     Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
     SoilPool<Raster<int>, Raster<double>, Raster<double>::IndexType> soils{
         rasters, environment, false, false, 1};
@@ -63,7 +63,7 @@ int test_soils()
 int test_soils_weather()
 {
     int ret = 0;
-    std::vector<Raster<int>> rasters{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+    std::vector<Raster<int>> rasters{{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}};
     Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
     SoilPool<Raster<int>, Raster<double>, Raster<double>::IndexType> soils{
         rasters, environment, false, false, 1};
@@ -116,9 +116,11 @@ int test_soil_with_model()
     config.establishment_probability = 1;
     config.random_seed = 42;
     config.natural_scale = 0.9;
-    config.anthro_scale = 0.9;
+    config.natural_kernel_type = "cauchy";
     config.dispersers_to_soils_percentage = 1.0;
-
+    config.use_anthropogenic_kernel = false;
+    config.anthro_scale = 0.9;
+    config.anthro_kappa = 0;
     config.create_schedules();
 
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model{config};
