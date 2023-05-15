@@ -89,6 +89,7 @@ public:
         ModelType model_type,
         IntegerRaster& susceptible,
         std::vector<IntegerRaster>& exposed,
+        unsigned latency_period,
         IntegerRaster& infected,
         IntegerRaster& total_exposed,
         IntegerRaster& resistant,
@@ -106,6 +107,7 @@ public:
         : susceptible_(susceptible),
           infected_(infected),
           exposed_(exposed),
+          latency_period_(latency_period),
           total_exposed_(total_exposed),
           resistant_(resistant),
           mortality_tracker_vector_(mortality_tracker_vector),
@@ -439,11 +441,83 @@ public:
         return row < 0 || row >= rows_ || col < 0 || col >= cols_;
     }
 
+    /** Infect exposed hosts (E to I transition in the SEI model)
+     *
+     * Applicable to SEI model, no-operation otherwise, i.e., parameters
+     * are left intact for other models.
+     *
+     * The exposed vector are the hosts exposed in the previous steps.
+     * The length of the vector is the number of steps of the latency
+     * period plus one. Before the first latency period is over,
+     * the E to I transition won't happen because no item in the exposed
+     * vector is old enough to become infected.
+     *
+     * The position of the items in the exposed vector determines their
+     * age, i.e., for how long the hosts are exposed. The oldest item
+     * is at the front and youngest at the end.
+     * Before the the first latency period is over, items in the front
+     * are still empty (unused) because no hosts were exposed for the
+     * given time period.
+     * After the first latency
+     * period, this needs to be true before the function is called and
+     * it is true after the function
+     * finished with the difference that after the function is called,
+     * the last item is empty in the sense that it does not contain any
+     * hosts.
+     *
+     * When the E to I transition happens, hosts from the oldest item
+     * in the exposed vector are moved to the infected (and mortality
+     * tracker). They are removed from the exposed item and this item
+     * is moved to the back of the vector.
+     *
+     * Like in disperse(), there is no distinction between *infected*
+     * and *mortality_tracker*, but different usage is expected outside
+     * of this function.
+     *
+     * The raster class used with the simulation class needs to support
+     * `.fill()` method for this function to work.
+     *
+     * @param step Step in the simulation (>=0)
+     * @param exposed Vector of exposed hosts
+     * @param infected Infected hosts
+     * @param mortality_tracker Newly infected hosts
+     * @param total_exposed Total exposed in all exposed cohorts
+     */
+    void step_forward(unsigned step)
+    {
+        if (model_type_ == ModelType::SusceptibleExposedInfected) {
+            if (step >= latency_period_) {
+                // Oldest item needs to be in the front
+                auto& oldest = exposed_.front();
+                // Move hosts to infected raster
+                infected_ += oldest;
+                mortality_tracker_vector_.back() += oldest;
+                total_exposed_ += (oldest * (-1));
+                // Reset the raster
+                // (hosts moved from the raster)
+                oldest.fill(0);
+            }
+            // Age the items and the used one to the back
+            // elements go one position to the left
+            // new oldest goes to the front
+            // old oldest goes to the back
+            rotate_left_by_one(exposed_);
+        }
+        else if (model_type_ == ModelType::SusceptibleInfected) {
+            // no-op
+        }
+        else {
+            throw std::runtime_error(
+                "Unknown ModelType value in Simulation::infect_exposed()");
+        }
+    }
+
 private:
     IntegerRaster& susceptible_;
     IntegerRaster& infected_;
 
     std::vector<IntegerRaster>& exposed_;
+    unsigned latency_period_{0};
     IntegerRaster& total_exposed_;
 
     IntegerRaster& resistant_;
@@ -1102,6 +1176,7 @@ public:
             model_type_,
             infected,
             exposed,
+            0,
             susceptible,
             total_exposed,
             empty,
@@ -1145,6 +1220,7 @@ public:
             model_type_,
             susceptible,
             exposed,
+            0,
             infected,
             total_exposed,
             empty,
@@ -1196,6 +1272,7 @@ public:
             model_type_,
             empty,
             empty_vector,
+            0,
             infected,
             empty,
             empty,
@@ -1259,6 +1336,7 @@ public:
             model_type_,
             susceptible,
             exposed,
+            0,
             infected,
             total_exposed,
             resistant,
@@ -1300,6 +1378,7 @@ public:
             model_type_,
             empty,
             empty_vector,
+            0,
             const_cast<IntegerRaster&>(infected),
             empty,
             empty,
@@ -1389,6 +1468,7 @@ public:
             model_type_,
             susceptible,
             exposed,
+            0,
             infected,
             total_exposed,
             empty,
@@ -1506,6 +1586,7 @@ public:
             model_type_,
             susceptible,
             empty_vector,
+            0,
             infected,
             empty,
             empty,
@@ -1528,82 +1609,6 @@ public:
             move_pest{overpopulation_percentage, leaving_percentage, rows_, cols_};
         move_pest.action(
             hosts, outside_dispersers, dispersal_kernel, suitable_cells, generator_);
-    }
-
-    /** Infect exposed hosts (E to I transition in the SEI model)
-     *
-     * Applicable to SEI model, no-operation otherwise, i.e., parameters
-     * are left intact for other models.
-     *
-     * The exposed vector are the hosts exposed in the previous steps.
-     * The length of the vector is the number of steps of the latency
-     * period plus one. Before the first latency period is over,
-     * the E to I transition won't happen because no item in the exposed
-     * vector is old enough to become infected.
-     *
-     * The position of the items in the exposed vector determines their
-     * age, i.e., for how long the hosts are exposed. The oldest item
-     * is at the front and youngest at the end.
-     * Before the the first latency period is over, items in the front
-     * are still empty (unused) because no hosts were exposed for the
-     * given time period.
-     * After the first latency
-     * period, this needs to be true before the function is called and
-     * it is true after the function
-     * finished with the difference that after the function is called,
-     * the last item is empty in the sense that it does not contain any
-     * hosts.
-     *
-     * When the E to I transition happens, hosts from the oldest item
-     * in the exposed vector are moved to the infected (and mortality
-     * tracker). They are removed from the exposed item and this item
-     * is moved to the back of the vector.
-     *
-     * Like in disperse(), there is no distinction between *infected*
-     * and *mortality_tracker*, but different usage is expected outside
-     * of this function.
-     *
-     * The raster class used with the simulation class needs to support
-     * `.fill()` method for this function to work.
-     *
-     * @param step Step in the simulation (>=0)
-     * @param exposed Vector of exposed hosts
-     * @param infected Infected hosts
-     * @param mortality_tracker Newly infected hosts
-     * @param total_exposed Total exposed in all exposed cohorts
-     */
-    void infect_exposed(
-        unsigned step,
-        std::vector<IntegerRaster>& exposed,
-        IntegerRaster& infected,
-        IntegerRaster& mortality_tracker,
-        IntegerRaster& total_exposed)
-    {
-        if (model_type_ == ModelType::SusceptibleExposedInfected) {
-            if (step >= latency_period_) {
-                // Oldest item needs to be in the front
-                auto& oldest = exposed.front();
-                // Move hosts to infected raster
-                infected += oldest;
-                mortality_tracker += oldest;
-                total_exposed += (oldest * (-1));
-                // Reset the raster
-                // (hosts moved from the raster)
-                oldest.fill(0);
-            }
-            // Age the items and the used one to the back
-            // elements go one position to the left
-            // new oldest goes to the front
-            // old oldest goes to the back
-            rotate_left_by_one(exposed);
-        }
-        else if (model_type_ == ModelType::SusceptibleInfected) {
-            // no-op
-        }
-        else {
-            throw std::runtime_error(
-                "Unknown ModelType value in Simulation::infect_exposed()");
-        }
     }
 
     /** Disperse, expose, and infect based on dispersers
@@ -1663,10 +1668,27 @@ public:
             dispersal_kernel,
             suitable_cells,
             establishment_probability);
-        if (model_type_ == ModelType::SusceptibleExposedInfected) {
-            this->infect_exposed(
-                step, exposed, infected, mortality_tracker.back(), total_exposed);
-        }
+        IntegerRaster empty;
+        StandardHostPool host_pool{
+            model_type_,
+            susceptible,
+            exposed,
+            latency_period_,
+            infected,
+            total_exposed,
+            empty,
+            mortality_tracker,
+            empty,
+            empty,
+            *environment(!weather),
+            false,
+            0,
+            establishment_stochasticity_,
+            establishment_probability,
+            rows_,
+            cols_,
+            suitable_cells};
+        host_pool.step_forward(step);
     }
 
     template<typename DispersalKernel>
