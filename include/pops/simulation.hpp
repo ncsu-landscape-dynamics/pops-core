@@ -475,6 +475,68 @@ template<
 class SpreadAction
 {
 public:
+    template<typename DispersalKernel, typename Generator>
+    void action(
+        const IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
+        std::vector<std::tuple<int, int>>& outside_dispersers,
+        DispersalKernel& dispersal_kernel,
+        Hosts& host_pool,
+        const std::vector<std::vector<int>>& suitable_cells,
+        Generator& generator)
+    {
+        this->generate(
+            dispersers, established_dispersers, host_pool, suitable_cells, generator);
+        this->disperse(
+            dispersers,
+            established_dispersers,
+            outside_dispersers,
+            dispersal_kernel,
+            host_pool,
+            suitable_cells,
+            generator);
+    }
+
+    /** Generates dispersers based on infected
+     *
+     * @param[out] dispersers  (existing values are ignored)
+     * @param infected Currently infected hosts
+     * @param weather Whether to use the weather coefficient
+     * @param reproductive_rate reproductive rate (used unmodified when weather
+     *        coefficient is not used)
+     * @param[in] suitable_cells List of indices of cells with hosts
+     */
+    template<typename Generator>
+    void generate(
+        IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
+        Hosts& host_pool,
+        const std::vector<std::vector<int>>& suitable_cells,
+        Generator& generator_)
+    {
+        for (auto indices : suitable_cells) {
+            int i = indices[0];
+            int j = indices[1];
+            if (host_pool.infected_at(i, j) > 0) {
+                int dispersers_from_cell = host_pool.dispersers_from(i, j, generator_);
+                if (soil_pool_) {
+                    // From all the generated dispersers, some go to the soil in the
+                    // same cell and don't participate in the kernel-driven dispersal.
+                    auto dispersers_to_soil =
+                        std::round(to_soil_percentage_ * dispersers_from_cell);
+                    soil_pool_->dispersers_to(dispersers_to_soil, i, j, generator_);
+                    dispersers_from_cell -= dispersers_to_soil;
+                }
+                dispersers(i, j) = dispersers_from_cell;
+                established_dispersers(i, j) = dispersers_from_cell;
+            }
+            else {
+                dispersers(i, j) = 0;
+                established_dispersers(i, j) = 0;
+            }
+        }
+    }
+
     /** Creates dispersal locations for the dispersing individuals
      *
      * Depending on what data is provided as the *exposed_or_infected*
@@ -1252,27 +1314,11 @@ public:
             0,
             0,
             const_cast<std::vector<std::vector<int>>&>(suitable_cells)};
-        for (auto indices : suitable_cells) {
-            int i = indices[0];
-            int j = indices[1];
-            if (infected(i, j) > 0) {
-                int dispersers_from_cell = host_pool.dispersers_from(i, j, generator_);
-                if (soil_pool_) {
-                    // From all the generated dispersers, some go to the soil in the
-                    // same cell and don't participate in the kernel-driven dispersal.
-                    auto dispersers_to_soil =
-                        std::round(to_soil_percentage_ * dispersers_from_cell);
-                    soil_pool_->dispersers_to(dispersers_to_soil, i, j, generator_);
-                    dispersers_from_cell -= dispersers_to_soil;
-                }
-                dispersers(i, j) = dispersers_from_cell;
-                established_dispersers(i, j) = dispersers_from_cell;
-            }
-            else {
-                dispersers(i, j) = 0;
-                established_dispersers(i, j) = 0;
-            }
-        }
+        SpreadAction<StandardHostPool, IntegerRaster, FloatRaster, RasterIndex>
+            spread_action;
+        spread_action.activate_soils(soil_pool_, to_soil_percentage_);
+        spread_action.generate(
+            dispersers, established_dispersers, host_pool, suitable_cells, generator_);
     }
 
     /** Creates dispersal locations for the dispersing individuals
