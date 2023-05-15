@@ -103,6 +103,8 @@ int test_soils_weather()
 
 /**
  * Test soils runs together with model
+ *
+ * Values based on the results from the first implementation.
  */
 int test_soil_with_model()
 {
@@ -110,8 +112,13 @@ int test_soil_with_model()
 
     Config config;
     config.model_type = "SI";
+    config.reproductive_rate = 2;
+    config.establishment_probability = 1;
+    config.random_seed = 42;
     config.natural_scale = 0.9;
     config.anthro_scale = 0.9;
+    config.dispersers_to_soils_percentage = 1.0;
+
     config.create_schedules();
 
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model{config};
@@ -146,6 +153,10 @@ int test_soil_with_model()
     config.ns_res = 30;
     unsigned rate_num_steps =
         get_number_of_scheduled_actions(config.spread_rate_schedule());
+
+    config.rows = infected.rows();
+    config.cols = infected.cols();
+
     SpreadRate<Raster<int>> spread_rate(
         infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
     QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
@@ -153,7 +164,7 @@ int test_soil_with_model()
     Raster<double> weather = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 
     std::vector<Raster<int>> soil_reservoir(
-        1, Raster<int>(infected.rows(), infected.cols(), 0));
+        2, Raster<int>(infected.rows(), infected.cols(), 0));
 
     model.environment().update_weather_coefficient(weather);
     model.activate_soils(soil_reservoir);
@@ -180,6 +191,58 @@ int test_soil_with_model()
         movements,
         Network<int>::null_network(),
         suitable_cells);
+
+    Raster<int> expected_soil_reservoir_0(3, 3, 0);
+    Raster<int> expected_soil_reservoir_1 = {{3, 0, 0}, {0, 1, 0}, {0, 0, 0}};
+    if (soil_reservoir[0] != expected_soil_reservoir_0) {
+        std::cerr << "test_soil_with_model: soil_reservoir[0] (actual, expected):\n"
+                  << soil_reservoir[0] << "  !=\n"
+                  << expected_soil_reservoir_0 << "\n";
+        ++ret;
+    }
+    if (soil_reservoir[1] != expected_soil_reservoir_1) {
+        std::cerr << "test_soil_with_model: soil_reservoir[1] (actual, expected):\n"
+                  << soil_reservoir[1] << "  !=\n"
+                  << expected_soil_reservoir_1 << "\n";
+        ++ret;
+    }
+    model.run_step(
+        step++,
+        infected,
+        susceptible,
+        total_populations,
+        total_hosts,
+        dispersers,
+        established_dispersers,
+        total_exposed,
+        empty_integer,
+        mortality_tracker,
+        died,
+        empty_floats,
+        empty_floats,
+        treatments,
+        zeros,
+        outside_dispersers,
+        spread_rate,
+        quarantine,
+        zeros,
+        movements,
+        Network<int>::null_network(),
+        suitable_cells);
+    expected_soil_reservoir_0 = {{1, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    expected_soil_reservoir_1 = {{3, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    if (soil_reservoir[0] != expected_soil_reservoir_0) {
+        std::cerr << "test_soil_with_model: soil_reservoir[0] (actual, expected):\n"
+                  << soil_reservoir[0] << "  !=\n"
+                  << expected_soil_reservoir_0 << "\n";
+        ++ret;
+    }
+    if (soil_reservoir[1] != expected_soil_reservoir_1) {
+        std::cerr << "test_soil_with_model: soil_reservoir[1] (actual, expected):\n"
+                  << soil_reservoir[1] << "  !=\n"
+                  << expected_soil_reservoir_1 << "\n";
+        ++ret;
+    }
     return ret;
 }
 

@@ -63,7 +63,7 @@ public:
     {
         if (rasters.empty()) {
             throw std::logic_error(
-                "List of rasters of SpoilPool needs to have at least one item");
+                "List of rasters of SoilPool needs to have at least one item");
         }
     }
 
