@@ -144,13 +144,26 @@ public:
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
-            if (application_ == TreatmentApplication::Ratio) {
-                infected(i, j) = infected(i, j) - (infected(i, j) * map_(i, j));
-            }
-            else if (application_ == TreatmentApplication::AllInfectedInCell) {
-                infected(i, j) = map_(i, j) ? 0 : infected(i, j);
-            }
+            infected(i, j) = infected(i, j) - this->get_treated(i, j, infected(i, j));
         }
+    }
+
+    // returning double allows identical results with the previous version
+    double get_treated(int i, int j, int count)
+    {
+        return get_treated(i, j, count, this->application_);
+    }
+
+    double get_treated(int i, int j, int count, TreatmentApplication application)
+    {
+        if (application == TreatmentApplication::Ratio) {
+            return count * this->map_(i, j);
+        }
+        else if (application == TreatmentApplication::AllInfectedInCell) {
+            return this->map_(i, j) ? count : 0;
+        }
+        throw std::runtime_error(
+            "BaseTreatment::get_treated: unknown TreatmentApplication");
     }
 };
 
@@ -194,31 +207,17 @@ public:
             int new_infected = 0;
             int new_susceptible = 0;
             int new_exposed_individual = 0;
-            if (this->application_ == TreatmentApplication::Ratio) {
-                new_infected = infected(i, j) - (infected(i, j) * this->map_(i, j));
-                infected(i, j) = new_infected;
-            }
-            else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
-                new_infected = this->map_(i, j) ? 0 : infected(i, j);
-                infected(i, j) = new_infected;
-            }
+            new_infected = infected(i, j) - this->get_treated(i, j, infected(i, j));
+            infected(i, j) = new_infected;
             for (auto& raster : exposed) {
-                if (this->application_ == TreatmentApplication::Ratio) {
-                    new_exposed_individual =
-                        raster(i, j) - (raster(i, j) * this->map_(i, j));
-                    raster(i, j) = new_exposed_individual;
-                    new_exposed_total += new_exposed_individual;
-                }
-                else if (
-                    this->application_ == TreatmentApplication::AllInfectedInCell) {
-                    new_exposed_individual =
-                        raster(i, j) - (raster(i, j) * this->map_(i, j));
-                    raster(i, j) = new_exposed_individual;
-                    new_exposed_total += new_exposed_individual;
-                }
+                new_exposed_individual =
+                    raster(i, j) - this->get_treated(i, j, raster(i, j));
+                raster(i, j) = new_exposed_individual;
+                new_exposed_total += new_exposed_individual;
             }
-            new_susceptible =
-                susceptible(i, j) - (susceptible(i, j) * this->map_(i, j));
+            new_susceptible = susceptible(i, j)
+                              - this->get_treated(
+                                  i, j, susceptible(i, j), TreatmentApplication::Ratio);
             susceptible(i, j) = new_susceptible;
             total_hosts(i, j) =
                 new_infected + new_susceptible + new_exposed_total + resistant(i, j);
@@ -301,18 +300,18 @@ public:
             int i = indices[0];
             int j = indices[1];
             // TODO: why is this different?
-            int susceptible_resistant =
-                host_pool.susceptible_at(i, j) * this->map_(i, j);
+            int susceptible_resistant = this->get_treated(
+                i, j, host_pool.susceptible_at(i, j), TreatmentApplication::Ratio);
             std::vector<int> resistant_exposed_list;
             for (const auto& number : host_pool.exposed_by_group_at(i, j)) {
-                resistant_exposed_list.push_back(get_resistant(i, j, number));
+                resistant_exposed_list.push_back(this->get_treated(i, j, number));
             }
             host_pool.make_resistant_at(
                 i,
                 j,
                 susceptible_resistant,
                 resistant_exposed_list,
-                get_resistant(i, j, host_pool.infected_at(i, j)));
+                this->get_treated(i, j, host_pool.infected_at(i, j)));
         }
     }
     void end_treatment(
@@ -353,18 +352,6 @@ public:
                 host_pool.remove_resistance_at(i, j);
             }
         }
-    }
-
-    int get_resistant(int row, int col, int number)
-    {
-        if (this->application_ == TreatmentApplication::Ratio) {
-            return number * this->map_(row, col);
-        }
-        else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
-            return this->map_(row, col) ? number : 0;
-        }
-        throw std::runtime_error(
-            "PesticideTreatment::get_resistant: unknown TreatmentApplication");
     }
 };
 
