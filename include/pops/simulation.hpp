@@ -667,10 +667,10 @@ public:
         IntegerRaster empty;
         StandardHostPool hosts(
             model_type_,
-            infected,
+            susceptible,
             exposed,
             0,
-            susceptible,
+            infected,
             total_exposed,
             empty,
             mortality_tracker_vector,
