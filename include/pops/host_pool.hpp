@@ -16,8 +16,14 @@
 #ifndef POPS_HOST_POOL_HPP
 #define POPS_HOST_POOL_HPP
 
+#include <vector>
+#include <random>
+#include <stdexcept>
+#include <algorithm>
+
 #include "host_pool_interface.hpp"
 #include "model_type.hpp"
+#include "environment_interface.hpp"
 
 namespace pops {
 
@@ -30,7 +36,7 @@ class HostPool
     : public HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>
 {
 public:
-    using Environment1 =
+    using Environment =
         EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>;
 
     HostPool(
@@ -44,7 +50,7 @@ public:
         std::vector<IntegerRaster>& mortality_tracker_vector,
         IntegerRaster& died,
         IntegerRaster& total_hosts,
-        const Environment1& environment,
+        const Environment& environment,
         bool dispersers_stochasticity,
         double reproductive_rate,
         bool establishment_stochasticity,
@@ -474,7 +480,7 @@ private:
     IntegerRaster& died_;
 
     IntegerRaster& total_hosts_;
-    const Environment1& environment_;
+    const Environment& environment_;
 
     ModelType model_type_;
 
@@ -491,4 +497,4 @@ private:
 
 }  // namespace pops
 
-#endif // POPS_HOST_POOL_HPP
+#endif  // POPS_HOST_POOL_HPP

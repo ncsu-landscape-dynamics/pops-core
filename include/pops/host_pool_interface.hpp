@@ -16,6 +16,8 @@
 #ifndef POPS_HOST_POOL_INTERFACE_HPP
 #define POPS_HOST_POOL_INTERFACE_HPP
 
+#include <vector>
+
 #include "environment_interface.hpp"
 
 namespace pops {
