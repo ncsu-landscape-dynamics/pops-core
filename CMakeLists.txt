@@ -57,7 +57,9 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/environment.hpp
         include/pops/environment_interface.hpp
         include/pops/config.hpp
+        include/pops/host_pool.hpp
         include/pops/host_pool_interface.hpp
+        include/pops/model_type.hpp
         include/pops/natural_anthropogenic_kernel.hpp
         include/pops/natural_kernel.hpp
         include/pops/anthropogenic_kernel.hpp
