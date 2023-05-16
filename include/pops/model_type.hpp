@@ -60,4 +60,4 @@ inline ModelType model_type_from_string(const char* text)
 
 }  // namespace pops
 
-#endif // POPS_MODEL_TYPE_HPP
+#endif  // POPS_MODEL_TYPE_HPP
