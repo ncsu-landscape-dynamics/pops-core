@@ -312,6 +312,34 @@ public:
         susceptible_(i, j) += count;
     }
 
+    void make_resistant_at(
+        RasterIndex row,
+        RasterIndex col,
+        int susceptible,
+        const std::vector<int>& exposed,
+        int infected)
+    {
+        int total_resistant = 0;
+        // TODO: check negative numbers in these cases?
+        susceptible_(row, col) -= susceptible;
+        total_resistant += susceptible;
+        // no simple zip in C++, falling back to indices
+        // TODO: check sizes in any case
+        for (size_t i = 0; i < exposed.size(); ++i) {
+            exposed_[i](row, col) -= exposed[i];
+            total_resistant += exposed[i];
+        }
+        infected_(row, col) -= infected;
+        total_resistant += infected;
+        resistant_(row, col) += total_resistant;
+    }
+
+    void remove_resistance_at(RasterIndex row, RasterIndex col)
+    {
+        susceptible_(row, col) += resistant_(row, col);
+        resistant_(row, col) = 0;
+    }
+
     // Brings exposed dependency to more items, needs to wait for more complete host.
     /*
     template<typename Generator>
@@ -377,6 +405,20 @@ public:
         //            sum += raster(i, j);
         //        return sum;
         return total_exposed_(i, j);
+    }
+
+    std::vector<int> exposed_by_group_at(RasterIndex row, RasterIndex col) const
+    {
+        std::vector<int> all;
+        all.reserve(exposed_.size());
+        for (const auto& raster : exposed_)
+            all.push_back(raster(row, col));
+        return all;
+    }
+
+    int resistant_at(RasterIndex row, RasterIndex col) const
+    {
+        return resistant_(row, col);
     }
 
     int total_hosts_at(RasterIndex i, RasterIndex j) const

@@ -21,12 +21,18 @@
 #include "date.hpp"
 #include "scheduling.hpp"
 #include "utils.hpp"
+#include "host_pool.hpp"
 
 #include <map>
 #include <vector>
 #include <string>
 #include <functional>
 #include <stdexcept>
+
+// only temporarily for direct host pool creation
+#include <random>
+#include "model_type.hpp"
+#include "environment.hpp"
 
 namespace pops {
 
@@ -265,36 +271,48 @@ public:
         IntegerRaster& total_hosts,
         const std::vector<std::vector<int>>& suitable_cells) override
     {
-        UNUSED(total_hosts);
+        using StandardHostPool =
+            HostPool<IntegerRaster, FloatRaster, int, std::default_random_engine>;
+        IntegerRaster empty;
+        std::vector<IntegerRaster> empty_vector;
+        Environment<IntegerRaster, FloatRaster, int, std::default_random_engine>
+            empty_env;
+        StandardHostPool host_pool(
+            ModelType::SusceptibleExposedInfected,
+            susceptible,
+            exposed_vector,
+            0,
+            infected,
+            empty,
+            resistant,
+            empty_vector,
+            empty,
+            total_hosts,
+            empty_env,
+            false,
+            0,
+            false,
+            0,
+            0,
+            0,
+            const_cast<std::vector<std::vector<int>>&>(suitable_cells));
+
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
-            int infected_resistant = 0;
-            int exposed_resistant_sum = 0;
-            int susceptible_resistant = susceptible(i, j) * this->map_(i, j);
-            int current_resistant = resistant(i, j);
-            if (this->application_ == TreatmentApplication::Ratio) {
-                infected_resistant = infected(i, j) * this->map_(i, j);
+            // TODO: why is this different?
+            int susceptible_resistant =
+                host_pool.susceptible_at(i, j) * this->map_(i, j);
+            std::vector<int> resistant_exposed_list;
+            for (const auto& number : host_pool.exposed_by_group_at(i, j)) {
+                resistant_exposed_list.push_back(get_resistant(i, j, number));
             }
-            else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
-                infected_resistant = this->map_(i, j) ? infected(i, j) : 0;
-            }
-            infected(i, j) -= infected_resistant;
-            for (auto& exposed : exposed_vector) {
-                int exposed_resistant = 0;
-                if (this->application_ == TreatmentApplication::Ratio) {
-                    exposed_resistant = exposed(i, j) * this->map_(i, j);
-                }
-                else if (
-                    this->application_ == TreatmentApplication::AllInfectedInCell) {
-                    exposed_resistant = this->map_(i, j) ? exposed(i, j) : 0;
-                }
-                exposed(i, j) -= exposed_resistant;
-                exposed_resistant_sum += exposed_resistant;
-            }
-            resistant(i, j) = infected_resistant + exposed_resistant_sum
-                              + susceptible_resistant + current_resistant;
-            susceptible(i, j) -= susceptible_resistant;
+            host_pool.make_resistant_at(
+                i,
+                j,
+                susceptible_resistant,
+                resistant_exposed_list,
+                get_resistant(i, j, host_pool.infected_at(i, j)));
         }
     }
     void end_treatment(
@@ -302,14 +320,51 @@ public:
         IntegerRaster& resistant,
         const std::vector<std::vector<int>>& suitable_cells) override
     {
+        using StandardHostPool =
+            HostPool<IntegerRaster, FloatRaster, int, std::default_random_engine>;
+        IntegerRaster empty;
+        std::vector<IntegerRaster> empty_vector;
+        Environment<IntegerRaster, FloatRaster, int, std::default_random_engine>
+            empty_env;
+        StandardHostPool host_pool(
+            ModelType::SusceptibleExposedInfected,
+            susceptible,
+            empty_vector,
+            0,
+            empty,
+            empty,
+            resistant,
+            empty_vector,
+            empty,
+            empty,
+            empty_env,
+            false,
+            0,
+            false,
+            0,
+            0,
+            0,
+            const_cast<std::vector<std::vector<int>>&>(suitable_cells));
+
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
             if (this->map_(i, j) > 0) {
-                susceptible(i, j) += resistant(i, j);
-                resistant(i, j) = 0;
+                host_pool.remove_resistance_at(i, j);
             }
         }
+    }
+
+    int get_resistant(int row, int col, int number)
+    {
+        if (this->application_ == TreatmentApplication::Ratio) {
+            return number * this->map_(row, col);
+        }
+        else if (this->application_ == TreatmentApplication::AllInfectedInCell) {
+            return this->map_(row, col) ? number : 0;
+        }
+        throw std::runtime_error(
+            "PesticideTreatment::get_resistant: unknown TreatmentApplication");
     }
 };
 

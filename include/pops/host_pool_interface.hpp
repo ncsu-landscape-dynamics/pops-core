@@ -49,6 +49,12 @@ public:
         RasterIndex i, RasterIndex j, int count, Generator& generator) = 0;
     virtual void remove_exposed_at(
         RasterIndex i, RasterIndex j, int count, Generator& generator) = 0;
+    virtual void make_resistant_at(
+        RasterIndex row,
+        RasterIndex col,
+        int susceptible,
+        const std::vector<int>& exposed,
+        int infected) = 0;
 
     // Brings exposed dependency to more items, needs to wait for more complete host.
     /*
