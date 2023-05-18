@@ -313,6 +313,7 @@ public:
         if (count <= 0)
             return;
         infected_(row, col) -= count;
+        reset_total_host(row, col);
     }
 
     void completely_remove_infected_at(RasterIndex row, RasterIndex col, double count)
