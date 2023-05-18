@@ -274,12 +274,13 @@ public:
         return total_hosts_moved;
     }
 
+    // Notably, this does not remove resistant.
     void completely_remove_susceptible_at(RasterIndex row, RasterIndex col, int count)
     {
         if (count <= 0)
             return;
         susceptible_(row, col) -= count;
-        // Notably, this does not remove resistant.
+        reset_total_host(row, col);
     }
 
     // special overload for double, so that handling of floating point values is managed
@@ -290,6 +291,20 @@ public:
         if (count <= 0)
             return;
         susceptible_(row, col) = susceptible_(row, col) - count;
+        reset_total_host(row, col);
+    }
+
+    void completely_remove_exposed_at(
+        RasterIndex row, RasterIndex col, std::vector<double> counts)
+    {
+        int total = 0;
+        // no simple zip in C++, falling back to indices
+        // TODO: check sizes in any case
+        for (size_t i = 0; i < counts.size(); ++i) {
+            exposed_[i](row, col) -= counts[i];
+            total += counts[i];
+        }
+        reset_total_host(row, col);
     }
 
     void completely_remove_infected_at(RasterIndex row, RasterIndex col, int count)
@@ -306,6 +321,7 @@ public:
         if (count <= 0)
             return;
         infected_(row, col) -= count;
+        reset_total_host(row, col);
     }
 
     void
@@ -434,11 +450,15 @@ public:
     int exposed_at(RasterIndex i, RasterIndex j) const
     {
         // Future code could remove total exposed and compute that on the fly.
-        //        int sum = 0;
-        //        for (const auto& raster : exposed_)
-        //            sum += raster(i, j);
-        //        return sum;
         return total_exposed_(i, j);
+    }
+
+    int computed_exposed_at(RasterIndex i, RasterIndex j) const
+    {
+        int sum = 0;
+        for (const auto& raster : exposed_)
+            sum += raster(i, j);
+        return sum;
     }
 
     std::vector<int> exposed_by_group_at(RasterIndex row, RasterIndex col) const
@@ -543,6 +563,13 @@ public:
     }
 
 private:
+    // This would ideally be updated piece by piece or just computed on the fly always.
+    void reset_total_host(RasterIndex row, RasterIndex col)
+    {
+        total_hosts_(row, col) = susceptible_(row, col) + computed_exposed_at(row, col)
+                                 + infected_(row, col) + resistant_(row, col);
+    }
+
     IntegerRaster& susceptible_;
     IntegerRaster& infected_;
 

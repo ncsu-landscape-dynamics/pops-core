@@ -229,29 +229,18 @@ public:
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
-            int new_exposed_total = 0;
-            int new_infected = 0;
-            int new_susceptible = 0;
-            int new_exposed_individual = 0;
-            new_infected = infected(i, j) - this->get_treated(i, j, infected(i, j));
-            host_pool.completely_remove_infected_at(
-                i, j, this->get_treated(i, j, infected(i, j)));
-            for (auto& raster : exposed) {
-                new_exposed_individual =
-                    raster(i, j) - this->get_treated(i, j, raster(i, j));
-                raster(i, j) = new_exposed_individual;
-                new_exposed_total += new_exposed_individual;
+            int remove_susceptible = this->get_treated(
+                i, j, host_pool.susceptible_at(i, j), TreatmentApplication::Ratio);
+            int remove_infected = this->get_treated(i, j, host_pool.infected_at(i, j));
+
+            std::vector<double> remove_exposed;
+            for (int count : host_pool.exposed_by_group_at(i, j)) {
+                remove_exposed.push_back(this->get_treated(i, j, count));
             }
-            new_susceptible = susceptible(i, j)
-                              - this->get_treated(
-                                  i, j, susceptible(i, j), TreatmentApplication::Ratio);
-            host_pool.completely_remove_susceptible_at(
-                i,
-                j,
-                this->get_treated(
-                    i, j, susceptible(i, j), TreatmentApplication::Ratio));
-            total_hosts(i, j) =
-                new_infected + new_susceptible + new_exposed_total + resistant(i, j);
+
+            host_pool.completely_remove_susceptible_at(i, j, remove_susceptible);
+            host_pool.completely_remove_exposed_at(i, j, remove_exposed);
+            host_pool.completely_remove_infected_at(i, j, remove_infected);
         }
     }
     void end_treatment(
