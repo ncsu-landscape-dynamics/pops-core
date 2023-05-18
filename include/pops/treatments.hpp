@@ -200,6 +200,32 @@ public:
         IntegerRaster& total_hosts,
         const std::vector<std::vector<int>>& suitable_cells) override
     {
+        using StandardHostPool =
+            HostPool<IntegerRaster, FloatRaster, int, std::default_random_engine>;
+        IntegerRaster empty;
+        std::vector<IntegerRaster> empty_vector;
+        Environment<IntegerRaster, FloatRaster, int, std::default_random_engine>
+            empty_env;
+        StandardHostPool host_pool(
+            ModelType::SusceptibleExposedInfected,
+            susceptible,
+            exposed,
+            0,
+            infected,
+            empty,
+            resistant,
+            empty_vector,
+            empty,
+            total_hosts,
+            empty_env,
+            false,
+            0,
+            false,
+            0,
+            0,
+            0,
+            const_cast<std::vector<std::vector<int>>&>(suitable_cells));
+
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
@@ -208,7 +234,8 @@ public:
             int new_susceptible = 0;
             int new_exposed_individual = 0;
             new_infected = infected(i, j) - this->get_treated(i, j, infected(i, j));
-            infected(i, j) = new_infected;
+            host_pool.completely_remove_infected_at(
+                i, j, this->get_treated(i, j, infected(i, j)));
             for (auto& raster : exposed) {
                 new_exposed_individual =
                     raster(i, j) - this->get_treated(i, j, raster(i, j));
@@ -218,7 +245,11 @@ public:
             new_susceptible = susceptible(i, j)
                               - this->get_treated(
                                   i, j, susceptible(i, j), TreatmentApplication::Ratio);
-            susceptible(i, j) = new_susceptible;
+            host_pool.completely_remove_susceptible_at(
+                i,
+                j,
+                this->get_treated(
+                    i, j, susceptible(i, j), TreatmentApplication::Ratio));
             total_hosts(i, j) =
                 new_infected + new_susceptible + new_exposed_total + resistant(i, j);
         }

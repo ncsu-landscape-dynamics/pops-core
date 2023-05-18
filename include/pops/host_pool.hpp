@@ -274,6 +274,40 @@ public:
         return total_hosts_moved;
     }
 
+    void completely_remove_susceptible_at(RasterIndex row, RasterIndex col, int count)
+    {
+        if (count <= 0)
+            return;
+        susceptible_(row, col) -= count;
+        // Notably, this does not remove resistant.
+    }
+
+    // special overload for double, so that handling of floating point values is managed
+    // here
+    void
+    completely_remove_susceptible_at(RasterIndex row, RasterIndex col, double count)
+    {
+        if (count <= 0)
+            return;
+        susceptible_(row, col) = susceptible_(row, col) - count;
+    }
+
+    void completely_remove_infected_at(RasterIndex row, RasterIndex col, int count)
+    {
+        // Possibly reuse in the I->S removal.
+        if (count <= 0)
+            return;
+        infected_(row, col) -= count;
+    }
+
+    void completely_remove_infected_at(RasterIndex row, RasterIndex col, double count)
+    {
+        // Possibly reuse in the I->S removal.
+        if (count <= 0)
+            return;
+        infected_(row, col) -= count;
+    }
+
     void
     remove_infected_at(RasterIndex i, RasterIndex j, int count, Generator& generator)
     {
