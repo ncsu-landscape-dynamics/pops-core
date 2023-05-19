@@ -68,13 +68,29 @@ class Environment
     std::vector<Host*> hosts;  // non-owning reference
     IntegerRaster other_individuals;  // non hosts
 
-    int total_population_at(i, j)
+    int total_population_at(RasterIndex row, RasterIndex col)
     {
-        auto sum = other_individuals(i, j);
-        for (const auto& host : hosts)
-            sum += host.total_host_at(i, j);
+        int sum;
+        if (other_individuals_) {
+            sum += other_individuals(row, col);
+        }
+        for (const auto& host : hosts_)
+            sum += host.total_host_at(row, col);
         return sum;
     }
+
+    void set_other_individuals(const IntegerRaster* other_individuals)
+    {
+        other_individuals_ = other_individuals;
+    }
+
+    void add_host(const Host* host)
+    {
+        hosts_.push_back(host);
+    }
+
+    std::vector<const Host*> hosts_;  // host, non-owning
+    IntegerRaster* other_individuals_{nullptr};  // non-hosts, non-owning
 };
 
 template<typename IntegerRaster>
@@ -100,6 +116,33 @@ class HostPool
         }
         // not established
         return false;
+    }
+};
+
+template<typename Container>
+auto pick_item_by_probability(
+    Container& container, const std::vector<double>& probabilities)
+    -> decltype(container.begin())
+{
+    // For now, always the first element.
+    return container.begin();
+}
+
+template<typename IntegerRaster, typename FloatRaster, typename RasterIndex>
+class MultiHostPool
+{
+    std::vector<HostPool<IntegerRaster, FloatRaster, RasterIndex>> hosts;
+
+    template<typename Generator>
+    int disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
+    {
+        std::vector<double> probabilities;
+        for (const auto& host : hosts) {
+            probabilities.push_back(host.establishment_probability_at(row, col));
+        }
+        auto item = pick_item_by_probability(hosts, probabilities);
+        // return item->disperser_to(i, j, generator);
+        return 0;
     }
 };
 
