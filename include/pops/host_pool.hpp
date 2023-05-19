@@ -307,12 +307,28 @@ public:
         reset_total_host(row, col);
     }
 
+    // Exposed may need an additonal method which uses RNG to distrubute
+    // individuals over the cohorts.
+
     void completely_remove_infected_at(RasterIndex row, RasterIndex col, int count)
     {
         // Possibly reuse in the I->S removal.
         if (count <= 0)
             return;
         infected_(row, col) -= count;
+        // TODO: The distribution among moratlity cohorts needs to be done
+        // either by passing a generator and drawing from cohorts or by
+        // the caller passing a vector of how they should be distributed like
+        // for exposed.
+        //        std::default_random_engine generator;
+        //        std::vector<int> mortality_draw =
+        //            draw_n_from_cohorts(mortality_tracker_vector_, count, row, col,
+        //            generator);
+        //        int index = 0;
+        //        for (auto& raster : mortality_tracker_vector_) {
+        //            raster(row, col) -= mortality_draw[index];
+        //            index += 1;
+        //        }
         reset_total_host(row, col);
     }
 
@@ -381,6 +397,11 @@ public:
             total_resistant += exposed[i];
         }
         infected_(row, col) -= infected;
+        // TODO: mortality cohorts need to be reduced when infected is reduced
+        //        for (auto& raster : mortality_tracker_vector_) {
+        //            raster(row, col) -= infected /
+        //            mortality_tracker_vector_.size();
+        //        }
         total_resistant += infected;
         resistant_(row, col) += total_resistant;
     }
