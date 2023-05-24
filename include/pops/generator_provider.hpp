@@ -182,7 +182,7 @@ public:
 
     void discard(unsigned long long n)
     {
-        general_generator_.disard(n);
+        general_generator_.discard(n);
     }
 
 private:
@@ -195,7 +195,7 @@ using DefaultSingleGeneratorProvider =
 
 /** Generator provider providing multiple isolated generators
  *
- * All ways of seeding result is multiple independent generators.
+ * All ways of seeding the provider result in multiple independent generators.
  */
 template<typename Generator>
 class IsolatedRandomNumberGeneratorProvider
@@ -229,7 +229,7 @@ public:
         this->seed(config);
     }
 
-    /** Re-seed with single value incremeneted for each generator. */
+    /** Re-seed with single value incremented for each generator. */
     void seed(unsigned seed)
     {
         disperser_generation_generator_.seed(seed++);
@@ -356,7 +356,7 @@ private:
  * standard generator can be used in its place.
  *
  * However, unlike the simple generator for single seed, this will throw
- * an exception if used directly as UniformRandomBitGenerato, but the
+ * an exception if used directly as UniformRandomBitGenerator, but the
  * object was seeded with multiple seeds.
  */
 template<typename Generator>
@@ -366,7 +366,7 @@ public:
     /**
      * Seeds first generator with the seed and then each subsequent generator with
      * seed += 1. *isolated* decides if single generator is created or if multiple
-     * isolated generators are created and seed is incremeneted as needed.
+     * isolated generators are created and seed is incremented as needed.
      */
     RandomNumberGeneratorProvider(unsigned seed, bool isolated = false)
         : isolated_(isolated)
@@ -479,7 +479,7 @@ public:
                 "RandomNumberGeneratorProvider used as a single generator "
                 "but it is set to provide isolated generators");
         }
-        impl->disperser_generation().disard(n);
+        impl->disperser_generation().discard(n);
     }
 
 private:

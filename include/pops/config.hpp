@@ -81,7 +81,7 @@ std::map<std::string, Value> read_key_value_pairs(
 }
 
 /**
- * Read key-value pairs from text from string into a map
+ * Read key-value pairs from text into a map
  *
  * @see Other overloads.
  */
@@ -98,7 +98,7 @@ std::map<std::string, Value> read_key_value_pairs(
 }
 
 /**
- * Read key-value pairs from text from string into a map
+ * Read key-value pairs from text into a map
  *
  * @see Other overloads.
  */
