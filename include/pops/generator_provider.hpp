@@ -198,7 +198,7 @@ using DefaultSingleGeneratorProvider =
  * All ways of seeding the provider result in multiple independent generators.
  */
 template<typename Generator>
-class IsolatedRandomNumberGeneratorProvider
+class MultiRandomNumberGeneratorProvider
     : public RandomNumberGeneratorProviderInterface<Generator>
 {
 public:
@@ -206,7 +206,7 @@ public:
      * Seeds first generator with the seed and then each subsequent generator with
      * seed += 1.
      */
-    IsolatedRandomNumberGeneratorProvider(unsigned seed)
+    MultiRandomNumberGeneratorProvider(unsigned seed)
     {
         this->seed(seed);
     }
@@ -214,7 +214,7 @@ public:
     /**
      * Seeds generators by name.
      */
-    IsolatedRandomNumberGeneratorProvider(const std::map<std::string, unsigned>& seeds)
+    MultiRandomNumberGeneratorProvider(const std::map<std::string, unsigned>& seeds)
     {
         this->seed(seeds);
     }
@@ -224,7 +224,7 @@ public:
      * generators are initialized by name, otherwise single seed is incremented for
      * each generator.
      */
-    IsolatedRandomNumberGeneratorProvider(const Config& config)
+    MultiRandomNumberGeneratorProvider(const Config& config)
     {
         this->seed(config);
     }
@@ -365,14 +365,13 @@ class RandomNumberGeneratorProvider
 public:
     /**
      * Seeds first generator with the seed and then each subsequent generator with
-     * seed += 1. *isolated* decides if single generator is created or if multiple
+     * seed += 1. *multi* decides if single generator is created or if multiple
      * isolated generators are created and seed is incremented as needed.
      */
-    RandomNumberGeneratorProvider(unsigned seed, bool isolated = false)
-        : isolated_(isolated)
+    RandomNumberGeneratorProvider(unsigned seed, bool multi = false) : mutli_(multi)
     {
-        if (isolated) {
-            impl.reset(new IsolatedRandomNumberGeneratorProvider<Generator>(seed));
+        if (multi) {
+            impl.reset(new MultiRandomNumberGeneratorProvider<Generator>(seed));
         }
         else {
             impl.reset(new SingleGeneratorProvider<Generator>(seed));
@@ -381,8 +380,7 @@ public:
 
     /** Creates multiple isolated generators based on named seeds */
     RandomNumberGeneratorProvider(const std::map<std::string, unsigned>& seeds)
-        : impl(new IsolatedRandomNumberGeneratorProvider<Generator>(seeds)),
-          isolated_(true)
+        : impl(new MultiRandomNumberGeneratorProvider<Generator>(seeds)), mutli_(true)
     {}
 
     /**
@@ -392,12 +390,12 @@ public:
     RandomNumberGeneratorProvider(const Config& config) : impl(nullptr)
     {
         if (config.multiple_random_seeds) {
-            impl.reset(new IsolatedRandomNumberGeneratorProvider<Generator>(config));
-            isolated_ = true;
+            impl.reset(new MultiRandomNumberGeneratorProvider<Generator>(config));
+            mutli_ = true;
         }
         else {
             impl.reset(new SingleGeneratorProvider<Generator>(config.random_seed));
-            isolated_ = false;
+            mutli_ = false;
         }
     }
 
@@ -463,7 +461,7 @@ public:
     /* Throws std::runtime_error if using multiple isolated generators */
     result_type operator()()
     {
-        if (isolated_) {
+        if (mutli_) {
             std::runtime_error(
                 "RandomNumberGeneratorProvider used as a single generator "
                 "but it is set to provide multiple isolated generators");
@@ -474,7 +472,7 @@ public:
     /* Throws std::runtime_error if using multiple isolated generators */
     void discard(unsigned long long n)
     {
-        if (isolated_) {
+        if (mutli_) {
             std::runtime_error(
                 "RandomNumberGeneratorProvider used as a single generator "
                 "but it is set to provide multiple isolated generators");
@@ -484,7 +482,7 @@ public:
 
 private:
     std::unique_ptr<RandomNumberGeneratorProviderInterface<Generator>> impl;
-    bool isolated_ = false;
+    bool mutli_ = false;
 };
 
 /**
@@ -494,7 +492,7 @@ private:
  */
 void validate_random_number_generator_provider_config(const Config& config)
 {
-    IsolatedRandomNumberGeneratorProvider<std::default_random_engine> provider(config);
+    MultiRandomNumberGeneratorProvider<std::default_random_engine> provider(config);
     UNUSED(provider);
 }
 
@@ -506,7 +504,7 @@ void validate_random_number_generator_provider_config(const Config& config)
 void validate_random_number_generator_provider_seeds(
     const std::map<std::string, unsigned>& seeds)
 {
-    IsolatedRandomNumberGeneratorProvider<std::default_random_engine> provider(seeds);
+    MultiRandomNumberGeneratorProvider<std::default_random_engine> provider(seeds);
     UNUSED(provider);
 }
 
