@@ -466,7 +466,7 @@ public:
         if (isolated_) {
             std::runtime_error(
                 "RandomNumberGeneratorProvider used as a single generator "
-                "but it is set to provide isolated generators");
+                "but it is set to provide multiple isolated generators");
         }
         return impl->disperser_generation().operator()();
     }
@@ -477,7 +477,7 @@ public:
         if (isolated_) {
             std::runtime_error(
                 "RandomNumberGeneratorProvider used as a single generator "
-                "but it is set to provide isolated generators");
+                "but it is set to provide multiple isolated generators");
         }
         impl->disperser_generation().discard(n);
     }
