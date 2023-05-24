@@ -72,10 +72,10 @@ public:
         // switch in between the supported kernels
         if (!use_anthropogenic_kernel_
             || !anthropogenic_kernel_.is_cell_eligible(row, col)
-            || bernoulli_distribution(generator)) {
-            return natural_kernel_(generator, row, col);
+            || bernoulli_distribution(generator.anthropogenic_dispersal())) {
+            return natural_kernel_(generator.natural_dispersal(), row, col);
         }
-        return anthropogenic_kernel_(generator, row, col);
+        return anthropogenic_kernel_(generator.anthropogenic_dispersal(), row, col);
     }
 
     /*! \copydoc RadialDispersalKernel::supports_kernel()
@@ -292,8 +292,8 @@ int test_simulation_with_kernels_generic(
         config.latency_period_steps + 1,
         IntRaster(infected.rows(), infected.cols(), 0));
 
-    Simulation<IntRaster, DoubleRaster, int, std::default_random_engine> simulation(
-        config.random_seed,
+    DefaultSingleGeneratorProvider generator(config.random_seed);
+    Simulation<IntRaster, DoubleRaster, int> simulation(
         config.rows,
         config.cols,
         model_type_from_string(config.model_type),
@@ -316,7 +316,9 @@ int test_simulation_with_kernels_generic(
             outside_dispersers,
             config.weather,
             kernel,
-            suitable_cells);
+            suitable_cells,
+            0.5,
+            generator);
     }
     return 0;
 }

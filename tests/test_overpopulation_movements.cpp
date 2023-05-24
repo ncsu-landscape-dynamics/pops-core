@@ -42,10 +42,11 @@ int test_infected_arrive()
     std::vector<std::vector<int>> suitable_cells =
         find_suitable_cells<int>(total_hosts);
     Simulation<Raster<int>, Raster<double>> simulation(
-        seed, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     DeterministicNeighborDispersalKernel kernel{Direction::E};
     double overpopulation_percentage = 0.75;
     double leaving_percentage = 0.5;
+    DefaultSingleGeneratorProvider generator(seed);
     simulation.move_overpopulated_pests(
         susceptible,
         infected,
@@ -54,7 +55,8 @@ int test_infected_arrive()
         kernel,
         suitable_cells,
         overpopulation_percentage,
-        leaving_percentage);
+        leaving_percentage,
+        generator);
     int ret = 0;
     Raster<int> expected_infected = {{8, 8}, {0, 0}};
     if (expected_infected != infected) {
@@ -74,7 +76,8 @@ int test_infected_arrive()
         kernel,
         suitable_cells,
         overpopulation_percentage,
-        leaving_percentage);
+        leaving_percentage,
+        generator);
     expected_infected = {{8, 4}, {0, 0}};
     if (expected_infected != infected) {
         std::cerr << "Unexpected infected: \n" << infected << "\n";

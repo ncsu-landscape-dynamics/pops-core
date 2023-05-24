@@ -27,6 +27,7 @@
 #include <pops/radial_kernel.hpp>
 #include <pops/neighbor_kernel.hpp>
 #include <pops/simulation.hpp>
+#include <pops/generator_provider.hpp>
 
 #include <map>
 #include <iostream>
@@ -93,8 +94,9 @@ int test_with_neighbor_kernel()
     bool weather = false;
     double reproductive_rate = 2;
     DeterministicNeighborDispersalKernel kernel(Direction::E);
+    DefaultSingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     dispersers = reproductive_rate * infected;
     // cout << dispersers;
     simulation.disperse(
@@ -108,7 +110,9 @@ int test_with_neighbor_kernel()
         outside_dispersers,
         weather,
         kernel,
-        suitable_cells);
+        suitable_cells,
+        0.5,
+        generator);
     if (!outside_dispersers.empty()) {
         cout << "There are outside_dispersers (" << outside_dispersers.size()
              << ") but there should be none\n";
@@ -156,8 +160,8 @@ int test_with_reduced_stochasticity()
     // We want everything to establish.
     double establishment_probability = 1;
     DeterministicNeighborDispersalKernel kernel(Direction::E);
+    DefaultSingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42,
         infected.rows(),
         infected.cols(),
         model_type_from_string("SI"),
@@ -171,7 +175,8 @@ int test_with_reduced_stochasticity()
         infected,
         weather,
         reproductive_rate,
-        suitable_cells);
+        suitable_cells,
+        generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
@@ -191,7 +196,8 @@ int test_with_reduced_stochasticity()
         weather,
         kernel,
         suitable_cells,
-        establishment_probability);
+        establishment_probability,
+        generator);
     if (!outside_dispersers.empty()) {
         cout << "reduced_stochasticity: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be none\n";
@@ -287,11 +293,10 @@ int test_with_sei()
         latency_period_steps + 1, Raster<int>(infected.rows(), infected.cols(), 0));
 
     DeterministicNeighborDispersalKernel kernel(Direction::E);
+    DefaultSingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42,
         infected.rows(),
         infected.cols(),
-
         model_type_from_string("SEI"),
         latency_period_steps);
     dispersers = reproductive_rate * infected;
@@ -311,7 +316,9 @@ int test_with_sei()
         outside_dispersers,
         weather,
         kernel,
-        suitable_cells);
+        suitable_cells,
+        0.5,
+        generator);
     if (infected != expected_infected) {
         cout << "SEI test infected (actual, expected):\n"
              << infected << "  !=\n"
@@ -339,7 +346,9 @@ int test_with_sei()
         outside_dispersers,
         weather,
         kernel,
-        suitable_cells);
+        suitable_cells,
+        0.5,
+        generator);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -356,7 +365,9 @@ int test_with_sei()
         outside_dispersers,
         weather,
         kernel,
-        suitable_cells);
+        suitable_cells,
+        0.5,
+        generator);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -384,7 +395,9 @@ int test_with_sei()
         outside_dispersers,
         weather,
         kernel,
-        suitable_cells);
+        suitable_cells,
+        0.5,
+        generator);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -421,7 +434,9 @@ int test_with_sei()
         outside_dispersers,
         weather,
         kernel,
-        suitable_cells);
+        suitable_cells,
+        0.5,
+        generator);
     print_vector(exposed);
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
@@ -440,7 +455,9 @@ int test_with_sei()
             outside_dispersers,
             weather,
             kernel,
-            suitable_cells);
+            suitable_cells,
+            0.5,
+            generator);
         print_vector(exposed);
         cout << infected << "\n\n";
         ret += disperse_and_infect_postcondition(step, exposed);
@@ -496,12 +513,15 @@ int test_SI_versus_SEI0()
         latency_period_steps + 1, Raster<int>(rows, cols, 0));
 
     DeterministicNeighborDispersalKernel kernel(Direction::E);
+    DefaultSingleGeneratorProvider generator_SI_1(42);
+    DefaultSingleGeneratorProvider generator_SI_2(42);
+    DefaultSingleGeneratorProvider generator_SEI0(42);
     Simulation<Raster<int>, Raster<double>> simulation_SI_1(
-        42, rows, cols, model_type_from_string("SI"));
+        rows, cols, model_type_from_string("SI"));
     Simulation<Raster<int>, Raster<double>> simulation_SI_2(
-        42, rows, cols, model_type_from_string("SI"));
+        rows, cols, model_type_from_string("SI"));
     Simulation<Raster<int>, Raster<double>> simulation_SEI0(
-        42, rows, cols, model_type_from_string("SEI"), latency_period_steps);
+        rows, cols, model_type_from_string("SEI"), latency_period_steps);
     int ret = 0;
     for (int step = 0; step < 10; ++step) {
         simulation_SI_1.disperse_and_infect(
@@ -517,7 +537,9 @@ int test_SI_versus_SEI0()
             outside_dispersers_1,
             weather,
             kernel,
-            suitable_cells);
+            suitable_cells,
+            0.5,
+            generator_SI_1);
         simulation_SI_2.disperse(
             dispersers,
             established_dispersers,
@@ -529,7 +551,9 @@ int test_SI_versus_SEI0()
             outside_dispersers_2,
             weather,
             kernel,
-            suitable_cells);
+            suitable_cells,
+            0.5,
+            generator_SI_2);
         simulation_SEI0.disperse_and_infect(
             step,
             dispersers,
@@ -543,7 +567,9 @@ int test_SI_versus_SEI0()
             outside_dispersers_3,
             weather,
             kernel,
-            suitable_cells);
+            suitable_cells,
+            0.5,
+            generator_SEI0);
         ret += disperse_and_infect_postcondition(step, exposed);
         if (infected_2 != infected_1) {
             cout
@@ -601,8 +627,9 @@ int test_calling_all_functions()
     Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
     environment.update_weather_coefficient(weather_coefficient);
 
+    DefaultSingleGeneratorProvider generator(seed);
     Simulation<Raster<int>, Raster<double>> simulation(
-        seed, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     simulation.set_environment(&environment);
     simulation.remove(
         infected, susceptible, temperature, lethal_temperature, suitable_cells);
@@ -612,7 +639,8 @@ int test_calling_all_functions()
         infected,
         weather,
         reproductive_rate,
-        suitable_cells);
+        suitable_cells,
+        generator);
     RadialDispersalKernel<Raster<int>> kernel(
         ew_res, ns_res, dispersal_kernel, short_distance_scale);
     simulation.movement(
@@ -627,7 +655,8 @@ int test_calling_all_functions()
         last_index,
         movements,
         movement_schedule,
-        suitable_cells);
+        suitable_cells,
+        generator);
     simulation.disperse(
         dispersers,
         established_dispersers,
@@ -639,7 +668,9 @@ int test_calling_all_functions()
         outside_dispersers,
         weather,
         kernel,
-        suitable_cells);
+        suitable_cells,
+        0.5,
+        generator);
     cout << "outside_dispersers: " << outside_dispersers.size() << endl;
     return 0;
 }

@@ -149,7 +149,7 @@ int test_update_probabilistic_weather()
     int num_errors = 0;
     Environment<Raster<int>, Raster<double>, int> environment;
     unsigned seed = 1;
-    std::default_random_engine generator(seed);
+    DefaultSingleGeneratorProvider generator(seed);
 
     Raster<double> step_1{{0.1, 0.2}, {0.0, 0.3}, {0.8, 0.7}};
     Raster<double> stddev_step_1(step_1.rows(), step_1.cols(), 0);
@@ -195,7 +195,7 @@ int test_update_probabilistic_weather_dimensions()
 {
     int num_errors = 0;
     Environment<Raster<int>, Raster<double>, int> environment;
-    std::default_random_engine generator(1);
+    DefaultSingleGeneratorProvider generator(1);
 
     Raster<double> step_1{{0.1, 0.2, 0.0, 0.3, 0.8, 0.7}};
     Raster<double> stddev_step_1(step_1.rows(), step_1.cols(), 0);
@@ -221,7 +221,7 @@ int test_update_probabilistic_weather_range()
 {
     int num_errors = 0;
     Environment<Raster<int>, Raster<double>, int> environment;
-    std::default_random_engine generator(1);
+    DefaultSingleGeneratorProvider generator(1);
     int num_tests = 10;
 
     Raster<double> mean{{0, 0.5}, {1, 0.2}, {0.4, 0.3}};
@@ -255,7 +255,7 @@ int test_update_probabilistic_weather_mean_in_range()
     int num_errors = 0;
     Environment<Raster<int>, Raster<double>, int> environment;
     unsigned seed = 1;
-    std::default_random_engine generator(seed);
+    DefaultSingleGeneratorProvider generator(seed);
 
     Raster<double> step_1{{0.1, 0.2}, {10.0, 0.3}, {0.8, 0.7}};
     Raster<double> stddev_step_1(step_1.rows(), step_1.cols(), 0);
