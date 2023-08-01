@@ -167,12 +167,12 @@ public:
 
     using result_type = typename Generator::result_type;
 
-    static result_type min()
+    static constexpr result_type min()
     {
         return Generator::min();
     }
 
-    static result_type max()
+    static constexpr result_type max()
     {
         return Generator::max();
     }
@@ -451,12 +451,12 @@ public:
 
     using result_type = typename Generator::result_type;
 
-    static result_type min()
+    static constexpr result_type min()
     {
         return Generator::min();
     }
 
-    static result_type max()
+    static constexpr result_type max()
     {
         return Generator::max();
     }
