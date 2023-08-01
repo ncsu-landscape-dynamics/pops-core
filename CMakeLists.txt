@@ -60,6 +60,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/host_pool.hpp
         include/pops/host_pool_interface.hpp
         include/pops/model_type.hpp
+        include/pops/generator_provider.hpp
         include/pops/natural_anthropogenic_kernel.hpp
         include/pops/natural_kernel.hpp
         include/pops/anthropogenic_kernel.hpp

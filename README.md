@@ -239,19 +239,19 @@ target_link_libraries(your_target PRIVATE pops-core)
 
 ### Authors
 
-_(alphabetical order)_
+_(ordered by number of commits)_
 
-* Chris Jones
-* Margaret Lawrimore
 * Vaclav Petras
+* Chris Jones
 * Anna Petrasova
 
 ### Previous contributors
 
-_(alphabetical order)_
+_(ordered alphabetically)_
 
 * Zexi Chen
 * Devon Gaydos
+* Margaret Lawrimore
 * Francesco Tonini
 
 See Git commit history, GitHub insights, or CHANGELOG.md file (if present)

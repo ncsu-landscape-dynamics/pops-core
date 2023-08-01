@@ -25,6 +25,7 @@
 
 #include <pops/raster.hpp>
 #include <pops/simulation.hpp>
+#include <pops/generator_provider.hpp>
 
 #include <map>
 #include <iostream>
@@ -64,8 +65,9 @@ int test_move_all_no_exposed()
     std::vector<Raster<int>> expected_mortality_tracker = {
         {{0, 0}, {0, 3}}, {{0, 0}, {0, 2}}};
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    DefaultSingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     simulation.movement(
         infected,
         susceptible,
@@ -78,7 +80,8 @@ int test_move_all_no_exposed()
         last_index,
         movements,
         movement_schedule,
-        suitable_cells);
+        suitable_cells,
+        generator);
     int errors{0};
     if (infected != expected_infected) {
         cout << "test_move_all_no_exposed: infected (actual, expected):\n"
@@ -160,8 +163,9 @@ int test_move_all_exposed()
     std::vector<Raster<int>> expected_mortality_tracker = {
         {{0, 0}, {0, 3}}, {{0, 0}, {0, 2}}};
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    DefaultSingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     simulation.movement(
         infected,
         susceptible,
@@ -174,7 +178,8 @@ int test_move_all_exposed()
         last_index,
         movements,
         movement_schedule,
-        suitable_cells);
+        suitable_cells,
+        generator);
     int errors{0};
     if (infected != expected_infected) {
         cout << "test_move_all_exposed: infected (actual, expected):\n"
@@ -258,8 +263,9 @@ int test_move_add_suitable_cell()
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}};
     std::vector<std::vector<int>> expected_suitable_cells = {
         {0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    DefaultSingleGeneratorProvider generator(42);
     Simulation<Raster<int>, Raster<double>> simulation(
-        42, infected.rows(), infected.cols());
+        infected.rows(), infected.cols());
     simulation.movement(
         infected,
         susceptible,
@@ -272,7 +278,8 @@ int test_move_add_suitable_cell()
         last_index,
         movements,
         movement_schedule,
-        suitable_cells);
+        suitable_cells,
+        generator);
     int errors{0};
     if (infected != expected_infected) {
         cout << "test_move_add_suitable_cell: infected (actual, expected):\n"

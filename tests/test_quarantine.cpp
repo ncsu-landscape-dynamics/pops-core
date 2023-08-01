@@ -91,7 +91,7 @@ int test_quarantine()
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
 
     std::vector<QuarantineEscape<Raster<int>>> runs(
-        2, QuarantineEscape<Raster<int>>(areas, 10, 10, 3));
+        2, QuarantineEscape<Raster<int>>(areas, 10, 10, 3, "N,S"));
     runs[0].infection_escape_quarantine(infection11, areas, 0, suitable_cells);
     runs[0].infection_escape_quarantine(infection12, areas, 1, suitable_cells);
     runs[0].infection_escape_quarantine(infection13, areas, 2, suitable_cells);
