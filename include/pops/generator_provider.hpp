@@ -66,10 +66,12 @@ public:
  * as this generator object can be used directly or, more importantly,
  * standard generator can be used in its place.
  */
-template<typename Generator>
-class SingleGeneratorProvider : public RandomNumberGeneratorProviderInterface<Generator>
+template<typename GeneratorType>
+class SingleGeneratorProvider
+    : public RandomNumberGeneratorProviderInterface<GeneratorType>
 {
 public:
+    using Generator = GeneratorType;
     /**
      * @brief Seeds the underlying generator
      * @param seed for the underlying generator
@@ -359,10 +361,11 @@ private:
  * an exception if used directly as UniformRandomBitGenerator, but the
  * object was seeded with multiple seeds.
  */
-template<typename Generator>
+template<typename GeneratorType>
 class RandomNumberGeneratorProvider
 {
 public:
+    using Generator = GeneratorType;
     /**
      * Seeds first generator with the seed and then each subsequent generator with
      * seed += 1. *multi* decides if single generator is created or if multiple

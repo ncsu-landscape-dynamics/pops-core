@@ -57,17 +57,31 @@ protected:
     UniformDispersalKernel uniform_kernel;
     DeterministicNeighborDispersalKernel natural_neighbor_kernel;
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
-    Simulation<IntegerRaster, FloatRaster, RasterIndex> simulation_;
+    Simulation<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>
+        simulation_;
     KernelFactory& kernel_factory_;
     /**
      * Surrounding environment (currently used for soils only)
      */
-    Environment<IntegerRaster, FloatRaster, RasterIndex> environment_;
+    Environment<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>
+        environment_;
     /**
      * Optionally created soil pool
      */
-    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
-        nullptr};
+    std::shared_ptr<SoilPool<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>>
+        soil_pool_{nullptr};
     unsigned last_index{0};
 
     /**
@@ -231,7 +245,8 @@ public:
                 mortality_tracker,
                 temperatures[lethal_step],
                 config_.lethal_temperature,
-                suitable_cells);
+                suitable_cells,
+                generator_provider_);
         }
         // removal of percentage of dispersers
         if (config_.use_survival_rate && config_.survival_rate_schedule()[step]) {
@@ -366,7 +381,12 @@ public:
      * @brief Get surrounding environment
      * @return Environment object by reference
      */
-    Environment<IntegerRaster, FloatRaster, RasterIndex>& environment()
+    Environment<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>&
+    environment()
     {
         return environment_;
     }
@@ -382,7 +402,11 @@ public:
     void activate_soils(std::vector<IntegerRaster>& rasters)
     {
         // The soil pool is created again for every new activation.
-        this->soil_pool_.reset(new SoilPool<IntegerRaster, FloatRaster, RasterIndex>(
+        this->soil_pool_.reset(new SoilPool<
+                               IntegerRaster,
+                               FloatRaster,
+                               RasterIndex,
+                               RandomNumberGeneratorProvider<Generator>>(
             rasters,
             this->environment_,
             config_.generate_stochasticity,

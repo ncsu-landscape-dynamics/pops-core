@@ -201,10 +201,10 @@ public:
         const std::vector<std::vector<int>>& suitable_cells) override
     {
         using StandardHostPool =
-            HostPool<IntegerRaster, FloatRaster, int, std::default_random_engine>;
+            HostPool<IntegerRaster, FloatRaster, int, DefaultSingleGeneratorProvider>;
         IntegerRaster empty;
         std::vector<IntegerRaster> empty_vector;
-        Environment<IntegerRaster, FloatRaster, int, std::default_random_engine>
+        Environment<IntegerRaster, FloatRaster, int, DefaultSingleGeneratorProvider>
             empty_env;
         StandardHostPool host_pool(
             ModelType::SusceptibleExposedInfected,
@@ -291,10 +291,10 @@ public:
         const std::vector<std::vector<int>>& suitable_cells) override
     {
         using StandardHostPool =
-            HostPool<IntegerRaster, FloatRaster, int, std::default_random_engine>;
+            HostPool<IntegerRaster, FloatRaster, int, DefaultSingleGeneratorProvider>;
         IntegerRaster empty;
         std::vector<IntegerRaster> empty_vector;
-        Environment<IntegerRaster, FloatRaster, int, std::default_random_engine>
+        Environment<IntegerRaster, FloatRaster, int, DefaultSingleGeneratorProvider>
             empty_env;
         StandardHostPool host_pool(
             ModelType::SusceptibleExposedInfected,
@@ -340,10 +340,10 @@ public:
         const std::vector<std::vector<int>>& suitable_cells) override
     {
         using StandardHostPool =
-            HostPool<IntegerRaster, FloatRaster, int, std::default_random_engine>;
+            HostPool<IntegerRaster, FloatRaster, int, DefaultSingleGeneratorProvider>;
         IntegerRaster empty;
         std::vector<IntegerRaster> empty_vector;
-        Environment<IntegerRaster, FloatRaster, int, std::default_random_engine>
+        Environment<IntegerRaster, FloatRaster, int, DefaultSingleGeneratorProvider>
             empty_env;
         StandardHostPool host_pool(
             ModelType::SusceptibleExposedInfected,

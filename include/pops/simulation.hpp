@@ -38,11 +38,12 @@ template<
     typename Hosts,
     typename IntegerRaster,
     typename FloatRaster,
-    typename RasterIndex>
+    typename RasterIndex,
+    typename Generator>
 class SpreadAction
 {
 public:
-    template<typename DispersalKernel, typename Generator>
+    template<typename DispersalKernel>
     void action(
         const IntegerRaster& dispersers,
         IntegerRaster& established_dispersers,
@@ -73,25 +74,25 @@ public:
      *        coefficient is not used)
      * @param[in] suitable_cells List of indices of cells with hosts
      */
-    template<typename Generator>
     void generate(
         IntegerRaster& dispersers,
         IntegerRaster& established_dispersers,
         Hosts& host_pool,
         const std::vector<std::vector<int>>& suitable_cells,
-        Generator& generator_)
+        Generator& generator)
     {
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
             if (host_pool.infected_at(i, j) > 0) {
-                int dispersers_from_cell = host_pool.dispersers_from(i, j, generator_);
+                int dispersers_from_cell =
+                    host_pool.dispersers_from(i, j, generator.disperser_generation());
                 if (soil_pool_) {
                     // From all the generated dispersers, some go to the soil in the
                     // same cell and don't participate in the kernel-driven dispersal.
                     auto dispersers_to_soil =
                         std::round(to_soil_percentage_ * dispersers_from_cell);
-                    soil_pool_->dispersers_to(dispersers_to_soil, i, j, generator_);
+                    soil_pool_->dispersers_to(dispersers_to_soil, i, j, generator);
                     dispersers_from_cell -= dispersers_to_soil;
                 }
                 dispersers(i, j) = dispersers_from_cell;
@@ -148,7 +149,7 @@ public:
      * @note If the parameters or their default values don't correspond
      * with the disperse_and_infect() function, it is a bug.
      */
-    template<typename DispersalKernel, typename Generator>
+    template<typename DispersalKernel>
     void disperse(
         const IntegerRaster& dispersers,
         IntegerRaster& established_dispersers,
@@ -156,7 +157,7 @@ public:
         DispersalKernel& dispersal_kernel,
         Hosts& host_pool,
         const std::vector<std::vector<int>>& suitable_cells,
-        Generator& generator_)
+        Generator& generator)
     {
         // The interaction does not happen over the member variables yet, use empty
         // variables. This requires SI/SEI to be fully resolved in host and not in
@@ -168,7 +169,7 @@ public:
             int j = indices[1];
             if (dispersers(i, j) > 0) {
                 for (int k = 0; k < dispersers(i, j); k++) {
-                    std::tie(row, col) = dispersal_kernel(generator_, i, j);
+                    std::tie(row, col) = dispersal_kernel(generator, i, j);
                     // if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                     if (host_pool.is_outside(row, col)) {
                         // export dispersers dispersed outside of modeled area
@@ -177,7 +178,8 @@ public:
                         continue;
                     }
                     // Put a disperser to the host pool.
-                    auto dispersed = host_pool.disperser_to(row, col, generator_);
+                    auto dispersed =
+                        host_pool.disperser_to(row, col, generator.establishment());
                     if (!dispersed) {
                         established_dispersers(i, j) -= 1;
                     }
@@ -185,10 +187,10 @@ public:
             }
             if (soil_pool_) {
                 // Get dispersers from the soil if there are any.
-                auto num_dispersers = soil_pool_->dispersers_from(i, j, generator_);
+                auto num_dispersers = soil_pool_->dispersers_from(i, j, generator);
                 // Put each disperser to the host pool.
                 for (int k = 0; k < num_dispersers; k++) {
-                    host_pool.disperser_to(i, j, generator_);
+                    host_pool.disperser_to(i, j, generator.establishment());
                 }
             }
         }
@@ -211,7 +213,8 @@ public:
      * @param dispersers_percentage Percentage of dispersers moving to the soil
      */
     void activate_soils(
-        std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool,
+        std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex, Generator>>
+            soil_pool,
         double dispersers_percentage)
     {
         this->soil_pool_ = soil_pool;
@@ -222,8 +225,8 @@ private:
     /**
      * Optional soil pool
      */
-    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
-        nullptr};
+    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex, Generator>>
+        soil_pool_{nullptr};
     /**
      * Percentage (0-1 ratio) of disperers to be send to soil
      */
@@ -261,13 +264,15 @@ public:
                 auto infected = hosts.infected_at(i, j);
                 int removed_infected =
                     infected - std::lround(infected * survival_rate_(i, j));
-                hosts.remove_infected_at(i, j, removed_infected, generator);
+                hosts.remove_infected_at(
+                    i, j, removed_infected, generator.survival_rate());
                 // remove the same percentage for total exposed and remove randomly from
                 // each cohort
                 auto exposed = hosts.exposed_at(i, j);
                 int total_removed_exposed =
                     exposed - std::lround(exposed * survival_rate_(i, j));
-                hosts.remove_exposed_at(i, j, total_removed_exposed, generator);
+                hosts.remove_exposed_at(
+                    i, j, total_removed_exposed, generator.survival_rate());
             }
         }
     }
@@ -301,7 +306,8 @@ public:
             int j = indices[1];
             if (temperature(i, j) < lethal_temperature) {
                 auto count = hosts.infected_at(i, j);
-                hosts.remove_infected_at(i, j, count, generator);
+                // TODO: Not sure what generator this should use.
+                hosts.remove_infected_at(i, j, count, generator.weather());
                 // now this includes also mortality, but it does not include exposed
             }
         }
@@ -473,7 +479,7 @@ public:
             int row_to = moved[2];
             int col_to = moved[3];
             hosts.move_hosts_from_to(
-                row_from, col_from, row_to, col_to, moved[4], generator);
+                row_from, col_from, row_to, col_to, moved[4], generator.movement());
         }
         return movements.size();
     }
@@ -545,7 +551,7 @@ template<
     typename IntegerRaster,
     typename FloatRaster,
     typename RasterIndex = int,
-    typename Generator = std::default_random_engine>
+    typename Generator = DefaultSingleGeneratorProvider>
 class Simulation
 {
 private:
@@ -556,21 +562,22 @@ private:
     bool movement_stochasticity_;
     ModelType model_type_;
     unsigned latency_period_;
-    Generator generator_;
     /// Non-owning pointer to environment for weather
     // can be const in simulation, except for need to add host now
-    Environment<IntegerRaster, FloatRaster, RasterIndex>* environment_{nullptr};
+    Environment<IntegerRaster, FloatRaster, RasterIndex, Generator>* environment_{
+        nullptr};
     /**
      * Optional soil pool
      */
-    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
-        nullptr};
+    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex, Generator>>
+        soil_pool_{nullptr};
     /**
      * Percentage (0-1 ratio) of disperers to be send to soil
      */
     double to_soil_percentage_{0};
 
 public:
+    // Host pool has the provider from model, but in test, it gets plain engine.
     using StandardHostPool =
         HostPool<IntegerRaster, FloatRaster, RasterIndex, Generator>;
 
@@ -593,7 +600,6 @@ public:
      * @param movement_stochasticity Enable stochasticity in movement of hosts
      */
     Simulation(
-        unsigned random_seed,
         RasterIndex rows,
         RasterIndex cols,
         ModelType model_type = ModelType::SusceptibleInfected,
@@ -608,9 +614,7 @@ public:
           movement_stochasticity_(movement_stochasticity),
           model_type_(model_type),
           latency_period_(latency_period)
-    {
-        generator_.seed(random_seed);
-    }
+    {}
 
     Simulation() = delete;
 
@@ -621,8 +625,8 @@ public:
      * The simulation object does not take ownership of the environment.
      */
     // parameter and attribute should be const
-    void
-    set_environment(Environment<IntegerRaster, FloatRaster, RasterIndex>* environment)
+    void set_environment(
+        Environment<IntegerRaster, FloatRaster, RasterIndex, Generator>* environment)
     {
         this->environment_ = environment;
     }
@@ -634,10 +638,10 @@ public:
      * @return Const pointer to the environment
      * @throw std::logic_error when environment is not set
      */
-    const Environment<IntegerRaster, FloatRaster, RasterIndex>*
+    const Environment<IntegerRaster, FloatRaster, RasterIndex, Generator>*
     environment(bool allow_empty = false)
     {
-        static Environment<IntegerRaster, FloatRaster, RasterIndex> empty;
+        static Environment<IntegerRaster, FloatRaster, RasterIndex, Generator> empty;
         if (!this->environment_) {
             if (allow_empty)
                 return &empty;
@@ -654,6 +658,7 @@ public:
      * @param lethal_temperature temperature at which lethal conditions occur
      * @param suitable_cells used to run model only where host are known to occur
      */
+    template<typename GeneratorProvider>
     void remove(
         IntegerRaster& infected,
         IntegerRaster& susceptible,
@@ -662,7 +667,8 @@ public:
         std::vector<IntegerRaster>& mortality_tracker_vector,
         const FloatRaster& temperature,
         double lethal_temperature,
-        std::vector<std::vector<int>>& suitable_cells)
+        std::vector<std::vector<int>>& suitable_cells,
+        GeneratorProvider& generator)
     {
         IntegerRaster empty;
         StandardHostPool hosts(
@@ -686,7 +692,7 @@ public:
             suitable_cells);
         RemoveByTemperature<StandardHostPool, IntegerRaster, FloatRaster> remove;
         remove.action(
-            hosts, temperature, lethal_temperature, suitable_cells, generator_);
+            hosts, temperature, lethal_temperature, suitable_cells, generator);
     }
 
     /** Removes percentage of exposed and infected
@@ -699,6 +705,7 @@ public:
      * @param survival_rate Raster between 0 and 1 representing pest survival rate
      * @param suitable_cells used to run model only where host are known to occur
      */
+    template<typename GeneratorProvider>
     void remove_percentage(
         IntegerRaster& infected,
         IntegerRaster& susceptible,
@@ -706,7 +713,8 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& total_exposed,
         const FloatRaster& survival_rate,
-        std::vector<std::vector<int>>& suitable_cells)
+        std::vector<std::vector<int>>& suitable_cells,
+        GeneratorProvider& generator)
     {
         IntegerRaster empty;
         StandardHostPool hosts(
@@ -730,7 +738,7 @@ public:
             suitable_cells);
         SurvivalRateAction<StandardHostPool, IntegerRaster, FloatRaster> survival(
             survival_rate);
-        survival.action(hosts, suitable_cells, generator_);
+        survival.action(hosts, suitable_cells, generator);
     }
 
     /** kills infected hosts based on mortality rate and timing. In the last year
@@ -820,7 +828,8 @@ public:
         unsigned last_index,
         const std::vector<std::vector<int>>& movements,
         std::vector<unsigned> movement_schedule,
-        std::vector<std::vector<int>>& suitable_cells)
+        std::vector<std::vector<int>>& suitable_cells,
+        Generator& generator)
     {
         HostMovement<StandardHostPool, IntegerRaster, FloatRaster, RasterIndex>
             host_movement{};
@@ -845,7 +854,7 @@ public:
             0,
             suitable_cells};
         return host_movement.movement(
-            hosts, step, last_index, movements, movement_schedule, generator_);
+            hosts, step, last_index, movements, movement_schedule, generator);
     }
 
     /** Generates dispersers based on infected
@@ -863,7 +872,8 @@ public:
         const IntegerRaster& infected,
         bool weather,
         double reproductive_rate,
-        const std::vector<std::vector<int>>& suitable_cells)
+        const std::vector<std::vector<int>>& suitable_cells,
+        Generator& generator)
     {
         IntegerRaster empty;
         std::vector<IntegerRaster> empty_vector;
@@ -886,11 +896,16 @@ public:
             0,
             0,
             const_cast<std::vector<std::vector<int>>&>(suitable_cells)};
-        SpreadAction<StandardHostPool, IntegerRaster, FloatRaster, RasterIndex>
+        SpreadAction<
+            StandardHostPool,
+            IntegerRaster,
+            FloatRaster,
+            RasterIndex,
+            Generator>
             spread_action;
         spread_action.activate_soils(soil_pool_, to_soil_percentage_);
         spread_action.generate(
-            dispersers, established_dispersers, host_pool, suitable_cells, generator_);
+            dispersers, established_dispersers, host_pool, suitable_cells, generator);
     }
 
     /** Creates dispersal locations for the dispersing individuals
@@ -951,7 +966,8 @@ public:
         bool weather,
         DispersalKernel& dispersal_kernel,
         std::vector<std::vector<int>>& suitable_cells,
-        double establishment_probability = 0.5)
+        double establishment_probability,
+        Generator& generator)
     {
         // The interaction does not happen over the member variables yet, use empty
         // variables. This requires SI/SEI to be fully resolved in host and not in
@@ -981,7 +997,12 @@ public:
             environment_->set_total_population(&total_populations);
         }
 
-        SpreadAction<StandardHostPool, IntegerRaster, FloatRaster, RasterIndex>
+        SpreadAction<
+            StandardHostPool,
+            IntegerRaster,
+            FloatRaster,
+            RasterIndex,
+            Generator>
             spread_action;
         spread_action.activate_soils(soil_pool_, to_soil_percentage_);
         spread_action.disperse(
@@ -991,7 +1012,7 @@ public:
             dispersal_kernel,
             host_pool,
             suitable_cells,
-            generator_);
+            generator);
     }
 
     // For backwards compatibility for tests (without exposed and mortality)
@@ -1027,6 +1048,44 @@ public:
             dispersal_kernel,
             suitable_cells,
             establishment_probability);
+        mortality_tracker = tmp.back();
+    }
+
+    // For backwards compatibility for tests (without exposed and mortality)
+    template<typename DispersalKernel>
+    void disperse(
+        const IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
+        IntegerRaster& susceptible,
+        IntegerRaster& infected,
+        IntegerRaster& mortality_tracker,
+        const IntegerRaster& total_populations,
+        IntegerRaster& total_exposed,
+        std::vector<std::tuple<int, int>>& outside_dispersers,
+        bool weather,
+        DispersalKernel& dispersal_kernel,
+        std::vector<std::vector<int>>& suitable_cells,
+        double establishment_probability,
+        Generator& generator)
+    {
+        std::vector<IntegerRaster> tmp;
+        tmp.push_back(mortality_tracker);
+        std::vector<IntegerRaster> empty_vector;
+        disperse(
+            dispersers,
+            established_dispersers,
+            susceptible,
+            empty_vector,
+            infected,
+            tmp,  // mortality
+            total_populations,
+            total_exposed,
+            outside_dispersers,
+            weather,
+            dispersal_kernel,
+            suitable_cells,
+            establishment_probability,
+            generator);
         mortality_tracker = tmp.back();
     }
 
@@ -1070,7 +1129,8 @@ public:
         DispersalKernel& dispersal_kernel,
         std::vector<std::vector<int>>& suitable_cells,
         double overpopulation_percentage,
-        double leaving_percentage)
+        double leaving_percentage,
+        Generator& generator)
     {
         UNUSED(total_hosts);  // Total hosts is computed now.
         IntegerRaster empty;
@@ -1101,7 +1161,7 @@ public:
             RasterIndex>
             move_pest{overpopulation_percentage, leaving_percentage, rows_, cols_};
         move_pest.action(
-            hosts, outside_dispersers, dispersal_kernel, suitable_cells, generator_);
+            hosts, outside_dispersers, dispersal_kernel, suitable_cells, generator);
     }
 
     /** Disperse, expose, and infect based on dispersers
@@ -1145,7 +1205,8 @@ public:
         bool weather,
         DispersalKernel& dispersal_kernel,
         std::vector<std::vector<int>>& suitable_cells,
-        double establishment_probability = 0.5)
+        double establishment_probability,
+        Generator& generator)
     {
         this->disperse(
             dispersers,
@@ -1160,7 +1221,8 @@ public:
             weather,
             dispersal_kernel,
             suitable_cells,
-            establishment_probability);
+            establishment_probability,
+            generator);
         IntegerRaster empty;
         StandardHostPool host_pool{
             model_type_,
@@ -1199,7 +1261,8 @@ public:
         bool weather,
         DispersalKernel& dispersal_kernel,
         std::vector<std::vector<int>>& suitable_cells,
-        double establishment_probability = 0.5)
+        double establishment_probability,
+        Generator& generator)
     {
         std::vector<IntegerRaster> tmp;
         tmp.push_back(mortality_tracker);
@@ -1217,7 +1280,8 @@ public:
             weather,
             dispersal_kernel,
             suitable_cells,
-            establishment_probability);
+            establishment_probability,
+            generator);
         mortality_tracker = tmp.back();
     }
 
@@ -1238,16 +1302,12 @@ public:
      * @param dispersers_percentage Percentage of dispersers moving to the soil
      */
     void activate_soils(
-        std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool,
+        std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex, Generator>>
+            soil_pool,
         double dispersers_percentage)
     {
         this->soil_pool_ = soil_pool;
         this->to_soil_percentage_ = dispersers_percentage;
-    }
-
-    Generator& random_number_generator()
-    {
-        return generator_;
     }
 };
 

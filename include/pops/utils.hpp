@@ -49,6 +49,7 @@
 #include <algorithm>
 #include <array>
 #include <vector>
+#include <map>
 
 /**
  * Return true if _container_ contains _value_.
@@ -57,6 +58,15 @@ template<typename Container, typename Value>
 bool container_contains(const Container& container, const Value& value)
 {
     return std::find(container.begin(), container.end(), value) != container.end();
+}
+
+/**
+ * Return true if _container_ contains _key_.
+ */
+template<typename Key, typename Value>
+bool container_contains(const std::map<Key, Value>& container, const Key& key)
+{
+    return container.count(key) > 0;
 }
 
 /**

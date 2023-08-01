@@ -70,8 +70,8 @@ inline WeatherType weather_type_from_string(const std::string& text)
 template<
     typename IntegerRaster,
     typename FloatRaster,
-    typename RasterIndex = int,
-    typename Generator = std::default_random_engine>
+    typename RasterIndex,
+    typename Generator = DefaultSingleGeneratorProvider>
 class Environment
     : public EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>
 {

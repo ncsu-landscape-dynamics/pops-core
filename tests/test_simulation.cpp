@@ -639,7 +639,8 @@ int test_calling_all_functions()
         mortality_tracker_vector,
         temperature,
         lethal_temperature,
-        suitable_cells);
+        suitable_cells,
+        generator);
     simulation.generate(
         dispersers,
         established_dispersers,

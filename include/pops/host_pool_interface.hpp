@@ -26,10 +26,11 @@ template<
     typename IntegerRaster,
     typename FloatRaster,
     typename RasterIndex,
-    typename Generator>
+    typename GeneratorProvider>
 class HostPoolInterface
 {
 public:
+    using Generator = typename GeneratorProvider::Generator;
     // virtual ~HostPoolInterface() = 0;
     virtual int
     disperser_to(RasterIndex row, RasterIndex col, Generator& generator) = 0;

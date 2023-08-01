@@ -34,9 +34,18 @@ int test_soils()
 {
     int ret = 0;
     std::vector<Raster<int>> rasters{{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}};
-    Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
-    SoilPool<Raster<int>, Raster<double>, Raster<double>::IndexType> soils{
-        rasters, environment, false, false, 1};
+    Environment<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        DefaultSingleGeneratorProvider>
+        environment;
+    SoilPool<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        DefaultSingleGeneratorProvider>
+        soils{rasters, environment, false, false, 1};
     std::default_random_engine generator;
 
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
@@ -64,9 +73,18 @@ int test_soils_weather()
 {
     int ret = 0;
     std::vector<Raster<int>> rasters{{{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}};
-    Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
-    SoilPool<Raster<int>, Raster<double>, Raster<double>::IndexType> soils{
-        rasters, environment, false, false, 1};
+    Environment<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        DefaultSingleGeneratorProvider>
+        environment;
+    SoilPool<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        DefaultSingleGeneratorProvider>
+        soils{rasters, environment, false, false, 1};
     std::default_random_engine generator;
 
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};

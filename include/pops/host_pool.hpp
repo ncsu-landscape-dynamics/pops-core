@@ -31,13 +31,20 @@ template<
     typename IntegerRaster,
     typename FloatRaster,
     typename RasterIndex,
-    typename Generator>
-class HostPool
-    : public HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>
+    typename GeneratorProvider>
+class HostPool : public HostPoolInterface<
+                     IntegerRaster,
+                     FloatRaster,
+                     RasterIndex,
+                     GeneratorProvider>
 {
 public:
-    using Environment =
-        EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>;
+    using Environment = EnvironmentInterface<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        GeneratorProvider>;
+    using Generator = typename GeneratorProvider::Generator;
 
     HostPool(
         ModelType model_type,
