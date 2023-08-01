@@ -229,9 +229,10 @@ public:
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
-            int remove_susceptible = this->get_treated(
+            double remove_susceptible = this->get_treated(
                 i, j, host_pool.susceptible_at(i, j), TreatmentApplication::Ratio);
-            int remove_infected = this->get_treated(i, j, host_pool.infected_at(i, j));
+            double remove_infected =
+                this->get_treated(i, j, host_pool.infected_at(i, j));
 
             std::vector<double> remove_exposed;
             for (int count : host_pool.exposed_by_group_at(i, j)) {
@@ -319,7 +320,10 @@ public:
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
-            // TODO: why is this different?
+            // Given how the original code was written (everything was first converted
+            // to ints and subtractions happened only afterwards), this needs ints,
+            // not doubles to pass the r.pops.spread test (unlike the other code which
+            // did substractions before converting to ints).
             int susceptible_resistant = this->get_treated(
                 i, j, host_pool.susceptible_at(i, j), TreatmentApplication::Ratio);
             std::vector<int> resistant_exposed_list;
