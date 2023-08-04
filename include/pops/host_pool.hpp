@@ -339,11 +339,57 @@ public:
         reset_total_host(row, col);
     }
 
-    void completely_remove_infected_at(RasterIndex row, RasterIndex col, double count)
+    void completely_remove_infected_at(
+        RasterIndex row,
+        RasterIndex col,
+        double count,
+        const std::vector<double>& mortality)
     {
         // Possibly reuse in the I->S removal.
         if (count <= 0)
             return;
+        if (mortality_tracker_vector_.size() != mortality.size()) {
+            throw std::invalid_argument(
+                "mortality is not the same size as the internal mortality tracker ("
+                + std::to_string(mortality_tracker_vector_.size())
+                + " != " + std::to_string(mortality.size()) + ") for cell ("
+                + std::to_string(row) + ", " + std::to_string(col) + ")");
+        }
+
+        double mortality_total = 0;
+        for (size_t i = 0; i < mortality.size(); ++i) {
+            if (mortality_tracker_vector_[i](row, col) < mortality[i]) {
+                throw std::invalid_argument(
+                    "Mortality value [" + std::to_string(i) + "] is too high ("
+                    + std::to_string(mortality[i]) + " > "
+                    + std::to_string(mortality_tracker_vector_[i](row, col))
+                    + ") for cell (" + std::to_string(row) + ", " + std::to_string(col)
+                    + ")");
+            }
+            mortality_tracker_vector_[i](row, col) =
+                mortality_tracker_vector_[i](row, col) - mortality[i];
+            mortality_total += mortality[i];
+        }
+        // These two values will only match if we actually compute one from another
+        // and once we don't need to keep the exact same double to int results for
+        // tests. First condition always fails the tests. The second one may potentially
+        // fail.
+        if (false && count != mortality_total) {
+            throw std::invalid_argument(
+                "Total of removed mortality values differs from removed infected "
+                "count ("
+                + std::to_string(mortality_total) + " != " + std::to_string(count)
+                + " for cell (" + std::to_string(row) + ", " + std::to_string(col)
+                + ")");
+        }
+        if (false && infected_(row, col) < mortality_total) {
+            throw std::invalid_argument(
+                "Total of removed mortality values is higher than current number "
+                "of infected hosts for cell ("
+                + std::to_string(row) + ", " + std::to_string(col) + ") is too high ("
+                + std::to_string(mortality_total) + " > " + std::to_string(count)
+                + ")");
+        }
         infected_(row, col) -= count;
         reset_total_host(row, col);
     }
@@ -495,6 +541,15 @@ public:
         std::vector<int> all;
         all.reserve(exposed_.size());
         for (const auto& raster : exposed_)
+            all.push_back(raster(row, col));
+        return all;
+    }
+
+    std::vector<int> mortality_by_group_at(RasterIndex row, RasterIndex col) const
+    {
+        std::vector<int> all;
+        all.reserve(mortality_tracker_vector_.size());
+        for (const auto& raster : mortality_tracker_vector_)
             all.push_back(raster(row, col));
         return all;
     }

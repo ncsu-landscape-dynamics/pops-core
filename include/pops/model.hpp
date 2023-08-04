@@ -331,6 +331,7 @@ public:
                 exposed,
                 susceptible,
                 resistant,
+                mortality_tracker,
                 total_hosts,
                 suitable_cells);
             if (managed && config_.use_mortality) {

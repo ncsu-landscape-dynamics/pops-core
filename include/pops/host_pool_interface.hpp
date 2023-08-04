@@ -55,7 +55,8 @@ public:
         RasterIndex col,
         int susceptible,
         const std::vector<int>& exposed,
-        int infected) = 0;
+        int infected,
+        const std::vector<double>& mortality) = 0;
 
     // Brings exposed dependency to more items, needs to wait for more complete host.
     /*

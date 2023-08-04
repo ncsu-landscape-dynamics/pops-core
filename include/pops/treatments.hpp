@@ -94,6 +94,7 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
+        std::vector<IntegerRaster>& mortality_tracker,
         IntegerRaster& total_hosts,
         const std::vector<std::vector<int>>& spatial_indices) = 0;
     virtual void end_treatment(
@@ -197,13 +198,13 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
+        std::vector<IntegerRaster>& mortality_tracker,
         IntegerRaster& total_hosts,
         const std::vector<std::vector<int>>& suitable_cells) override
     {
         using StandardHostPool =
             HostPool<IntegerRaster, FloatRaster, int, DefaultSingleGeneratorProvider>;
         IntegerRaster empty;
-        std::vector<IntegerRaster> empty_vector;
         Environment<IntegerRaster, FloatRaster, int, DefaultSingleGeneratorProvider>
             empty_env;
         StandardHostPool host_pool(
@@ -214,7 +215,7 @@ public:
             infected,
             empty,
             resistant,
-            empty_vector,
+            mortality_tracker,
             empty,
             total_hosts,
             empty_env,
@@ -233,16 +234,27 @@ public:
                 i, j, host_pool.susceptible_at(i, j), TreatmentApplication::Ratio);
             double remove_infected =
                 this->get_treated(i, j, host_pool.infected_at(i, j));
+            std::vector<double> remove_mortality;
+            for (int count : host_pool.mortality_by_group_at(i, j)) {
+                remove_mortality.push_back(this->get_treated(i, j, count));
+            }
 
             std::vector<double> remove_exposed;
             for (int count : host_pool.exposed_by_group_at(i, j)) {
                 remove_exposed.push_back(this->get_treated(i, j, count));
             }
-
             host_pool.completely_remove_susceptible_at(i, j, remove_susceptible);
             host_pool.completely_remove_exposed_at(i, j, remove_exposed);
-            host_pool.completely_remove_infected_at(i, j, remove_infected);
+            host_pool.completely_remove_infected_at(
+                i, j, remove_infected, remove_mortality);
         }
+    }
+    void apply_treatment_mortality(
+        IntegerRaster& infected,
+        const std::vector<std::vector<int>>& suitable_cells) override
+    {
+        UNUSED(infected);
+        UNUSED(suitable_cells);
     }
     void end_treatment(
         IntegerRaster&, IntegerRaster&, const std::vector<std::vector<int>>&) override
@@ -288,6 +300,7 @@ public:
         std::vector<IntegerRaster>& exposed_vector,
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
+        std::vector<IntegerRaster>& mortality_tracker,
         IntegerRaster& total_hosts,
         const std::vector<std::vector<int>>& suitable_cells) override
     {
@@ -305,7 +318,7 @@ public:
             infected,
             empty,
             resistant,
-            empty_vector,
+            mortality_tracker,
             empty,
             total_hosts,
             empty_env,
@@ -460,6 +473,7 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
+        std::vector<IntegerRaster>& mortality_tracker,
         IntegerRaster& total_hosts,
         const std::vector<std::vector<int>>& suitable_cells)
     {
@@ -471,6 +485,7 @@ public:
                     exposed,
                     susceptible,
                     resistant,
+                    mortality_tracker,
                     total_hosts,
                     suitable_cells);
                 changed = true;
@@ -481,6 +496,29 @@ public:
             }
         }
         return changed;
+    }
+    /**
+     * Overload without mortality tracker for backwards compatibility in tests.
+     */
+    bool manage(
+        unsigned current,
+        IntegerRaster& infected,
+        std::vector<IntegerRaster>& exposed,
+        IntegerRaster& susceptible,
+        IntegerRaster& resistant,
+        IntegerRaster& total_hosts,
+        const std::vector<std::vector<int>>& suitable_cells)
+    {
+        std::vector<IntegerRaster> empty_vector;
+        return this->manage(
+            current,
+            infected,
+            exposed,
+            susceptible,
+            resistant,
+            empty_vector,
+            total_hosts,
+            suitable_cells);
     }
     /*!
      * \brief Separately manage mortality infected cohorts
