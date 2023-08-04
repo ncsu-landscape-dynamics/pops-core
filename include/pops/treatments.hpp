@@ -307,7 +307,6 @@ public:
         using StandardHostPool =
             HostPool<IntegerRaster, FloatRaster, int, DefaultSingleGeneratorProvider>;
         IntegerRaster empty;
-        std::vector<IntegerRaster> empty_vector;
         Environment<IntegerRaster, FloatRaster, int, DefaultSingleGeneratorProvider>
             empty_env;
         StandardHostPool host_pool(
