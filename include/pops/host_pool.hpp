@@ -502,6 +502,22 @@ public:
                 }
                 mortality_tracker_vector_[index](i, j) -= mortality_in_index;
                 died_(i, j) += mortality_in_index;
+                if (mortality_in_index > infected_(i, j)) {
+                    throw std::runtime_error(
+                        "Mortality[" + std::to_string(index)
+                        + "] is higher than current number of infected hosts ("
+                        + std::to_string(mortality_in_index) + " > "
+                        + std::to_string(infected_(i, j)) + ") for cell ("
+                        + std::to_string(i) + ", " + std::to_string(j) + ")");
+                }
+                if (mortality_in_index > total_hosts_(i, j)) {
+                    throw std::runtime_error(
+                        "Mortality[" + std::to_string(index)
+                        + "] is higher than current number of total hosts ("
+                        + std::to_string(mortality_in_index) + " > "
+                        + std::to_string(total_hosts_(i, j)) + ") for cell ("
+                        + std::to_string(i) + ", " + std::to_string(j) + ")");
+                }
                 if (infected_(i, j) > 0) {
                     infected_(i, j) -= mortality_in_index;
                 }
