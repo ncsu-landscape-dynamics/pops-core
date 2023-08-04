@@ -343,13 +343,24 @@ public:
             for (const auto& number : host_pool.exposed_by_group_at(i, j)) {
                 resistant_exposed_list.push_back(this->get_treated(i, j, number));
             }
+            std::vector<double> resistant_mortality_list;
+            for (const auto& number : host_pool.mortality_by_group_at(i, j)) {
+                // resistant_mortality_list.push_back(this->get_treated(i, j, number));
+            }
             host_pool.make_resistant_at(
                 i,
                 j,
                 susceptible_resistant,
                 resistant_exposed_list,
-                this->get_treated(i, j, host_pool.infected_at(i, j)));
+                this->get_treated(i, j, host_pool.infected_at(i, j)),
+                resistant_mortality_list);
         }
+    }
+    void apply_treatment_mortality(
+        IntegerRaster& infected,
+        const std::vector<std::vector<int>>& suitable_cells) override
+    {
+        return;
     }
     void end_treatment(
         IntegerRaster& susceptible,

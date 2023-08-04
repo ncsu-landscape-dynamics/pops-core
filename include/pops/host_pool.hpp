@@ -437,7 +437,8 @@ public:
         RasterIndex col,
         int susceptible,
         const std::vector<int>& exposed,
-        int infected)
+        int infected,
+        const std::vector<double>& mortality)
     {
         int total_resistant = 0;
         // TODO: check negative numbers in these cases?
@@ -455,6 +456,20 @@ public:
         //            raster(row, col) -= infected /
         //            mortality_tracker_vector_.size();
         //        }
+        // TODO: Disabled in treatments, waiting for tests.
+        if (false && mortality_tracker_vector_.size() != mortality.size()) {
+            throw std::invalid_argument(
+                "mortality is not the same size as the internal mortality tracker ("
+                + std::to_string(mortality_tracker_vector_.size())
+                + " != " + std::to_string(mortality.size()) + ") for cell ("
+                + std::to_string(row) + ", " + std::to_string(col) + ")");
+        }
+        int mortality_total = 0;
+        // no simple zip in C++, falling back to indices
+        for (size_t i = 0; i < mortality.size(); ++i) {
+            mortality_tracker_vector_[i](row, col) -= mortality[i];
+            mortality_total += mortality[i];
+        }
         total_resistant += infected;
         resistant_(row, col) += total_resistant;
     }
