@@ -101,9 +101,6 @@ public:
         IntegerRaster& susceptible,
         IntegerRaster& resistant,
         const std::vector<std::vector<int>>& spatial_indices) = 0;
-    virtual void apply_treatment_mortality(
-        IntegerRaster& infected,
-        const std::vector<std::vector<int>>& spatial_indices) = 0;
     virtual ~AbstractTreatment() {}
 };
 
@@ -239,13 +236,6 @@ public:
                 i, j, remove_infected, remove_mortality);
         }
     }
-    void apply_treatment_mortality(
-        IntegerRaster& infected,
-        const std::vector<std::vector<int>>& suitable_cells) override
-    {
-        UNUSED(infected);
-        UNUSED(suitable_cells);
-    }
     void end_treatment(
         IntegerRaster&, IntegerRaster&, const std::vector<std::vector<int>>&) override
     {
@@ -344,13 +334,6 @@ public:
                 this->get_treated(i, j, host_pool.infected_at(i, j)),
                 resistant_mortality_list);
         }
-    }
-    void apply_treatment_mortality(
-        IntegerRaster& infected,
-        const std::vector<std::vector<int>>& suitable_cells) override
-    {
-        UNUSED(infected);
-        UNUSED(suitable_cells);
     }
     void end_treatment(
         IntegerRaster& susceptible,
@@ -520,27 +503,6 @@ public:
             empty_vector,
             total_hosts,
             suitable_cells);
-    }
-    /*!
-     * \brief Separately manage mortality infected cohorts
-     * \param current simulation step
-     * \param infected raster of infected host
-     * \param suitable_cells List of indices of cells with hosts
-     *
-     * \return true if any management action was necessary
-     */
-    bool manage_mortality(
-        unsigned current,
-        IntegerRaster& infected,
-        const std::vector<std::vector<int>>& suitable_cells)
-    {
-        bool applied = false;
-        for (unsigned i = 0; i < treatments.size(); i++)
-            if (treatments[i]->should_start(current)) {
-                treatments[i]->apply_treatment_mortality(infected, suitable_cells);
-                applied = true;
-            }
-        return applied;
     }
     /*!
      * \brief Used to remove treatments after certain step.

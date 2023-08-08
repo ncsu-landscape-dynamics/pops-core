@@ -325,7 +325,7 @@ public:
         }
         // treatments
         if (config_.use_treatments) {
-            bool managed = treatments.manage(
+            treatments.manage(
                 step,
                 infected,
                 exposed,
@@ -334,12 +334,6 @@ public:
                 mortality_tracker,
                 total_hosts,
                 suitable_cells);
-            if (managed && config_.use_mortality) {
-                // treatments apply to all mortality tracker cohorts
-                for (auto& raster : mortality_tracker) {
-                    treatments.manage_mortality(step, raster, suitable_cells);
-                }
-            }
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
             // expectation is that mortality tracker is of length (1/mortality_rate
