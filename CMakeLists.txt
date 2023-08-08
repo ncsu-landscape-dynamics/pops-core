@@ -54,6 +54,7 @@ target_include_directories(pops INTERFACE include/)
 # Show files in IDEs
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     target_sources(pops INTERFACE
+        include/pops/actions.hpp
         include/pops/environment.hpp
         include/pops/environment_interface.hpp
         include/pops/config.hpp
