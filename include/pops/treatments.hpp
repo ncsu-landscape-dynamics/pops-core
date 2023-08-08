@@ -138,16 +138,6 @@ public:
     {
         return end_step_;
     }
-    void apply_treatment_mortality(
-        IntegerRaster& infected,
-        const std::vector<std::vector<int>>& suitable_cells) override
-    {
-        for (auto indices : suitable_cells) {
-            int i = indices[0];
-            int j = indices[1];
-            infected(i, j) = infected(i, j) - this->get_treated(i, j, infected(i, j));
-        }
-    }
 
     // returning double allows identical results with the previous version
     double get_treated(int i, int j, int count)
@@ -344,7 +334,7 @@ public:
             }
             std::vector<double> resistant_mortality_list;
             for (const auto& number : host_pool.mortality_by_group_at(i, j)) {
-                // resistant_mortality_list.push_back(this->get_treated(i, j, number));
+                resistant_mortality_list.push_back(this->get_treated(i, j, number));
             }
             host_pool.make_resistant_at(
                 i,
@@ -359,7 +349,8 @@ public:
         IntegerRaster& infected,
         const std::vector<std::vector<int>>& suitable_cells) override
     {
-        return;
+        UNUSED(infected);
+        UNUSED(suitable_cells);
     }
     void end_treatment(
         IntegerRaster& susceptible,
