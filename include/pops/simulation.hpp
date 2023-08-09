@@ -92,6 +92,7 @@ public:
     // Host pool has the provider from model, but in test, it gets plain engine.
     using StandardHostPool =
         HostPool<IntegerRaster, FloatRaster, RasterIndex, Generator>;
+    using StandardPestPool = Pests<IntegerRaster, FloatRaster, RasterIndex>;
 
     /** Creates simulation object and seeds the internal random number generator.
      *
@@ -412,16 +413,19 @@ public:
             0,
             0,
             const_cast<std::vector<std::vector<int>>&>(suitable_cells)};
+        std::vector<std::tuple<int, int>> empty_outside_dispersers;
+        StandardPestPool pests{
+            dispersers, established_dispersers, empty_outside_dispersers};
         SpreadAction<
             StandardHostPool,
+            StandardPestPool,
             IntegerRaster,
             FloatRaster,
             RasterIndex,
             Generator>
             spread_action;
         spread_action.activate_soils(soil_pool_, to_soil_percentage_);
-        spread_action.generate(
-            dispersers, established_dispersers, host_pool, generator);
+        spread_action.generate(host_pool, pests, generator);
     }
 
     /** Creates dispersal locations for the dispersing individuals
@@ -470,7 +474,7 @@ public:
      */
     template<typename DispersalKernel>
     void disperse(
-        const IntegerRaster& dispersers,
+        IntegerRaster& dispersers,
         IntegerRaster& established_dispersers,
         IntegerRaster& susceptible,
         std::vector<IntegerRaster>& exposed,
@@ -512,9 +516,10 @@ public:
         if (environment_) {
             environment_->set_total_population(&total_populations);
         }
-
+        StandardPestPool pests{dispersers, established_dispersers, outside_dispersers};
         SpreadAction<
             StandardHostPool,
+            StandardPestPool,
             IntegerRaster,
             FloatRaster,
             RasterIndex,
@@ -522,12 +527,7 @@ public:
             spread_action;
         spread_action.activate_soils(soil_pool_, to_soil_percentage_);
         spread_action.disperse(
-            dispersers,
-            established_dispersers,
-            outside_dispersers,
-            dispersal_kernel,
-            host_pool,
-            generator);
+            outside_dispersers, dispersal_kernel, host_pool, pests, generator);
     }
 
     // For backwards compatibility for tests (without exposed and mortality)
@@ -569,7 +569,7 @@ public:
     // For backwards compatibility for tests (without exposed and mortality)
     template<typename DispersalKernel>
     void disperse(
-        const IntegerRaster& dispersers,
+        IntegerRaster& dispersers,
         IntegerRaster& established_dispersers,
         IntegerRaster& susceptible,
         IntegerRaster& infected,
@@ -707,7 +707,7 @@ public:
     template<typename DispersalKernel>
     void disperse_and_infect(
         unsigned step,
-        const IntegerRaster& dispersers,
+        IntegerRaster& dispersers,
         IntegerRaster& established_dispersers,
         IntegerRaster& susceptible,
         std::vector<IntegerRaster>& exposed,
@@ -763,7 +763,7 @@ public:
     template<typename DispersalKernel>
     void disperse_and_infect(
         unsigned step,
-        const IntegerRaster& dispersers,
+        IntegerRaster& dispersers,
         IntegerRaster& established_dispersers,
         IntegerRaster& susceptible,
         std::vector<IntegerRaster>& exposed,

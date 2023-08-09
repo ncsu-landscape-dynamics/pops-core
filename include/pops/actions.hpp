@@ -32,8 +32,44 @@
 
 namespace pops {
 
+template<typename IntegerRaster, typename FloatRaster, typename RasterIndex>
+class Pests
+{
+public:
+    Pests(
+        IntegerRaster& dispersers,
+        IntegerRaster& established_dispersers,
+        std::vector<std::tuple<int, int>>& outside_dispersers)
+        : dispersers_(dispersers),
+          established_dispersers_(established_dispersers),
+          outside_dispersers_(outside_dispersers)
+    {}
+    void set_dispersers_at(RasterIndex row, RasterIndex col, int count)
+    {
+        dispersers_(row, col) = count;
+    }
+    int dispersers_at(RasterIndex row, RasterIndex col) const
+    {
+        return dispersers_(row, col);
+    }
+    void set_established_dispersers_at(RasterIndex row, RasterIndex col, int count)
+    {
+        established_dispersers_(row, col) = count;
+    }
+    void remove_established_dispersers_at(RasterIndex row, RasterIndex col, int count)
+    {
+        established_dispersers_(row, col) -= count;
+    }
+
+private:
+    IntegerRaster& dispersers_;
+    IntegerRaster& established_dispersers_;
+    std::vector<std::tuple<int, int>>& outside_dispersers_;
+};
+
 template<
     typename Hosts,
+    typename Pests,
     typename IntegerRaster,
     typename FloatRaster,
     typename RasterIndex,
@@ -43,21 +79,15 @@ class SpreadAction
 public:
     template<typename DispersalKernel>
     void action(
-        const IntegerRaster& dispersers,
-        IntegerRaster& established_dispersers,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         DispersalKernel& dispersal_kernel,
         Hosts& host_pool,
+        Pests& pests,
         Generator& generator)
     {
-        this->generate(dispersers, established_dispersers, host_pool, generator);
+        this->generate(host_pool, pests, generator);
         this->disperse(
-            dispersers,
-            established_dispersers,
-            outside_dispersers,
-            dispersal_kernel,
-            host_pool,
-            generator);
+            outside_dispersers, dispersal_kernel, host_pool, pests, generator);
     }
 
     /** Generates dispersers based on infected
@@ -68,11 +98,7 @@ public:
      * @param reproductive_rate reproductive rate (used unmodified when weather
      *        coefficient is not used)
      */
-    void generate(
-        IntegerRaster& dispersers,
-        IntegerRaster& established_dispersers,
-        Hosts& host_pool,
-        Generator& generator)
+    void generate(Hosts& host_pool, Pests& pests, Generator& generator)
     {
         for (auto indices : host_pool.suitable_cells()) {
             int i = indices[0];
@@ -88,12 +114,12 @@ public:
                     soil_pool_->dispersers_to(dispersers_to_soil, i, j, generator);
                     dispersers_from_cell -= dispersers_to_soil;
                 }
-                dispersers(i, j) = dispersers_from_cell;
-                established_dispersers(i, j) = dispersers_from_cell;
+                pests.set_dispersers_at(i, j, dispersers_from_cell);
+                pests.set_established_dispersers_at(i, j, dispersers_from_cell);
             }
             else {
-                dispersers(i, j) = 0;
-                established_dispersers(i, j) = 0;
+                pests.set_dispersers_at(i, j, 0);
+                pests.set_established_dispersers_at(i, j, 0);
             }
         }
     }
@@ -143,11 +169,10 @@ public:
      */
     template<typename DispersalKernel>
     void disperse(
-        const IntegerRaster& dispersers,
-        IntegerRaster& established_dispersers,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         DispersalKernel& dispersal_kernel,
         Hosts& host_pool,
+        Pests& pests,
         Generator& generator)
     {
         // The interaction does not happen over the member variables yet, use empty
@@ -158,21 +183,21 @@ public:
         for (auto indices : host_pool.suitable_cells()) {
             int i = indices[0];
             int j = indices[1];
-            if (dispersers(i, j) > 0) {
-                for (int k = 0; k < dispersers(i, j); k++) {
+            if (pests.dispersers_at(i, j) > 0) {
+                for (int k = 0; k < pests.dispersers_at(i, j); k++) {
                     std::tie(row, col) = dispersal_kernel(generator, i, j);
                     // if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                     if (host_pool.is_outside(row, col)) {
                         // export dispersers dispersed outside of modeled area
                         outside_dispersers.emplace_back(std::make_tuple(row, col));
-                        established_dispersers(i, j) -= 1;
+                        pests.remove_established_dispersers_at(i, j, 1);
                         continue;
                     }
                     // Put a disperser to the host pool.
                     auto dispersed =
                         host_pool.disperser_to(row, col, generator.establishment());
                     if (!dispersed) {
-                        established_dispersers(i, j) -= 1;
+                        pests.remove_established_dispersers_at(i, j, 1);
                     }
                 }
             }
