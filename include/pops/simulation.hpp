@@ -677,9 +677,15 @@ public:
             StandardPestPool,
             IntegerRaster,
             FloatRaster,
-            RasterIndex>
-            move_pest{overpopulation_percentage, leaving_percentage, rows_, cols_};
-        move_pest.action(hosts, pests, dispersal_kernel, generator);
+            RasterIndex,
+            DispersalKernel>
+            move_pest{
+                dispersal_kernel,
+                overpopulation_percentage,
+                leaving_percentage,
+                rows_,
+                cols_};
+        move_pest.action(hosts, pests, generator);
     }
 
     /** Disperse, expose, and infect based on dispersers

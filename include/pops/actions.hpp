@@ -342,16 +342,19 @@ template<
     typename Pests,
     typename IntegerRaster,
     typename FloatRaster,
-    typename RasterIndex>
+    typename RasterIndex,
+    typename DispersalKernel>
 class MoveOverpopulatedPests
 {
 public:
     MoveOverpopulatedPests(
+        DispersalKernel& dispersal_kernel,
         double overpopulation_percentage,
         double leaving_percentage,
         RasterIndex rows,
         RasterIndex cols)
-        : overpopulation_percentage_(overpopulation_percentage),
+        : dispersal_kernel_(dispersal_kernel),
+          overpopulation_percentage_(overpopulation_percentage),
           leaving_percentage_(leaving_percentage),
           rows_(rows),
           cols_(cols)
@@ -385,12 +388,8 @@ public:
      * @note Mortality is not supported by this function, i.e., the mortality rasters
      *       are not modified while the infected are.
      */
-    template<typename DispersalKernel, typename Generator>
-    void action(
-        Hosts& hosts,
-        Pests& pests,
-        DispersalKernel& dispersal_kernel,
-        Generator& generator)
+    template<typename Generator>
+    void action(Hosts& hosts, Pests& pests, Generator& generator)
     {
         struct Move
         {
@@ -414,7 +413,7 @@ public:
             if (ratio >= overpopulation_percentage_) {
                 int row;
                 int col;
-                std::tie(row, col) = dispersal_kernel(generator, i, j);
+                std::tie(row, col) = dispersal_kernel_(generator, i, j);
                 // for leaving_percentage == 0.5
                 // 2 infected -> 1 leaving
                 // 3 infected -> 1 leaving
@@ -439,6 +438,7 @@ public:
     }
 
 private:
+    DispersalKernel& dispersal_kernel_;
     double overpopulation_percentage_;
     double leaving_percentage_;
     RasterIndex rows_;
