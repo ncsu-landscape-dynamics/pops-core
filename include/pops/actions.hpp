@@ -85,19 +85,19 @@ template<
     typename IntegerRaster,
     typename FloatRaster,
     typename RasterIndex,
+    typename DispersalKernel,
     typename Generator>
 class SpreadAction
 {
 public:
-    template<typename DispersalKernel>
-    void action(
-        DispersalKernel& dispersal_kernel,
-        Hosts& host_pool,
-        Pests& pests,
-        Generator& generator)
+    SpreadAction(DispersalKernel& dispersal_kernel)
+        : dispersal_kernel_(dispersal_kernel)
+    {}
+
+    void action(Hosts& host_pool, Pests& pests, Generator& generator)
     {
         this->generate(host_pool, pests, generator);
-        this->disperse(dispersal_kernel, host_pool, pests, generator);
+        this->disperse(host_pool, pests, generator);
     }
 
     /** Generates dispersers based on infected
@@ -169,19 +169,13 @@ public:
      * @param[in, out] total_exposed Total exposed in all exposed cohorts
      * @param[in] total_populations All host and non-host individuals in the area
      * @param weather Whether or not weather coefficients should be used
-     * @param dispersal_kernel Dispersal kernel to move dispersers
      * @param establishment_probability Probability of establishment with no
      *        stochasticity
      *
      * @note If the parameters or their default values don't correspond
      * with the disperse_and_infect() function, it is a bug.
      */
-    template<typename DispersalKernel>
-    void disperse(
-        DispersalKernel& dispersal_kernel,
-        Hosts& host_pool,
-        Pests& pests,
-        Generator& generator)
+    void disperse(Hosts& host_pool, Pests& pests, Generator& generator)
     {
         // The interaction does not happen over the member variables yet, use empty
         // variables. This requires SI/SEI to be fully resolved in host and not in
@@ -193,7 +187,7 @@ public:
             int j = indices[1];
             if (pests.dispersers_at(i, j) > 0) {
                 for (int k = 0; k < pests.dispersers_at(i, j); k++) {
-                    std::tie(row, col) = dispersal_kernel(generator, i, j);
+                    std::tie(row, col) = dispersal_kernel_(generator, i, j);
                     // if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                     if (host_pool.is_outside(row, col)) {
                         pests.add_outside_disperser_at(row, col);
@@ -245,6 +239,7 @@ public:
     }
 
 private:
+    DispersalKernel& dispersal_kernel_;
     /**
      * Optional soil pool
      */
@@ -322,10 +317,7 @@ public:
      * @param temperature Spatially explicit temperature
      * @param lethal_temperature temperature at which lethal conditions occur
      */
-    void action(
-        Hosts& hosts,
-
-        Generator& generator)
+    void action(Hosts& hosts, Generator& generator)
     {
         for (auto indices : hosts.suitable_cells()) {
             int i = indices[0];

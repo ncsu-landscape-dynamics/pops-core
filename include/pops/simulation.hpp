@@ -416,14 +416,16 @@ public:
         std::vector<std::tuple<int, int>> empty_outside_dispersers;
         StandardPestPool pests{
             dispersers, established_dispersers, empty_outside_dispersers};
+        std::default_random_engine unused_kernel;
         SpreadAction<
             StandardHostPool,
             StandardPestPool,
             IntegerRaster,
             FloatRaster,
             RasterIndex,
+            std::default_random_engine,
             Generator>
-            spread_action;
+            spread_action{unused_kernel};
         spread_action.activate_soils(soil_pool_, to_soil_percentage_);
         spread_action.generate(host_pool, pests, generator);
     }
@@ -523,10 +525,11 @@ public:
             IntegerRaster,
             FloatRaster,
             RasterIndex,
+            DispersalKernel,
             Generator>
-            spread_action;
+            spread_action{dispersal_kernel};
         spread_action.activate_soils(soil_pool_, to_soil_percentage_);
-        spread_action.disperse(dispersal_kernel, host_pool, pests, generator);
+        spread_action.disperse(host_pool, pests, generator);
     }
 
     // For backwards compatibility for tests (without exposed and mortality)
