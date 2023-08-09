@@ -50,6 +50,8 @@ public:
         const HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>*
             host) = 0;
     virtual const FloatRaster& weather_coefficient() const = 0;
+    virtual void update_temperature(const FloatRaster& raster) = 0;
+    virtual double temperature_at(RasterIndex row, RasterIndex col) const = 0;
 };
 
 }  // namespace pops

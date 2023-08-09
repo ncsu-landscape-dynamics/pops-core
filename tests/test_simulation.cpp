@@ -626,6 +626,7 @@ int test_calling_all_functions()
 
     Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
     environment.update_weather_coefficient(weather_coefficient);
+    environment.update_temperature(temperature);
 
     DefaultSingleGeneratorProvider generator(seed);
     Simulation<Raster<int>, Raster<double>> simulation(
@@ -637,7 +638,6 @@ int test_calling_all_functions()
         exposed,
         total_exposed,
         mortality_tracker_vector,
-        temperature,
         lethal_temperature,
         suitable_cells,
         generator);

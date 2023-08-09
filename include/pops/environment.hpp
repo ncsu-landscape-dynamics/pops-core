@@ -234,6 +234,19 @@ public:
         return *current_weather_coefficient;
     }
 
+    void update_temperature(const FloatRaster& raster) override
+    {
+        temperature_ = &raster;
+    }
+
+    double temperature_at(RasterIndex row, RasterIndex col) const override
+    {
+        if (!temperature_) {
+            throw std::logic_error("Temperature used, but not provided");
+        }
+        return temperature_->operator()(row, col);
+    }
+
 protected:
     static constexpr double weather_coefficient_min = 0;
     static constexpr double weather_coefficient_max = 1;
@@ -255,6 +268,8 @@ protected:
         hosts_;  // host, non-owning
     const IntegerRaster* other_individuals_{nullptr};  // non-hosts, non-owning
     const IntegerRaster* total_population_{nullptr};  // non-hosts, non-owning
+
+    const FloatRaster* temperature_;
 };
 
 }  // namespace pops

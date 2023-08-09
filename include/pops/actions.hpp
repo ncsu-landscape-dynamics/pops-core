@@ -279,10 +279,21 @@ private:
     const FloatRaster& survival_rate_;
 };
 
-template<typename Hosts, typename IntegerRaster, typename FloatRaster>
+template<
+    typename Hosts,
+    typename IntegerRaster,
+    typename FloatRaster,
+    typename RasterIndex,
+    typename Generator>
 class RemoveByTemperature
 {
 public:
+    RemoveByTemperature(
+        const EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>&
+            environment,
+        double lethal_temperature)
+        : environment_(environment), lethal_temperature_(lethal_temperature)
+    {}
     /** removes infected based on min or max temperature tolerance
      *
      * @param infected Currently infected hosts
@@ -291,18 +302,15 @@ public:
      * @param lethal_temperature temperature at which lethal conditions occur
      * @param suitable_cells used to run model only where host are known to occur
      */
-    template<typename Generator>
     void action(
         Hosts& hosts,
-        const FloatRaster& temperature,
-        double lethal_temperature,
         const std::vector<std::vector<int>>& suitable_cells,
         Generator& generator)
     {
         for (auto indices : suitable_cells) {
             int i = indices[0];
             int j = indices[1];
-            if (temperature(i, j) < lethal_temperature) {
+            if (environment_.temperature_at(i, j) < lethal_temperature_) {
                 auto count = hosts.infected_at(i, j);
                 // TODO: Not sure what generator this should use.
                 hosts.remove_infected_at(i, j, count, generator.weather());
@@ -310,6 +318,11 @@ public:
             }
         }
     }
+
+private:
+    const EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>&
+        environment_;
+    const double lethal_temperature_;
 };
 
 template<

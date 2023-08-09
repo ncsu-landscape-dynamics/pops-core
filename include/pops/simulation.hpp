@@ -177,7 +177,6 @@ public:
         std::vector<IntegerRaster>& exposed,
         IntegerRaster& total_exposed,
         std::vector<IntegerRaster>& mortality_tracker_vector,
-        const FloatRaster& temperature,
         double lethal_temperature,
         std::vector<std::vector<int>>& suitable_cells,
         GeneratorProvider& generator)
@@ -202,9 +201,14 @@ public:
             0,
             0,
             suitable_cells);
-        RemoveByTemperature<StandardHostPool, IntegerRaster, FloatRaster> remove;
-        remove.action(
-            hosts, temperature, lethal_temperature, suitable_cells, generator);
+        RemoveByTemperature<
+            StandardHostPool,
+            IntegerRaster,
+            FloatRaster,
+            RasterIndex,
+            GeneratorProvider>
+            remove(*environment(false), lethal_temperature);
+        remove.action(hosts, suitable_cells, generator);
     }
 
     /** Removes percentage of exposed and infected

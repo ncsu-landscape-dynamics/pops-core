@@ -237,13 +237,13 @@ public:
         if (config_.use_lethal_temperature && config_.lethal_schedule()[step]) {
             int lethal_step =
                 simulation_step_to_action_step(config_.lethal_schedule(), step);
+            this->environment().update_temperature(temperatures[lethal_step]);
             simulation_.remove(
                 infected,
                 susceptible,
                 exposed,
                 total_exposed,
                 mortality_tracker,
-                temperatures[lethal_step],
                 config_.lethal_temperature,
                 suitable_cells,
                 generator_provider_);
