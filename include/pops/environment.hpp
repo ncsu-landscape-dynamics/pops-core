@@ -83,7 +83,7 @@ public:
      *
      * @param raster Raster with the weather coefficient.
      */
-    void update_weather_coefficient(const FloatRaster& raster)
+    void update_weather_coefficient(const FloatRaster& raster) override
     {
         current_weather_coefficient = &raster;
         weather_ = true;
@@ -109,7 +109,9 @@ public:
      * when mean is out of range
      */
     void update_weather_from_distribution(
-        const FloatRaster& mean, const FloatRaster& stddev, Generator& generator)
+        const FloatRaster& mean,
+        const FloatRaster& stddev,
+        Generator& generator) override
     {
         if (mean.rows() != stddev.rows()) {
             throw std::invalid_argument(
@@ -162,7 +164,7 @@ public:
      *
      * @throw std::logic_error when coefficient is not set
      */
-    double weather_coefficient_at(RasterIndex row, RasterIndex col) const
+    double weather_coefficient_at(RasterIndex row, RasterIndex col) const override
     {
         if (!current_weather_coefficient) {
             throw std::logic_error("Weather coefficient used, but not provided");
@@ -170,8 +172,8 @@ public:
         return current_weather_coefficient->operator()(row, col);
     }
 
-    double
-    influence_reproductive_rate_at(RasterIndex row, RasterIndex col, double value) const
+    double influence_reproductive_rate_at(
+        RasterIndex row, RasterIndex col, double value) const override
     {
         if (!weather_)
             return value;
@@ -179,14 +181,14 @@ public:
     }
 
     double influence_probability_of_establishment_at(
-        RasterIndex row, RasterIndex col, double value) const
+        RasterIndex row, RasterIndex col, double value) const override
     {
         if (!weather_)
             return value;
         return value * weather_coefficient_at(row, col);
     }
 
-    int total_population_at(RasterIndex row, RasterIndex col) const
+    int total_population_at(RasterIndex row, RasterIndex col) const override
     {
         // If total population is used, use that instead of computing it.
         if (total_population_)
@@ -199,19 +201,19 @@ public:
         return sum;
     }
 
-    void set_other_individuals(const IntegerRaster* individuals)
+    void set_other_individuals(const IntegerRaster* individuals) override
     {
         other_individuals_ = individuals;
     }
 
-    void set_total_population(const IntegerRaster* individuals)
+    void set_total_population(const IntegerRaster* individuals) override
     {
         total_population_ = individuals;
     }
 
     void add_host(
         const HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>*
-            host)
+            host) override
     {
         // no-op if already there, may become an error in the future
         if (container_contains(hosts_, host))
@@ -226,7 +228,7 @@ public:
      *
      * @throw std::logic_error when coefficient is not set
      */
-    const FloatRaster& weather_coefficient() const
+    const FloatRaster& weather_coefficient() const override
     {
         if (!current_weather_coefficient) {
             throw std::logic_error("Weather coefficient used, but not provided");
