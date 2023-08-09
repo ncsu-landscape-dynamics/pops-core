@@ -304,8 +304,9 @@ public:
             0,
             0,
             suitable_cells};
-        Mortality<StandardHostPool, IntegerRaster, FloatRaster> mortality;
-        mortality.action(hosts, mortality_rate, mortality_time_lag);
+        Mortality<StandardHostPool, IntegerRaster, FloatRaster> mortality(
+            mortality_rate, mortality_time_lag);
+        mortality.action(hosts);
     }
 
     /** Moves hosts from one location to another

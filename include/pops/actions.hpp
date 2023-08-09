@@ -486,6 +486,9 @@ template<typename Hosts, typename IntegerRaster, typename FloatRaster>
 class Mortality
 {
 public:
+    Mortality(double mortality_rate, int mortality_time_lag)
+        : mortality_rate_(mortality_rate), mortality_time_lag_(mortality_time_lag)
+    {}
     /** kills infected hosts based on mortality rate and timing. In the last year
      * of mortality tracking the first index all remaining tracked infected hosts
      * are removed. In indexes that are in the mortality_time_lag no mortality occurs.
@@ -502,14 +505,18 @@ public:
      * host infection over time. Expectation is that mortality tracker is of
      * length (1/mortality_rate + mortality_time_lag)
      */
-    void action(Hosts& hosts, double mortality_rate, int mortality_time_lag)
+    void action(Hosts& hosts)
     {
         for (auto indices : hosts.suitable_cells()) {
             hosts.apply_mortality_at(
-                indices[0], indices[1], mortality_rate, mortality_time_lag);
+                indices[0], indices[1], mortality_rate_, mortality_time_lag_);
         }
         hosts.step_forward_mortality();
     }
+
+private:
+    const double mortality_rate_ = 0;
+    const int mortality_time_lag_ = 0;
 };
 
 }  // namespace pops
