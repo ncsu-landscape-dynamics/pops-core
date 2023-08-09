@@ -60,6 +60,11 @@ public:
     {
         established_dispersers_(row, col) -= count;
     }
+    void add_outside_disperser_at(RasterIndex row, RasterIndex col)
+    {
+        // export dispersers dispersed outside of modeled area
+        outside_dispersers_.emplace_back(std::make_tuple(row, col));
+    }
 
 private:
     IntegerRaster& dispersers_;
@@ -79,15 +84,13 @@ class SpreadAction
 public:
     template<typename DispersalKernel>
     void action(
-        std::vector<std::tuple<int, int>>& outside_dispersers,
         DispersalKernel& dispersal_kernel,
         Hosts& host_pool,
         Pests& pests,
         Generator& generator)
     {
         this->generate(host_pool, pests, generator);
-        this->disperse(
-            outside_dispersers, dispersal_kernel, host_pool, pests, generator);
+        this->disperse(dispersal_kernel, host_pool, pests, generator);
     }
 
     /** Generates dispersers based on infected
@@ -158,7 +161,6 @@ public:
      * @param[in,out] mortality_tracker Newly infected hosts (if applicable)
      * @param[in, out] total_exposed Total exposed in all exposed cohorts
      * @param[in] total_populations All host and non-host individuals in the area
-     * @param[in,out] outside_dispersers Dispersers escaping the raster
      * @param weather Whether or not weather coefficients should be used
      * @param dispersal_kernel Dispersal kernel to move dispersers
      * @param establishment_probability Probability of establishment with no
@@ -169,7 +171,6 @@ public:
      */
     template<typename DispersalKernel>
     void disperse(
-        std::vector<std::tuple<int, int>>& outside_dispersers,
         DispersalKernel& dispersal_kernel,
         Hosts& host_pool,
         Pests& pests,
@@ -188,8 +189,7 @@ public:
                     std::tie(row, col) = dispersal_kernel(generator, i, j);
                     // if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                     if (host_pool.is_outside(row, col)) {
-                        // export dispersers dispersed outside of modeled area
-                        outside_dispersers.emplace_back(std::make_tuple(row, col));
+                        pests.add_outside_disperser_at(row, col);
                         pests.remove_established_dispersers_at(i, j, 1);
                         continue;
                     }

@@ -526,8 +526,7 @@ public:
             Generator>
             spread_action;
         spread_action.activate_soils(soil_pool_, to_soil_percentage_);
-        spread_action.disperse(
-            outside_dispersers, dispersal_kernel, host_pool, pests, generator);
+        spread_action.disperse(dispersal_kernel, host_pool, pests, generator);
     }
 
     // For backwards compatibility for tests (without exposed and mortality)
