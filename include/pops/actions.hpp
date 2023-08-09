@@ -433,6 +433,17 @@ template<
 class HostMovement
 {
 public:
+    HostMovement(
+        unsigned step,
+        unsigned last_index,
+        const std::vector<std::vector<int>>& movements,
+        const std::vector<unsigned>& movement_schedule)
+        : step_(step),
+          last_index_(last_index),
+          movements_(movements),
+          movement_schedule_(movement_schedule)
+    {}
+
     /** Moves hosts from one location to another
      *
      * @note Note that unlike the other functions, here, *total_hosts*,
@@ -457,18 +468,12 @@ public:
      * @note Mortality and non-host individuals are not supported in movements.
      */
     template<typename Generator>
-    unsigned movement(
-        Hosts& hosts,
-        unsigned step,
-        unsigned last_index,
-        const std::vector<std::vector<int>>& movements,
-        std::vector<unsigned> movement_schedule,
-        Generator& generator)
+    unsigned action(Hosts& hosts, Generator& generator)
     {
-        for (unsigned i = last_index; i < movements.size(); i++) {
-            auto moved = movements[i];
-            unsigned move_schedule = movement_schedule[i];
-            if (move_schedule != step) {
+        for (unsigned i = last_index_; i < movements_.size(); i++) {
+            const auto& moved = movements_[i];
+            unsigned move_schedule = movement_schedule_[i];
+            if (move_schedule != step_) {
                 return i;
             }
             int row_from = moved[0];
@@ -478,8 +483,14 @@ public:
             hosts.move_hosts_from_to(
                 row_from, col_from, row_to, col_to, moved[4], generator.movement());
         }
-        return movements.size();
+        return movements_.size();
     }
+
+private:
+    const unsigned step_;
+    const unsigned last_index_;
+    const std::vector<std::vector<int>>& movements_;
+    const std::vector<unsigned>& movement_schedule_;
 };
 
 template<typename Hosts, typename IntegerRaster, typename FloatRaster>

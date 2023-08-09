@@ -349,7 +349,7 @@ public:
         Generator& generator)
     {
         HostMovement<StandardHostPool, IntegerRaster, FloatRaster, RasterIndex>
-            host_movement{};
+            host_movement{step, last_index, movements, movement_schedule};
         IntegerRaster empty;
         StandardHostPool hosts{
             model_type_,
@@ -370,8 +370,7 @@ public:
             0,
             0,
             suitable_cells};
-        return host_movement.movement(
-            hosts, step, last_index, movements, movement_schedule, generator);
+        return host_movement.action(hosts, generator);
     }
 
     /** Generates dispersers based on infected
