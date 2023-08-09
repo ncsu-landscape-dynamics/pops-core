@@ -677,6 +677,11 @@ public:
         }
     }
 
+    const std::vector<std::vector<int>>& suitable_cells() const
+    {
+        return suitable_cells_;
+    }
+
 private:
     // This would ideally be updated piece by piece or just computed on the fly always.
     void reset_total_host(RasterIndex row, RasterIndex col)

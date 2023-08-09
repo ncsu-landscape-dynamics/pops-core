@@ -208,7 +208,7 @@ public:
             RasterIndex,
             GeneratorProvider>
             remove(*environment(false), lethal_temperature);
-        remove.action(hosts, suitable_cells, generator);
+        remove.action(hosts, generator);
     }
 
     /** Removes percentage of exposed and infected
@@ -254,7 +254,7 @@ public:
             suitable_cells);
         SurvivalRateAction<StandardHostPool, IntegerRaster, FloatRaster> survival(
             survival_rate);
-        survival.action(hosts, suitable_cells, generator);
+        survival.action(hosts, generator);
     }
 
     /** kills infected hosts based on mortality rate and timing. In the last year
@@ -305,7 +305,7 @@ public:
             0,
             suitable_cells};
         Mortality<StandardHostPool, IntegerRaster, FloatRaster> mortality;
-        mortality.action(hosts, mortality_rate, mortality_time_lag, suitable_cells);
+        mortality.action(hosts, mortality_rate, mortality_time_lag);
     }
 
     /** Moves hosts from one location to another
@@ -421,7 +421,7 @@ public:
             spread_action;
         spread_action.activate_soils(soil_pool_, to_soil_percentage_);
         spread_action.generate(
-            dispersers, established_dispersers, host_pool, suitable_cells, generator);
+            dispersers, established_dispersers, host_pool, generator);
     }
 
     /** Creates dispersal locations for the dispersing individuals
@@ -527,7 +527,6 @@ public:
             outside_dispersers,
             dispersal_kernel,
             host_pool,
-            suitable_cells,
             generator);
     }
 
@@ -676,8 +675,7 @@ public:
             FloatRaster,
             RasterIndex>
             move_pest{overpopulation_percentage, leaving_percentage, rows_, cols_};
-        move_pest.action(
-            hosts, outside_dispersers, dispersal_kernel, suitable_cells, generator);
+        move_pest.action(hosts, outside_dispersers, dispersal_kernel, generator);
     }
 
     /** Disperse, expose, and infect based on dispersers

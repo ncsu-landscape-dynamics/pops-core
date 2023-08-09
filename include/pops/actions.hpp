@@ -48,18 +48,15 @@ public:
         std::vector<std::tuple<int, int>>& outside_dispersers,
         DispersalKernel& dispersal_kernel,
         Hosts& host_pool,
-        const std::vector<std::vector<int>>& suitable_cells,
         Generator& generator)
     {
-        this->generate(
-            dispersers, established_dispersers, host_pool, suitable_cells, generator);
+        this->generate(dispersers, established_dispersers, host_pool, generator);
         this->disperse(
             dispersers,
             established_dispersers,
             outside_dispersers,
             dispersal_kernel,
             host_pool,
-            suitable_cells,
             generator);
     }
 
@@ -70,16 +67,14 @@ public:
      * @param weather Whether to use the weather coefficient
      * @param reproductive_rate reproductive rate (used unmodified when weather
      *        coefficient is not used)
-     * @param[in] suitable_cells List of indices of cells with hosts
      */
     void generate(
         IntegerRaster& dispersers,
         IntegerRaster& established_dispersers,
         Hosts& host_pool,
-        const std::vector<std::vector<int>>& suitable_cells,
         Generator& generator)
     {
-        for (auto indices : suitable_cells) {
+        for (auto indices : host_pool.suitable_cells()) {
             int i = indices[0];
             int j = indices[1];
             if (host_pool.infected_at(i, j) > 0) {
@@ -142,7 +137,6 @@ public:
      * @param dispersal_kernel Dispersal kernel to move dispersers
      * @param establishment_probability Probability of establishment with no
      *        stochasticity
-     * @param[in] suitable_cells List of indices of cells with hosts
      *
      * @note If the parameters or their default values don't correspond
      * with the disperse_and_infect() function, it is a bug.
@@ -154,7 +148,6 @@ public:
         std::vector<std::tuple<int, int>>& outside_dispersers,
         DispersalKernel& dispersal_kernel,
         Hosts& host_pool,
-        const std::vector<std::vector<int>>& suitable_cells,
         Generator& generator)
     {
         // The interaction does not happen over the member variables yet, use empty
@@ -162,7 +155,7 @@ public:
         // disperse_and_infect.
         int row;
         int col;
-        for (auto indices : suitable_cells) {
+        for (auto indices : host_pool.suitable_cells()) {
             int i = indices[0];
             int j = indices[1];
             if (dispersers(i, j) > 0) {
@@ -246,15 +239,11 @@ public:
      * @param exposed Exposed hosts per cohort
      * @param total_exposed Total exposed in all exposed cohorts
      * @param survival_rate Raster between 0 and 1 representing pest survival rate
-     * @param suitable_cells used to run model only where host are known to occur
      */
     template<typename Generator>
-    void action(
-        Hosts& hosts,
-        const std::vector<std::vector<int>>& suitable_cells,
-        Generator& generator)
+    void action(Hosts& hosts, Generator& generator)
     {
-        for (auto indices : suitable_cells) {
+        for (auto indices : hosts.suitable_cells()) {
             int i = indices[0];
             int j = indices[1];
             if (survival_rate_(i, j) < 1) {
@@ -300,14 +289,13 @@ public:
      * @param susceptible Currently susceptible hosts
      * @param temperature Spatially explicit temperature
      * @param lethal_temperature temperature at which lethal conditions occur
-     * @param suitable_cells used to run model only where host are known to occur
      */
     void action(
         Hosts& hosts,
-        const std::vector<std::vector<int>>& suitable_cells,
+
         Generator& generator)
     {
-        for (auto indices : suitable_cells) {
+        for (auto indices : hosts.suitable_cells()) {
             int i = indices[0];
             int j = indices[1];
             if (environment_.temperature_at(i, j) < lethal_temperature_) {
@@ -364,7 +352,6 @@ public:
      * infected + exposed + susceptible in the cell.
      * @param[in,out] outside_dispersers Dispersers escaping the rasters
      * @param dispersal_kernel Dispersal kernel to move dispersers (pests)
-     * @param[in] suitable_cells List of indices of cells with hosts
      * @param overpopulation_percentage Percentage of occupied hosts when the cell is
      *        considered to be overpopulated
      * @param leaving_percentage Percentage pests leaving an overpopulated cell
@@ -379,7 +366,7 @@ public:
         Hosts& hosts,
         std::vector<std::tuple<int, int>>& outside_dispersers,
         DispersalKernel& dispersal_kernel,
-        const std::vector<std::vector<int>>& suitable_cells,
+
         Generator& generator)
     {
         struct Move
@@ -391,7 +378,7 @@ public:
         std::vector<Move> moves;
 
         // Identify the moves. Remove from source cells.
-        for (auto indices : suitable_cells) {
+        for (auto indices : hosts.suitable_cells()) {
             int i = indices[0];
             int j = indices[1];
             int original_count = hosts.infected_at(i, j);
@@ -466,7 +453,6 @@ public:
      *        num_hosts
      * @param movement_schedule a vector matching movements with the step at which the
      *        movement from movements are applied
-     * @param suitable_cells List of indices of cells with hosts
      *
      * @note Mortality and non-host individuals are not supported in movements.
      */
@@ -515,15 +501,10 @@ public:
      * @param mortality_tracker_vector vector of matrices for tracking infected
      * host infection over time. Expectation is that mortality tracker is of
      * length (1/mortality_rate + mortality_time_lag)
-     * @param suitable_cells used to run model only where host are known to occur
      */
-    void action(
-        Hosts& hosts,
-        double mortality_rate,
-        int mortality_time_lag,
-        const std::vector<std::vector<int>>& suitable_cells)
+    void action(Hosts& hosts, double mortality_rate, int mortality_time_lag)
     {
-        for (auto indices : suitable_cells) {
+        for (auto indices : hosts.suitable_cells()) {
             hosts.apply_mortality_at(
                 indices[0], indices[1], mortality_rate, mortality_time_lag);
         }
