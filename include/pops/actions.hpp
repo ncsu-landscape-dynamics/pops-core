@@ -65,6 +65,13 @@ public:
         // export dispersers dispersed outside of modeled area
         outside_dispersers_.emplace_back(std::make_tuple(row, col));
     }
+    void add_outside_dispersers_at(RasterIndex row, RasterIndex col, int count)
+    {
+        // Collect pests dispersed outside of modeled area.
+        outside_dispersers_.reserve(outside_dispersers_.size() + count);
+        for (int pest = 0; pest < count; ++pest)
+            outside_dispersers_.emplace_back(row, col);
+    }
 
 private:
     IntegerRaster& dispersers_;
@@ -340,6 +347,7 @@ private:
 
 template<
     typename Hosts,
+    typename Pests,
     typename IntegerRaster,
     typename FloatRaster,
     typename RasterIndex>
@@ -375,7 +383,6 @@ public:
      * @param[in,out] infected Infected hosts
      * @param total_hosts All host individuals in the area. Is equal to
      * infected + exposed + susceptible in the cell.
-     * @param[in,out] outside_dispersers Dispersers escaping the rasters
      * @param dispersal_kernel Dispersal kernel to move dispersers (pests)
      * @param overpopulation_percentage Percentage of occupied hosts when the cell is
      *        considered to be overpopulated
@@ -389,9 +396,8 @@ public:
     template<typename DispersalKernel, typename Generator>
     void action(
         Hosts& hosts,
-        std::vector<std::tuple<int, int>>& outside_dispersers,
+        Pests& pests,
         DispersalKernel& dispersal_kernel,
-
         Generator& generator)
     {
         struct Move
@@ -423,10 +429,7 @@ public:
                 int leaving = original_count * leaving_percentage_;
                 leaving = hosts.pest_from(i, j, leaving);
                 if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
-                    // Collect pests dispersed outside of modeled area.
-                    outside_dispersers.reserve(outside_dispersers.size() + leaving);
-                    for (int pest = 0; pest < leaving; ++pest)
-                        outside_dispersers.emplace_back(row, col);
+                    pests.add_outside_dispersers_at(row, col, leaving);
                     continue;
                 }
                 // Doing the move here would create inconsistent results as some

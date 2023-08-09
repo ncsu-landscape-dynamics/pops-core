@@ -668,13 +668,15 @@ public:
             0,
             0,
             suitable_cells};
+        StandardPestPool pests{empty, empty, outside_dispersers};
         MoveOverpopulatedPests<
             StandardHostPool,
+            StandardPestPool,
             IntegerRaster,
             FloatRaster,
             RasterIndex>
             move_pest{overpopulation_percentage, leaving_percentage, rows_, cols_};
-        move_pest.action(hosts, outside_dispersers, dispersal_kernel, generator);
+        move_pest.action(hosts, pests, dispersal_kernel, generator);
     }
 
     /** Disperse, expose, and infect based on dispersers
