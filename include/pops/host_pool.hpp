@@ -304,38 +304,18 @@ public:
     void completely_remove_exposed_at(
         RasterIndex row, RasterIndex col, std::vector<double> counts)
     {
-        int total = 0;
+        if (counts.size() != exposed_.size()) {
+            throw std::invalid_argument(
+                "counts is not the same size as the internal list of exposed ("
+                + std::to_string(counts.size())
+                + " != " + std::to_string(exposed_.size()) + ") for cell ("
+                + std::to_string(row) + ", " + std::to_string(col) + ")");
+        }
+
         // no simple zip in C++, falling back to indices
-        // TODO: check sizes in any case
         for (size_t i = 0; i < counts.size(); ++i) {
             exposed_[i](row, col) -= counts[i];
-            total += counts[i];
         }
-        reset_total_host(row, col);
-    }
-
-    // Exposed may need an additonal method which uses RNG to distrubute
-    // individuals over the cohorts.
-
-    void completely_remove_infected_at(RasterIndex row, RasterIndex col, int count)
-    {
-        // Possibly reuse in the I->S removal.
-        if (count <= 0)
-            return;
-        infected_(row, col) -= count;
-        // TODO: The distribution among moratlity cohorts needs to be done
-        // either by passing a generator and drawing from cohorts or by
-        // the caller passing a vector of how they should be distributed like
-        // for exposed.
-        //        std::default_random_engine generator;
-        //        std::vector<int> mortality_draw =
-        //            draw_n_from_cohorts(mortality_tracker_vector_, count, row, col,
-        //            generator);
-        //        int index = 0;
-        //        for (auto& raster : mortality_tracker_vector_) {
-        //            raster(row, col) -= mortality_draw[index];
-        //            index += 1;
-        //        }
         reset_total_host(row, col);
     }
 
@@ -441,23 +421,32 @@ public:
         const std::vector<double>& mortality)
     {
         int total_resistant = 0;
-        // TODO: check negative numbers in these cases?
+
+        if (susceptible_(row, col) < susceptible) {
+            throw std::invalid_argument(
+                "Total of newly resistant is higher than current number ("
+                + std::to_string(susceptible) + " > "
+                + std::to_string(susceptible_(row, col)) + ") for cell ("
+                + std::to_string(row) + ", " + std::to_string(col) + ")");
+        }
+
         susceptible_(row, col) -= susceptible;
         total_resistant += susceptible;
+
+        if (exposed.size() != exposed_.size()) {
+            throw std::invalid_argument(
+                "exposed is not the same size as the internal list of exposed ("
+                + std::to_string(exposed.size())
+                + " != " + std::to_string(exposed_.size()) + ") for cell ("
+                + std::to_string(row) + ", " + std::to_string(col) + ")");
+        }
         // no simple zip in C++, falling back to indices
-        // TODO: check sizes in any case
         for (size_t i = 0; i < exposed.size(); ++i) {
             exposed_[i](row, col) -= exposed[i];
             total_resistant += exposed[i];
         }
         infected_(row, col) -= infected;
-        // TODO: mortality cohorts need to be reduced when infected is reduced
-        //        for (auto& raster : mortality_tracker_vector_) {
-        //            raster(row, col) -= infected /
-        //            mortality_tracker_vector_.size();
-        //        }
-        // TODO: Disabled in treatments, waiting for tests.
-        if (false && mortality_tracker_vector_.size() != mortality.size()) {
+        if (mortality_tracker_vector_.size() != mortality.size()) {
             throw std::invalid_argument(
                 "mortality is not the same size as the internal mortality tracker ("
                 + std::to_string(mortality_tracker_vector_.size())
