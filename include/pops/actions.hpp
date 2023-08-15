@@ -32,53 +32,6 @@
 
 namespace pops {
 
-template<typename IntegerRaster, typename FloatRaster, typename RasterIndex>
-class Pests
-{
-public:
-    Pests(
-        IntegerRaster& dispersers,
-        IntegerRaster& established_dispersers,
-        std::vector<std::tuple<int, int>>& outside_dispersers)
-        : dispersers_(dispersers),
-          established_dispersers_(established_dispersers),
-          outside_dispersers_(outside_dispersers)
-    {}
-    void set_dispersers_at(RasterIndex row, RasterIndex col, int count)
-    {
-        dispersers_(row, col) = count;
-    }
-    int dispersers_at(RasterIndex row, RasterIndex col) const
-    {
-        return dispersers_(row, col);
-    }
-    void set_established_dispersers_at(RasterIndex row, RasterIndex col, int count)
-    {
-        established_dispersers_(row, col) = count;
-    }
-    void remove_established_dispersers_at(RasterIndex row, RasterIndex col, int count)
-    {
-        established_dispersers_(row, col) -= count;
-    }
-    void add_outside_disperser_at(RasterIndex row, RasterIndex col)
-    {
-        // export dispersers dispersed outside of modeled area
-        outside_dispersers_.emplace_back(std::make_tuple(row, col));
-    }
-    void add_outside_dispersers_at(RasterIndex row, RasterIndex col, int count)
-    {
-        // Collect pests dispersed outside of modeled area.
-        outside_dispersers_.reserve(outside_dispersers_.size() + count);
-        for (int pest = 0; pest < count; ++pest)
-            outside_dispersers_.emplace_back(row, col);
-    }
-
-private:
-    IntegerRaster& dispersers_;
-    IntegerRaster& established_dispersers_;
-    std::vector<std::tuple<int, int>>& outside_dispersers_;
-};
-
 template<
     typename Hosts,
     typename Pests,

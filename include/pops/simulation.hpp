@@ -25,6 +25,7 @@
 #include <stdexcept>
 
 #include "actions.hpp"
+#include "pests.hpp"
 #include "utils.hpp"
 #include "soils.hpp"
 #include "model_type.hpp"
