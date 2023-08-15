@@ -33,7 +33,7 @@ template<
 class EnvironmentInterface
 {
 public:
-    // virtual ~EnvironmentInterface() = 0;
+    virtual ~EnvironmentInterface() = 0;
     virtual void update_weather_coefficient(const FloatRaster& raster) = 0;
     virtual void update_weather_from_distribution(
         const FloatRaster& mean, const FloatRaster& stddev, Generator& generator) = 0;
@@ -53,6 +53,15 @@ public:
     virtual void update_temperature(const FloatRaster& raster) = 0;
     virtual double temperature_at(RasterIndex row, RasterIndex col) const = 0;
 };
+
+template<
+    typename IntegerRaster,
+    typename FloatRaster,
+    typename RasterIndex,
+    typename Generator>
+inline EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>::
+    ~EnvironmentInterface()
+{}
 
 }  // namespace pops
 
