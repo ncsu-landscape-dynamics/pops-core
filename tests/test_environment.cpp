@@ -87,6 +87,20 @@ int test_at_access_rejected()
     return 1;
 }
 
+int test_temperature_at_access_rejected()
+{
+    Environment<Raster<int>, Raster<double>, int> environment;
+    try {
+        auto a = environment.temperature_at(0, 0);
+        std::cout << a;
+    }
+    catch (const std::logic_error&) {
+        return 0;
+    }
+    std::cerr << "Temperature not set but at-access to it was allowed\n";
+    return 1;
+}
+
 int test_raster_access_rejected()
 {
     Environment<Raster<int>, Raster<double>, int> environment;
@@ -279,6 +293,7 @@ int main()
 
     num_errors += test_environment_string_values();
     num_errors += test_at_access_rejected();
+    num_errors += test_temperature_at_access_rejected();
     num_errors += test_raster_access_rejected();
     num_errors += test_update_deterministic_weather();
     num_errors += test_update_probabilistic_weather();

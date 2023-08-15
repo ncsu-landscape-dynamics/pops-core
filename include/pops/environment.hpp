@@ -271,7 +271,7 @@ protected:
     const IntegerRaster* other_individuals_{nullptr};  // non-hosts, non-owning
     const IntegerRaster* total_population_{nullptr};  // non-hosts, non-owning
 
-    const FloatRaster* temperature_;
+    const FloatRaster* temperature_{nullptr};
 };
 
 }  // namespace pops

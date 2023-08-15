@@ -492,7 +492,6 @@ int test_SI_versus_SEI0()
     auto total_hosts_1 = susceptible_1;
     auto total_hosts_2 = susceptible_2;
     auto total_hosts_3 = susceptible_3;
-    Raster<double> temperature = {{5, 0}, {0, 0}};
     auto rows = infected_1.rows();
     auto cols = infected_1.cols();
 
