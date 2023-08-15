@@ -487,7 +487,6 @@ public:
     }
     */
 
-    // TODO: Rate and time lag will eventually go to constructor (host properties).
     void apply_mortality_at(
         RasterIndex i, RasterIndex j, double mortality_rate, int mortality_time_lag)
     {

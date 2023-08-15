@@ -230,6 +230,7 @@ public:
             for (int count : host_pool.exposed_by_group_at(i, j)) {
                 remove_exposed.push_back(this->get_treated(i, j, count));
             }
+            // TODO: Merge these methods into one.
             host_pool.completely_remove_susceptible_at(i, j, remove_susceptible);
             host_pool.completely_remove_exposed_at(i, j, remove_exposed);
             host_pool.completely_remove_infected_at(

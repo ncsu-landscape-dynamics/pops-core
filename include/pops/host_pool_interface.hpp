@@ -72,7 +72,8 @@ public:
         Generator& generator) = 0;
         */
 
-    // TODO: Rate and time lag will eventually go to constructor (host properties).
+    // For multi-host, rate and time lag will likely go to constructor (as host
+    // properties; now they are mortality action properties).
     virtual void apply_mortality_at(
         RasterIndex i,
         RasterIndex j,
