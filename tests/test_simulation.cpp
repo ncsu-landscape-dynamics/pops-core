@@ -623,7 +623,12 @@ int test_calling_all_functions()
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
-    Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
+    Environment<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        DefaultSingleGeneratorProvider>
+        environment;
     environment.update_weather_coefficient(weather_coefficient);
     environment.update_temperature(temperature);
 

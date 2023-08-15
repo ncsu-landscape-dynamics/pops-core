@@ -66,12 +66,11 @@ inline WeatherType weather_type_from_string(const std::string& text)
  *
  * Currently, only handles weather coefficient for soils. Holds only the current state.
  */
-// TODO: remove defaults for template parameters
 template<
     typename IntegerRaster,
     typename FloatRaster,
     typename RasterIndex,
-    typename Generator = DefaultSingleGeneratorProvider>
+    typename Generator>
 class Environment
     : public EnvironmentInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>
 {
