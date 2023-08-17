@@ -31,7 +31,7 @@ class HostPoolInterface
 {
 public:
     using Generator = typename GeneratorProvider::Generator;
-    virtual ~HostPoolInterface() = 0;
+    virtual ~HostPoolInterface() {}
     virtual int
     disperser_to(RasterIndex row, RasterIndex col, Generator& generator) = 0;
     virtual void add_disperser_at(RasterIndex row, RasterIndex col) = 0;
@@ -85,15 +85,6 @@ public:
     virtual int total_hosts_at(RasterIndex i, RasterIndex j) const = 0;
     virtual void step_forward_mortality() = 0;
 };
-
-template<
-    typename IntegerRaster,
-    typename FloatRaster,
-    typename RasterIndex,
-    typename GeneratorProvider>
-inline HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, GeneratorProvider>::
-    ~HostPoolInterface()
-{}
 
 }  // namespace pops
 
