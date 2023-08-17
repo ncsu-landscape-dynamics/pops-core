@@ -46,6 +46,28 @@ public:
         GeneratorProvider>;
     using Generator = typename GeneratorProvider::Generator;
 
+    /**
+     * @brief Creates an object with stored references and host properties.
+     *
+     * @param model_type Type of the model (SI or SEI)
+     * @param susceptible Raster of susceptible hosts
+     * @param exposed Raster of exposed or infected hosts
+     * @param latency_period Length of the latency period in steps
+     * @param infected Infected hosts
+     * @param total_exposed Raster tracking all exposed hosts
+     * @param resistant Resistant hosts
+     * @param mortality_tracker_vector Raster tracking hosts for mortality
+     * @param died Raster tracking all hosts which died
+     * @param total_hosts Total number of hosts
+     * @param environment Environment which influences the processes
+     * @param dispersers_stochasticity Enable stochasticity in generating of dispersers
+     * @param reproductive_rate Reproductive rate in ideal conditions
+     * @param establishment_stochasticity Enable stochasticity in establishment step
+     * @param establishment_probability Fixed probability disperser establishment
+     * @param rows Number of rows for the study area
+     * @param cols Number of columns for the study area
+     * @param suitable_cells Cells where hosts are known to occur
+     */
     HostPool(
         ModelType model_type,
         IntegerRaster& susceptible,
@@ -86,25 +108,18 @@ public:
     {}
 
     /**
-     * @brief Move (add) disperser to a cell in the host pool
+     * @brief Move disperser to a cell in the host pool
      *
      * Processes event when a disperser lands in a cell potentially establishing on a
      * host. The disperser may or may not establish a based on host availability,
      * weather, establishment probability, and stochasticity.
      *
-     * Any new dispersers targeting host in the host pool should be added using this
+     * Any new dispersers targeting host in the host pool should be processed using this
      * function.
      *
      * @param row Row number of the target cell
      * @param col Column number of the target cell
-     * @param susceptible Raster of susceptible hosts
-     * @param exposed_or_infected Raster of exposed or infected hosts
-     * @param mortality_tracker Raster tracking hosts for mortality
-     * @param total_populations Raster of all individuals (hosts and non-hosts)
-     * @param total_exposed Raster tracking all exposed hosts
-     * @param weather Whether to use weather
-     * @param weather_coefficient Raster with weather coefficients per cell
-     * @param establishment_probability Fixed probability disperser establishment
+     * @param generator Random number generator
      *
      * @return true if disperser has established in the cell, false otherwise
      *
@@ -127,6 +142,22 @@ public:
         return false;
     }
 
+    /**
+     * @brief Add disperser to a cell
+     *
+     * Turns disperser into infection considering model type (SI, SEI).
+     *
+     * Unlike disperser_to(), this is transforming a disperser into infection right away
+     * without any further evaluation of establishment or stochasticity.
+     *
+     * @param row Row number of the target cell
+     * @param col Column number of the target cell
+     * @param generator Random number generator
+     *
+     * @return true if disperser has established in the cell, false otherwise
+     *
+     * @throw std::runtime_error if model type is unsupported (i.e., not SI or SEI)
+     */
     void add_disperser_at(RasterIndex row, RasterIndex col)
     {
         susceptible_(row, col) -= 1;
@@ -144,6 +175,17 @@ public:
         }
     }
 
+    /**
+     * @brief Get dispersers produced in a cell
+     *
+     * Each time the function is called it generates number of dispersers based on the
+     * current infection, host attributes, and the environment.
+     *
+     * @param row Row number of the cell
+     * @param col Column number of the cell
+     * @param generator Random number generator
+     * @return Number of generated dispersers
+     */
     int dispersers_from(RasterIndex row, RasterIndex col, Generator& generator) const
     {
         if (infected_at(row, col) <= 0)
