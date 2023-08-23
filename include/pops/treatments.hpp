@@ -447,6 +447,7 @@ public:
      * \param exposed Exposed hosts per cohort
      * \param susceptible raster of susceptible host
      * \param resistant raster of resistant host
+     * @param mortality_tracker Vector tracking moratlity of infected
      * \param total_hosts All host individuals in the area (I+E+S in the cell)
      * \param suitable_cells List of indices of cells with hosts
      *

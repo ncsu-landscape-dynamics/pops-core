@@ -178,6 +178,8 @@ public:
      * infected + exposed + susceptible in the cell.
      * @param[in,out] total_populations All host and non-host individuals in the area
      * @param[out] dispersers Dispersing individuals (used internally)
+     * @param[out] established_dispersers Dispersers originating from a given cell which
+     * established elsewhere
      * @param[in,out] total_exposed Sum of all exposed hosts (if SEI model is active)
      * @param[in,out] exposed Exposed hosts (if SEI model is active)
      * @param[in,out] mortality_tracker Mortality tracker used to generate *died*.
@@ -187,7 +189,7 @@ public:
      * schedule
      * @param[in] temperatures Vector of temperatures used to evaluate lethal
      * temperature
-     * @param[in] weather_coefficient Weather coefficient (for the current step)
+     * @param[in] survival_rates Pest survival rates
      * @param[in,out] treatments Treatments to be applied (also tracks use of
      * treatments)
      * @param[in,out] resistant Resistant hosts (host temporarily removed from

@@ -95,10 +95,8 @@ public:
         HostPool<IntegerRaster, FloatRaster, RasterIndex, Generator>;
     using StandardPestPool = Pests<IntegerRaster, FloatRaster, RasterIndex>;
 
-    /** Creates simulation object and seeds the internal random number generator.
-     *
-     * The same random number generator is used throughout the simulation
-     * and is seeded once at the beginning.
+    /**
+     * Creates simulation object with the values which are fixed during the simulation.
      *
      * The number or rows and columns needs to be the same as the size
      * of rasters used with the Simulation object
@@ -106,7 +104,6 @@ public:
      *
      * @param model_type Type of the model (SI or SEI)
      * @param latency_period Length of the latency period in steps
-     * @param random_seed Number to seed the random number generator
      * @param rows Number of rows
      * @param cols Number of columns
      * @param dispersers_stochasticity Enable stochasticity in generating of dispersers
@@ -164,13 +161,16 @@ public:
         return this->environment_;
     }
 
-    /** removes infected based on min or max temperature tolerance
+    /** Remove infected based on temperature tolerance
      *
      * @param infected Currently infected hosts
      * @param susceptible Currently susceptible hosts
-     * @param temperature Spatially explicit temperature
+     * @param exposed Currently exposed hosts
+     * @param total_exposed Total exposed in all exposed cohorts
+     * @param mortality_tracker_vector Mortality tracker
      * @param lethal_temperature temperature at which lethal conditions occur
      * @param suitable_cells used to run model only where host are known to occur
+     * @param generator Provider of random number generators
      */
     template<typename GeneratorProvider>
     void remove(
@@ -222,6 +222,7 @@ public:
      * @param total_exposed Total exposed in all exposed cohorts
      * @param survival_rate Raster between 0 and 1 representing pest survival rate
      * @param suitable_cells used to run model only where host are known to occur
+     * @param generator Provider of random number generators
      */
     template<typename GeneratorProvider>
     void remove_percentage(
@@ -332,6 +333,7 @@ public:
      * @param movement_schedule a vector matching movements with the step at which the
      *        movement from movements are applied
      * @param suitable_cells List of indices of cells with hosts
+     * @param generator Provider of random number generators
      *
      * @note Mortality and non-host individuals are not supported in movements.
      */
@@ -378,11 +380,14 @@ public:
     /** Generates dispersers based on infected
      *
      * @param[out] dispersers  (existing values are ignored)
+     * @param[out] established_dispersers Dispersers for a cell established in
+     * another cell (later modified to final form in disperse())
      * @param infected Currently infected hosts
      * @param weather Whether to use the weather coefficient
      * @param reproductive_rate reproductive rate (used unmodified when weather
      *        coefficient is not used)
      * @param[in] suitable_cells List of indices of cells with hosts
+     * @param generator Provider of random number generators
      */
     void generate(
         IntegerRaster& dispersers,
@@ -460,8 +465,11 @@ public:
      * will establish.
      *
      * @param[in] dispersers Dispersing individuals ready to be dispersed
+     * @param[in,out] established_dispersers Dispersers for a cell established in
+     * another cell
      * @param[in,out] susceptible Susceptible hosts
-     * @param[in,out] exposed_or_infected Exposed or infected hosts
+     * @param[in,out] exposed Exposed hosts
+     * @param[in,out] infected Infected hosts
      * @param[in,out] mortality_tracker Newly infected hosts (if applicable)
      * @param[in, out] total_exposed Total exposed in all exposed cohorts
      * @param[in] total_populations All host and non-host individuals in the area
@@ -471,6 +479,7 @@ public:
      * @param establishment_probability Probability of establishment with no
      *        stochasticity
      * @param[in] suitable_cells List of indices of cells with hosts
+     * @param generator Provider of random number generators
      *
      * @note If the parameters or their default values don't correspond
      * with the disperse_and_infect() function, it is a bug.
@@ -632,6 +641,7 @@ public:
      * @param overpopulation_percentage Percentage of occupied hosts when the cell is
      *        considered to be overpopulated
      * @param leaving_percentage Percentage pests leaving an overpopulated cell
+     * @param generator Provider of random number generators
      *
      * @note Exposed hosts do not count towards total number of pest,
      *       i.e., *total_host* is assumed to be S + E in SEI model.

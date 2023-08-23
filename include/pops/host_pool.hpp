@@ -49,6 +49,25 @@ public:
     /**
      * @brief Creates an object with stored references and host properties.
      *
+     * The *exposed* vector is a list of hosts exposed in the previous steps.
+     * The length of the vector is the number of steps of the latency
+     * period plus one. See the step_forward() function for details on how
+     * the vector is used.
+     *
+     * The *total_populations* can be total number of hosts in the basic case
+     * or it can be the total size of population of all relevant species
+     * both host and non-host if dilution effect should be applied.
+     *
+     * If establishment stochasticity is disabled,
+     * *establishment_probability* is used to decide whether or not
+     * a disperser is established in a cell. Value 1 means that all
+     * dispersers will establish and value 0 means that no dispersers
+     * will establish.
+     *
+     * The *mortality_tracker_vector* is a vector of matrices for tracking infected
+     * host infection over time. Expectation is that mortality tracker is of
+     * length (1/mortality_rate + mortality_time_lag).
+     *
      * @param model_type Type of the model (SI or SEI)
      * @param susceptible Raster of susceptible hosts
      * @param exposed Raster of exposed or infected hosts
@@ -152,7 +171,6 @@ public:
      *
      * @param row Row number of the target cell
      * @param col Column number of the target cell
-     * @param generator Random number generator
      *
      * @return true if disperser has established in the cell, false otherwise
      *
@@ -242,6 +260,7 @@ public:
         return count;
     }
 
+    // @note Mortality and non-host individuals are not supported in movements.
     int move_hosts_from_to(
         RasterIndex row_from,
         RasterIndex col_from,
@@ -529,6 +548,12 @@ public:
     }
     */
 
+    /*
+     * In indexes that are in the mortality_time_lag, no mortality occurs. In the last
+     * year of mortality tracking, the first index all remaining tracked infected hosts
+     * are removed. In all other indexes the number of tracked individuals is multiplied
+     * by the mortality rate to calculate the number of hosts that die that time step.
+     */
     void apply_mortality_at(
         RasterIndex i, RasterIndex j, double mortality_rate, int mortality_time_lag)
     {
@@ -638,12 +663,10 @@ public:
 
     /** Infect exposed hosts (E to I transition in the SEI model)
      *
-     * Applicable to SEI model, no-operation otherwise, i.e., parameters
-     * are left intact for other models.
+     * Applicable to SEI model, no-operation otherwise, i.e., the state
+     * is left intact for SI.
      *
-     * The exposed vector are the hosts exposed in the previous steps.
-     * The length of the vector is the number of steps of the latency
-     * period plus one. Before the first latency period is over,
+     * Before the first latency period is over,
      * the E to I transition won't happen because no item in the exposed
      * vector is old enough to become infected.
      *
@@ -670,13 +693,9 @@ public:
      * of this function.
      *
      * The raster class used with the simulation class needs to support
-     * `.fill()` method for this function to work.
+     * `.fill(value)` method for this function to work.
      *
      * @param step Step in the simulation (>=0)
-     * @param exposed Vector of exposed hosts
-     * @param infected Infected hosts
-     * @param mortality_tracker Newly infected hosts
-     * @param total_exposed Total exposed in all exposed cohorts
      */
     void step_forward(unsigned step)
     {
