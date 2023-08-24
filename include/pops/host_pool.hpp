@@ -641,10 +641,18 @@ public:
         return resistant_(row, col);
     }
 
-    int total_hosts_at(RasterIndex i, RasterIndex j) const
+    /**
+     * @copydoc pops::HostPoolInterface::total_hosts_at()
+     *
+     * @note Computes the total host from susceptible and infected and does not consider
+     * exposed and resistant.
+     *
+     * @note Computes the value on the fly and does not use the raster storage for total
+     * host.
+     */
+    int total_hosts_at(RasterIndex row, RasterIndex col) const override
     {
-        // computed instead of using a raster
-        return susceptible_at(i, j) /*+ exposed_at(i, j)*/ + infected_at(i, j);
+        return susceptible_at(row, col) + infected_at(row, col);
     }
 
     void step_forward_mortality()
@@ -728,7 +736,18 @@ public:
     }
 
 private:
-    // This would ideally be updated piece by piece or just computed on the fly always.
+    /**
+     * @brief Reset total host value using the individual pools.
+     *
+     * This considers susceptible, exposed, infected, and resistant.
+     *
+     * This function is needed when the user needs total host as a result and everything
+     * is provided through individual rasters (otherwise the simplest implementation
+     * would just compute it on the fly always.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     */
     void reset_total_host(RasterIndex row, RasterIndex col)
     {
         total_hosts_(row, col) = susceptible_(row, col) + computed_exposed_at(row, col)
