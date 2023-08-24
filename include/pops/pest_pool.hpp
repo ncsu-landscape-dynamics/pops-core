@@ -13,8 +13,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef POPS_PESTS_HPP
-#define POPS_PESTS_HPP
+#ifndef POPS_PEST_POOL_HPP
+#define POPS_PEST_POOL_HPP
 
 #include <tuple>
 #include <vector>
@@ -29,7 +29,7 @@ namespace pops {
  * about pests which is not captured by hosts.
  */
 template<typename IntegerRaster, typename FloatRaster, typename RasterIndex>
-class Pests
+class PestPool
 {
 public:
     /**
@@ -43,7 +43,7 @@ public:
      * The object does not copy or take ownership of the objects passed in the
      * constructor.
      */
-    Pests(
+    PestPool(
         IntegerRaster& dispersers,
         IntegerRaster& established_dispersers,
         std::vector<std::tuple<int, int>>& outside_dispersers)
@@ -131,4 +131,4 @@ private:
 
 }  // namespace pops
 
-#endif  // POPS_PESTS_HPP
+#endif  // POPS_PEST_POOL_HPP

@@ -82,7 +82,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/date.hpp
         include/pops/scheduling.hpp
         include/pops/quarantine.hpp
-        include/pops/pests.hpp
+        include/pops/pest_pool.hpp
         include/pops/power_law_kernel.hpp
         include/pops/hyperbolic_secant_kernel.hpp
         include/pops/logistic_kernel.hpp

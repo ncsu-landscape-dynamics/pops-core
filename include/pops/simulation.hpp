@@ -25,10 +25,10 @@
 #include <stdexcept>
 
 #include "actions.hpp"
-#include "pests.hpp"
 #include "utils.hpp"
 #include "soils.hpp"
 #include "model_type.hpp"
+#include "pest_pool.hpp"
 #include "host_pool.hpp"
 
 namespace pops {
@@ -93,7 +93,7 @@ public:
     // Host pool has the provider from model, but in test, it gets plain engine.
     using StandardHostPool =
         HostPool<IntegerRaster, FloatRaster, RasterIndex, Generator>;
-    using StandardPestPool = Pests<IntegerRaster, FloatRaster, RasterIndex>;
+    using StandardPestPool = PestPool<IntegerRaster, FloatRaster, RasterIndex>;
 
     /**
      * Creates simulation object with the values which are fixed during the simulation.
