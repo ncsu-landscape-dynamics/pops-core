@@ -85,7 +85,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/pests.hpp
         include/pops/power_law_kernel.hpp
         include/pops/hyperbolic_secant_kernel.hpp
-        include/pops/hosts.hpp
         include/pops/logistic_kernel.hpp
         include/pops/exponential_power_kernel.hpp
         include/pops/exponential_kernel.hpp
