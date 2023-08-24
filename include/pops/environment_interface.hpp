@@ -16,14 +16,9 @@
 #ifndef POPS_ENVIRONMENT_INTERFACE_HPP
 #define POPS_ENVIRONMENT_INTERFACE_HPP
 
-namespace pops {
+#include "host_pool_interface.hpp"
 
-template<
-    typename IntegerRaster,
-    typename FloatRaster,
-    typename RasterIndex,
-    typename Generator>
-class HostPoolInterface;
+namespace pops {
 
 template<
     typename IntegerRaster,
@@ -46,9 +41,7 @@ public:
     // in general, we may have other individuals-non const
     virtual void set_other_individuals(const IntegerRaster* individuals) = 0;
     virtual void set_total_population(const IntegerRaster* individuals) = 0;
-    virtual void add_host(
-        const HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>*
-            host) = 0;
+    virtual void add_host(const HostPoolInterface<RasterIndex>* host) = 0;
     virtual const FloatRaster& weather_coefficient() const = 0;
     virtual void update_temperature(const FloatRaster& raster) = 0;
     virtual double temperature_at(RasterIndex row, RasterIndex col) const = 0;

@@ -210,9 +210,7 @@ public:
         total_population_ = individuals;
     }
 
-    void add_host(
-        const HostPoolInterface<IntegerRaster, FloatRaster, RasterIndex, Generator>*
-            host) override
+    void add_host(const HostPoolInterface<RasterIndex>* host) override
     {
         // no-op if already there, may become an error in the future
         if (container_contains(hosts_, host))
@@ -261,12 +259,7 @@ protected:
     FloatRaster stored_weather_coefficient;
     bool weather_{false};
 
-    std::vector<const HostPoolInterface<
-        IntegerRaster,
-        FloatRaster,
-        RasterIndex,
-        Generator>*>
-        hosts_;  // host, non-owning
+    std::vector<const HostPoolInterface<RasterIndex>*> hosts_;  // host, non-owning
     const IntegerRaster* other_individuals_{nullptr};  // non-hosts, non-owning
     const IntegerRaster* total_population_{nullptr};  // non-hosts, non-owning
 

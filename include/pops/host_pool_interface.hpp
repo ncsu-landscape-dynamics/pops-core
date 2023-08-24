@@ -16,74 +16,33 @@
 #ifndef POPS_HOST_POOL_INTERFACE_HPP
 #define POPS_HOST_POOL_INTERFACE_HPP
 
-#include <vector>
-
-#include "environment_interface.hpp"
-
 namespace pops {
 
-template<
-    typename IntegerRaster,
-    typename FloatRaster,
-    typename RasterIndex,
-    typename GeneratorProvider>
+/**
+ * Interface declaration for a host pool.
+ *
+ * Currently, the interface is providing only total number of hosts because that's the
+ * only function needed throughout the code.
+ *
+ * @note The usefulness of this interface will be evaluated later on, e.g., if we need
+ * functionally different hosts or if we have dependencies which the interface would
+ * address.
+ */
+template<typename RasterIndex>
 class HostPoolInterface
 {
 public:
-    using Generator = typename GeneratorProvider::Generator;
     virtual ~HostPoolInterface() {}
-    virtual int
-    disperser_to(RasterIndex row, RasterIndex col, Generator& generator) = 0;
-    virtual void add_disperser_at(RasterIndex row, RasterIndex col) = 0;
-    virtual double establishment_probability_at(
-        RasterIndex row, RasterIndex col, IntegerRaster& susceptible) = 0;
-    virtual int pest_from(RasterIndex i, RasterIndex j, int count) = 0;
-    virtual int pests_to(RasterIndex row, RasterIndex col, int count) = 0;
-    virtual int move_hosts_from_to(
-        RasterIndex row_from,
-        RasterIndex col_from,
-        RasterIndex row_to,
-        RasterIndex col_to,
-        int count,
-        Generator& generator) = 0;
-    virtual void remove_infected_at(
-        RasterIndex i, RasterIndex j, int count, Generator& generator) = 0;
-    virtual void remove_exposed_at(
-        RasterIndex i, RasterIndex j, int count, Generator& generator) = 0;
-    virtual void make_resistant_at(
-        RasterIndex row,
-        RasterIndex col,
-        int susceptible,
-        const std::vector<int>& exposed,
-        int infected,
-        const std::vector<double>& mortality) = 0;
 
-    // Brings exposed dependency to more items, needs to wait for more complete host.
-    /*
-    template<typename Generator>
-    virtual void remove_infection_at(
-        RasterIndex i,
-        RasterIndex j,
-        double percentage,
-        IntegerRaster& infected,
-        IntegerRaster& susceptible,
-        std::vector<IntegerRaster>& exposed,
-        IntegerRaster& total_exposed,
-        Generator& generator) = 0;
-        */
-
-    // For multi-host, rate and time lag will likely go to constructor (as host
-    // properties; now they are mortality action properties).
-    virtual void apply_mortality_at(
-        RasterIndex i,
-        RasterIndex j,
-        double mortality_rate,
-        int mortality_time_lag) = 0;
-    virtual int infected_at(RasterIndex i, RasterIndex j) const = 0;
-    virtual int susceptible_at(RasterIndex i, RasterIndex j) const = 0;
-    virtual int exposed_at(RasterIndex i, RasterIndex j) const = 0;
-    virtual int total_hosts_at(RasterIndex i, RasterIndex j) const = 0;
-    virtual void step_forward_mortality() = 0;
+    /**
+     * @brief Get total number of hosts for a cell
+     *
+     * @param row Row index of the cell
+     * @param col Column index the cell
+     *
+     * @return Number of hosts
+     */
+    virtual int total_hosts_at(RasterIndex row, RasterIndex col) const = 0;
 };
 
 }  // namespace pops

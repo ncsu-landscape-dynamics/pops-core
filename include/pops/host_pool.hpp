@@ -32,11 +32,7 @@ template<
     typename FloatRaster,
     typename RasterIndex,
     typename GeneratorProvider>
-class HostPool : public HostPoolInterface<
-                     IntegerRaster,
-                     FloatRaster,
-                     RasterIndex,
-                     GeneratorProvider>
+class HostPool : public HostPoolInterface<RasterIndex>
 {
 public:
     using Environment = EnvironmentInterface<
@@ -552,6 +548,8 @@ public:
      * are removed. In all other indexes the number of tracked individuals is multiplied
      * by the mortality rate to calculate the number of hosts that die that time step.
      */
+    // For multi-host, rate and time lag will likely go to constructor (as host
+    // properties; now they are mortality action properties).
     void apply_mortality_at(
         RasterIndex i, RasterIndex j, double mortality_rate, int mortality_time_lag)
     {
