@@ -342,52 +342,50 @@ public:
         return total_hosts_moved;
     }
 
-    // Notably, this does not remove resistant.
-    void completely_remove_susceptible_at(RasterIndex row, RasterIndex col, int count)
+    /**
+     * @brief Completely remove any hosts
+     *
+     * Removes hosts completely (as opposed to moving them to another pool).
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param susceptible Number of susceptible hosts to remove.
+     * @param exposed Number of exposed hosts to remove by cohort.
+     * @param infected Number of infected hosts to remove.
+     * @param mortality Number of infected hosts in each mortality cohort.
+     *
+     * @note Counts are doubles, so that handling of floating point values is managed
+     * here in the same way as in the original threatment code.
+     *
+     * @note This does not remove resistant just like the original implementation in
+     * treatments.
+     */
+    void completely_remove_hosts_at(
+        RasterIndex row,
+        RasterIndex col,
+        double susceptible,
+        std::vector<double> exposed,
+        double infected,
+        const std::vector<double>& mortality)
     {
-        if (count <= 0)
-            return;
-        susceptible_(row, col) -= count;
-        reset_total_host(row, col);
-    }
+        if (susceptible > 0)
+            susceptible_(row, col) = susceptible_(row, col) - susceptible;
 
-    // special overload for double, so that handling of floating point values is managed
-    // here
-    void
-    completely_remove_susceptible_at(RasterIndex row, RasterIndex col, double count)
-    {
-        if (count <= 0)
-            return;
-        susceptible_(row, col) = susceptible_(row, col) - count;
-        reset_total_host(row, col);
-    }
-
-    void completely_remove_exposed_at(
-        RasterIndex row, RasterIndex col, std::vector<double> counts)
-    {
-        if (counts.size() != exposed_.size()) {
+        if (exposed.size() != exposed_.size()) {
             throw std::invalid_argument(
                 "counts is not the same size as the internal list of exposed ("
-                + std::to_string(counts.size())
+                + std::to_string(exposed.size())
                 + " != " + std::to_string(exposed_.size()) + ") for cell ("
                 + std::to_string(row) + ", " + std::to_string(col) + ")");
         }
 
         // no simple zip in C++, falling back to indices
-        for (size_t i = 0; i < counts.size(); ++i) {
-            exposed_[i](row, col) -= counts[i];
+        for (size_t i = 0; i < exposed.size(); ++i) {
+            exposed_[i](row, col) -= exposed[i];
         }
-        reset_total_host(row, col);
-    }
 
-    void completely_remove_infected_at(
-        RasterIndex row,
-        RasterIndex col,
-        double count,
-        const std::vector<double>& mortality)
-    {
         // Possibly reuse in the I->S removal.
-        if (count <= 0)
+        if (infected <= 0)
             return;
         if (mortality_tracker_vector_.size() != mortality.size()) {
             throw std::invalid_argument(
@@ -415,11 +413,11 @@ public:
         // and once we don't need to keep the exact same double to int results for
         // tests. First condition always fails the tests. The second one may potentially
         // fail.
-        if (false && count != mortality_total) {
+        if (false && infected != mortality_total) {
             throw std::invalid_argument(
                 "Total of removed mortality values differs from removed infected "
                 "count ("
-                + std::to_string(mortality_total) + " != " + std::to_string(count)
+                + std::to_string(mortality_total) + " != " + std::to_string(infected)
                 + " for cell (" + std::to_string(row) + ", " + std::to_string(col)
                 + ")");
         }
@@ -428,10 +426,10 @@ public:
                 "Total of removed mortality values is higher than current number "
                 "of infected hosts for cell ("
                 + std::to_string(row) + ", " + std::to_string(col) + ") is too high ("
-                + std::to_string(mortality_total) + " > " + std::to_string(count)
+                + std::to_string(mortality_total) + " > " + std::to_string(infected)
                 + ")");
         }
-        infected_(row, col) -= count;
+        infected_(row, col) -= infected;
         reset_total_host(row, col);
     }
 
