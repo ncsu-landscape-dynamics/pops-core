@@ -153,12 +153,12 @@ public:
      *
      * Calling this function activates the soils. By default, the soil pool is not used.
      * The parameters are soil pool used to store the dispersers and
-     * a percentage (0-1 ratio) of dispersers which will be send to the soil (and may
+     * a percentage (0-1 ratio) of dispersers which will be sent to the soil (and may
      * establish or not depending on the soil pool object).
      *
      * Soil pool is optional and nothing is done when it is not set.
      * This function needs to be called separately some time after the object is created
-     * to active the soil part of the simulation. This avoids the need for many
+     * to activate the soil part of the simulation. This avoids the need for many
      * more constructors or for many optional parameters which need default values.
      *
      * @param soil_pool Soils pool object to use for storage
@@ -214,7 +214,9 @@ public:
      * Reduce the infection based on the pest survival rate.
      *
      * Infected and total number of exposed hosts are removed directly, while mortality
-     * and exposed cohorts are left to be managed by the host pool.
+     * cohorts and exposed cohorts are left to be managed by the host pool, In other
+     * words, the details of how total infected and total exposed is distributed among
+     * the cohorts managed by the host pools.
      */
     template<typename Generator>
     void action(Hosts& hosts, Generator& generator)
@@ -470,7 +472,9 @@ private:
  * Mortality of the hosts
  *
  * Kills infected hosts based on mortality rate and timing. The host pool implementation
- * of mortality is used to provides
+ * of mortality is used to perform the actual process while this class provides
+ * parameters and takes care of the two steps in the mortality process (dying and
+ * aging).
  *
  * The *mortality_tracker_vector* used by hosts must fit with the *mortality_time_lag*
  * here. It needs to have a minimum size of mortality_time_lag + 1. See
