@@ -280,12 +280,7 @@ public:
             int j = indices[1];
             if (environment_.temperature_at(i, j) < lethal_temperature_) {
                 auto count = hosts.infected_at(i, j);
-                // TODO: Not sure what generator this should use. Original remove for
-                // lethal temperature did not touch mortality. Now it modifies mortality
-                // cohorts and host pool is using a random draw to do that. Hence, a
-                // generator is needed for mortality, weather or a new one for
-                // temperature.
-                hosts.remove_infected_at(i, j, count, generator.weather());
+                hosts.remove_infected_at(i, j, count, generator.lethal_temperature());
                 // now this includes also mortality, but it does not include exposed
             }
         }

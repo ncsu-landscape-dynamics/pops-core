@@ -468,6 +468,7 @@ public:
             "anthropogenic_dispersal",
             "establishment",
             "weather",
+            "lethal_temperature",
             "movement",
             "overpopulation",
             "survival_rate",

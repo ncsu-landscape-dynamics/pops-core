@@ -51,6 +51,7 @@ public:
     virtual Generator& anthropogenic_dispersal() = 0;
     virtual Generator& establishment() = 0;
     virtual Generator& weather() = 0;
+    virtual Generator& lethal_temperature() = 0;
     virtual Generator& movement() = 0;
     virtual Generator& overpopulation() = 0;
     virtual Generator& survival_rate() = 0;
@@ -139,6 +140,11 @@ public:
     }
 
     Generator& weather()
+    {
+        return general();
+    }
+
+    Generator& lethal_temperature()
     {
         return general();
     }
@@ -239,6 +245,7 @@ public:
         anthropogenic_dispersal_generator_.seed(seed++);
         establishment_generator_.seed(seed++);
         weather_generator_.seed(seed++);
+        lethal_temperature_.seed(seed++);
         movement_generator_.seed(seed++);
         overpopulation_generator_.seed(seed++);
         survival_rate_generator_.seed(seed++);
@@ -256,6 +263,7 @@ public:
             seeds, "anthropogenic_dispersal", anthropogenic_dispersal_generator_);
         this->set_seed_by_name(seeds, "establishment", establishment_generator_);
         this->set_seed_by_name(seeds, "weather", weather_generator_);
+        this->set_seed_by_name(seeds, "lethal_temperature", lethal_temperature_);
         this->set_seed_by_name(seeds, "movement", movement_generator_);
         this->set_seed_by_name(seeds, "overpopulation", overpopulation_generator_);
         this->set_seed_by_name(seeds, "survival_rate", survival_rate_generator_);
@@ -296,6 +304,11 @@ public:
     Generator& weather()
     {
         return weather_generator_;
+    }
+
+    Generator& lethal_temperature()
+    {
+        return lethal_temperature_;
     }
 
     Generator& movement()
@@ -339,6 +352,7 @@ private:
     Generator anthropogenic_dispersal_generator_;
     Generator establishment_generator_;
     Generator weather_generator_;
+    Generator lethal_temperature_;
     Generator movement_generator_;
     Generator overpopulation_generator_;
     Generator survival_rate_generator_;
@@ -425,6 +439,11 @@ public:
     Generator& weather()
     {
         return impl->weather();
+    }
+
+    Generator& lethal_temperature()
+    {
+        return impl->lethal_temperature();
     }
 
     Generator& movement()
