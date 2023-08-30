@@ -13,6 +13,9 @@ function(add_pops_test NAME)
               -Wall -Wextra -pedantic>
          $<$<CXX_COMPILER_ID:MSVC>:
               /W4>)
+     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+         add_compile_options(-Wdocumentation -Wdocumentation-pedantic -Wno-documentation-unknown-command)
+     endif()
 
     # register a test
     add_test(NAME "${NAME}" COMMAND ${NAME})

@@ -471,7 +471,7 @@ public:
      * @param[in,out] exposed Exposed hosts
      * @param[in,out] infected Infected hosts
      * @param[in,out] mortality_tracker Newly infected hosts (if applicable)
-     * @param[in, out] total_exposed Total exposed in all exposed cohorts
+     * @param[in,out] total_exposed Total exposed in all exposed cohorts
      * @param[in] total_populations All host and non-host individuals in the area
      * @param[in,out] outside_dispersers Dispersers escaping the raster
      * @param weather Whether or not weather coefficients should be used
