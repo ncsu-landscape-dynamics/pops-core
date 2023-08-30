@@ -382,7 +382,7 @@ public:
                 // 2 infected -> 1 leaving
                 // 3 infected -> 1 leaving
                 int leaving = original_count * leaving_percentage_;
-                leaving = hosts.pest_from(i, j, leaving);
+                leaving = hosts.pests_from(i, j, leaving);
                 if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                     pests.add_outside_dispersers_at(row, col, leaving);
                     continue;
@@ -397,6 +397,12 @@ public:
         }
         // Perform the moves to target cells.
         for (const auto& move : moves) {
+            // Pests which won't fit are ignored (disappear). This can happen if there
+            // is simply not enough S hosts to accommodate all the pests moving from the
+            // source or if multiple sources end up in the same target cell and there is
+            // not enough S hosts to accommodate all of them. The decision is made in
+            // the host pool. Here, we ignore the return value specifying the number of
+            // accepted pests.
             hosts.pests_to(move.row, move.col, move.count);
         }
     }
@@ -411,6 +417,8 @@ private:
 
 /**
  * Moves hosts from one location to another
+ *
+ * @note Mortality and non-host individuals are not supported in movements.
  */
 template<
     typename Hosts,

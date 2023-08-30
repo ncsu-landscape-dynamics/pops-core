@@ -27,6 +27,9 @@
 
 namespace pops {
 
+/**
+ * Host pool managing susceptible, exposed, infected, and resistant hosts.
+ */
 template<
     typename IntegerRaster,
     typename FloatRaster,
@@ -145,7 +148,7 @@ public:
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
         if (susceptible_(row, col) > 0) {
             double probability_of_establishment =
-                establishment_probability_at(row, col, susceptible_);
+                establishment_probability_at(row, col);
             double establishment_tester = 1 - deterministic_establishment_probability_;
             if (establishment_stochasticity_)
                 establishment_tester = distribution_uniform(generator);
@@ -171,6 +174,8 @@ public:
      * @return true if disperser has established in the cell, false otherwise
      *
      * @throw std::runtime_error if model type is unsupported (i.e., not SI or SEI)
+     *
+     * @note This may be merged with pests_to() in the future.
      */
     void add_disperser_at(RasterIndex row, RasterIndex col)
     {
@@ -195,8 +200,8 @@ public:
      * Each time the function is called it generates number of dispersers based on the
      * current infection, host attributes, and the environment.
      *
-     * @param row Row number of the cell
-     * @param col Column number of the cell
+     * @param row Row index of the cell
+     * @param col Column index of the cell
      * @param generator Random number generator
      * @return Number of generated dispersers
      */
@@ -219,23 +224,76 @@ public:
         return dispersers_from_cell;
     }
 
-    double establishment_probability_at(
-        RasterIndex row, RasterIndex col, IntegerRaster& susceptible)
+    /**
+     * @brief Get establishment probability for a cell
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return Establishment probability
+     */
+    double establishment_probability_at(RasterIndex row, RasterIndex col) const
     {
         double probability_of_establishment =
-            (double)(susceptible(row, col))
+            (double)(susceptible_(row, col))
             / environment_.total_population_at(row, col);
         return environment_.influence_probability_of_establishment_at(
             row, col, probability_of_establishment);
     }
 
-    int pest_from(RasterIndex i, RasterIndex j, int count)
+    /**
+     * @brief Move pests from a cell
+     *
+     * Moves pest from a cell reducing number of infected and increasing number of
+     * susceptible hosts in the cell.
+     *
+     * This is a request to move the number of pests given by *count* from a cell.
+     * The function may reduce the number based on the availability of pests in the cell
+     * or internal mechanics of the pool. However, the current implementation simply
+     * moves the given number of pests without any checks.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param count Number of pests requested to move from the cell
+     *
+     * @return Number of pests actually moved from the cell
+     *
+     * @note For consitency with the previous implementation, this does not modify
+     * mortality cohorts nor touches the exposed cohorts.
+     */
+    int pests_from(RasterIndex row, RasterIndex col, int count)
     {
-        susceptible_(i, j) += count;
-        infected_(i, j) -= count;
+        susceptible_(row, col) += count;
+        infected_(row, col) -= count;
         return count;
     }
 
+    /**
+     * @brief Move pests to a cell
+     *
+     * This directly modifies the number of infected hosts. Unlike disperser_to(), this
+     * is assuming the pests will establish right away without any further evaluation of
+     * establishment or stochasticity.
+     *
+     * When there is more pests than the target cell can accept based on the number of
+     * susceptible hosts, all susceptible hosts are infected. The number of actually
+     * infected hosts (accepted pests) is returned.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @param count Number of pests requested to move to the cell
+     * @return Number of accepted pests
+     *
+     * @note For consistency with the previous implementation, this does not make hosts
+     * exposed in the SEI model. Instead, the hosts are infected right away. This may
+     * become a feature in the future.
+     *
+     * @note For consistency with the previous implementation, this does not modify the
+     * mortality cohorts. This wil need to be fixed in the future.
+     *
+     * @note This may be merged with add_disperser_at() in the future.
+     */
     int pests_to(RasterIndex row, RasterIndex col, int count)
     {
         // The target cell can accept all.
@@ -244,10 +302,6 @@ public:
             infected_(row, col) += count;
         }
         // More pests than the target cell can accept.
-        // This can happen if there is simply not enough S hosts to accommodate all
-        // the pests moving from the source or if multiple sources end up in the
-        // same target cell and there is not enough S hosts to accommodate all of
-        // them. The pests just disappear in both cases.
         else {
             count = susceptible_(row, col);
             susceptible_(row, col) -= count;
@@ -256,7 +310,24 @@ public:
         return count;
     }
 
-    // @note Mortality and non-host individuals are not supported in movements.
+    //
+    /**
+     * @brief Move hosts from a cell to a cell
+     *
+     * Moves specified number of hosts from a cell to another cell. The distribution
+     * of the hosts among susceptible, exposed, and other pools is stochastic.
+     *
+     * @param row_from Row index of the source cell
+     * @param col_from Column index of the source cell
+     * @param row_to Row index of the target cell
+     * @param col_to Column index of the target cell
+     * @param count Number of pests to move
+     * @param generator Random number generator for distribution of host among pools
+     *
+     * @return Number of pests actually moved between cells
+     *
+     * @note Mortality is not supported.
+     */
     int move_hosts_from_to(
         RasterIndex row_from,
         RasterIndex col_from,
@@ -273,8 +344,8 @@ public:
         int suscepts = susceptible_(row_from, col_from);
         int expose = total_exposed_(row_from, col_from);
         int resist = resistant_(row_from, col_from);
-        // set up vector of numeric categories (infected = 1, susceptible = 2,
-        // exposed = 3) for drawing # moved in each category
+        // Set up vector of numeric categories (infected = 1, susceptible = 2,
+        // exposed = 3) for drawing number of moved in each category.
         std::vector<int> categories(total_infecteds, 1);
         categories.insert(categories.end(), suscepts, 2);
         categories.insert(categories.end(), expose, 3);
@@ -310,13 +381,15 @@ public:
                 index += 1;
             }
         }
-        // check that the location with host movement is in suitable cells.
-        // Since suitable-cells comes from the total hosts originally. The
-        // the first check is for total_hosts
+        // Ensure that the target cell of host movement is in suitable cells.
+        // Since suitable cells originally comes from the total hosts, check first total
+        // hosts and proceed only if there was no host.
         if (total_hosts_(row_to, col_to) == 0) {
             for (auto indices : suitable_cells_) {
                 int i = indices[0];
                 int j = indices[1];
+                // TODO: This looks like a bug. Flag is needed for found and push back
+                // should happen only after the loop.
                 if ((i == row_to) && (j == col_to)) {
                     std::vector<int> added_index = {row_to, col_to};
                     suitable_cells_.push_back(added_index);
@@ -335,6 +408,10 @@ public:
         total_hosts_(row_to, col_to) += total_hosts_moved;
         total_exposed_(row_to, col_to) += exposed_moved;
         resistant_(row_to, col_to) += resistant_moved;
+
+        // Returned total hosts actually moved is based only on the total host and no
+        // other checks are performed. This assumes that the counts are correct in the
+        // object (precodition).
         return total_hosts_moved;
     }
 
@@ -429,44 +506,82 @@ public:
         reset_total_host(row, col);
     }
 
-    void
-    remove_infected_at(RasterIndex i, RasterIndex j, int count, Generator& generator)
+    /**
+     * @brief Remove infected hosts and make the hosts susceptible
+     *
+     * Distribution of removed infected hosts among mortality groups is stochastic.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param count Number of host to remove infection from
+     * @param generator Random number generator to provide stochasticity for mortality
+     *
+     * @note Using this method either assumes the SI model or it needs to be used
+     * together with remove_exposed_at() to handle SEI model.
+     */
+    void remove_infected_at(
+        RasterIndex row, RasterIndex col, int count, Generator& generator)
     {
         // remove percentage of infestation/infection in the infected class
-        infected_(i, j) -= count;
+        infected_(row, col) -= count;
         // remove the removed infected from mortality cohorts
         if (count > 0) {
-            std::vector<int> mortality_draw =
-                draw_n_from_cohorts(mortality_tracker_vector_, count, i, j, generator);
+            std::vector<int> mortality_draw = draw_n_from_cohorts(
+                mortality_tracker_vector_, count, row, col, generator);
             int index = 0;
             for (auto& raster : mortality_tracker_vector_) {
-                raster(i, j) -= mortality_draw[index];
+                raster(row, col) -= mortality_draw[index];
                 index += 1;
             }
         }
         // move infested/infected host back to susceptible pool
-        susceptible_(i, j) += count;
+        susceptible_(row, col) += count;
     }
 
+    /**
+     * @brief Remove exposed hosts and make the hosts susceptible
+     *
+     * Distribution of removed hosts among exposed groups is stochastic.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param count Number of host to remove infection from
+     * @param generator Random number generator to provide stochasticity for mortality
+     */
     void
-    remove_exposed_at(RasterIndex i, RasterIndex j, int count, Generator& generator)
+    remove_exposed_at(RasterIndex row, RasterIndex col, int count, Generator& generator)
     {
         // remove the same percentage for total exposed and remove randomly from
         // each cohort
-        total_exposed_(i, j) -= count;
+        total_exposed_(row, col) -= count;
         if (count > 0) {
             std::vector<int> exposed_draw =
-                draw_n_from_cohorts(exposed_, count, i, j, generator);
+                draw_n_from_cohorts(exposed_, count, row, col, generator);
             int index = 0;
             for (auto& raster : exposed_) {
-                raster(i, j) -= exposed_draw[index];
+                raster(row, col) -= exposed_draw[index];
                 index += 1;
             }
         }
         // move infested/infected host back to susceptible pool
-        susceptible_(i, j) += count;
+        susceptible_(row, col) += count;
     }
 
+    /**
+     * @brief Make hosts resistant in a given cell
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param susceptible Number of susceptible hosts to make resistant
+     * @param exposed Number of exposed hosts in each cohort to make resistant
+     * @param infected Number of infected hosts to make resistant
+     * @param mortality Number of infected hosts in each mortality cohort to make
+     * resistant
+     *
+     * @throws std::invalid_argument if counts exceed the maximum amounts possible given
+     * the current state (currently checked only for susceptible)
+     * @throws std::invalid_argument if sizes don't equal to number of cohorts
+     */
     void make_resistant_at(
         RasterIndex row,
         RasterIndex col,
@@ -518,38 +633,37 @@ public:
         resistant_(row, col) += total_resistant;
     }
 
+    /**
+     * @brief Remove resistance of host at a cell
+     *
+     * All resistant hosts are moved to the susceptible group.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     */
     void remove_resistance_at(RasterIndex row, RasterIndex col)
     {
         susceptible_(row, col) += resistant_(row, col);
         resistant_(row, col) = 0;
     }
 
-    // Brings exposed dependency to more items, needs to wait for more complete host.
-    /*
-    template<typename Generator>
-    void remove_infection_at(
-        RasterIndex i,
-        RasterIndex j,
-        double percentage,
-        IntegerRaster& infected,
-        IntegerRaster& susceptible,
-        std::vector<IntegerRaster>& exposed,
-        IntegerRaster& total_exposed,
-        Generator& generator)
-    {
-        this->remove_infected_at(i, j, 1, infected, susceptible, generator);
-        this->remove_exposed_at(i, j, 1, susceptible, exposed, generator);
-    }
-    */
-
-    /*
-     * In indexes that are in the mortality_time_lag, no mortality occurs. In the last
-     * year of mortality tracking, the first index all remaining tracked infected hosts
-     * are removed. In all other indexes the number of tracked individuals is multiplied
-     * by the mortality rate to calculate the number of hosts that die that time step.
+    /**
+     * @brief Apply mortality at a given cell
+     *
+     * Each cohort in exposed to mortality rate except those inside the mortality time
+     * lag. In indexes of the cohort vector that are in the mortality_time_lag, no
+     * mortality occurs. In the last year of mortality tracking, the all remaining
+     * tracked infected hosts are removed. In all other indexes the number of tracked
+     * individuals is multiplied by the mortality rate to calculate the number of hosts
+     * that die that time step.
+     *
+     * To be used together with step_forward_mortality().
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param mortality_rate Percent of infected hosts that die each time period
+     * @param mortality_time_lag Time lag prior to mortality beginning
      */
-    // For multi-host, rate and time lag will likely go to constructor (as host
-    // properties; now they are mortality action properties).
     void apply_mortality_at(
         RasterIndex i, RasterIndex j, double mortality_rate, int mortality_time_lag)
     {
@@ -594,22 +708,74 @@ public:
         }
     }
 
+    /**
+     * @brief Make a step forward in tracking mortality cohorts
+     *
+     * This makes the mortality cohorts age.
+     *
+     * To be used together with apply_mortality_at().
+     */
+    void step_forward_mortality()
+    {
+        rotate_left_by_one(mortality_tracker_vector_);
+    }
+
+    /**
+     * @brief Get number of infected hosts at a given cell
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return Number of infected hosts
+     */
     int infected_at(RasterIndex i, RasterIndex j) const
     {
         return infected_(i, j);
     }
 
+    /**
+     * @brief Get number of susceptible hosts at a given cell
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return Number of susceptible hosts
+     */
     int susceptible_at(RasterIndex i, RasterIndex j) const
     {
         return susceptible_(i, j);
     }
 
+    /**
+     * @brief Get number of exposed hosts at a given cell
+     *
+     * The number is the total number of exposed hosts in all exposed cohorts.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return Total number of exposed hosts
+     *
+     * @note The number is taken from the internally managed total. This will be merged
+     * with computed_exposed_at() in the future.
+     */
     int exposed_at(RasterIndex i, RasterIndex j) const
     {
         // Future code could remove total exposed and compute that on the fly.
         return total_exposed_(i, j);
     }
 
+    /**
+     * @brief Get number of resistant hosts at a given cell
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return Number of resistant hosts
+     *
+     * @note The number is computed from all cohorts. This will be merged with
+     * exposed_at() in the future.
+     */
     int computed_exposed_at(RasterIndex i, RasterIndex j) const
     {
         int sum = 0;
@@ -618,6 +784,14 @@ public:
         return sum;
     }
 
+    /**
+     * @brief Get exposed hosts in each cohort at a given cell
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return Vector with number of exposed hosts per cohort
+     */
     std::vector<int> exposed_by_group_at(RasterIndex row, RasterIndex col) const
     {
         std::vector<int> all;
@@ -627,6 +801,14 @@ public:
         return all;
     }
 
+    /**
+     * @brief Get infected hosts in each mortality cohort at a given cell
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return Vector with number of infected hosts per mortality cohort
+     */
     std::vector<int> mortality_by_group_at(RasterIndex row, RasterIndex col) const
     {
         std::vector<int> all;
@@ -636,6 +818,14 @@ public:
         return all;
     }
 
+    /**
+     * @brief Get number of resistant hosts at a given cell
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return Number of resistant hosts
+     */
     int resistant_at(RasterIndex row, RasterIndex col) const
     {
         return resistant_(row, col);
@@ -655,11 +845,14 @@ public:
         return susceptible_at(row, col) + infected_at(row, col);
     }
 
-    void step_forward_mortality()
-    {
-        rotate_left_by_one(mortality_tracker_vector_);
-    }
-
+    /**
+     * @brief Return true if cell is outside of the rectangle covered by hosts
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return true if cell is outside, false otherwise
+     */
     bool is_outside(RasterIndex row, RasterIndex col)
     {
         return row < 0 || row >= rows_ || col < 0 || col >= cols_;
@@ -699,6 +892,8 @@ public:
      * The raster class used with the simulation class needs to support
      * `.fill(value)` method for this function to work.
      *
+     * Step is used to evaluate the latency period.
+     *
      * @param step Step in the simulation (>=0)
      */
     void step_forward(unsigned step)
@@ -730,6 +925,14 @@ public:
         }
     }
 
+    /**
+     * @brief Get suitable cells index
+     *
+     * Suitable cells are all cells which need to be modified when all cells with host
+     * need to be modified.
+     *
+     * @return List of cell indices
+     */
     const std::vector<std::vector<int>>& suitable_cells() const
     {
         return suitable_cells_;
