@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.11...3.13)
 
 project(pops-core
-    VERSION 3.0
+    VERSION 2.1
     DESCRIPTION "PoPS (Pest or Pathogen Spread) Model Core C++ library"
     LANGUAGES CXX)
 
