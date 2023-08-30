@@ -29,6 +29,14 @@ namespace pops {
 
 /**
  * Host pool managing susceptible, exposed, infected, and resistant hosts.
+ *
+ * @tparam IntegerRaster Integer raster type
+ * @tparam FloatRaster Floating point raster type
+ * @tparam RasterIndex Type for indexing the rasters
+ * @tparam GeneratorProvider Provider of random number generators
+ *
+ * GeneratorProvider needs to provide Generator memeber which is the type of the
+ * underlying random number generators.
  */
 template<
     typename IntegerRaster,
@@ -38,11 +46,18 @@ template<
 class HostPool : public HostPoolInterface<RasterIndex>
 {
 public:
+    /**
+     * Type of environment object providing information about weather and other
+     * environmental properties.
+     */
     using Environment = EnvironmentInterface<
         IntegerRaster,
         FloatRaster,
         RasterIndex,
         GeneratorProvider>;
+    /**
+     * Standard random number generator to be passed directly to the methods.
+     */
     using Generator = typename GeneratorProvider::Generator;
 
     /**
@@ -170,8 +185,6 @@ public:
      *
      * @param row Row number of the target cell
      * @param col Column number of the target cell
-     *
-     * @return true if disperser has established in the cell, false otherwise
      *
      * @throw std::runtime_error if model type is unsupported (i.e., not SI or SEI)
      *
@@ -665,44 +678,44 @@ public:
      * @param mortality_time_lag Time lag prior to mortality beginning
      */
     void apply_mortality_at(
-        RasterIndex i, RasterIndex j, double mortality_rate, int mortality_time_lag)
+        RasterIndex row, RasterIndex col, double mortality_rate, int mortality_time_lag)
     {
         int max_index = mortality_tracker_vector_.size() - mortality_time_lag - 1;
         for (int index = 0; index <= max_index; index++) {
             int mortality_in_index = 0;
-            if (mortality_tracker_vector_[index](i, j) > 0) {
+            if (mortality_tracker_vector_[index](row, col) > 0) {
                 // used to ensure that all infected hosts in the last year of
                 // tracking mortality
                 if (index == 0) {
-                    mortality_in_index = mortality_tracker_vector_[index](i, j);
+                    mortality_in_index = mortality_tracker_vector_[index](row, col);
                 }
                 else {
                     mortality_in_index =
-                        mortality_rate * mortality_tracker_vector_[index](i, j);
+                        mortality_rate * mortality_tracker_vector_[index](row, col);
                 }
-                mortality_tracker_vector_[index](i, j) -= mortality_in_index;
-                died_(i, j) += mortality_in_index;
-                if (mortality_in_index > infected_(i, j)) {
+                mortality_tracker_vector_[index](row, col) -= mortality_in_index;
+                died_(row, col) += mortality_in_index;
+                if (mortality_in_index > infected_(row, col)) {
                     throw std::runtime_error(
                         "Mortality[" + std::to_string(index)
                         + "] is higher than current number of infected hosts ("
                         + std::to_string(mortality_in_index) + " > "
-                        + std::to_string(infected_(i, j)) + ") for cell ("
-                        + std::to_string(i) + ", " + std::to_string(j) + ")");
+                        + std::to_string(infected_(row, col)) + ") for cell ("
+                        + std::to_string(row) + ", " + std::to_string(col) + ")");
                 }
-                if (mortality_in_index > total_hosts_(i, j)) {
+                if (mortality_in_index > total_hosts_(row, col)) {
                     throw std::runtime_error(
                         "Mortality[" + std::to_string(index)
                         + "] is higher than current number of total hosts ("
                         + std::to_string(mortality_in_index) + " > "
-                        + std::to_string(total_hosts_(i, j)) + ") for cell ("
-                        + std::to_string(i) + ", " + std::to_string(j) + ")");
+                        + std::to_string(total_hosts_(row, col)) + ") for cell ("
+                        + std::to_string(row) + ", " + std::to_string(col) + ")");
                 }
-                if (infected_(i, j) > 0) {
-                    infected_(i, j) -= mortality_in_index;
+                if (infected_(row, col) > 0) {
+                    infected_(row, col) -= mortality_in_index;
                 }
-                if (total_hosts_(i, j) > 0) {
-                    total_hosts_(i, j) -= mortality_in_index;
+                if (total_hosts_(row, col) > 0) {
+                    total_hosts_(row, col) -= mortality_in_index;
                 }
             }
         }
@@ -728,9 +741,9 @@ public:
      *
      * @return Number of infected hosts
      */
-    int infected_at(RasterIndex i, RasterIndex j) const
+    int infected_at(RasterIndex row, RasterIndex col) const
     {
-        return infected_(i, j);
+        return infected_(row, col);
     }
 
     /**
@@ -741,9 +754,9 @@ public:
      *
      * @return Number of susceptible hosts
      */
-    int susceptible_at(RasterIndex i, RasterIndex j) const
+    int susceptible_at(RasterIndex row, RasterIndex col) const
     {
-        return susceptible_(i, j);
+        return susceptible_(row, col);
     }
 
     /**
@@ -759,10 +772,10 @@ public:
      * @note The number is taken from the internally managed total. This will be merged
      * with computed_exposed_at() in the future.
      */
-    int exposed_at(RasterIndex i, RasterIndex j) const
+    int exposed_at(RasterIndex row, RasterIndex col) const
     {
         // Future code could remove total exposed and compute that on the fly.
-        return total_exposed_(i, j);
+        return total_exposed_(row, col);
     }
 
     /**
@@ -776,11 +789,11 @@ public:
      * @note The number is computed from all cohorts. This will be merged with
      * exposed_at() in the future.
      */
-    int computed_exposed_at(RasterIndex i, RasterIndex j) const
+    int computed_exposed_at(RasterIndex row, RasterIndex col) const
     {
         int sum = 0;
         for (const auto& raster : exposed_)
-            sum += raster(i, j);
+            sum += raster(row, col);
         return sum;
     }
 
