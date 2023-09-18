@@ -642,6 +642,18 @@ public:
             mortality_tracker_vector_[i](row, col) -= mortality[i];
             mortality_total += mortality[i];
         }
+        // These two values will only match if we actually compute one from another
+        // and once we don't need to keep the exact same double to int results for
+        // tests. First condition always fails the tests. The second one may potentially
+        // fail.
+        if (false && infected != mortality_total) {
+            throw std::invalid_argument(
+                "Total of mortality values differs from formely infected, now resistant"
+                "count ("
+                + std::to_string(mortality_total) + " != " + std::to_string(infected)
+                + " for cell (" + std::to_string(row) + ", " + std::to_string(col)
+                + ")");
+        }
         total_resistant += infected;
         resistant_(row, col) += total_resistant;
     }
