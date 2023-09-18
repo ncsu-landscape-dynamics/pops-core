@@ -1,0 +1,12 @@
+missingIncludeSystem
+unusedFunction
+passedByValue
+noExplicitConstructor
+missingOverride
+shadowVariable
+useInitializationList
+useStlAlgorithm
+shadowArgument
+unsignedLessThanZero
+variableScope
+uninitMemberVar
