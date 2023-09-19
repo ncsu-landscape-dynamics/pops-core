@@ -601,7 +601,7 @@ public:
         int susceptible,
         const std::vector<int>& exposed,
         int infected,
-        const std::vector<double>& mortality)
+        const std::vector<int>& mortality)
     {
         int total_resistant = 0;
 
@@ -648,11 +648,11 @@ public:
         // fail.
         if (false && infected != mortality_total) {
             throw std::invalid_argument(
-                "Total of mortality values differs from formely infected, now resistant"
+                "Total of mortality values differs from formely infected, now resistant "
                 "count ("
                 + std::to_string(mortality_total) + " != " + std::to_string(infected)
                 + " for cell (" + std::to_string(row) + ", " + std::to_string(col)
-                + ")");
+                + "))");
         }
         total_resistant += infected;
         resistant_(row, col) += total_resistant;

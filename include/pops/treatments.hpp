@@ -325,7 +325,7 @@ public:
             for (const auto& number : host_pool.exposed_by_group_at(i, j)) {
                 resistant_exposed_list.push_back(this->get_treated(i, j, number));
             }
-            std::vector<double> resistant_mortality_list;
+            std::vector<int> resistant_mortality_list;
             for (const auto& number : host_pool.mortality_by_group_at(i, j)) {
                 resistant_mortality_list.push_back(this->get_treated(i, j, number));
             }
