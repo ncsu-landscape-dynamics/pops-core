@@ -58,7 +58,7 @@ int test_rotate_left_by_one(std::vector<int> a, std::vector<int> b)
 {
     rotate_left_by_one(a);
     if (a != b) {
-        cout << "Rotated vector not correct\n";
+        std::cerr << "Rotated vector not correct\n";
         print_vector(a);
         print_vector(b);
         return 1;
@@ -114,20 +114,20 @@ int test_with_neighbor_kernel()
         0.5,
         generator);
     if (!outside_dispersers.empty()) {
-        cout << "There are outside_dispersers (" << outside_dispersers.size()
-             << ") but there should be none\n";
+        std::cerr << "There are outside_dispersers (" << outside_dispersers.size()
+                  << ") but there should be none\n";
         return 1;
     }
     if (infected != expected_infected) {
-        cout << "Neighbor kernel test infected (actual, expected):\n"
-             << infected << "  !=\n"
-             << expected_infected << "\n";
+        std::cerr << "Neighbor kernel test infected (actual, expected):\n"
+                  << infected << "  !=\n"
+                  << expected_infected << "\n";
         return 1;
     }
     if (mortality_tracker != expected_mortality_tracker) {
-        cout << "Neighbor kernel test mortality tracker (actual, expected):\n"
-             << mortality_tracker << "  !=\n"
-             << expected_mortality_tracker << "\n";
+        std::cerr << "Neighbor kernel test mortality tracker (actual, expected):\n"
+                  << mortality_tracker << "  !=\n"
+                  << expected_mortality_tracker << "\n";
         return 1;
     }
     return 0;
@@ -179,9 +179,9 @@ int test_with_reduced_stochasticity()
         generator);
     auto expected_dispersers = reproductive_rate * infected;
     if (dispersers != expected_dispersers) {
-        cout << "reduced_stochasticity: dispersers (actual, expected):\n"
-             << dispersers << "  !=\n"
-             << expected_dispersers << "\n";
+        std::cerr << "reduced_stochasticity: dispersers (actual, expected):\n"
+                  << dispersers << "  !=\n"
+                  << expected_dispersers << "\n";
         return 1;
     }
     simulation.disperse(
@@ -199,20 +199,20 @@ int test_with_reduced_stochasticity()
         establishment_probability,
         generator);
     if (!outside_dispersers.empty()) {
-        cout << "reduced_stochasticity: There are outside_dispersers ("
-             << outside_dispersers.size() << ") but there should be none\n";
+        std::cerr << "reduced_stochasticity: There are outside_dispersers ("
+                  << outside_dispersers.size() << ") but there should be none\n";
         return 1;
     }
     if (infected != expected_infected) {
-        cout << "reduced_stochasticity: infected (actual, expected):\n"
-             << infected << "  !=\n"
-             << expected_infected << "\n";
+        std::cerr << "reduced_stochasticity: infected (actual, expected):\n"
+                  << infected << "  !=\n"
+                  << expected_infected << "\n";
         return 1;
     }
     if (mortality_tracker != expected_mortality_tracker) {
-        cout << "reduced_stochasticity: mortality tracker (actual, expected):\n"
-             << mortality_tracker << "  !=\n"
-             << expected_mortality_tracker << "\n";
+        std::cerr << "reduced_stochasticity: mortality tracker (actual, expected):\n"
+                  << mortality_tracker << "  !=\n"
+                  << expected_mortality_tracker << "\n";
         return 1;
     }
     return 0;
@@ -222,8 +222,8 @@ int disperse_and_infect_postcondition(int step, const std::vector<Raster<int>>& 
 {
     Raster<int> zeros(exposed[0].rows(), exposed[0].cols(), 0);
     if (exposed.back() != zeros) {
-        cout << "SEI: disperse_and_infect post-condition not met in step " << step
-             << "\n";
+        std::cerr << "SEI: disperse_and_infect post-condition not met in step " << step
+                  << "\n";
         return 1;
     }
     return 0;
@@ -239,17 +239,17 @@ int exposed_state(
     for (unsigned int i = 0; i < exposed.size(); ++i) {
         if (int(i) >= int(exposed.size()) - step - 2 && i < exposed.size() - 1) {
             if (exposed[i] != expected_exposed) {
-                cout << "SEI test exposed[" << i << "] (actual, expected):\n"
-                     << exposed[i] << "  !=\n"
-                     << expected_exposed << "\n";
+                std::cerr << "SEI test exposed[" << i << "] (actual, expected):\n"
+                          << exposed[i] << "  !=\n"
+                          << expected_exposed << "\n";
                 print_vector(exposed);
                 ret += 1;
             }
         }
         else {
             if (exposed[i] != zeros) {
-                cout << "SEI test exposed[" << i << "] (actual, expected zeros):\n"
-                     << exposed[i] << "\n";
+                std::cerr << "SEI test exposed[" << i << "] (actual, expected zeros):\n"
+                          << exposed[i] << "\n";
                 print_vector(exposed);
                 ret += 1;
             }
@@ -320,14 +320,14 @@ int test_with_sei()
         0.5,
         generator);
     if (infected != expected_infected) {
-        cout << "SEI test infected (actual, expected):\n"
-             << infected << "  !=\n"
-             << expected_infected << "\n";
+        std::cerr << "SEI test infected (actual, expected):\n"
+                  << infected << "  !=\n"
+                  << expected_infected << "\n";
         ret += 1;
     }
     if (mortality_tracker != zeros) {
-        cout << "SEI test mortality tracker (actual, expected zeros):\n"
-             << mortality_tracker << "\n";
+        std::cerr << "SEI test mortality tracker (actual, expected zeros):\n"
+                  << mortality_tracker << "\n";
         ret += 1;
     }
     print_vector(exposed);
@@ -372,14 +372,14 @@ int test_with_sei()
     cout << infected << "\n\n";
     ret += disperse_and_infect_postcondition(step, exposed);
     if (!outside_dispersers.empty()) {
-        cout << "SEI test: There are outside_dispersers (" << outside_dispersers.size()
-             << ") but there should be none\n";
+        std::cerr << "SEI test: There are outside_dispersers ("
+                  << outside_dispersers.size() << ") but there should be none\n";
         ret += 1;
     }
     exposed_state(step, exposed, expected_exposed);
     if (mortality_tracker != zeros) {
-        cout << "SEI test mortality tracker (actual, expected zeros):\n"
-             << mortality_tracker << "\n";
+        std::cerr << "SEI test mortality tracker (actual, expected zeros):\n"
+                  << mortality_tracker << "\n";
         ret += 1;
     }
     simulation.disperse_and_infect(
@@ -404,20 +404,20 @@ int test_with_sei()
     expected_infected = expected_infected + expected_exposed;
     Raster<int> expected_mortality_tracker = expected_exposed;
     if (!outside_dispersers.empty()) {
-        cout << "SEI test: There are outside_dispersers (" << outside_dispersers.size()
-             << ") but there should be none\n";
+        std::cerr << "SEI test: There are outside_dispersers ("
+                  << outside_dispersers.size() << ") but there should be none\n";
         ret += 1;
     }
     if (infected != expected_infected) {
-        cout << "SEI test infected (actual, expected):\n"
-             << infected << "  !=\n"
-             << expected_infected << "\n";
+        std::cerr << "SEI test infected (actual, expected):\n"
+                  << infected << "  !=\n"
+                  << expected_infected << "\n";
         ret += 1;
     }
     if (mortality_tracker != expected_mortality_tracker) {
-        cout << "SEI test mortality tracker (actual, expected):\n"
-             << mortality_tracker << "  !=\n"
-             << expected_mortality_tracker << "\n";
+        std::cerr << "SEI test mortality tracker (actual, expected):\n"
+                  << mortality_tracker << "  !=\n"
+                  << expected_mortality_tracker << "\n";
         ret += 1;
     }
     exposed_state(step, exposed, expected_exposed);
@@ -492,7 +492,6 @@ int test_SI_versus_SEI0()
     auto total_hosts_1 = susceptible_1;
     auto total_hosts_2 = susceptible_2;
     auto total_hosts_3 = susceptible_3;
-    Raster<double> temperature = {{5, 0}, {0, 0}};
     auto rows = infected_1.rows();
     auto cols = infected_1.cols();
 
@@ -572,22 +571,22 @@ int test_SI_versus_SEI0()
             generator_SEI0);
         ret += disperse_and_infect_postcondition(step, exposed);
         if (infected_2 != infected_1) {
-            cout
+            std::cerr
                 << "SI with disperse vs SI with disperse_and_infect: infected don't fit\n";
-            cout << infected_2;
-            cout << infected_1;
+            std::cerr << infected_2;
+            std::cerr << infected_1;
             ret += 1;
         }
         if (infected_3 != infected_1) {
-            cout << "SI with disperse_and_infect vs SEI0: infected don't fit\n";
-            cout << infected_1;
-            cout << infected_3;
+            std::cerr << "SI with disperse_and_infect vs SEI0: infected don't fit\n";
+            std::cerr << infected_1;
+            std::cerr << infected_3;
             ret += 1;
         }
         if (infected_3 != infected_2) {
-            cout << "SI with disperse vs SEI0: infected don't fit\n";
-            cout << infected_2;
-            cout << infected_3;
+            std::cerr << "SI with disperse vs SEI0: infected don't fit\n";
+            std::cerr << infected_2;
+            std::cerr << infected_3;
             ret += 1;
         }
     }
@@ -624,15 +623,28 @@ int test_calling_all_functions()
     std::vector<std::vector<int>> movements = {{0, 0, 1, 1, 2}, {0, 1, 0, 0, 3}};
     std::vector<unsigned> movement_schedule = {1, 1};
 
-    Environment<Raster<int>, Raster<double>, Raster<double>::IndexType> environment;
+    Environment<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        DefaultSingleGeneratorProvider>
+        environment;
     environment.update_weather_coefficient(weather_coefficient);
+    environment.update_temperature(temperature);
 
     DefaultSingleGeneratorProvider generator(seed);
     Simulation<Raster<int>, Raster<double>> simulation(
         infected.rows(), infected.cols());
     simulation.set_environment(&environment);
     simulation.remove(
-        infected, susceptible, temperature, lethal_temperature, suitable_cells);
+        infected,
+        susceptible,
+        exposed,
+        total_exposed,
+        mortality_tracker_vector,
+        lethal_temperature,
+        suitable_cells,
+        generator);
     simulation.generate(
         dispersers,
         established_dispersers,
@@ -688,6 +700,9 @@ int main()
     ret += test_with_reduced_stochasticity();
     ret += test_with_sei();
     ret += test_SI_versus_SEI0();
+
+    (ret ? std::cerr : std::cout)
+        << "test_simulation: number of errors: " << ret << "\n";
 
     return ret;
 }

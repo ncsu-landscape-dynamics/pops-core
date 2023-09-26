@@ -31,6 +31,12 @@
 
 using namespace pops;
 
+using EnvironmentForTests = Environment<
+    Raster<int>,
+    Raster<double>,
+    Raster<double>::IndexType,
+    DefaultSingleGeneratorProvider>;
+
 /**
  * Return true if the *operation* throws an exception.
  *
@@ -75,7 +81,7 @@ int test_environment_string_values()
 
 int test_at_access_rejected()
 {
-    Environment<Raster<int>, Raster<double>, int> environment;
+    EnvironmentForTests environment;
     try {
         auto a = environment.weather_coefficient_at(0, 0);
         std::cout << a;
@@ -87,9 +93,23 @@ int test_at_access_rejected()
     return 1;
 }
 
+int test_temperature_at_access_rejected()
+{
+    EnvironmentForTests environment;
+    try {
+        auto a = environment.temperature_at(0, 0);
+        std::cout << a;
+    }
+    catch (const std::logic_error&) {
+        return 0;
+    }
+    std::cerr << "Temperature not set but at-access to it was allowed\n";
+    return 1;
+}
+
 int test_raster_access_rejected()
 {
-    Environment<Raster<int>, Raster<double>, int> environment;
+    EnvironmentForTests environment;
     try {
         auto& a = environment.weather_coefficient();
         std::cout << a;
@@ -107,7 +127,7 @@ int test_raster_access_rejected()
 int test_update_deterministic_weather()
 {
     int num_errors = 0;
-    Environment<Raster<int>, Raster<double>, int> environment;
+    EnvironmentForTests environment;
 
     Raster<double> step_1{{1, 2}, {0, 1}, {8, 7}};
     environment.update_weather_coefficient(step_1);
@@ -147,7 +167,7 @@ int test_update_deterministic_weather()
 int test_update_probabilistic_weather()
 {
     int num_errors = 0;
-    Environment<Raster<int>, Raster<double>, int> environment;
+    EnvironmentForTests environment;
     unsigned seed = 1;
     DefaultSingleGeneratorProvider generator(seed);
 
@@ -194,7 +214,7 @@ int test_update_probabilistic_weather()
 int test_update_probabilistic_weather_dimensions()
 {
     int num_errors = 0;
-    Environment<Raster<int>, Raster<double>, int> environment;
+    EnvironmentForTests environment;
     DefaultSingleGeneratorProvider generator(1);
 
     Raster<double> step_1{{0.1, 0.2, 0.0, 0.3, 0.8, 0.7}};
@@ -220,7 +240,7 @@ int test_update_probabilistic_weather_dimensions()
 int test_update_probabilistic_weather_range()
 {
     int num_errors = 0;
-    Environment<Raster<int>, Raster<double>, int> environment;
+    EnvironmentForTests environment;
     DefaultSingleGeneratorProvider generator(1);
     int num_tests = 10;
 
@@ -253,7 +273,7 @@ int test_update_probabilistic_weather_range()
 int test_update_probabilistic_weather_mean_in_range()
 {
     int num_errors = 0;
-    Environment<Raster<int>, Raster<double>, int> environment;
+    EnvironmentForTests environment;
     unsigned seed = 1;
     DefaultSingleGeneratorProvider generator(seed);
 
@@ -279,6 +299,7 @@ int main()
 
     num_errors += test_environment_string_values();
     num_errors += test_at_access_rejected();
+    num_errors += test_temperature_at_access_rejected();
     num_errors += test_raster_access_rejected();
     num_errors += test_update_deterministic_weather();
     num_errors += test_update_probabilistic_weather();

@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.11...3.13)
 
 project(pops-core
-    VERSION 0.9
+    VERSION 2.1
     DESCRIPTION "PoPS (Pest or Pathogen Spread) Model Core C++ library"
     LANGUAGES CXX)
 
@@ -10,7 +10,7 @@ project(pops-core
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     # We need the following C++ standard
-    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 17)
 
     # Disable compiler-specific extensions
     set(CMAKE_CXX_EXTENSIONS OFF)
@@ -54,8 +54,13 @@ target_include_directories(pops INTERFACE include/)
 # Show files in IDEs
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     target_sources(pops INTERFACE
+        include/pops/actions.hpp
         include/pops/environment.hpp
+        include/pops/environment_interface.hpp
         include/pops/config.hpp
+        include/pops/host_pool.hpp
+        include/pops/host_pool_interface.hpp
+        include/pops/model_type.hpp
         include/pops/generator_provider.hpp
         include/pops/natural_anthropogenic_kernel.hpp
         include/pops/natural_kernel.hpp
@@ -77,6 +82,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/date.hpp
         include/pops/scheduling.hpp
         include/pops/quarantine.hpp
+        include/pops/pest_pool.hpp
         include/pops/power_law_kernel.hpp
         include/pops/hyperbolic_secant_kernel.hpp
         include/pops/logistic_kernel.hpp

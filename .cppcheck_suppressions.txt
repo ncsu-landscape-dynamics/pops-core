@@ -16,5 +16,4 @@ useStlAlgorithm
 shadowArgument
 unsignedLessThanZero
 variableScope
-unusedVariable
 uninitMemberVar

@@ -860,7 +860,6 @@ protected:
      * @brief Read segments from a stream.
      *
      * @param stream Input stream with segments
-     * @param node_ids Container with node IDs to use
      */
     template<typename InputStream>
     void load_segments(InputStream& stream)

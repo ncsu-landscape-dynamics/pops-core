@@ -57,17 +57,31 @@ protected:
     UniformDispersalKernel uniform_kernel;
     DeterministicNeighborDispersalKernel natural_neighbor_kernel;
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
-    Simulation<IntegerRaster, FloatRaster, RasterIndex> simulation_;
+    Simulation<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>
+        simulation_;
     KernelFactory& kernel_factory_;
     /**
      * Surrounding environment (currently used for soils only)
      */
-    Environment<IntegerRaster, FloatRaster, RasterIndex> environment_;
+    Environment<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>
+        environment_;
     /**
      * Optionally created soil pool
      */
-    std::shared_ptr<SoilPool<IntegerRaster, FloatRaster, RasterIndex>> soil_pool_{
-        nullptr};
+    std::shared_ptr<SoilPool<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>>
+        soil_pool_{nullptr};
     unsigned last_index{0};
 
     /**
@@ -164,6 +178,8 @@ public:
      * infected + exposed + susceptible in the cell.
      * @param[in,out] total_populations All host and non-host individuals in the area
      * @param[out] dispersers Dispersing individuals (used internally)
+     * @param[out] established_dispersers Dispersers originating from a given cell which
+     * established elsewhere
      * @param[in,out] total_exposed Sum of all exposed hosts (if SEI model is active)
      * @param[in,out] exposed Exposed hosts (if SEI model is active)
      * @param[in,out] mortality_tracker Mortality tracker used to generate *died*.
@@ -173,7 +189,7 @@ public:
      * schedule
      * @param[in] temperatures Vector of temperatures used to evaluate lethal
      * temperature
-     * @param[in] weather_coefficient Weather coefficient (for the current step)
+     * @param[in] survival_rates Pest survival rates
      * @param[in,out] treatments Treatments to be applied (also tracks use of
      * treatments)
      * @param[in,out] resistant Resistant hosts (host temporarily removed from
@@ -223,12 +239,16 @@ public:
         if (config_.use_lethal_temperature && config_.lethal_schedule()[step]) {
             int lethal_step =
                 simulation_step_to_action_step(config_.lethal_schedule(), step);
+            this->environment().update_temperature(temperatures[lethal_step]);
             simulation_.remove(
                 infected,
                 susceptible,
-                temperatures[lethal_step],
+                exposed,
+                total_exposed,
+                mortality_tracker,
                 config_.lethal_temperature,
-                suitable_cells);
+                suitable_cells,
+                generator_provider_);
         }
         // removal of percentage of dispersers
         if (config_.use_survival_rate && config_.survival_rate_schedule()[step]) {
@@ -266,7 +286,7 @@ public:
                 susceptible,
                 exposed,
                 infected,
-                mortality_tracker.back(),
+                mortality_tracker,
                 total_populations,
                 total_exposed,
                 outside_dispersers,
@@ -307,20 +327,15 @@ public:
         }
         // treatments
         if (config_.use_treatments) {
-            bool managed = treatments.manage(
+            treatments.manage(
                 step,
                 infected,
                 exposed,
                 susceptible,
                 resistant,
+                mortality_tracker,
                 total_hosts,
                 suitable_cells);
-            if (managed && config_.use_mortality) {
-                // treatments apply to all mortality tracker cohorts
-                for (auto& raster : mortality_tracker) {
-                    treatments.manage_mortality(step, raster, suitable_cells);
-                }
-            }
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
             // expectation is that mortality tracker is of length (1/mortality_rate
@@ -363,7 +378,12 @@ public:
      * @brief Get surrounding environment
      * @return Environment object by reference
      */
-    Environment<IntegerRaster, FloatRaster, RasterIndex>& environment()
+    Environment<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>&
+    environment()
     {
         return environment_;
     }
@@ -379,7 +399,11 @@ public:
     void activate_soils(std::vector<IntegerRaster>& rasters)
     {
         // The soil pool is created again for every new activation.
-        this->soil_pool_.reset(new SoilPool<IntegerRaster, FloatRaster, RasterIndex>(
+        this->soil_pool_.reset(new SoilPool<
+                               IntegerRaster,
+                               FloatRaster,
+                               RasterIndex,
+                               RandomNumberGeneratorProvider<Generator>>(
             rasters,
             this->environment_,
             config_.generate_stochasticity,
