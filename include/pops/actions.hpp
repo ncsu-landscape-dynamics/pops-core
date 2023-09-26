@@ -214,9 +214,9 @@ public:
      * Reduce the infection based on the pest survival rate.
      *
      * Infected and total number of exposed hosts are removed directly, while mortality
-     * cohorts and exposed cohorts are left to be managed by the host pool, In other
-     * words, the details of how total infected and total exposed is distributed among
-     * the cohorts managed by the host pools.
+     * cohorts and exposed cohorts are left to be managed by the host pool. In other
+     * words, the details of how total infected and total exposed are distributed among
+     * the cohorts is managed by the host pools.
      */
     template<typename Generator>
     void action(Hosts& hosts, Generator& generator)
