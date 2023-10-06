@@ -248,7 +248,7 @@ public:
             died,
             total_hosts,
             environment_,
-            config_.dispersal_stochasticity,
+            config_.generate_stochasticity,
             config_.reproductive_rate,
             config_.establishment_stochasticity,
             config_.establishment_probability,
@@ -306,14 +306,7 @@ public:
                 spread_action.activate_soils(
                     soil_pool_, config_.dispersers_to_soils_percentage);
             }
-            simulation_.generate(
-                dispersers,
-                established_dispersers,
-                infected,
-                config_.weather,
-                config_.reproductive_rate,
-                suitable_cells,
-                generator_provider_);
+            spread_action.generate(host_pool, pest_pool, generator_provider_);
             spread_action.disperse(host_pool, pest_pool, generator_provider_);
             host_pool.step_forward(step);
             if (config_.use_overpopulation_movements) {
