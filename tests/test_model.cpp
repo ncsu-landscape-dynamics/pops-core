@@ -136,36 +136,37 @@ int test_with_reduced_stochasticity()
         Network<int>::null_network(),
         suitable_cells);
 
+    int ret = 0;
     if (dispersers != expected_dispersers) {
         cout << "reduced_stochasticity: dispersers (actual, expected):\n"
              << dispersers << "  !=\n"
              << expected_dispersers << "\n";
-        return 1;
+        ++ret;
     }
     if (established_dispersers != expected_established_dispersers) {
         cout << "reduced_stochasticity: established dispersers (actual, expected):\n"
              << established_dispersers << "  !=\n"
              << expected_established_dispersers << "\n";
-        return 1;
+        ++ret;
     }
     if (!outside_dispersers.empty()) {
         cout << "reduced_stochasticity: There are outside_dispersers ("
              << outside_dispersers.size() << ") but there should be none\n";
-        return 1;
+        ++ret;
     }
     if (infected != expected_infected) {
         cout << "reduced_stochasticity: infected (actual, expected):\n"
              << infected << "  !=\n"
              << expected_infected << "\n";
-        return 1;
+        ++ret;
     }
     if (mortality_tracker[0] != expected_mortality_tracker) {
         cout << "reduced_stochasticity: mortality tracker (actual, expected):\n"
              << mortality_tracker[0] << "  !=\n"
              << expected_mortality_tracker << "\n";
-        return 1;
+        ++ret;
     }
-    return 0;
+    return ret;
 }
 int test_deterministic()
 {
