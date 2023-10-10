@@ -306,8 +306,7 @@ public:
                 spread_action.activate_soils(
                     soil_pool_, config_.dispersers_to_soils_percentage);
             }
-            spread_action.generate(host_pool, pest_pool, generator_provider_);
-            spread_action.disperse(host_pool, pest_pool, generator_provider_);
+            spread_action.action(host_pool, pest_pool, generator_provider_);
             host_pool.step_forward(step);
             if (config_.use_overpopulation_movements) {
                 MoveOverpopulatedPests<
