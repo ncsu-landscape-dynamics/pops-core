@@ -453,7 +453,7 @@ public:
 
     /** Perform the movement
      *
-     * @note This one returns a value, so to create an consistent interface for all
+     * @note This one returns a value, so to create a consistent interface for all
      * actions, the tracking would have to happen in the action which would be better
      * design anyway.
      */

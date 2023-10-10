@@ -286,8 +286,9 @@ public:
                 RandomNumberGeneratorProvider<Generator>>
                 spread_action{dispersal_kernel};
 
-            // This would be part of the main initialization process. Or not?
             environment_.set_total_population(&total_populations);
+            // Soils are activated by an independent function call for model, but spread
+            // action is temporary, so it is activated for every step.
             if (this->soil_pool_) {
                 spread_action.activate_soils(
                     soil_pool_, config_.dispersers_to_soils_percentage);
