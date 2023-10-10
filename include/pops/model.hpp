@@ -28,7 +28,9 @@
 #include "config.hpp"
 #include "treatments.hpp"
 #include "spread_rate.hpp"
-#include "simulation.hpp"
+#include "host_pool.hpp"
+#include "pest_pool.hpp"
+#include "actions.hpp"
 #include "switch_kernel.hpp"
 #include "kernel.hpp"
 #include "scheduling.hpp"
@@ -57,15 +59,9 @@ protected:
     UniformDispersalKernel uniform_kernel;
     DeterministicNeighborDispersalKernel natural_neighbor_kernel;
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
-    Simulation<
-        IntegerRaster,
-        FloatRaster,
-        RasterIndex,
-        RandomNumberGeneratorProvider<Generator>>
-        simulation_;
     KernelFactory& kernel_factory_;
     /**
-     * Surrounding environment (currently used for soils only)
+     * Surrounding environment
      */
     Environment<
         IntegerRaster,
@@ -140,18 +136,8 @@ public:
           uniform_kernel(config.rows, config.cols),
           natural_neighbor_kernel(direction_from_string(config.natural_direction)),
           anthro_neighbor_kernel(direction_from_string(config.anthro_direction)),
-          simulation_(
-              config.rows,
-              config.cols,
-              model_type_from_string(config.model_type),
-              config.latency_period_steps,
-              config.generate_stochasticity,
-              config.establishment_stochasticity,
-              config.movement_stochasticity),
           kernel_factory_(kernel_factory)
-    {
-        simulation_.set_environment(&this->environment());
-    }
+    {}
 
     /**
      * @brief Run one step of the simulation.
@@ -231,6 +217,33 @@ public:
         const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
+        using StandardHostPool = HostPool<
+            IntegerRaster,
+            FloatRaster,
+            RasterIndex,
+            RandomNumberGeneratorProvider<Generator>>;
+        StandardHostPool host_pool(
+            model_type_from_string(config_.model_type),
+            susceptible,
+            exposed,
+            config_.latency_period_steps,
+            infected,
+            total_exposed,
+            resistant,
+            mortality_tracker,
+            died,
+            total_hosts,
+            environment_,
+            config_.generate_stochasticity,
+            config_.reproductive_rate,
+            config_.establishment_stochasticity,
+            config_.establishment_probability,
+            config_.rows,
+            config_.cols,
+            suitable_cells);
+        using StandardPestPool = PestPool<IntegerRaster, FloatRaster, RasterIndex>;
+        StandardPestPool pest_pool{
+            dispersers, established_dispersers, outside_dispersers};
         // Soil step is the same as simulation step.
         if (soil_pool_)
             soil_pool_->next_step(step);
@@ -240,89 +253,73 @@ public:
             int lethal_step =
                 simulation_step_to_action_step(config_.lethal_schedule(), step);
             this->environment().update_temperature(temperatures[lethal_step]);
-            simulation_.remove(
-                infected,
-                susceptible,
-                exposed,
-                total_exposed,
-                mortality_tracker,
-                config_.lethal_temperature,
-                suitable_cells,
-                generator_provider_);
+            RemoveByTemperature<
+                StandardHostPool,
+                IntegerRaster,
+                FloatRaster,
+                RasterIndex,
+                RandomNumberGeneratorProvider<Generator>>
+                remove(this->environment(), config_.lethal_temperature);
+            remove.action(host_pool, generator_provider_);
         }
         // removal of percentage of dispersers
         if (config_.use_survival_rate && config_.survival_rate_schedule()[step]) {
             int survival_step =
                 simulation_step_to_action_step(config_.survival_rate_schedule(), step);
-            simulation_.remove_percentage(
-                infected,
-                susceptible,
-                mortality_tracker,
-                exposed,
-                total_exposed,
-                survival_rates[survival_step],
-                suitable_cells,
-                generator_provider_);
+            SurvivalRateAction<StandardHostPool, IntegerRaster, FloatRaster> survival(
+                survival_rates[survival_step]);
+            survival.action(host_pool, generator_provider_);
         }
         // actual spread
         if (config_.spread_schedule()[step]) {
-            simulation_.generate(
-                dispersers,
-                established_dispersers,
-                infected,
-                config_.weather,
-                config_.reproductive_rate,
-                suitable_cells,
-                generator_provider_);
-
             auto dispersal_kernel = kernel_factory_(config_, dispersers, network);
             auto overpopulation_kernel =
                 create_overpopulation_movement_kernel(dispersers, network);
 
-            simulation_.disperse_and_infect(
-                step,
-                dispersers,
-                established_dispersers,
-                susceptible,
-                exposed,
-                infected,
-                mortality_tracker,
-                total_populations,
-                total_exposed,
-                outside_dispersers,
-                config_.weather,
-                dispersal_kernel,
-                suitable_cells,
-                config_.establishment_probability,
-                generator_provider_);
+            SpreadAction<
+                StandardHostPool,
+                StandardPestPool,
+                IntegerRaster,
+                FloatRaster,
+                RasterIndex,
+                decltype(dispersal_kernel),
+                RandomNumberGeneratorProvider<Generator>>
+                spread_action{dispersal_kernel};
+
+            environment_.set_total_population(&total_populations);
+            // Soils are activated by an independent function call for model, but spread
+            // action is temporary, so it is activated for every step.
+            if (this->soil_pool_) {
+                spread_action.activate_soils(
+                    soil_pool_, config_.dispersers_to_soils_percentage);
+            }
+            spread_action.action(host_pool, pest_pool, generator_provider_);
+            host_pool.step_forward(step);
             if (config_.use_overpopulation_movements) {
-                simulation_.move_overpopulated_pests(
-                    susceptible,
-                    infected,
-                    total_hosts,
-                    outside_dispersers,
-                    overpopulation_kernel,
-                    suitable_cells,
-                    config_.overpopulation_percentage,
-                    config_.leaving_percentage,
-                    generator_provider_);
+                MoveOverpopulatedPests<
+                    StandardHostPool,
+                    StandardPestPool,
+                    IntegerRaster,
+                    FloatRaster,
+                    RasterIndex,
+                    decltype(overpopulation_kernel)>
+                    move_pest{
+                        overpopulation_kernel,
+                        config_.overpopulation_percentage,
+                        config_.leaving_percentage,
+                        config_.rows,
+                        config_.cols};
+                move_pest.action(host_pool, pest_pool, generator_provider_);
             }
             if (config_.use_movements) {
-                // to do fix movements to use entire mortality tracker
-                last_index = simulation_.movement(
-                    infected,
-                    susceptible,
-                    mortality_tracker,
-                    exposed,
-                    resistant,
-                    total_hosts,
-                    total_exposed,
-                    step,
-                    last_index,
-                    movements,
-                    config_.movement_schedule,
-                    suitable_cells,
-                    generator_provider_);
+                HostMovement<StandardHostPool, IntegerRaster, FloatRaster, RasterIndex>
+                    host_movement{
+                        static_cast<unsigned>(
+                            step),  // Step is int, but indexing happens with unsigned.
+                        last_index,
+                        movements,
+                        config_.movement_schedule};
+                last_index = host_movement.action(host_pool, generator_provider_);
             }
         }
         // treatments
@@ -341,14 +338,9 @@ public:
             // expectation is that mortality tracker is of length (1/mortality_rate
             // + mortality_time_lag).
             // TODO: died.zero(); should be done by the caller if needed, document!
-            simulation_.mortality(
-                infected,
-                total_hosts,
-                config_.mortality_rate,
-                config_.mortality_time_lag,
-                died,
-                mortality_tracker,
-                suitable_cells);
+            Mortality<StandardHostPool, IntegerRaster, FloatRaster> mortality(
+                config_.mortality_rate, config_.mortality_time_lag);
+            mortality.action(host_pool);
         }
         // compute spread rate
         if (config_.use_spreadrates && config_.spread_rate_schedule()[step]) {
@@ -408,8 +400,6 @@ public:
             this->environment_,
             config_.generate_stochasticity,
             config_.establishment_stochasticity));
-        this->simulation_.activate_soils(
-            this->soil_pool_, config_.dispersers_to_soils_percentage);
     }
 };
 

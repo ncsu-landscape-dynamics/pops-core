@@ -437,6 +437,8 @@ public:
      *        num_hosts
      * @param movement_schedule a vector matching movements with the step at which the
      *        movement from movements are applied
+     *
+     * @note There is a mix of signed and unsigned ints for step and movement schedule.
      */
     HostMovement(
         unsigned step,
@@ -449,7 +451,12 @@ public:
           movement_schedule_(movement_schedule)
     {}
 
-    /** Perform the movement */
+    /** Perform the movement
+     *
+     * @note This one returns a value, so to create a consistent interface for all
+     * actions, the tracking would have to happen in the action which would be better
+     * design anyway.
+     */
     template<typename Generator>
     unsigned action(Hosts& hosts, Generator& generator)
     {
