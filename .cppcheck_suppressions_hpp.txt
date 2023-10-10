@@ -2,7 +2,6 @@ missingIncludeSystem
 unusedFunction
 passedByValue
 noExplicitConstructor
-missingOverride
 shadowVariable
 useInitializationList
 useStlAlgorithm
