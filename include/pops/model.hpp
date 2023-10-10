@@ -28,7 +28,9 @@
 #include "config.hpp"
 #include "treatments.hpp"
 #include "spread_rate.hpp"
-#include "simulation.hpp"
+#include "host_pool.hpp"
+#include "pest_pool.hpp"
+#include "actions.hpp"
 #include "switch_kernel.hpp"
 #include "kernel.hpp"
 #include "scheduling.hpp"
@@ -57,15 +59,9 @@ protected:
     UniformDispersalKernel uniform_kernel;
     DeterministicNeighborDispersalKernel natural_neighbor_kernel;
     DeterministicNeighborDispersalKernel anthro_neighbor_kernel;
-    Simulation<
-        IntegerRaster,
-        FloatRaster,
-        RasterIndex,
-        RandomNumberGeneratorProvider<Generator>>
-        simulation_;
     KernelFactory& kernel_factory_;
     /**
-     * Surrounding environment (currently used for soils only)
+     * Surrounding environment
      */
     Environment<
         IntegerRaster,
@@ -140,18 +136,8 @@ public:
           uniform_kernel(config.rows, config.cols),
           natural_neighbor_kernel(direction_from_string(config.natural_direction)),
           anthro_neighbor_kernel(direction_from_string(config.anthro_direction)),
-          simulation_(
-              config.rows,
-              config.cols,
-              model_type_from_string(config.model_type),
-              config.latency_period_steps,
-              config.generate_stochasticity,
-              config.establishment_stochasticity,
-              config.movement_stochasticity),
           kernel_factory_(kernel_factory)
-    {
-        simulation_.set_environment(&this->environment());
-    }
+    {}
 
     /**
      * @brief Run one step of the simulation.
@@ -413,8 +399,6 @@ public:
             this->environment_,
             config_.generate_stochasticity,
             config_.establishment_stochasticity));
-        this->simulation_.activate_soils(
-            this->soil_pool_, config_.dispersers_to_soils_percentage);
     }
 };
 
