@@ -11,9 +11,9 @@ on:
 
 jobs:
   cppcheck:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
@@ -22,4 +22,5 @@ jobs:
 
       - name: Cppcheck
         run: |
-          cppcheck --force --error-exitcode=2 --max-ctu-depth=4 --std=c++11 --enable=all --inline-suppr --suppressions-list=.cppcheck_suppressions.txt -I include/ .
+          cppcheck --force --error-exitcode=2 --max-ctu-depth=4 --std=c++17 --enable=all --inline-suppr --suppressions-list=.cppcheck_suppressions_hpp.txt -I include/ include/pops/*.hpp
+          cppcheck --force --error-exitcode=2 --max-ctu-depth=4 --std=c++17 --enable=all --inline-suppr --suppressions-list=.cppcheck_suppressions_cpp.txt -I include/ tests/*.cpp

@@ -83,14 +83,14 @@ public:
     }
 
     /* Re-seed the generator */
-    void seed(unsigned seed)
+    void seed(unsigned seed) override
     {
         general_generator_.seed(seed);
     }
 
     /* This overload always throws std::invalid_argument because only one seed is
      * supported. */
-    void seed(const std::map<std::string, unsigned>& seeds)
+    void seed(const std::map<std::string, unsigned>& seeds) override
     {
         UNUSED(seeds);
         throw std::invalid_argument(
@@ -101,7 +101,7 @@ public:
      *
      * Throws std::invalid_argument if configuration contains multiple seeds.
      */
-    void seed(const Config& config)
+    void seed(const Config& config) override
     {
         if (config.multiple_random_seeds) {
             throw std::invalid_argument(
@@ -119,52 +119,52 @@ public:
         return general_generator_;
     }
 
-    Generator& disperser_generation()
+    Generator& disperser_generation() override
     {
         return general();
     }
 
-    Generator& natural_dispersal()
+    Generator& natural_dispersal() override
     {
         return general();
     }
 
-    Generator& anthropogenic_dispersal()
+    Generator& anthropogenic_dispersal() override
     {
         return general();
     }
 
-    Generator& establishment()
+    Generator& establishment() override
     {
         return general();
     }
 
-    Generator& weather()
+    Generator& weather() override
     {
         return general();
     }
 
-    Generator& lethal_temperature()
+    Generator& lethal_temperature() override
     {
         return general();
     }
 
-    Generator& movement()
+    Generator& movement() override
     {
         return general();
     }
 
-    Generator& overpopulation()
+    Generator& overpopulation() override
     {
         return general();
     }
 
-    Generator& survival_rate()
+    Generator& survival_rate() override
     {
         return general();
     }
 
-    Generator& soil()
+    Generator& soil() override
     {
         return general();
     }
@@ -238,7 +238,7 @@ public:
     }
 
     /** Re-seed with single value incremented for each generator. */
-    void seed(unsigned seed)
+    void seed(unsigned seed) override
     {
         disperser_generation_generator_.seed(seed++);
         natural_dispersal_generator_.seed(seed++);
@@ -253,7 +253,7 @@ public:
     }
 
     /** Re-seed generators by name. */
-    void seed(const std::map<std::string, unsigned>& seeds)
+    void seed(const std::map<std::string, unsigned>& seeds) override
     {
         this->set_seed_by_name(
             seeds, "disperser_generation", disperser_generation_generator_);
@@ -271,7 +271,7 @@ public:
     }
 
     /** Re-seed using named seeds, otherwise increment single seed */
-    void seed(const Config& config)
+    void seed(const Config& config) override
     {
         if (!config.random_seeds.empty()) {
             this->seed(config.random_seeds);
@@ -281,52 +281,52 @@ public:
         }
     }
 
-    Generator& disperser_generation()
+    Generator& disperser_generation() override
     {
         return disperser_generation_generator_;
     }
 
-    Generator& natural_dispersal()
+    Generator& natural_dispersal() override
     {
         return natural_dispersal_generator_;
     }
 
-    Generator& anthropogenic_dispersal()
+    Generator& anthropogenic_dispersal() override
     {
         return anthropogenic_dispersal_generator_;
     }
 
-    Generator& establishment()
+    Generator& establishment() override
     {
         return establishment_generator_;
     }
 
-    Generator& weather()
+    Generator& weather() override
     {
         return weather_generator_;
     }
 
-    Generator& lethal_temperature()
+    Generator& lethal_temperature() override
     {
         return lethal_temperature_;
     }
 
-    Generator& movement()
+    Generator& movement() override
     {
         return movement_generator_;
     }
 
-    Generator& overpopulation()
+    Generator& overpopulation() override
     {
         return overpopulation_generator_;
     }
 
-    Generator& survival_rate()
+    Generator& survival_rate() override
     {
         return survival_rate_generator_;
     }
 
-    Generator& soil()
+    Generator& soil() override
     {
         return soil_generator_;
     }

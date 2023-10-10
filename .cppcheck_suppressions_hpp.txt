@@ -1,15 +1,7 @@
 missingIncludeSystem
 unusedFunction
-constParameter
 passedByValue
 noExplicitConstructor
-unreadVariable
-duplicateAssignExpression
-redundantAssignment
-redundantInitialization
-duplicateCondition
-duplicateExpression
-shadowFunction
 shadowVariable
 useInitializationList
 useStlAlgorithm
