@@ -55,8 +55,8 @@ int test_application_ratio()
     auto th_treated = treated + inf_treated + resistant;
     if (!(susceptible == treated && infected == inf_treated
           && total_hosts == th_treated)) {
-        std::cout << "Treatment with ratio app does not work" << std::endl;
-        std::cout << susceptible << infected << total_hosts;
+        std::cerr << "Treatment with ratio app does not work\n";
+        std::cerr << susceptible << infected << total_hosts;
         num_errors++;
     }
     return num_errors;
@@ -86,8 +86,8 @@ int test_application_all_inf()
     auto th_treated = treated + inf_treated + resistant;
     if (!(susceptible == treated && infected == inf_treated
           && total_hosts == th_treated)) {
-        std::cout << "Treatment with AllInfectedInCell app does not work" << std::endl;
-        std::cout << susceptible << infected << total_hosts;
+        std::cerr << "Treatment with AllInfectedInCell app does not work\n";
+        std::cerr << susceptible << infected << total_hosts;
         num_errors++;
     }
     return num_errors;
@@ -118,9 +118,8 @@ int test_application_ratio_pesticide()
     auto th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Treatment with pesticide and ratio app does not work"
-                  << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Treatment with pesticide and ratio app does not work - block 1\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
@@ -133,9 +132,8 @@ int test_application_ratio_pesticide()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Treatment with pesticide and ratio app does not work"
-                  << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Treatment with pesticide and ratio app does not work - block 2\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 8));
@@ -147,9 +145,9 @@ int test_application_ratio_pesticide()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Treatment with pesticide and ratio app does not work"
+        std::cerr << "Treatment with pesticide and ratio app does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     return num_errors;
@@ -181,9 +179,9 @@ int test_application_all_inf_pesticide()
     auto th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Treatment with pesticide and AllInfectedInCell app does not work"
-                  << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Treatment with pesticide and AllInfectedInCell app "
+                     "does not work - block 1\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
@@ -196,9 +194,9 @@ int test_application_all_inf_pesticide()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Treatment with pesticide and AllInfectedInCell app does not work"
-                  << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Treatment with pesticide and AllInfectedInCell app "
+                     "does not work - block 2\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 8));
@@ -210,9 +208,9 @@ int test_application_all_inf_pesticide()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Treatment with pesticide and AllInfectedInCell app does not work"
+        std::cerr << "Treatment with pesticide and AllInfectedInCell app does not work"
                   << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     return num_errors;
@@ -246,8 +244,8 @@ int test_combination()
     auto th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Combination of treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Combination of treatments does not work - block 1\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
@@ -260,8 +258,8 @@ int test_combination()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Combination of treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Combination of treatments does not work - block 2\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 6, 2));
@@ -274,8 +272,8 @@ int test_combination()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Combination of treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Combination of treatments does not work - block 3\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     n = scheduler.schedule_action_date(Date(2020, 6, 8));
@@ -288,8 +286,8 @@ int test_combination()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Combination of treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Combination of treatments does not work - block 4\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     return num_errors;
@@ -324,9 +322,9 @@ int test_pesticide_temporal_overlap()
     auto th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Temporal overlap of pesticide treatments does not work"
-                  << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr
+            << "Temporal overlap of pesticide treatments does not work - block 1\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -340,9 +338,9 @@ int test_pesticide_temporal_overlap()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Temporal overlap of pesticide treatments does not work"
-                  << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr
+            << "Temporal overlap of pesticide treatments does not work - block 2\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -356,9 +354,9 @@ int test_pesticide_temporal_overlap()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Temporal overlap of pesticide treatments does not work"
-                  << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr
+            << "Temporal overlap of pesticide treatments does not work - block 3\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -372,9 +370,9 @@ int test_pesticide_temporal_overlap()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Temporal overlap of pesticide treatments does not work"
-                  << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr
+            << "Temporal overlap of pesticide treatments does not work - block 4\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -424,8 +422,8 @@ int test_steering()
     auto th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Steering with treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Steering with treatments does not work - block 1\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
 
@@ -457,8 +455,12 @@ int test_steering()
     th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Steering with treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Steering with treatments does not work - block 2\n";
+        std::cerr << "Values:\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Differences:\n";
+        std::cerr << susceptible - treated << infected - inf_treated
+                  << resist - resistant << total_hosts - th_treated;
         num_errors++;
     }
 
@@ -513,13 +515,13 @@ int test_clear()
     auto th_treated = treated + inf_treated + resist;
     if (!(susceptible == treated && infected == inf_treated && resist == resistant
           && total_hosts == th_treated)) {
-        std::cout << "Clearing of treatments does not work" << std::endl;
-        std::cout << susceptible << infected << resistant << total_hosts;
+        std::cerr << "Clearing of treatments does not work - block 1\n";
+        std::cerr << susceptible << infected << resistant << total_hosts;
         num_errors++;
     }
     if (num_actions != 3) {
-        std::cout << "Clearing of treatments does not work" << std::endl;
-        std::cout << num_actions << std::endl;
+        std::cerr << "Clearing of treatments does not work - block 2\n";
+        std::cerr << num_actions << std::endl;
         num_errors++;
     }
     return num_errors;
@@ -560,7 +562,8 @@ int main()
     num_errors += test_clear();
     num_errors += test_treat_app_from_string();
 
-    std::cout << "Test treatments number of errors: " << num_errors << std::endl;
+    (num_errors ? std::cerr : std::cout)
+        << "Test treatments number of errors: " << num_errors << "\n";
     return num_errors;
 }
 

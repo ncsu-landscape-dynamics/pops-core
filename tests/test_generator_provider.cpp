@@ -260,6 +260,7 @@ int test_multiple_seeds()
          {"anthropogenic_dispersal", 342},
          {"establishment", 462},
          {"weather", 252},
+         {"lethal_temperature", 101},
          {"movement", 72},
          {"overpopulation", 42},
          {"survival_rate", 252},
@@ -378,7 +379,7 @@ int test_seed_config_vector_works()
     int ret = 0;
     Config config;
     // Letting exceptions handle the error states here.
-    config.read_seeds({1, 2, 3, 4, 5, 6, 7, 8, 9});
+    config.read_seeds({1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
     bool thrown = throws_exception<std::invalid_argument>(
         [&config] { validate_random_number_generator_provider_config(config); });
     if (thrown) {
@@ -411,7 +412,7 @@ int test_seed_config_validate_validates_valid()
 {
     std::string text(
         "disperser_generation=1,natural_dispersal=2,anthropogenic_dispersal=1,"
-        "establishment=2,weather=2,establishment=3,movement=4,"
+        "establishment=2,weather=2,lethal_temperature=20,establishment=3,movement=4,"
         "overpopulation=5,survival_rate=6,soil=7");
     Config config;
     config.read_seeds(text, ',', '=');

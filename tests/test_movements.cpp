@@ -82,61 +82,62 @@ int test_move_all_no_exposed()
         movement_schedule,
         suitable_cells,
         generator);
+    int errors{0};
     if (infected != expected_infected) {
-        cout << "infected (actual, expected):\n"
+        cout << "test_move_all_no_exposed: infected (actual, expected):\n"
              << infected << "  !=\n"
              << expected_infected << "\n";
-        return 1;
+        ++errors;
     }
     if (susceptible != expected_susceptible) {
-        cout << "susceptible (actual, expected):\n"
+        cout << "test_move_all_no_exposed: susceptible (actual, expected):\n"
              << susceptible << "  !=\n"
              << expected_susceptible << "\n";
-        return 1;
+        ++errors;
     }
     if (total_exposed != expected_total_exposed) {
-        cout << "total_exposed (actual, expected):\n"
+        cout << "test_move_all_no_exposed: total_exposed (actual, expected):\n"
              << total_exposed << "  !=\n"
              << expected_total_exposed << "\n";
-        return 1;
+        ++errors;
     }
     if (resistant != expected_resistant) {
-        cout << "resistant (actual, expected):\n"
+        cout << "test_move_all_no_exposed: resistant (actual, expected):\n"
              << resistant << "  !=\n"
              << expected_resistant << "\n";
-        return 1;
+        ++errors;
     }
     if (total_hosts != expected_total_hosts) {
-        cout << "total_hosts (actual, expected):\n"
+        cout << "test_move_all_no_exposed: total_hosts (actual, expected):\n"
              << total_hosts << "  !=\n"
              << expected_total_hosts << "\n";
-        return 1;
+        ++errors;
     }
     if (exposed[0] != expected_exposed[0]) {
-        cout << "exposeds (actual, expected):\n"
+        cout << "test_move_all_no_exposed: exposeds (actual, expected):\n"
              << exposed[0] << "  !=\n"
              << expected_exposed[0] << "\n";
-        return 1;
+        ++errors;
     }
     if (mortality_tracker[0] != expected_mortality_tracker[0]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_all_no_exposed: mortality_tracker (actual, expected):\n"
              << mortality_tracker[0] << "  !=\n"
              << expected_mortality_tracker[0] << "\n";
-        return 1;
+        ++errors;
     }
     if (exposed[1] != expected_exposed[1]) {
-        cout << "exposeds (actual, expected):\n"
+        cout << "test_move_all_no_exposed: exposeds (actual, expected):\n"
              << exposed[1] << "  !=\n"
              << expected_exposed[1] << "\n";
-        return 1;
+        ++errors;
     }
     if (mortality_tracker[1] != expected_mortality_tracker[1]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_all_no_exposed: mortality_tracker (actual, expected):\n"
              << mortality_tracker[1] << "  !=\n"
              << expected_mortality_tracker[1] << "\n";
-        return 1;
+        ++errors;
     }
-    return 0;
+    return errors;
 }
 
 int test_move_all_exposed()
@@ -179,61 +180,62 @@ int test_move_all_exposed()
         movement_schedule,
         suitable_cells,
         generator);
+    int errors{0};
     if (infected != expected_infected) {
-        cout << "infected (actual, expected):\n"
+        cout << "test_move_all_exposed: infected (actual, expected):\n"
              << infected << "  !=\n"
              << expected_infected << "\n";
-        return 1;
+        ++errors;
     }
     if (susceptible != expected_susceptible) {
-        cout << "susceptible (actual, expected):\n"
+        cout << "test_move_all_exposed: susceptible (actual, expected):\n"
              << susceptible << "  !=\n"
              << expected_susceptible << "\n";
-        return 1;
+        ++errors;
     }
     if (total_exposed != expected_total_exposed) {
-        cout << "total_exposed (actual, expected):\n"
+        cout << "test_move_all_exposed: total_exposed (actual, expected):\n"
              << total_exposed << "  !=\n"
              << expected_total_exposed << "\n";
-        return 1;
+        ++errors;
     }
     if (resistant != expected_resistant) {
-        cout << "resistant (actual, expected):\n"
+        cout << "test_move_all_exposed: resistant (actual, expected):\n"
              << resistant << "  !=\n"
              << expected_resistant << "\n";
-        return 1;
+        ++errors;
     }
     if (total_hosts != expected_total_hosts) {
-        cout << "total_hosts (actual, expected):\n"
+        cout << "test_move_all_exposed: total_hosts (actual, expected):\n"
              << total_hosts << "  !=\n"
              << expected_total_hosts << "\n";
-        return 1;
+        ++errors;
     }
     if (exposed[0] != expected_exposed[0]) {
-        cout << "exposeds (actual, expected):\n"
+        cout << "test_move_all_exposed: exposeds (actual, expected):\n"
              << exposed[0] << "  !=\n"
              << expected_exposed[0] << "\n";
-        return 1;
+        ++errors;
     }
     if (mortality_tracker[0] != expected_mortality_tracker[0]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_all_exposed: mortality_tracker (actual, expected):\n"
              << mortality_tracker[0] << "  !=\n"
              << expected_mortality_tracker[0] << "\n";
-        return 1;
+        ++errors;
     }
     if (exposed[1] != expected_exposed[1]) {
-        cout << "exposeds (actual, expected):\n"
+        cout << "test_move_all_exposed: exposeds (actual, expected):\n"
              << exposed[1] << "  !=\n"
              << expected_exposed[1] << "\n";
-        return 1;
+        ++errors;
     }
     if (mortality_tracker[1] != expected_mortality_tracker[1]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_all_exposed: mortality_tracker (actual, expected):\n"
              << mortality_tracker[1] << "  !=\n"
              << expected_mortality_tracker[1] << "\n";
-        return 1;
+        ++errors;
     }
-    return 0;
+    return errors;
 }
 
 int test_move_add_suitable_cell()
@@ -278,109 +280,110 @@ int test_move_add_suitable_cell()
         movement_schedule,
         suitable_cells,
         generator);
+    int errors{0};
     if (infected != expected_infected) {
-        cout << "infected (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: infected (actual, expected):\n"
              << infected << "  !=\n"
              << expected_infected << "\n";
-        return 1;
+        ++errors;
     }
     if (susceptible != expected_susceptible) {
-        cout << "susceptible (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: susceptible (actual, expected):\n"
              << susceptible << "  !=\n"
              << expected_susceptible << "\n";
-        return 1;
+        ++errors;
     }
     if (total_exposed != expected_total_exposed) {
-        cout << "total_exposed (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: total_exposed (actual, expected):\n"
              << total_exposed << "  !=\n"
              << expected_total_exposed << "\n";
-        return 1;
+        ++errors;
     }
     if (resistant != expected_resistant) {
-        cout << "resistant (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: resistant (actual, expected):\n"
              << resistant << "  !=\n"
              << expected_resistant << "\n";
-        return 1;
+        ++errors;
     }
     if (total_hosts != expected_total_hosts) {
-        cout << "total_hosts (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: total_hosts (actual, expected):\n"
              << total_hosts << "  !=\n"
              << expected_total_hosts << "\n";
-        return 1;
+        ++errors;
     }
     if (exposed[0] != expected_exposed[0]) {
-        cout << "exposeds (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: exposeds (actual, expected):\n"
              << exposed[0] << "  !=\n"
              << expected_exposed[0] << "\n";
-        return 1;
+        ++errors;
     }
     if (mortality_tracker[0] != expected_mortality_tracker[0]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: mortality_tracker (actual, expected):\n"
              << mortality_tracker[0] << "  !=\n"
              << expected_mortality_tracker[0] << "\n";
-        return 1;
+        ++errors;
     }
     if (exposed[1] != expected_exposed[1]) {
-        cout << "exposeds (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: exposeds (actual, expected):\n"
              << exposed[1] << "  !=\n"
              << expected_exposed[1] << "\n";
-        return 1;
+        ++errors;
     }
     if (mortality_tracker[1] != expected_mortality_tracker[1]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: mortality_tracker (actual, expected):\n"
              << mortality_tracker[1] << "  !=\n"
              << expected_mortality_tracker[1] << "\n";
-        return 1;
+        ++errors;
     }
     if (suitable_cells[0][0] != expected_suitable_cells[0][0]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: mortality_tracker (actual, expected):\n"
              << suitable_cells[0][0] << "  !=\n"
              << expected_suitable_cells[0][0] << "\n";
-        return 1;
+        ++errors;
     }
     if (suitable_cells[0][1] != expected_suitable_cells[0][1]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: mortality_tracker (actual, expected):\n"
              << suitable_cells[0][1] << "  !=\n"
              << expected_suitable_cells[0][1] << "\n";
-        return 1;
+        ++errors;
     }
     if (suitable_cells[1][0] != expected_suitable_cells[1][0]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: mortality_tracker (actual, expected):\n"
              << suitable_cells[1][0] << "  !=\n"
              << expected_suitable_cells[1][0] << "\n";
-        return 1;
+        ++errors;
     }
     if (suitable_cells[1][1] != expected_suitable_cells[1][1]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: mortality_tracker (actual, expected):\n"
              << suitable_cells[1][1] << "  !=\n"
              << expected_suitable_cells[1][1] << "\n";
-        return 1;
+        ++errors;
     }
     if (suitable_cells[2][0] != expected_suitable_cells[2][0]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: mortality_tracker (actual, expected):\n"
              << suitable_cells[2][0] << "  !=\n"
              << expected_suitable_cells[2][0] << "\n";
-        return 1;
+        ++errors;
     }
     if (suitable_cells[2][1] != expected_suitable_cells[2][1]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: mortality_tracker (actual, expected):\n"
              << suitable_cells[2][1] << "  !=\n"
              << expected_suitable_cells[2][1] << "\n";
-        return 1;
+        ++errors;
     }
     if (suitable_cells[3][0] != expected_suitable_cells[3][0]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: mortality_tracker (actual, expected):\n"
              << suitable_cells[3][0] << "  !=\n"
              << expected_suitable_cells[3][0] << "\n";
-        return 1;
+        ++errors;
     }
     if (suitable_cells[3][1] != expected_suitable_cells[3][1]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "test_move_add_suitable_cell: mortality_tracker (actual, expected):\n"
              << suitable_cells[3][1] << "  !=\n"
              << expected_suitable_cells[3][1] << "\n";
-        return 1;
+        ++errors;
     }
-    return 0;
+    return errors;
 }
 
 int main()

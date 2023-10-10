@@ -72,50 +72,51 @@ int test_survive()
         survival_rate,
         suitable_cells,
         generator);
+    int num_errors = 0;
     if (infected != expected_infected) {
         cout << "infected (actual, expected):\n"
              << infected << "  !=\n"
              << expected_infected << "\n";
-        return 1;
+        ++num_errors;
     }
     if (susceptible != expected_susceptible) {
         cout << "susceptible (actual, expected):\n"
              << susceptible << "  !=\n"
              << expected_susceptible << "\n";
-        return 1;
+        ++num_errors;
     }
     if (total_exposed != expected_total_exposed) {
         cout << "total_exposed (actual, expected):\n"
              << total_exposed << "  !=\n"
              << expected_total_exposed << "\n";
-        return 1;
+        ++num_errors;
     }
 
     if (exposed[0] != expected_exposed[0]) {
-        cout << "exposeds (actual, expected):\n"
+        cout << "exposed[0] (actual, expected):\n"
              << exposed[0] << "  !=\n"
              << expected_exposed[0] << "\n";
-        return 1;
+        ++num_errors;
     }
     if (mortality_tracker[0] != expected_mortality_tracker[0]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "mortality_tracker[0] (actual, expected):\n"
              << mortality_tracker[0] << "  !=\n"
              << expected_mortality_tracker[0] << "\n";
-        return 1;
+        ++num_errors;
     }
     if (exposed[1] != expected_exposed[1]) {
-        cout << "exposeds (actual, expected):\n"
+        cout << "exposed[1] (actual, expected):\n"
              << exposed[1] << "  !=\n"
              << expected_exposed[1] << "\n";
-        return 1;
+        ++num_errors;
     }
     if (mortality_tracker[1] != expected_mortality_tracker[1]) {
-        cout << "mortality_tracker (actual, expected):\n"
+        cout << "mortality_tracker[1] (actual, expected):\n"
              << mortality_tracker[1] << "  !=\n"
              << expected_mortality_tracker[1] << "\n";
-        return 1;
+        ++num_errors;
     }
-    return 0;
+    return num_errors;
 }
 
 int main()

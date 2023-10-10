@@ -666,7 +666,8 @@ RawConfig read_config(Stream& stream)
 /**
  * @brief Create bounding box from configuration
  *
- * @param configuration containing north, south, east, and west
+ * @param config containing north, south, east, and west
+ *
  * @return bounding box object with doubles
  */
 BBox<double> bbox_from_config(const RawConfig& config)
