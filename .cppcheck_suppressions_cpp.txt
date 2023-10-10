@@ -17,3 +17,4 @@ shadowArgument
 unsignedLessThanZero
 variableScope
 uninitMemberVar
+knownConditionTrueFalse
