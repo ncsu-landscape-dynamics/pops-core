@@ -31,6 +31,7 @@
 #include "host_pool.hpp"
 #include "pest_pool.hpp"
 #include "actions.hpp"
+#include "multi_host_pool.hpp"
 #include "switch_kernel.hpp"
 #include "kernel.hpp"
 #include "scheduling.hpp"
@@ -217,12 +218,18 @@ public:
         const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
-        using StandardHostPool = HostPool<
+        using StandardSingleHostPool = HostPool<
             IntegerRaster,
             FloatRaster,
             RasterIndex,
             RandomNumberGeneratorProvider<Generator>>;
-        StandardHostPool host_pool(
+        using StandardMultiHostPool = MultiHostPool<
+            StandardSingleHostPool,
+            IntegerRaster,
+            FloatRaster,
+            RasterIndex,
+            RandomNumberGeneratorProvider<Generator>>;
+        StandardSingleHostPool host_pool(
             model_type_from_string(config_.model_type),
             susceptible,
             exposed,
@@ -241,6 +248,9 @@ public:
             config_.rows,
             config_.cols,
             suitable_cells);
+        std::vector<StandardSingleHostPool*> host_pools = {&host_pool};
+        StandardMultiHostPool multi_host_pool(host_pools);
+        using StandardHostPool = StandardSingleHostPool;
         using StandardPestPool = PestPool<IntegerRaster, FloatRaster, RasterIndex>;
         StandardPestPool pest_pool{
             dispersers, established_dispersers, outside_dispersers};
@@ -254,13 +264,13 @@ public:
                 simulation_step_to_action_step(config_.lethal_schedule(), step);
             this->environment().update_temperature(temperatures[lethal_step]);
             RemoveByTemperature<
-                StandardHostPool,
+                StandardMultiHostPool,
                 IntegerRaster,
                 FloatRaster,
                 RasterIndex,
                 RandomNumberGeneratorProvider<Generator>>
                 remove(this->environment(), config_.lethal_temperature);
-            remove.action(host_pool, generator_provider_);
+            remove.action(multi_host_pool, generator_provider_);
         }
         // removal of percentage of dispersers
         if (config_.use_survival_rate && config_.survival_rate_schedule()[step]) {

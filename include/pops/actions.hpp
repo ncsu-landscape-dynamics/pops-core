@@ -281,9 +281,8 @@ public:
             int i = indices[0];
             int j = indices[1];
             if (environment_.temperature_at(i, j) < lethal_temperature_) {
-                auto count = hosts.infected_at(i, j);
-                hosts.remove_infected_at(i, j, count, generator.lethal_temperature());
                 // now this includes also mortality, but it does not include exposed
+                hosts.remove_all_infected_at(i, j, generator.lethal_temperature());
             }
         }
     }

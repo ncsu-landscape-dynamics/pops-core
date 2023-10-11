@@ -551,6 +551,12 @@ public:
         susceptible_(row, col) += count;
     }
 
+    void remove_all_infected_at(RasterIndex row, RasterIndex col, Generator& generator)
+    {
+        auto count = this->infected_at(row, col);
+        this->remove_infected_at(row, col, count, generator);
+    }
+
     /**
      * @brief Remove exposed hosts and make the hosts susceptible
      *

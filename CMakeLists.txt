@@ -95,6 +95,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/network_kernel.hpp
         include/pops/normal_distribution_with_uniform_fallback.hpp
         include/pops/normal_kernel.hpp
+        include/pops/multi_host_pool.hpp
         include/pops/soils.hpp
         include/pops/weibull_kernel.hpp
     )
