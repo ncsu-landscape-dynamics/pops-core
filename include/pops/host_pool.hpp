@@ -254,6 +254,11 @@ public:
             row, col, probability_of_establishment);
     }
 
+    double susceptibility()
+    {
+        return 1;
+    }
+
     /**
      * @brief Move pests from a cell
      *

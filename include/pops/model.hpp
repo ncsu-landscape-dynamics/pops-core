@@ -287,7 +287,7 @@ public:
                 create_overpopulation_movement_kernel(dispersers, network);
 
             SpreadAction<
-                StandardHostPool,
+                StandardSingleHostPool,
                 StandardPestPool,
                 IntegerRaster,
                 FloatRaster,
@@ -296,6 +296,16 @@ public:
                 RandomNumberGeneratorProvider<Generator>>
                 spread_action{dispersal_kernel};
 
+            SpreadAction<
+                StandardMultiHostPool,
+                StandardPestPool,
+                IntegerRaster,
+                FloatRaster,
+                RasterIndex,
+                decltype(dispersal_kernel),
+                RandomNumberGeneratorProvider<Generator>>
+                multi_spread_action{dispersal_kernel};
+
             environment_.set_total_population(&total_populations);
             // Soils are activated by an independent function call for model, but spread
             // action is temporary, so it is activated for every step.
@@ -303,7 +313,13 @@ public:
                 spread_action.activate_soils(
                     soil_pool_, config_.dispersers_to_soils_percentage);
             }
-            spread_action.action(host_pool, pest_pool, generator_provider_);
+            if (this->soil_pool_) {
+                multi_spread_action.activate_soils(
+                    soil_pool_, config_.dispersers_to_soils_percentage);
+            }
+            spread_action.generate(host_pool, pest_pool, generator_provider_);
+            multi_spread_action.disperse(
+                multi_host_pool, pest_pool, generator_provider_);
             host_pool.step_forward(step);
             if (config_.use_overpopulation_movements) {
                 MoveOverpopulatedPests<
