@@ -64,6 +64,29 @@ public:
         }
     }
 
+    void remove_infection_by_ratio_at(
+        RasterIndex row, RasterIndex col, double ratio, Generator& generator)
+    {
+        for (auto& host_pool : host_pools_) {
+            host_pool->remove_infection_by_ratio_at(row, col, ratio, generator);
+        }
+    }
+
+    void apply_mortality_at(
+        RasterIndex row, RasterIndex col, double mortality_rate, int mortality_time_lag)
+    {
+        for (auto& host_pool : host_pools_) {
+            host_pool->apply_mortality_at(row, col, mortality_rate, mortality_time_lag);
+        }
+    }
+
+    void step_forward_mortality()
+    {
+        for (auto& host_pool : host_pools_) {
+            host_pool->step_forward_mortality();
+        }
+    }
+
     bool do_establishment_test(double value)
     {
         UNUSED(value);

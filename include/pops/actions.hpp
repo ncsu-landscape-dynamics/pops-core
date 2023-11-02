@@ -225,19 +225,8 @@ public:
             int i = indices[0];
             int j = indices[1];
             if (survival_rate_(i, j) < 1) {
-                // remove percentage of infestation/infection in the infected class
-                auto infected = hosts.infected_at(i, j);
-                int removed_infected =
-                    infected - std::lround(infected * survival_rate_(i, j));
-                hosts.remove_infected_at(
-                    i, j, removed_infected, generator.survival_rate());
-                // remove the same percentage for total exposed and remove randomly from
-                // each cohort
-                auto exposed = hosts.exposed_at(i, j);
-                int total_removed_exposed =
-                    exposed - std::lround(exposed * survival_rate_(i, j));
-                hosts.remove_exposed_at(
-                    i, j, total_removed_exposed, generator.survival_rate());
+                hosts.remove_infection_by_ratio_at(
+                    i, j, survival_rate_(i, j), generator.survival_rate());
             }
         }
     }

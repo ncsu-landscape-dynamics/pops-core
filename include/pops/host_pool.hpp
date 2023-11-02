@@ -563,6 +563,27 @@ public:
     }
 
     /**
+     * @brief Remove percentage of infestation/infection
+     *
+     * remove the same percentage for total exposed and remove randomly from each cohort
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param ratio Ratio of removed infection
+     * @param generator Random number generator to provide stochasticity for mortality
+     */
+    void remove_infection_by_ratio_at(
+        RasterIndex row, RasterIndex col, double ratio, Generator& generator)
+    {
+        auto infected = this->infected_at(row, col);
+        int removed_infected = infected - std::lround(infected * ratio);
+        this->remove_infected_at(row, col, removed_infected, generator);
+        auto exposed = this->exposed_at(row, col);
+        int total_removed_exposed = exposed - std::lround(exposed * ratio);
+        this->remove_exposed_at(row, col, total_removed_exposed, generator);
+    }
+
+    /**
      * @brief Remove exposed hosts and make the hosts susceptible
      *
      * Distribution of removed hosts among exposed groups is stochastic.

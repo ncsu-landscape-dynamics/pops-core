@@ -364,9 +364,9 @@ public:
             // expectation is that mortality tracker is of length (1/mortality_rate
             // + mortality_time_lag).
             // TODO: died.zero(); should be done by the caller if needed, document!
-            Mortality<StandardHostPool, IntegerRaster, FloatRaster> mortality(
+            Mortality<StandardMultiHostPool, IntegerRaster, FloatRaster> mortality(
                 config_.mortality_rate, config_.mortality_time_lag);
-            mortality.action(host_pool);
+            mortality.action(multi_host_pool);
         }
         // compute spread rate
         if (config_.use_spreadrates && config_.spread_rate_schedule()[step]) {
