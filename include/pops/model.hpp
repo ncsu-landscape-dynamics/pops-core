@@ -276,9 +276,9 @@ public:
         if (config_.use_survival_rate && config_.survival_rate_schedule()[step]) {
             int survival_step =
                 simulation_step_to_action_step(config_.survival_rate_schedule(), step);
-            SurvivalRateAction<StandardHostPool, IntegerRaster, FloatRaster> survival(
-                survival_rates[survival_step]);
-            survival.action(host_pool, generator_provider_);
+            SurvivalRateAction<StandardMultiHostPool, IntegerRaster, FloatRaster>
+                survival(survival_rates[survival_step]);
+            survival.action(multi_host_pool, generator_provider_);
         }
         // actual spread
         if (config_.spread_schedule()[step]) {
