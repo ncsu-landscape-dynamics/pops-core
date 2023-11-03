@@ -218,6 +218,11 @@ public:
         const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
+        UNUSED(treatments);
+        UNUSED(spread_rate);
+        UNUSED(quarantine);
+        UNUSED(quarantine_areas);
+        UNUSED(movements);
         using StandardSingleHostPool = HostPool<
             IntegerRaster,
             FloatRaster,
@@ -250,7 +255,6 @@ public:
             suitable_cells);
         std::vector<StandardSingleHostPool*> host_pools = {&host_pool};
         StandardMultiHostPool multi_host_pool(host_pools);
-        using StandardHostPool = StandardSingleHostPool;
         using StandardPestPool = PestPool<IntegerRaster, FloatRaster, RasterIndex>;
         StandardPestPool pest_pool{
             dispersers, established_dispersers, outside_dispersers};
@@ -283,8 +287,6 @@ public:
         // actual spread
         if (config_.spread_schedule()[step]) {
             auto dispersal_kernel = kernel_factory_(config_, dispersers, network);
-            auto overpopulation_kernel =
-                create_overpopulation_movement_kernel(dispersers, network);
 
             SpreadAction<
                 StandardSingleHostPool,
@@ -321,44 +323,6 @@ public:
             multi_spread_action.disperse(
                 multi_host_pool, pest_pool, generator_provider_);
             host_pool.step_forward(step);
-            if (config_.use_overpopulation_movements) {
-                MoveOverpopulatedPests<
-                    StandardHostPool,
-                    StandardPestPool,
-                    IntegerRaster,
-                    FloatRaster,
-                    RasterIndex,
-                    decltype(overpopulation_kernel)>
-                    move_pest{
-                        overpopulation_kernel,
-                        config_.overpopulation_percentage,
-                        config_.leaving_percentage,
-                        config_.rows,
-                        config_.cols};
-                move_pest.action(host_pool, pest_pool, generator_provider_);
-            }
-            if (config_.use_movements) {
-                HostMovement<StandardHostPool, IntegerRaster, FloatRaster, RasterIndex>
-                    host_movement{
-                        static_cast<unsigned>(
-                            step),  // Step is int, but indexing happens with unsigned.
-                        last_index,
-                        movements,
-                        config_.movement_schedule};
-                last_index = host_movement.action(host_pool, generator_provider_);
-            }
-        }
-        // treatments
-        if (config_.use_treatments) {
-            treatments.manage(
-                step,
-                infected,
-                exposed,
-                susceptible,
-                resistant,
-                mortality_tracker,
-                total_hosts,
-                suitable_cells);
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
             // expectation is that mortality tracker is of length (1/mortality_rate
@@ -367,19 +331,6 @@ public:
             Mortality<StandardMultiHostPool, IntegerRaster, FloatRaster> mortality(
                 config_.mortality_rate, config_.mortality_time_lag);
             mortality.action(multi_host_pool);
-        }
-        // compute spread rate
-        if (config_.use_spreadrates && config_.spread_rate_schedule()[step]) {
-            unsigned rates_step =
-                simulation_step_to_action_step(config_.spread_rate_schedule(), step);
-            spread_rate.compute_step_spread_rate(infected, rates_step, suitable_cells);
-        }
-        // compute quarantine escape
-        if (config_.use_quarantine && config_.quarantine_schedule()[step]) {
-            unsigned action_step =
-                simulation_step_to_action_step(config_.quarantine_schedule(), step);
-            quarantine.infection_escape_quarantine(
-                infected, quarantine_areas, action_step, suitable_cells);
         }
     }
 
