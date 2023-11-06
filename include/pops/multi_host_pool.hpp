@@ -103,6 +103,15 @@ public:
         return hosts.at(distribution(generator));
     }
 
+    int dispersers_from(RasterIndex row, RasterIndex col, Generator& generator) const
+    {
+        int sum{0};
+        for (auto& host_pool : host_pools_) {
+            sum += host_pool->dispersers_from(row, col, generator);
+        }
+        return sum;
+    }
+
     template<typename Generator>
     int disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
     {

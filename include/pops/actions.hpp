@@ -83,9 +83,9 @@ public:
         for (auto indices : host_pool.suitable_cells()) {
             int i = indices[0];
             int j = indices[1];
-            if (host_pool.infected_at(i, j) > 0) {
-                int dispersers_from_cell =
-                    host_pool.dispersers_from(i, j, generator.disperser_generation());
+            int dispersers_from_cell =
+                host_pool.dispersers_from(i, j, generator.disperser_generation());
+            if (dispersers_from_cell > 0) {
                 if (soil_pool_) {
                     // From all the generated dispersers, some go to the soil in the
                     // same cell and don't participate in the kernel-driven dispersal.
