@@ -126,6 +126,19 @@ protected:
     }
 
 public:
+    using StandardSingleHostPool = HostPool<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>;
+    using StandardMultiHostPool = MultiHostPool<
+        StandardSingleHostPool,
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>;
+    using StandardPestPool = PestPool<IntegerRaster, FloatRaster, RasterIndex>;
+
     Model(
         const Config& config,
         KernelFactory& kernel_factory =
@@ -223,17 +236,7 @@ public:
         UNUSED(quarantine);
         UNUSED(quarantine_areas);
         UNUSED(movements);
-        using StandardSingleHostPool = HostPool<
-            IntegerRaster,
-            FloatRaster,
-            RasterIndex,
-            RandomNumberGeneratorProvider<Generator>>;
-        using StandardMultiHostPool = MultiHostPool<
-            StandardSingleHostPool,
-            IntegerRaster,
-            FloatRaster,
-            RasterIndex,
-            RandomNumberGeneratorProvider<Generator>>;
+
         StandardSingleHostPool host_pool(
             model_type_from_string(config_.model_type),
             susceptible,
@@ -255,13 +258,32 @@ public:
             suitable_cells);
         std::vector<StandardSingleHostPool*> host_pools = {&host_pool};
         StandardMultiHostPool multi_host_pool(host_pools);
-        using StandardPestPool = PestPool<IntegerRaster, FloatRaster, RasterIndex>;
         StandardPestPool pest_pool{
             dispersers, established_dispersers, outside_dispersers};
+        run_step(
+            step,
+            multi_host_pool,
+            pest_pool,
+            dispersers,
+            total_populations,
+            temperatures,
+            survival_rates,
+            network);
+    }
+
+    void run_step(
+        int step,
+        StandardMultiHostPool host_pool,
+        StandardPestPool pest_pool,
+        IntegerRaster& dispersers,
+        IntegerRaster& total_populations,
+        const std::vector<FloatRaster>& temperatures,
+        const std::vector<FloatRaster>& survival_rates,
+        const Network<RasterIndex>& network)
+    {
         // Soil step is the same as simulation step.
         if (soil_pool_)
             soil_pool_->next_step(step);
-
         // removal of dispersers due to lethal temperatures
         if (config_.use_lethal_temperature && config_.lethal_schedule()[step]) {
             int lethal_step =
@@ -274,7 +296,7 @@ public:
                 RasterIndex,
                 RandomNumberGeneratorProvider<Generator>>
                 remove(this->environment(), config_.lethal_temperature);
-            remove.action(multi_host_pool, generator_provider_);
+            remove.action(host_pool, generator_provider_);
         }
         // removal of percentage of dispersers
         if (config_.use_survival_rate && config_.survival_rate_schedule()[step]) {
@@ -282,7 +304,7 @@ public:
                 simulation_step_to_action_step(config_.survival_rate_schedule(), step);
             SurvivalRateAction<StandardMultiHostPool, IntegerRaster, FloatRaster>
                 survival(survival_rates[survival_step]);
-            survival.action(multi_host_pool, generator_provider_);
+            survival.action(host_pool, generator_provider_);
         }
         // actual spread
         if (config_.spread_schedule()[step]) {
@@ -305,7 +327,7 @@ public:
                 spread_action.activate_soils(
                     soil_pool_, config_.dispersers_to_soils_percentage);
             }
-            spread_action.action(multi_host_pool, pest_pool, generator_provider_);
+            spread_action.action(host_pool, pest_pool, generator_provider_);
             host_pool.step_forward(step);
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
@@ -314,7 +336,7 @@ public:
             // TODO: died.zero(); should be done by the caller if needed, document!
             Mortality<StandardMultiHostPool, IntegerRaster, FloatRaster> mortality(
                 config_.mortality_rate, config_.mortality_time_lag);
-            mortality.action(multi_host_pool);
+            mortality.action(host_pool);
         }
     }
 
