@@ -24,6 +24,7 @@
 #include "host_pool_interface.hpp"
 #include "model_type.hpp"
 #include "environment_interface.hpp"
+#include "competency_table.hpp"
 
 namespace pops {
 
@@ -139,6 +140,12 @@ public:
           cols_(cols),
           suitable_cells_(suitable_cells)
     {}
+
+    void
+    set_competency_table(const CompetencyTable<HostPool, RasterIndex>& competency_table)
+    {
+        &competency_table;
+    }
 
     /**
      * @brief Move disperser to a cell in the host pool
