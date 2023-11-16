@@ -57,6 +57,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/actions.hpp
         include/pops/environment.hpp
         include/pops/environment_interface.hpp
+        include/pops/competency_table.hpp
         include/pops/config.hpp
         include/pops/host_pool.hpp
         include/pops/host_pool_interface.hpp

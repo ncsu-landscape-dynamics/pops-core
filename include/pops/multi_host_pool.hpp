@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <random>
 
+#include "competency_table.hpp"
+
 namespace pops {
 
 template<
@@ -37,6 +39,14 @@ public:
     using Generator = typename GeneratorProvider::Generator;
 
     MultiHostPool(const std::vector<HostPool*>& host_pools) : host_pools_(host_pools) {}
+
+    void
+    set_competency_table(const CompetencyTable<HostPool, RasterIndex>& competency_table)
+    {
+        for (auto& host_pool : host_pools_) {
+            host_pool->set_competency_table(competency_table);
+        }
+    }
 
     const std::vector<std::vector<int>>& suitable_cells() const
     {

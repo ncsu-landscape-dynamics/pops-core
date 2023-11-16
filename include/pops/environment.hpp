@@ -200,6 +200,15 @@ public:
         return sum;
     }
 
+    std::vector<bool> host_presence_at(RasterIndex row, RasterIndex col) const
+    {
+        std::vector<bool> presence;
+        presence.reserve(hosts_.size());
+        for (const auto& host : hosts_)
+            presence.push_back(host->total_hosts_at(row, col));
+        return presence;
+    }
+
     void set_other_individuals(const IntegerRaster* individuals) override
     {
         other_individuals_ = individuals;
@@ -216,6 +225,15 @@ public:
         if (container_contains(hosts_, host))
             return;
         hosts_.push_back(host);
+    }
+
+    std::vector<bool> host_index(HostPoolInterface<RasterIndex>* host) const
+    {
+        auto it = std::find(hosts_.begin(), hosts_.end(), host);
+        if (it == hosts_.end())
+            throw std::invalid_argument(
+                "Environment::host_index: Host is not in the environment");
+        return std::distance(hosts_.begin(), it);
     }
 
     /**
