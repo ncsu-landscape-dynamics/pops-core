@@ -171,14 +171,10 @@ int test_soil_with_model()
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.ew_res = 30;
     config.ns_res = 30;
-    unsigned rate_num_steps =
-        get_number_of_scheduled_actions(config.spread_rate_schedule());
 
     config.rows = infected.rows();
     config.cols = infected.cols();
 
-    SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
     QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
 
     Raster<double> weather = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
@@ -205,7 +201,6 @@ int test_soil_with_model()
         treatments,
         zeros,
         outside_dispersers,
-        spread_rate,
         quarantine,
         zeros,
         movements,
@@ -243,7 +238,6 @@ int test_soil_with_model()
         treatments,
         zeros,
         outside_dispersers,
-        spread_rate,
         quarantine,
         zeros,
         movements,

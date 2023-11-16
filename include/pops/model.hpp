@@ -196,7 +196,6 @@ public:
      * susceptible hosts)
      * @param[in,out] outside_dispersers Dispersers escaping the rasters (adds to the
      * vector)
-     * @param[in,out] spread_rate Spread rate tracker
      * @param[in,out] quarantine Quarantine escape tracker
      * @param[in] quarantine_areas Quarantine areas
      * @param[in] movements Table of host movements
@@ -224,7 +223,6 @@ public:
         Treatments<IntegerRaster, FloatRaster>& treatments,
         IntegerRaster& resistant,
         std::vector<std::tuple<int, int>>& outside_dispersers,  // out
-        SpreadRate<IntegerRaster>& spread_rate,  // out
         QuarantineEscape<IntegerRaster>& quarantine,  // out
         const IntegerRaster& quarantine_areas,
         const std::vector<std::vector<int>> movements,
@@ -232,7 +230,6 @@ public:
         std::vector<std::vector<int>>& suitable_cells)
     {
         UNUSED(treatments);
-        UNUSED(spread_rate);
         UNUSED(quarantine);
         UNUSED(quarantine_areas);
         UNUSED(movements);
@@ -260,6 +257,13 @@ public:
         StandardMultiHostPool multi_host_pool(host_pools);
         StandardPestPool pest_pool{
             dispersers, established_dispersers, outside_dispersers};
+        SpreadRateAction<StandardMultiHostPool, RasterIndex> spread_rate(
+            multi_host_pool,
+            config_.rows,
+            config_.cols,
+            config_.ew_res,
+            config_.ns_res,
+            0);
         run_step(
             step,
             multi_host_pool,
@@ -268,6 +272,7 @@ public:
             total_populations,
             temperatures,
             survival_rates,
+            spread_rate,
             network);
     }
 
@@ -279,6 +284,7 @@ public:
         IntegerRaster& total_populations,
         const std::vector<FloatRaster>& temperatures,
         const std::vector<FloatRaster>& survival_rates,
+        SpreadRateAction<StandardMultiHostPool, RasterIndex>& spread_rate,
         const Network<RasterIndex>& network)
     {
         // Soil step is the same as simulation step.
@@ -337,6 +343,12 @@ public:
             Mortality<StandardMultiHostPool, IntegerRaster, FloatRaster> mortality(
                 config_.mortality_rate, config_.mortality_time_lag);
             mortality.action(host_pool);
+        }
+        // compute spread rate
+        if (config_.use_spreadrates && config_.spread_rate_schedule()[step]) {
+            unsigned rates_step =
+                simulation_step_to_action_step(config_.spread_rate_schedule(), step);
+            spread_rate.action(host_pool, rates_step);
         }
     }
 

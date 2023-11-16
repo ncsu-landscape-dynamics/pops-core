@@ -82,6 +82,7 @@ int test_model_with_network()
     config.network_max_distance = 9;
     config.use_anthropogenic_kernel = true;
     config.percent_natural_dispersal = 0;
+    config.use_spreadrates = false;
     config.anthro_scale = config.natural_scale;  // Unused, but we need to set it.
     config.rows = 3;
     config.cols = 3;
@@ -107,8 +108,6 @@ int test_model_with_network()
     std::vector<std::vector<int>> suitable_cells =
         find_suitable_cells<int>(total_hosts);
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
-    SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, 0, suitable_cells);
     QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
     std::vector<std::vector<int>> movements;
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
@@ -131,7 +130,6 @@ int test_model_with_network()
             treatments,
             zeros,
             outside_dispersers,
-            spread_rate,
             quarantine,
             zeros,
             movements,

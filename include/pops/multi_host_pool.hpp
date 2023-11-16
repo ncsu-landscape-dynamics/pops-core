@@ -87,6 +87,23 @@ public:
         }
     }
 
+    /**
+     * @brief Get number of infected hosts at a given cell
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return Number of infected hosts
+     */
+    int infected_at(RasterIndex row, RasterIndex col) const
+    {
+        int infected = 0;
+        for (auto& host_pool : host_pools_) {
+            infected += host_pool->infected_at(row, col);
+        }
+        return infected;
+    }
+
     bool do_establishment_test(double value)
     {
         UNUSED(value);

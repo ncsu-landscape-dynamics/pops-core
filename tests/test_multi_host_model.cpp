@@ -23,6 +23,7 @@
 #include <vector>
 
 #include <pops/model.hpp>
+#include <pops/spread_rate.hpp>
 
 using namespace pops;
 
@@ -41,6 +42,7 @@ int test_minimal_parameters()
     config.use_anthropogenic_kernel = false;
     config.anthro_scale = 0.9;
     config.anthro_kappa = 0;
+    config.use_spreadrates = false;
     config.create_schedules();
 
     using TestModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
@@ -103,6 +105,9 @@ int test_minimal_parameters()
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
+    SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
+        multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
+
     model.environment().update_weather_coefficient(weather);
     model.run_step(
         step++,
@@ -112,6 +117,7 @@ int test_minimal_parameters()
         total_populations,
         empty_floats,
         empty_floats,
+        spread_rate,
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{8, 0, 0}, {0, 8, 0}, {0, 0, 7}};
     if (dispersers != expected_dispersers) {
@@ -137,6 +143,7 @@ int test_minimal_parameters()
         total_populations,
         empty_floats,
         empty_floats,
+        spread_rate,
         Network<int>::null_network());
     Raster<int> expected_infected = infected;
     if (infected != expected_infected) {
@@ -180,6 +187,7 @@ int test_minimal_parameters_two_hosts()
     config.use_anthropogenic_kernel = false;
     config.anthro_scale = 0.9;
     config.anthro_kappa = 0;
+    config.use_spreadrates = false;
     config.create_schedules();
 
     using TestModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
@@ -262,6 +270,9 @@ int test_minimal_parameters_two_hosts()
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
+    SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
+        multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
+
     model.environment().update_weather_coefficient(weather);
     model.run_step(
         step++,
@@ -271,6 +282,7 @@ int test_minimal_parameters_two_hosts()
         total_populations,
         empty_floats,
         empty_floats,
+        spread_rate,
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 25, 0}, {0, 0, 6}};
     if (dispersers != expected_dispersers) {
@@ -296,6 +308,7 @@ int test_minimal_parameters_two_hosts()
         total_populations,
         empty_floats,
         empty_floats,
+        spread_rate,
         Network<int>::null_network());
     Raster<int> expected_infected = infected;
     if (infected != expected_infected) {
