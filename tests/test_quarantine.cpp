@@ -31,6 +31,35 @@
 
 using namespace pops;
 
+/**
+ * Class pretending to be host pool only with methods
+ * needed by QuarantineEscapeAction and a method for setting infected raster.
+ */
+class QuarantineTestHostPool
+{
+public:
+    QuarantineTestHostPool(
+        Raster<int> infected, std::vector<std::vector<int>>& suitable_cells)
+        : infected_(infected), suitable_cells_(suitable_cells)
+    {}
+    void set_infected(Raster<int> infected)
+    {
+        infected_ = infected;
+    }
+    int infected_at(int row, int col) const
+    {
+        return infected_(row, col);
+    }
+    const std::vector<std::vector<int>>& suitable_cells() const
+    {
+        return suitable_cells_;
+    }
+
+private:
+    Raster<int> infected_;
+    std::vector<std::vector<int>>& suitable_cells_;
+};
+
 int test_quarantine()
 {
     int err = 0;
@@ -90,14 +119,21 @@ int test_quarantine()
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
 
-    std::vector<QuarantineEscape<Raster<int>>> runs(
-        2, QuarantineEscape<Raster<int>>(areas, 10, 10, 3, "N,S"));
-    runs[0].infection_escape_quarantine(infection11, areas, 0, suitable_cells);
-    runs[0].infection_escape_quarantine(infection12, areas, 1, suitable_cells);
-    runs[0].infection_escape_quarantine(infection13, areas, 2, suitable_cells);
-    runs[1].infection_escape_quarantine(infection21, areas, 0, suitable_cells);
-    runs[1].infection_escape_quarantine(infection22, areas, 1, suitable_cells);
-    runs[1].infection_escape_quarantine(infection23, areas, 2, suitable_cells);
+    QuarantineTestHostPool host_pool(infection11, suitable_cells);
+    std::vector<QuarantineEscapeAction<Raster<int>>> runs(
+        2, QuarantineEscapeAction<Raster<int>>(areas, 10, 10, 3, "N,S"));
+    host_pool.set_infected(infection11);
+    runs[0].action(host_pool, areas, 0);
+    host_pool.set_infected(infection12);
+    runs[0].action(host_pool, areas, 1);
+    host_pool.set_infected(infection13);
+    runs[0].action(host_pool, areas, 2);
+    host_pool.set_infected(infection21);
+    runs[1].action(host_pool, areas, 0);
+    host_pool.set_infected(infection22);
+    runs[1].action(host_pool, areas, 1);
+    host_pool.set_infected(infection23);
+    runs[1].action(host_pool, areas, 2);
     double p1 = quarantine_escape_probability(runs, 0);
     double p2 = quarantine_escape_probability(runs, 1);
     double p3 = quarantine_escape_probability(runs, 2);

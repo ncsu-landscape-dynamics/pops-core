@@ -95,7 +95,7 @@ int test_with_reduced_stochasticity()
     config.ns_res = 1;
     unsigned quarantine_num_steps =
         get_number_of_scheduled_actions(config.quarantine_schedule());
-    QuarantineEscape<Raster<int>> quarantine(
+    QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, quarantine_num_steps);
 
     auto expected_dispersers = config.reproductive_rate * infected;
@@ -235,7 +235,8 @@ int test_deterministic()
     config.use_treatments = false;
     config.ew_res = 30;
     config.ns_res = 30;
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     auto expected_dispersers = config.reproductive_rate * infected;
     auto expected_established_dispersers = config.reproductive_rate * infected;
@@ -377,7 +378,8 @@ int test_deterministic_exponential()
     config.use_treatments = false;
     config.ew_res = 30;
     config.ns_res = 30;
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     auto expected_dispersers = config.reproductive_rate * infected;
     auto expected_established_dispersers = config.reproductive_rate * infected;
@@ -521,7 +523,8 @@ int test_model_sei_deterministic()
     config.use_treatments = false;
     config.ew_res = 30;
     config.ns_res = 30;
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     // There should be still the original number of infected when dispersers are
     // created.
@@ -660,7 +663,8 @@ int test_model_sei_deterministic_with_treatments()
     config.use_treatments = true;
     config.ew_res = 30;
     config.ns_res = 30;
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     // One E to I transition should happen.
     auto expected_infected = config.reproductive_rate * infected + infected;

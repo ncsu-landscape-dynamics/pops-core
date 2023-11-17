@@ -108,7 +108,8 @@ int test_model_with_network()
     std::vector<std::vector<int>> suitable_cells =
         find_suitable_cells<int>(total_hosts);
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
     std::vector<std::vector<int>> movements;
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     // Run
