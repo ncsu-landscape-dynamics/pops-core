@@ -144,7 +144,7 @@ public:
     void
     set_competency_table(const CompetencyTable<HostPool, RasterIndex>& competency_table)
     {
-        &competency_table;
+        this->competency_table_ = &competency_table;
     }
 
     /**
@@ -231,6 +231,8 @@ public:
             return 0;
         double lambda =
             environment_.influence_reproductive_rate_at(row, col, reproductive_rate_);
+        if (competency_table_)
+            lambda *= competency_table_->competency_at(row, col, this);
         int dispersers_from_cell = 0;
         if (dispersers_stochasticity_) {
             std::poisson_distribution<int> distribution(lambda);
@@ -1042,6 +1044,8 @@ private:
     double reproductive_rate_{0};
     bool establishment_stochasticity_{true};
     double deterministic_establishment_probability_{0};
+
+    const CompetencyTable<HostPool, RasterIndex>* competency_table_{nullptr};
 
     RasterIndex rows_{0};
     RasterIndex cols_{0};

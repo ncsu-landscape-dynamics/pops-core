@@ -430,11 +430,14 @@ int test_minimal_parameters_two_hosts_with_table()
         config.cols,
         suitable_cells);
 
+    model.environment().add_host(&host_pool_1);
+    model.environment().add_host(&host_pool_2);
+
     CompetencyTable<TestModel::StandardSingleHostPool, Raster<double>::IndexType>
         competency_table(model.environment());
-    competency_table.add_host_competencies({0, 1}, 0.4);
-    competency_table.add_host_competencies({1, 0}, 0.1);
-    competency_table.add_host_competencies({1, 1}, 0.9);
+    competency_table.add_host_competencies({0, 1}, 1);
+    competency_table.add_host_competencies({1, 0}, 1);
+    competency_table.add_host_competencies({1, 1}, 1);
 
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
