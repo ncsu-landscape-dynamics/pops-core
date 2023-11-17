@@ -175,7 +175,8 @@ int test_soil_with_model()
     config.rows = infected.rows();
     config.cols = infected.cols();
 
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     Raster<double> weather = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 

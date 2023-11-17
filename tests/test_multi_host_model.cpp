@@ -108,7 +108,11 @@ int test_minimal_parameters()
 
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
-
+    unsigned quarantine_num_steps =
+        get_number_of_scheduled_actions(config.quarantine_schedule());
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
     model.environment().update_weather_coefficient(weather);
     model.run_step(
         step++,
@@ -119,6 +123,8 @@ int test_minimal_parameters()
         empty_floats,
         empty_floats,
         spread_rate,
+        quarantine,
+        zeros,
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{8, 0, 0}, {0, 8, 0}, {0, 0, 7}};
     if (dispersers != expected_dispersers) {
@@ -145,6 +151,8 @@ int test_minimal_parameters()
         empty_floats,
         empty_floats,
         spread_rate,
+        quarantine,
+        zeros,
         Network<int>::null_network());
     Raster<int> expected_infected = infected;
     if (infected != expected_infected) {
@@ -273,6 +281,11 @@ int test_minimal_parameters_two_hosts()
 
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
+    unsigned quarantine_num_steps =
+        get_number_of_scheduled_actions(config.quarantine_schedule());
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
 
     model.environment().update_weather_coefficient(weather);
     model.run_step(
@@ -284,6 +297,8 @@ int test_minimal_parameters_two_hosts()
         empty_floats,
         empty_floats,
         spread_rate,
+        quarantine,
+        zeros,
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 25, 0}, {0, 0, 6}};
     if (dispersers != expected_dispersers) {
@@ -310,6 +325,8 @@ int test_minimal_parameters_two_hosts()
         empty_floats,
         empty_floats,
         spread_rate,
+        quarantine,
+        zeros,
         Network<int>::null_network());
     Raster<int> expected_infected = infected;
     if (infected != expected_infected) {
@@ -449,6 +466,11 @@ int test_minimal_parameters_two_hosts_with_table()
 
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
+    unsigned quarantine_num_steps =
+        get_number_of_scheduled_actions(config.quarantine_schedule());
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
 
     model.environment().update_weather_coefficient(weather);
     model.run_step(
@@ -460,6 +482,8 @@ int test_minimal_parameters_two_hosts_with_table()
         empty_floats,
         empty_floats,
         spread_rate,
+        quarantine,
+        zeros,
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 25, 0}, {0, 0, 6}};
     if (dispersers != expected_dispersers) {
@@ -486,6 +510,8 @@ int test_minimal_parameters_two_hosts_with_table()
         empty_floats,
         empty_floats,
         spread_rate,
+        quarantine,
+        zeros,
         Network<int>::null_network());
     Raster<int> expected_infected = infected;
     if (infected != expected_infected) {

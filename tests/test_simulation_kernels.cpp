@@ -402,7 +402,8 @@ int test_model_with_kernels_generic(
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
     Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     Model<
         Raster<int>,

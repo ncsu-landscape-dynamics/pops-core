@@ -223,15 +223,13 @@ public:
         Treatments<IntegerRaster, FloatRaster>& treatments,
         IntegerRaster& resistant,
         std::vector<std::tuple<int, int>>& outside_dispersers,  // out
-        QuarantineEscape<IntegerRaster>& quarantine,  // out
+        QuarantineEscapeAction<IntegerRaster>& quarantine,  // out
         const IntegerRaster& quarantine_areas,
         const std::vector<std::vector<int>> movements,
         const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
         UNUSED(treatments);
-        UNUSED(quarantine);
-        UNUSED(quarantine_areas);
         UNUSED(movements);
 
         StandardSingleHostPool host_pool(
@@ -273,6 +271,8 @@ public:
             temperatures,
             survival_rates,
             spread_rate,
+            quarantine,
+            quarantine_areas,
             network);
     }
 
@@ -285,6 +285,8 @@ public:
         const std::vector<FloatRaster>& temperatures,
         const std::vector<FloatRaster>& survival_rates,
         SpreadRateAction<StandardMultiHostPool, RasterIndex>& spread_rate,
+        QuarantineEscapeAction<IntegerRaster>& quarantine,
+        const IntegerRaster& quarantine_areas,
         const Network<RasterIndex>& network)
     {
         // Soil step is the same as simulation step.
@@ -349,6 +351,12 @@ public:
             unsigned rates_step =
                 simulation_step_to_action_step(config_.spread_rate_schedule(), step);
             spread_rate.action(host_pool, rates_step);
+        }
+        // compute quarantine escape
+        if (config_.use_quarantine && config_.quarantine_schedule()[step]) {
+            unsigned action_step =
+                simulation_step_to_action_step(config_.quarantine_schedule(), step);
+            quarantine.action(host_pool, quarantine_areas, action_step);
         }
     }
 
