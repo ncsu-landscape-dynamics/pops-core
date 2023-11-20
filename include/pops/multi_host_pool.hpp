@@ -21,6 +21,7 @@
 #include <random>
 
 #include "competency_table.hpp"
+#include "pest_host_use_table.hpp"
 
 namespace pops {
 
@@ -40,11 +41,17 @@ public:
 
     MultiHostPool(const std::vector<HostPool*>& host_pools) : host_pools_(host_pools) {}
 
-    void
-    set_competency_table(const CompetencyTable<HostPool, RasterIndex>& competency_table)
+    void set_pest_host_use_table(const PestHostUseTable<HostPool>& table)
     {
         for (auto& host_pool : host_pools_) {
-            host_pool->set_competency_table(competency_table);
+            host_pool->set_pest_host_use_table(table);
+        }
+    }
+
+    void set_competency_table(const CompetencyTable<HostPool, RasterIndex>& table)
+    {
+        for (auto& host_pool : host_pools_) {
+            host_pool->set_competency_table(table);
         }
     }
 
