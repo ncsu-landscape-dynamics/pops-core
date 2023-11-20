@@ -784,6 +784,20 @@ public:
         }
     }
 
+    void apply_mortality_at(RasterIndex row, RasterIndex col)
+    {
+        if (!pest_host_use_table_) {
+            throw std::invalid_argument(
+                "Set pest-host-use table before calling apply_mortality_at "
+                "or provide parameters in the function call");
+        }
+        this->apply_mortality_at(
+            row,
+            col,
+            pest_host_use_table_->mortality_rate(),
+            pest_host_use_table_->mortality_time_lag());
+    }
+
     /**
      * @brief Make a step forward in tracking mortality cohorts
      *
