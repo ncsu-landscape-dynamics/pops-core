@@ -1,7 +1,7 @@
 /*
- * PoPS model - environment for hosts and pests
+ * PoPS model - Competency table for hosts and pest
  *
- * Copyright (C) 2022 by the authors.
+ * Copyright (C) 2023 by the authors.
  *
  * Authors: Vaclav Petras (wenzeslaus gmail com)
  *
@@ -17,6 +17,8 @@
 #define POPS_COMPETENCY_TABLE_HPP
 
 #include <vector>
+#include <stdexcept>
+#include <string>
 
 namespace pops {
 
@@ -36,12 +38,13 @@ public:
 
     double competency_at(RasterIndex row, RasterIndex col, const HostPool* host) const
     {
-        auto presence_absence = environment_->host_presence_at(row, col);
-        auto host_index = environment_->host_to_index(host);
+        auto presence_absence = environment_.host_presence_at(row, col);
+        auto host_index = environment_.host_index(host);
         return find_competency(presence_absence, host_index);
     }
 
-    double find_competency(std::vector<bool>& presence_absence, size_t host_index) const
+    double
+    find_competency(const std::vector<bool>& presence_absence, size_t host_index) const
     {
         // Go over all the rows and find the highest competency which fulfilled the
         // presence criteria.

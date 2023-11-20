@@ -21,6 +21,7 @@ function(add_pops_test NAME)
     add_test(NAME "${NAME}" COMMAND ${NAME})
 endfunction()
 
+add_pops_test(test_competency_table)
 add_pops_test(test_date)
 add_pops_test(test_deterministic)
 add_pops_test(test_distributions)

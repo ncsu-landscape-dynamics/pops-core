@@ -200,7 +200,7 @@ public:
         return sum;
     }
 
-    std::vector<bool> host_presence_at(RasterIndex row, RasterIndex col) const
+    std::vector<bool> host_presence_at(RasterIndex row, RasterIndex col) const override
     {
         std::vector<bool> presence;
         presence.reserve(hosts_.size());
@@ -227,7 +227,7 @@ public:
         hosts_.push_back(host);
     }
 
-    std::vector<bool> host_index(HostPoolInterface<RasterIndex>* host) const
+    size_t host_index(const HostPoolInterface<RasterIndex>* host) const override
     {
         auto it = std::find(hosts_.begin(), hosts_.end(), host);
         if (it == hosts_.end())

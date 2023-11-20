@@ -25,6 +25,7 @@
 #include "model_type.hpp"
 #include "environment_interface.hpp"
 #include "competency_table.hpp"
+#include "pest_host_use_table.hpp"
 
 namespace pops {
 
@@ -141,10 +142,15 @@ public:
           suitable_cells_(suitable_cells)
     {}
 
+    void set_pest_host_use_table(const PestHostUseTable<HostPool>& pest_host_use_table)
+    {
+        this->pest_host_use_table_ = &pest_host_use_table;
+    }
+
     void
     set_competency_table(const CompetencyTable<HostPool, RasterIndex>& competency_table)
     {
-        &competency_table;
+        this->competency_table_ = &competency_table;
     }
 
     /**
@@ -231,6 +237,9 @@ public:
             return 0;
         double lambda =
             environment_.influence_reproductive_rate_at(row, col, reproductive_rate_);
+        if (competency_table_) {
+            lambda *= competency_table_->competency_at(row, col, this);
+        }
         int dispersers_from_cell = 0;
         if (dispersers_stochasticity_) {
             std::poisson_distribution<int> distribution(lambda);
@@ -257,6 +266,9 @@ public:
         double probability_of_establishment =
             (double)(susceptible_(row, col))
             / environment_.total_population_at(row, col);
+        if (pest_host_use_table_) {
+            probability_of_establishment *= pest_host_use_table_->susceptibility(this);
+        }
         return environment_.influence_probability_of_establishment_at(
             row, col, probability_of_establishment);
     }
@@ -1048,6 +1060,9 @@ private:
     double reproductive_rate_{0};
     bool establishment_stochasticity_{true};
     double deterministic_establishment_probability_{0};
+
+    const PestHostUseTable<HostPool>* pest_host_use_table_{nullptr};
+    const CompetencyTable<HostPool, RasterIndex>* competency_table_{nullptr};
 
     RasterIndex rows_{0};
     RasterIndex cols_{0};

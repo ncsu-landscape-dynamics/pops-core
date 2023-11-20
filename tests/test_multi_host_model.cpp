@@ -25,10 +25,15 @@
 #include <pops/model.hpp>
 #include <pops/spread_rate.hpp>
 #include <pops/competency_table.hpp>
+#include <pops/pest_host_use_table.hpp>
 
 using namespace pops;
 
-int test_minimal_parameters()
+/** Test multihost with minimal parameters and one host pool only.
+ *
+ * Values determined by running the test.
+ */
+int test_minimal_parameters_one_host()
 {
     int ret = 0;
 
@@ -44,6 +49,7 @@ int test_minimal_parameters()
     config.anthro_scale = 0.9;
     config.anthro_kappa = 0;
     config.use_spreadrates = false;
+    config.use_quarantine = true;
     config.create_schedules();
 
     using TestModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
@@ -128,7 +134,7 @@ int test_minimal_parameters()
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{8, 0, 0}, {0, 8, 0}, {0, 0, 7}};
     if (dispersers != expected_dispersers) {
-        std::cerr << "test_minimal_parameters (step " << step
+        std::cerr << "test_minimal_parameters_one_host (step " << step
                   << ") dispersers (actual, expected):\n"
                   << dispersers << "  !=\n"
                   << expected_dispersers << "\n";
@@ -136,7 +142,7 @@ int test_minimal_parameters()
     }
     size_t expected_outside_dispersers_size = 7;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
-        std::cerr << "test_minimal_parameters (step " << step
+        std::cerr << "test_minimal_parameters_one_host (step " << step
                   << "): outside_dispersers.size (actual, expected): "
                   << outside_dispersers.size()
                   << " != " << expected_outside_dispersers_size << "\n";
@@ -157,7 +163,7 @@ int test_minimal_parameters()
         Network<int>::null_network());
     Raster<int> expected_infected = infected;
     if (infected != expected_infected) {
-        std::cerr << "test_minimal_parameters (step " << step
+        std::cerr << "test_minimal_parameters_one_host (step " << step
                   << ") infected (actual, expected):\n"
                   << infected << "  !=\n"
                   << expected_infected << "\n";
@@ -165,7 +171,7 @@ int test_minimal_parameters()
     }
     expected_dispersers = {{13, 12, 0}, {0, 7, 0}, {0, 0, 1}};
     if (dispersers != expected_dispersers) {
-        std::cerr << "test_minimal_parameters (step " << step
+        std::cerr << "test_minimal_parameters_one_host (step " << step
                   << ") dispersers (actual, expected):\n"
                   << dispersers << "  !=\n"
                   << expected_dispersers << "\n";
@@ -173,7 +179,7 @@ int test_minimal_parameters()
     }
     expected_outside_dispersers_size = 8;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
-        std::cerr << "test_minimal_parameters (step " << step
+        std::cerr << "test_minimal_parameters_one_host (step " << step
                   << "): outside_dispersers.size (actual, expected): "
                   << outside_dispersers.size()
                   << " != " << expected_outside_dispersers_size << "\n";
@@ -182,6 +188,10 @@ int test_minimal_parameters()
     return ret;
 }
 
+/** Test two hosts without competency table.
+ *
+ * Values determined by running the test.
+ */
 int test_minimal_parameters_two_hosts()
 {
     int ret = 0;
@@ -198,6 +208,7 @@ int test_minimal_parameters_two_hosts()
     config.anthro_scale = 0.9;
     config.anthro_kappa = 0;
     config.use_spreadrates = false;
+    config.use_quarantine = true;
     config.create_schedules();
 
     using TestModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
@@ -205,48 +216,56 @@ int test_minimal_parameters_two_hosts()
 
     int step = 0;
 
-    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
-    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts_1 = {{10, 20, 9}, {0, 0, 0}, {3, 50, 2}};
+    Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
+    Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
+    Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
     Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
-    Raster<int> total_hosts = susceptible + infected;
+    Raster<int> susceptible_1 = total_hosts_1 - infected_1;
+    Raster<int> susceptible_2 = total_hosts_2 - infected_2;
     std::vector<std::vector<int>> suitable_cells =
-        find_suitable_cells<Raster<int>::IndexType, Raster<int>>(total_hosts);
+        find_suitable_cells<Raster<int>::IndexType, Raster<int>>(
+            {&total_hosts_1, &total_hosts_2});
 
-    Raster<int> dispersers(infected.rows(), infected.cols());
-    Raster<int> established_dispersers(infected.rows(), infected.cols());
+    Raster<int> dispersers(infected_1.rows(), infected_1.cols());
+    Raster<int> established_dispersers(infected_1.rows(), infected_1.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
-    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
-    Raster<int> died(infected.rows(), infected.cols(), 0);
+    Raster<int> total_exposed_1(infected_1.rows(), infected_1.cols(), 0);
+    Raster<int> total_exposed_2(infected_2.rows(), infected_2.cols(), 0);
+    Raster<int> died_1(infected_1.rows(), infected_1.cols(), 0);
+    Raster<int> died_2(infected_2.rows(), infected_2.cols(), 0);
 
     Raster<int> empty_integer;
     std::vector<Raster<int>> empty_integers;
     std::vector<Raster<double>> empty_floats;
 
     unsigned num_mortality_steps = 1;
-    std::vector<Raster<int>> mortality_tracker(
-        num_mortality_steps, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker_1(
+        num_mortality_steps, Raster<int>(infected_1.rows(), infected_1.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker_2(
+        num_mortality_steps, Raster<int>(infected_2.rows(), infected_2.cols(), 0));
 
     // std::vector<std::vector<int>> movements = {};
     // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.ew_res = 30;
     config.ns_res = 30;
-    config.rows = infected.rows();
-    config.cols = infected.cols();
+    config.rows = infected_1.rows();
+    config.cols = infected_1.cols();
 
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
 
     TestModel::StandardSingleHostPool host_pool_1(
         model_type_from_string(config.model_type),
-        susceptible,
+        susceptible_1,
         empty_integers,
         config.latency_period_steps,
-        infected,
-        total_exposed,
+        infected_1,
+        total_exposed_1,
         empty_integer,
-        mortality_tracker,
-        died,
-        total_hosts,
+        mortality_tracker_1,
+        died_1,
+        total_hosts_1,
         model.environment(),
         config.generate_stochasticity,
         config.reproductive_rate,
@@ -257,15 +276,15 @@ int test_minimal_parameters_two_hosts()
         suitable_cells);
     TestModel::StandardSingleHostPool host_pool_2(
         model_type_from_string(config.model_type),
-        susceptible,
+        susceptible_2,
         empty_integers,
         config.latency_period_steps,
-        infected,
-        total_exposed,
+        infected_2,
+        total_exposed_2,
         empty_integer,
-        mortality_tracker,
-        died,
-        total_hosts,
+        mortality_tracker_2,
+        died_2,
+        total_hosts_2,
         model.environment(),
         config.generate_stochasticity,
         config.reproductive_rate,
@@ -283,7 +302,7 @@ int test_minimal_parameters_two_hosts()
         config.scheduler());
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
-    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+    Raster<int> zeros(infected_1.rows(), infected_1.cols(), 0);
     QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, 0);
 
@@ -301,7 +320,7 @@ int test_minimal_parameters_two_hosts()
         quarantine,
         zeros,
         Network<int>::null_network());
-    Raster<int> expected_dispersers = {{16, 0, 0}, {0, 25, 0}, {0, 0, 6}};
+    Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -309,7 +328,7 @@ int test_minimal_parameters_two_hosts()
                   << expected_dispersers << "\n";
         ++ret;
     }
-    size_t expected_outside_dispersers_size = 6;
+    size_t expected_outside_dispersers_size = 5;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << "): outside_dispersers.size (actual, expected): "
@@ -330,15 +349,15 @@ int test_minimal_parameters_two_hosts()
         quarantine,
         zeros,
         Network<int>::null_network());
-    Raster<int> expected_infected = infected;
-    if (infected != expected_infected) {
+    Raster<int> expected_infected = infected_1;
+    if (infected_1 != expected_infected) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << ") infected (actual, expected):\n"
-                  << infected << "  !=\n"
+                  << infected_1 << "  !=\n"
                   << expected_infected << "\n";
         ++ret;
     }
-    expected_dispersers = {{24, 52, 0}, {0, 21, 0}, {0, 0, 6}};
+    expected_dispersers = {{21, 29, 0}, {0, 5, 0}, {0, 26, 4}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -346,7 +365,7 @@ int test_minimal_parameters_two_hosts()
                   << expected_dispersers << "\n";
         ++ret;
     }
-    expected_outside_dispersers_size = 12;
+    expected_outside_dispersers_size = 9;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << "): outside_dispersers.size (actual, expected): "
@@ -357,7 +376,11 @@ int test_minimal_parameters_two_hosts()
     return ret;
 }
 
-int test_minimal_parameters_two_hosts_with_table()
+/** Test competencies == 1.
+ *
+ * Values taken from a test without competency table.
+ */
+int test_two_hosts_with_table_one_only()
 {
     int ret = 0;
 
@@ -372,6 +395,8 @@ int test_minimal_parameters_two_hosts_with_table()
     config.use_anthropogenic_kernel = false;
     config.anthro_scale = 0.9;
     config.anthro_kappa = 0;
+    config.use_spreadrates = false;
+    config.use_quarantine = true;
     config.create_schedules();
 
     using TestModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
@@ -379,48 +404,56 @@ int test_minimal_parameters_two_hosts_with_table()
 
     int step = 0;
 
-    Raster<int> infected = {{5, 0, 0}, {0, 5, 0}, {0, 0, 2}};
-    Raster<int> susceptible = {{10, 20, 9}, {14, 15, 0}, {3, 0, 2}};
+    Raster<int> total_hosts_1 = {{10, 20, 9}, {0, 0, 0}, {3, 50, 2}};
+    Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
+    Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
+    Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
     Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
-    Raster<int> total_hosts = susceptible + infected;
+    Raster<int> susceptible_1 = total_hosts_1 - infected_1;
+    Raster<int> susceptible_2 = total_hosts_2 - infected_2;
     std::vector<std::vector<int>> suitable_cells =
-        find_suitable_cells<Raster<int>::IndexType, Raster<int>>(total_hosts);
+        find_suitable_cells<Raster<int>::IndexType, Raster<int>>(
+            {&total_hosts_1, &total_hosts_2});
 
-    Raster<int> dispersers(infected.rows(), infected.cols());
-    Raster<int> established_dispersers(infected.rows(), infected.cols());
+    Raster<int> dispersers(infected_1.rows(), infected_1.cols());
+    Raster<int> established_dispersers(infected_1.rows(), infected_1.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
-    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
-    Raster<int> died(infected.rows(), infected.cols(), 0);
+    Raster<int> total_exposed_1(infected_1.rows(), infected_1.cols(), 0);
+    Raster<int> total_exposed_2(infected_2.rows(), infected_2.cols(), 0);
+    Raster<int> died_1(infected_1.rows(), infected_1.cols(), 0);
+    Raster<int> died_2(infected_2.rows(), infected_2.cols(), 0);
 
     Raster<int> empty_integer;
     std::vector<Raster<int>> empty_integers;
     std::vector<Raster<double>> empty_floats;
 
     unsigned num_mortality_steps = 1;
-    std::vector<Raster<int>> mortality_tracker(
-        num_mortality_steps, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker_1(
+        num_mortality_steps, Raster<int>(infected_1.rows(), infected_1.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker_2(
+        num_mortality_steps, Raster<int>(infected_2.rows(), infected_2.cols(), 0));
 
     // std::vector<std::vector<int>> movements = {};
     // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.ew_res = 30;
     config.ns_res = 30;
-    config.rows = infected.rows();
-    config.cols = infected.cols();
+    config.rows = infected_1.rows();
+    config.cols = infected_1.cols();
 
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
 
     TestModel::StandardSingleHostPool host_pool_1(
         model_type_from_string(config.model_type),
-        susceptible,
+        susceptible_1,
         empty_integers,
         config.latency_period_steps,
-        infected,
-        total_exposed,
+        infected_1,
+        total_exposed_1,
         empty_integer,
-        mortality_tracker,
-        died,
-        total_hosts,
+        mortality_tracker_1,
+        died_1,
+        total_hosts_1,
         model.environment(),
         config.generate_stochasticity,
         config.reproductive_rate,
@@ -431,15 +464,15 @@ int test_minimal_parameters_two_hosts_with_table()
         suitable_cells);
     TestModel::StandardSingleHostPool host_pool_2(
         model_type_from_string(config.model_type),
-        susceptible,
+        susceptible_2,
         empty_integers,
         config.latency_period_steps,
-        infected,
-        total_exposed,
+        infected_2,
+        total_exposed_2,
         empty_integer,
-        mortality_tracker,
-        died,
-        total_hosts,
+        mortality_tracker_2,
+        died_2,
+        total_hosts_2,
         model.environment(),
         config.generate_stochasticity,
         config.reproductive_rate,
@@ -448,25 +481,27 @@ int test_minimal_parameters_two_hosts_with_table()
         config.rows,
         config.cols,
         suitable_cells);
-
-    CompetencyTable<TestModel::StandardSingleHostPool, Raster<double>::IndexType>
-        competency_table(model.environment());
-    competency_table.add_host_competencies({0, 1}, 0.4);
-    competency_table.add_host_competencies({1, 0}, 0.1);
-    competency_table.add_host_competencies({1, 1}, 0.9);
-
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
     TestModel::StandardMultiHostPool multi_host_pool(host_pools);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
+    model.environment().add_host(&host_pool_1);
+    model.environment().add_host(&host_pool_2);
+
+    CompetencyTable<TestModel::StandardSingleHostPool, Raster<double>::IndexType>
+        competency_table(model.environment());
+    competency_table.add_host_competencies({0, 1}, 1);
+    competency_table.add_host_competencies({1, 0}, 1);
+    competency_table.add_host_competencies({1, 1}, 1);
+
     multi_host_pool.set_competency_table(competency_table);
     Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
         config.scheduler());
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
-    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+    Raster<int> zeros(infected_1.rows(), infected_1.cols(), 0);
     QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, 0);
 
@@ -484,17 +519,17 @@ int test_minimal_parameters_two_hosts_with_table()
         quarantine,
         zeros,
         Network<int>::null_network());
-    Raster<int> expected_dispersers = {{16, 0, 0}, {0, 25, 0}, {0, 0, 6}};
+    Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
     if (dispersers != expected_dispersers) {
-        std::cerr << "test_minimal_parameters_two_hosts (step " << step
+        std::cerr << "test_two_hosts_with_table_one_only (step " << step
                   << ") dispersers (actual, expected):\n"
                   << dispersers << "  !=\n"
                   << expected_dispersers << "\n";
         ++ret;
     }
-    size_t expected_outside_dispersers_size = 6;
+    size_t expected_outside_dispersers_size = 5;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
-        std::cerr << "test_minimal_parameters_two_hosts (step " << step
+        std::cerr << "test_two_hosts_with_table_one_only (step " << step
                   << "): outside_dispersers.size (actual, expected): "
                   << outside_dispersers.size()
                   << " != " << expected_outside_dispersers_size << "\n";
@@ -513,25 +548,626 @@ int test_minimal_parameters_two_hosts_with_table()
         quarantine,
         zeros,
         Network<int>::null_network());
-    Raster<int> expected_infected = infected;
-    if (infected != expected_infected) {
-        std::cerr << "test_minimal_parameters_two_hosts (step " << step
+    Raster<int> expected_infected = infected_1;
+    if (infected_1 != expected_infected) {
+        std::cerr << "test_two_hosts_with_table_one_only (step " << step
                   << ") infected (actual, expected):\n"
-                  << infected << "  !=\n"
+                  << infected_1 << "  !=\n"
                   << expected_infected << "\n";
         ++ret;
     }
-    expected_dispersers = {{24, 52, 0}, {0, 21, 0}, {0, 0, 6}};
+    expected_dispersers = {{21, 29, 0}, {0, 5, 0}, {0, 26, 4}};
     if (dispersers != expected_dispersers) {
-        std::cerr << "test_minimal_parameters_two_hosts (step " << step
+        std::cerr << "test_two_hosts_with_table_one_only (step " << step
                   << ") dispersers (actual, expected):\n"
                   << dispersers << "  !=\n"
                   << expected_dispersers << "\n";
         ++ret;
     }
-    expected_outside_dispersers_size = 12;
+    expected_outside_dispersers_size = 9;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
-        std::cerr << "test_minimal_parameters_two_hosts (step " << step
+        std::cerr << "test_two_hosts_with_table_one_only (step " << step
+                  << "): outside_dispersers.size (actual, expected): "
+                  << outside_dispersers.size()
+                  << " != " << expected_outside_dispersers_size << "\n";
+        ++ret;
+    }
+    return ret;
+}
+
+/** Test competencies (0, 1).
+ *
+ * Values determined by running the test.
+ */
+int test_two_hosts_with_table_other_than_one()
+{
+    int ret = 0;
+
+    Config config;
+    config.model_type = "SI";
+    config.reproductive_rate = 2;
+    config.establishment_probability = 1;
+    config.random_seed = 42;
+    config.natural_scale = 20;
+    config.natural_kernel_type = "deterministic-neighbor";
+    config.natural_direction = "E";
+    config.use_anthropogenic_kernel = false;
+    config.anthro_scale = 0.9;
+    config.anthro_kappa = 0;
+    config.use_spreadrates = false;
+    config.use_quarantine = true;
+    config.create_schedules();
+
+    using TestModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
+    TestModel model{config};
+
+    int step = 0;
+
+    Raster<int> total_hosts_1 = {{10, 20, 9}, {0, 0, 0}, {3, 50, 2}};
+    Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
+    Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
+    Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
+    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
+    Raster<int> susceptible_1 = total_hosts_1 - infected_1;
+    Raster<int> susceptible_2 = total_hosts_2 - infected_2;
+    std::vector<std::vector<int>> suitable_cells =
+        find_suitable_cells<Raster<int>::IndexType, Raster<int>>(
+            {&total_hosts_1, &total_hosts_2});
+
+    Raster<int> dispersers(infected_1.rows(), infected_1.cols());
+    Raster<int> established_dispersers(infected_1.rows(), infected_1.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    Raster<int> total_exposed_1(infected_1.rows(), infected_1.cols(), 0);
+    Raster<int> total_exposed_2(infected_2.rows(), infected_2.cols(), 0);
+    Raster<int> died_1(infected_1.rows(), infected_1.cols(), 0);
+    Raster<int> died_2(infected_2.rows(), infected_2.cols(), 0);
+
+    Raster<int> empty_integer;
+    std::vector<Raster<int>> empty_integers;
+    std::vector<Raster<double>> empty_floats;
+
+    unsigned num_mortality_steps = 1;
+    std::vector<Raster<int>> mortality_tracker_1(
+        num_mortality_steps, Raster<int>(infected_1.rows(), infected_1.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker_2(
+        num_mortality_steps, Raster<int>(infected_2.rows(), infected_2.cols(), 0));
+
+    // std::vector<std::vector<int>> movements = {};
+    // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    config.ew_res = 30;
+    config.ns_res = 30;
+    config.rows = infected_1.rows();
+    config.cols = infected_1.cols();
+
+    Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
+
+    TestModel::StandardSingleHostPool host_pool_1(
+        model_type_from_string(config.model_type),
+        susceptible_1,
+        empty_integers,
+        config.latency_period_steps,
+        infected_1,
+        total_exposed_1,
+        empty_integer,
+        mortality_tracker_1,
+        died_1,
+        total_hosts_1,
+        model.environment(),
+        config.generate_stochasticity,
+        config.reproductive_rate,
+        config.establishment_stochasticity,
+        config.establishment_probability,
+        config.rows,
+        config.cols,
+        suitable_cells);
+    TestModel::StandardSingleHostPool host_pool_2(
+        model_type_from_string(config.model_type),
+        susceptible_2,
+        empty_integers,
+        config.latency_period_steps,
+        infected_2,
+        total_exposed_2,
+        empty_integer,
+        mortality_tracker_2,
+        died_2,
+        total_hosts_2,
+        model.environment(),
+        config.generate_stochasticity,
+        config.reproductive_rate,
+        config.establishment_stochasticity,
+        config.establishment_probability,
+        config.rows,
+        config.cols,
+        suitable_cells);
+    std::vector<TestModel::StandardSingleHostPool*> host_pools = {
+        &host_pool_1, &host_pool_2};
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardPestPool pest_pool{
+        dispersers, established_dispersers, outside_dispersers};
+
+    model.environment().add_host(&host_pool_1);
+    model.environment().add_host(&host_pool_2);
+
+    CompetencyTable<TestModel::StandardSingleHostPool, Raster<double>::IndexType>
+        competency_table(model.environment());
+    competency_table.add_host_competencies({0, 1}, 0.4);
+    competency_table.add_host_competencies({1, 0}, 0.6);
+    competency_table.add_host_competencies({1, 1}, 0.8);
+
+    multi_host_pool.set_competency_table(competency_table);
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
+    SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
+        multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
+    unsigned quarantine_num_steps =
+        get_number_of_scheduled_actions(config.quarantine_schedule());
+    Raster<int> zeros(infected_1.rows(), infected_1.cols(), 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
+
+    model.environment().update_weather_coefficient(weather);
+    model.run_step(
+        step++,
+        multi_host_pool,
+        pest_pool,
+        dispersers,
+        total_populations,
+        treatments,
+        empty_floats,
+        empty_floats,
+        spread_rate,
+        quarantine,
+        zeros,
+        Network<int>::null_network());
+    Raster<int> expected_dispersers = {{14, 0, 0}, {0, 3, 0}, {0, 11, 3}};
+    if (dispersers != expected_dispersers) {
+        std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
+                  << ") dispersers (actual, expected):\n"
+                  << dispersers << "  !=\n"
+                  << expected_dispersers << "\n";
+        ++ret;
+    }
+    size_t expected_outside_dispersers_size = 3;
+    if (outside_dispersers.size() != expected_outside_dispersers_size) {
+        std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
+                  << "): outside_dispersers.size (actual, expected): "
+                  << outside_dispersers.size()
+                  << " != " << expected_outside_dispersers_size << "\n";
+        ++ret;
+    }
+    model.run_step(
+        step++,
+        multi_host_pool,
+        pest_pool,
+        dispersers,
+        total_populations,
+        treatments,
+        empty_floats,
+        empty_floats,
+        spread_rate,
+        quarantine,
+        zeros,
+        Network<int>::null_network());
+    Raster<int> expected_infected = infected_1;
+    if (infected_1 != expected_infected) {
+        std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_1 << "  !=\n"
+                  << expected_infected << "\n";
+        ++ret;
+    }
+    expected_dispersers = {{19, 23, 0}, {0, 3, 0}, {0, 13, 2}};
+    if (dispersers != expected_dispersers) {
+        std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
+                  << ") dispersers (actual, expected):\n"
+                  << dispersers << "  !=\n"
+                  << expected_dispersers << "\n";
+        ++ret;
+    }
+    expected_outside_dispersers_size = 5;
+    if (outside_dispersers.size() != expected_outside_dispersers_size) {
+        std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
+                  << "): outside_dispersers.size (actual, expected): "
+                  << outside_dispersers.size()
+                  << " != " << expected_outside_dispersers_size << "\n";
+        ++ret;
+    }
+    return ret;
+}
+
+/** Test two hosts with susceptibilities == 1.
+ *
+ * Values taken from the test without susceptibilities.
+ */
+int test_two_hosts_susceptibilities_one()
+{
+    int ret = 0;
+
+    Config config;
+    config.model_type = "SI";
+    config.reproductive_rate = 2;
+    config.establishment_probability = 1;
+    config.random_seed = 42;
+    config.natural_scale = 20;
+    config.natural_kernel_type = "deterministic-neighbor";
+    config.natural_direction = "E";
+    config.use_anthropogenic_kernel = false;
+    config.anthro_scale = 0.9;
+    config.anthro_kappa = 0;
+    config.use_spreadrates = false;
+    config.use_quarantine = true;
+    config.create_schedules();
+
+    using TestModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
+    TestModel model{config};
+
+    int step = 0;
+
+    Raster<int> total_hosts_1 = {{10, 20, 9}, {0, 0, 0}, {3, 50, 2}};
+    Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
+    Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
+    Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
+    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
+    Raster<int> susceptible_1 = total_hosts_1 - infected_1;
+    Raster<int> susceptible_2 = total_hosts_2 - infected_2;
+    std::vector<std::vector<int>> suitable_cells =
+        find_suitable_cells<Raster<int>::IndexType, Raster<int>>(
+            {&total_hosts_1, &total_hosts_2});
+
+    Raster<int> dispersers(infected_1.rows(), infected_1.cols());
+    Raster<int> established_dispersers(infected_1.rows(), infected_1.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    Raster<int> total_exposed_1(infected_1.rows(), infected_1.cols(), 0);
+    Raster<int> total_exposed_2(infected_2.rows(), infected_2.cols(), 0);
+    Raster<int> died_1(infected_1.rows(), infected_1.cols(), 0);
+    Raster<int> died_2(infected_2.rows(), infected_2.cols(), 0);
+
+    Raster<int> empty_integer;
+    std::vector<Raster<int>> empty_integers;
+    std::vector<Raster<double>> empty_floats;
+
+    unsigned num_mortality_steps = 1;
+    std::vector<Raster<int>> mortality_tracker_1(
+        num_mortality_steps, Raster<int>(infected_1.rows(), infected_1.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker_2(
+        num_mortality_steps, Raster<int>(infected_2.rows(), infected_2.cols(), 0));
+
+    // std::vector<std::vector<int>> movements = {};
+    // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    config.ew_res = 30;
+    config.ns_res = 30;
+    config.rows = infected_1.rows();
+    config.cols = infected_1.cols();
+
+    Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
+
+    TestModel::StandardSingleHostPool host_pool_1(
+        model_type_from_string(config.model_type),
+        susceptible_1,
+        empty_integers,
+        config.latency_period_steps,
+        infected_1,
+        total_exposed_1,
+        empty_integer,
+        mortality_tracker_1,
+        died_1,
+        total_hosts_1,
+        model.environment(),
+        config.generate_stochasticity,
+        config.reproductive_rate,
+        config.establishment_stochasticity,
+        config.establishment_probability,
+        config.rows,
+        config.cols,
+        suitable_cells);
+    TestModel::StandardSingleHostPool host_pool_2(
+        model_type_from_string(config.model_type),
+        susceptible_2,
+        empty_integers,
+        config.latency_period_steps,
+        infected_2,
+        total_exposed_2,
+        empty_integer,
+        mortality_tracker_2,
+        died_2,
+        total_hosts_2,
+        model.environment(),
+        config.generate_stochasticity,
+        config.reproductive_rate,
+        config.establishment_stochasticity,
+        config.establishment_probability,
+        config.rows,
+        config.cols,
+        suitable_cells);
+    std::vector<TestModel::StandardSingleHostPool*> host_pools = {
+        &host_pool_1, &host_pool_2};
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardPestPool pest_pool{
+        dispersers, established_dispersers, outside_dispersers};
+
+    model.environment().add_host(&host_pool_1);
+    model.environment().add_host(&host_pool_2);
+
+    PestHostUseTable<TestModel::StandardSingleHostPool> pest_host_use_table(
+        model.environment());
+    pest_host_use_table.add_host_info(1);
+    pest_host_use_table.add_host_info(1);
+    multi_host_pool.set_pest_host_use_table(pest_host_use_table);
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
+    SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
+        multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
+    unsigned quarantine_num_steps =
+        get_number_of_scheduled_actions(config.quarantine_schedule());
+    Raster<int> zeros(infected_1.rows(), infected_1.cols(), 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
+
+    model.environment().update_weather_coefficient(weather);
+    model.run_step(
+        step++,
+        multi_host_pool,
+        pest_pool,
+        dispersers,
+        total_populations,
+        treatments,
+        empty_floats,
+        empty_floats,
+        spread_rate,
+        quarantine,
+        zeros,
+        Network<int>::null_network());
+    Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
+    if (dispersers != expected_dispersers) {
+        std::cerr << "test_two_hosts_susceptibilities_one (step " << step
+                  << ") dispersers (actual, expected):\n"
+                  << dispersers << "  !=\n"
+                  << expected_dispersers << "\n";
+        ++ret;
+    }
+    size_t expected_outside_dispersers_size = 5;
+    if (outside_dispersers.size() != expected_outside_dispersers_size) {
+        std::cerr << "test_two_hosts_susceptibilities_one (step " << step
+                  << "): outside_dispersers.size (actual, expected): "
+                  << outside_dispersers.size()
+                  << " != " << expected_outside_dispersers_size << "\n";
+        ++ret;
+    }
+    model.run_step(
+        step++,
+        multi_host_pool,
+        pest_pool,
+        dispersers,
+        total_populations,
+        treatments,
+        empty_floats,
+        empty_floats,
+        spread_rate,
+        quarantine,
+        zeros,
+        Network<int>::null_network());
+    Raster<int> expected_infected = infected_1;
+    if (infected_1 != expected_infected) {
+        std::cerr << "test_two_hosts_susceptibilities_one (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_1 << "  !=\n"
+                  << expected_infected << "\n";
+        ++ret;
+    }
+    expected_dispersers = {{21, 29, 0}, {0, 5, 0}, {0, 26, 4}};
+    if (dispersers != expected_dispersers) {
+        std::cerr << "test_two_hosts_susceptibilities_one (step " << step
+                  << ") dispersers (actual, expected):\n"
+                  << dispersers << "  !=\n"
+                  << expected_dispersers << "\n";
+        ++ret;
+    }
+    expected_outside_dispersers_size = 9;
+    if (outside_dispersers.size() != expected_outside_dispersers_size) {
+        std::cerr << "test_two_hosts_susceptibilities_one (step " << step
+                  << "): outside_dispersers.size (actual, expected): "
+                  << outside_dispersers.size()
+                  << " != " << expected_outside_dispersers_size << "\n";
+        ++ret;
+    }
+    return ret;
+}
+
+/** Test two hosts with susceptibilities != 1.
+ *
+ * Values determined by running the test.
+ */
+int test_two_hosts_susceptibilities_other_than_one()
+{
+    int ret = 0;
+
+    Config config;
+    config.model_type = "SI";
+    config.reproductive_rate = 2;
+    config.establishment_probability = 1;
+    config.random_seed = 42;
+    config.natural_scale = 20;
+    config.natural_kernel_type = "deterministic-neighbor";
+    config.natural_direction = "E";
+    config.use_anthropogenic_kernel = false;
+    config.anthro_scale = 0.9;
+    config.anthro_kappa = 0;
+    config.use_spreadrates = false;
+    config.use_quarantine = true;
+    config.create_schedules();
+
+    using TestModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
+    TestModel model{config};
+
+    int step = 0;
+
+    Raster<int> total_hosts_1 = {{10, 20, 9}, {0, 0, 0}, {3, 50, 2}};
+    Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
+    Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
+    Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
+    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
+    Raster<int> susceptible_1 = total_hosts_1 - infected_1;
+    Raster<int> susceptible_2 = total_hosts_2 - infected_2;
+    std::vector<std::vector<int>> suitable_cells =
+        find_suitable_cells<Raster<int>::IndexType, Raster<int>>(
+            {&total_hosts_1, &total_hosts_2});
+
+    Raster<int> dispersers(infected_1.rows(), infected_1.cols());
+    Raster<int> established_dispersers(infected_1.rows(), infected_1.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+
+    Raster<int> total_exposed_1(infected_1.rows(), infected_1.cols(), 0);
+    Raster<int> total_exposed_2(infected_2.rows(), infected_2.cols(), 0);
+    Raster<int> died_1(infected_1.rows(), infected_1.cols(), 0);
+    Raster<int> died_2(infected_2.rows(), infected_2.cols(), 0);
+
+    Raster<int> empty_integer;
+    std::vector<Raster<int>> empty_integers;
+    std::vector<Raster<double>> empty_floats;
+
+    unsigned num_mortality_steps = 1;
+    std::vector<Raster<int>> mortality_tracker_1(
+        num_mortality_steps, Raster<int>(infected_1.rows(), infected_1.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker_2(
+        num_mortality_steps, Raster<int>(infected_2.rows(), infected_2.cols(), 0));
+
+    // std::vector<std::vector<int>> movements = {};
+    // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    config.ew_res = 30;
+    config.ns_res = 30;
+    config.rows = infected_1.rows();
+    config.cols = infected_1.cols();
+
+    Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
+
+    TestModel::StandardSingleHostPool host_pool_1(
+        model_type_from_string(config.model_type),
+        susceptible_1,
+        empty_integers,
+        config.latency_period_steps,
+        infected_1,
+        total_exposed_1,
+        empty_integer,
+        mortality_tracker_1,
+        died_1,
+        total_hosts_1,
+        model.environment(),
+        config.generate_stochasticity,
+        config.reproductive_rate,
+        config.establishment_stochasticity,
+        config.establishment_probability,
+        config.rows,
+        config.cols,
+        suitable_cells);
+    TestModel::StandardSingleHostPool host_pool_2(
+        model_type_from_string(config.model_type),
+        susceptible_2,
+        empty_integers,
+        config.latency_period_steps,
+        infected_2,
+        total_exposed_2,
+        empty_integer,
+        mortality_tracker_2,
+        died_2,
+        total_hosts_2,
+        model.environment(),
+        config.generate_stochasticity,
+        config.reproductive_rate,
+        config.establishment_stochasticity,
+        config.establishment_probability,
+        config.rows,
+        config.cols,
+        suitable_cells);
+    std::vector<TestModel::StandardSingleHostPool*> host_pools = {
+        &host_pool_1, &host_pool_2};
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardPestPool pest_pool{
+        dispersers, established_dispersers, outside_dispersers};
+
+    model.environment().add_host(&host_pool_1);
+    model.environment().add_host(&host_pool_2);
+
+    PestHostUseTable<TestModel::StandardSingleHostPool> pest_host_use_table(
+        model.environment());
+    pest_host_use_table.add_host_info(0.8);
+    pest_host_use_table.add_host_info(0.4);
+    multi_host_pool.set_pest_host_use_table(pest_host_use_table);
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
+    SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
+        multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
+    unsigned quarantine_num_steps =
+        get_number_of_scheduled_actions(config.quarantine_schedule());
+    Raster<int> zeros(infected_1.rows(), infected_1.cols(), 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
+
+    model.environment().update_weather_coefficient(weather);
+    model.run_step(
+        step++,
+        multi_host_pool,
+        pest_pool,
+        dispersers,
+        total_populations,
+        treatments,
+        empty_floats,
+        empty_floats,
+        spread_rate,
+        quarantine,
+        zeros,
+        Network<int>::null_network());
+    // First step has the same results as with susceptibility == 1 because
+    // number of generated dispersers is influenced by the infected in second step.
+    Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
+    if (dispersers != expected_dispersers) {
+        std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
+                  << ") dispersers (actual, expected):\n"
+                  << dispersers << "  !=\n"
+                  << expected_dispersers << "\n";
+        ++ret;
+    }
+    size_t expected_outside_dispersers_size = 5;
+    if (outside_dispersers.size() != expected_outside_dispersers_size) {
+        std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
+                  << "): outside_dispersers.size (actual, expected): "
+                  << outside_dispersers.size()
+                  << " != " << expected_outside_dispersers_size << "\n";
+        ++ret;
+    }
+    model.run_step(
+        step++,
+        multi_host_pool,
+        pest_pool,
+        dispersers,
+        total_populations,
+        treatments,
+        empty_floats,
+        empty_floats,
+        spread_rate,
+        quarantine,
+        zeros,
+        Network<int>::null_network());
+    Raster<int> expected_infected = infected_1;
+    if (infected_1 != expected_infected) {
+        std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_1 << "  !=\n"
+                  << expected_infected << "\n";
+        ++ret;
+    }
+    expected_dispersers = {{21, 23, 0}, {0, 7, 0}, {0, 25, 3}};
+    if (dispersers != expected_dispersers) {
+        std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
+                  << ") dispersers (actual, expected):\n"
+                  << dispersers << "  !=\n"
+                  << expected_dispersers << "\n";
+        ++ret;
+    }
+    expected_outside_dispersers_size = 8;
+    if (outside_dispersers.size() != expected_outside_dispersers_size) {
+        std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
                   << "): outside_dispersers.size (actual, expected): "
                   << outside_dispersers.size()
                   << " != " << expected_outside_dispersers_size << "\n";
@@ -544,9 +1180,12 @@ int main()
 {
     int ret = 0;
 
-    ret += test_minimal_parameters();
+    ret += test_minimal_parameters_one_host();
     ret += test_minimal_parameters_two_hosts();
-    ret += test_minimal_parameters_two_hosts_with_table();
+    ret += test_two_hosts_with_table_one_only();
+    ret += test_two_hosts_with_table_other_than_one();
+    ret += test_two_hosts_susceptibilities_one();
+    ret += test_two_hosts_susceptibilities_other_than_one();
     std::cout << "Test of multi host model: number of errors: " << ret << std::endl;
 
     return ret;

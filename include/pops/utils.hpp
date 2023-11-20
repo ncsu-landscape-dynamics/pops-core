@@ -390,4 +390,23 @@ std::vector<std::vector<RasterIndex>> find_suitable_cells(const RasterType& rast
     return cells;
 }
 
+template<typename RasterIndex, typename RasterType>
+std::vector<std::vector<RasterIndex>>
+find_suitable_cells(const std::vector<const RasterType*>& rasters)
+{
+    std::vector<std::vector<RasterIndex>> cells;
+    // The assumption is that the raster is sparse (otherwise we would not be doing
+    // this), so we have no number for the reserve method.
+    for (RasterIndex row = 0; row < rasters[0]->rows(); ++row) {
+        for (RasterIndex col = 0; col < rasters[0]->cols(); ++col) {
+            for (const auto& raster : rasters) {
+                if (raster->operator()(row, col) > 0) {
+                    cells.push_back({row, col});
+                    break;
+                }
+            }
+        }
+    }
+    return cells;
+}
 #endif  // POPS_UTILS_HPP
