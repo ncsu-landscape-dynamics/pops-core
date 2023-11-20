@@ -23,6 +23,7 @@
 #include <vector>
 
 #include <pops/model.hpp>
+#include <pops/spread_rate.hpp>
 
 using namespace pops;
 using std::cout;
@@ -89,7 +90,6 @@ int test_with_reduced_stochasticity()
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.use_treatments = false;
     config.ew_res = 1;
     config.ns_res = 1;
@@ -120,7 +120,6 @@ int test_with_reduced_stochasticity()
         died,
         empty_float,
         empty_float,
-        treatments,
         zeros,
         outside_dispersers,
         quarantine,
@@ -231,7 +230,6 @@ int test_deterministic()
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_floats;
     Raster<double> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.use_treatments = false;
     config.ew_res = 30;
     config.ns_res = 30;
@@ -267,7 +265,6 @@ int test_deterministic()
         died,
         empty_floats,
         empty_floats,
-        treatments,
         zeros,
         outside_dispersers,
         quarantine,
@@ -374,7 +371,6 @@ int test_deterministic_exponential()
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_floats;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.use_treatments = false;
     config.ew_res = 30;
     config.ns_res = 30;
@@ -410,7 +406,6 @@ int test_deterministic_exponential()
         died,
         empty_floats,
         empty_floats,
-        treatments,
         zeros,
         outside_dispersers,
         quarantine,
@@ -519,7 +514,6 @@ int test_model_sei_deterministic()
     std::vector<Raster<int>> exposed(
         exposed_size, Raster<int>(infected.rows(), infected.cols(), 0));
     std::vector<Raster<double>> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.use_treatments = false;
     config.ew_res = 30;
     config.ns_res = 30;
@@ -549,7 +543,6 @@ int test_model_sei_deterministic()
             died,
             empty_float,
             empty_float,
-            treatments,
             zeros,
             outside_dispersers,
             quarantine,
@@ -635,11 +628,13 @@ int test_model_sei_deterministic_with_treatments()
     config.use_mortality = false;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
+    config.use_treatments = true;
     config.create_schedules();
 
     config.dispersal_stochasticity = false;
 
-    std::vector<std::vector<int>> movements;
+    using TestModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
+    TestModel model{config};
 
     unsigned num_mortality_steps = 1;
     std::vector<Raster<int>> mortality_tracker(
@@ -647,13 +642,42 @@ int test_model_sei_deterministic_with_treatments()
 
     Raster<int> died(infected.rows(), infected.cols(), 0);
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
+    Raster<int> resistant(infected.rows(), infected.cols(), 0);
     int exposed_size = 0;
     if (config.latency_period_steps)
         exposed_size = config.latency_period_steps + 1;
     std::vector<Raster<int>> exposed(
         exposed_size, Raster<int>(infected.rows(), infected.cols(), 0));
-    std::vector<Raster<double>> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    std::vector<Raster<double>> empty_floats;
+
+    TestModel::StandardSingleHostPool host_pool(
+        model_type_from_string(config.model_type),
+        susceptible,
+        exposed,
+        config.latency_period_steps,
+        infected,
+        total_exposed,
+        resistant,
+        mortality_tracker,
+        died,
+        total_hosts,
+        model.environment(),
+        config.generate_stochasticity,
+        config.reproductive_rate,
+        config.establishment_stochasticity,
+        config.establishment_probability,
+        config.rows,
+        config.cols,
+        suitable_cells);
+    std::vector<TestModel::StandardSingleHostPool*> host_pools = {&host_pool};
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardPestPool pest_pool{
+        dispersers, established_dispersers, outside_dispersers};
+    SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
+        multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
+
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
     Raster<double> simple_treatment = {{1, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     treatments.add_treatment(
         simple_treatment, Date(2020, 1, 1), 0, TreatmentApplication::AllInfectedInCell);
@@ -684,30 +708,20 @@ int test_model_sei_deterministic_with_treatments()
     // Valus is based on the result which is considered correct.
     Raster<int> expected_dispersers = {{0, 0, 0}, {0, 5, 0}, {0, 0, 2}};
 
-    Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     for (unsigned int step = 0; step < config.scheduler().get_num_steps(); ++step) {
         model.run_step(
             step,
-            infected,
-            susceptible,
-            total_populations,
-            total_hosts,
+            multi_host_pool,
+            pest_pool,
             dispersers,
-            established_dispersers,
-            total_exposed,
-            exposed,
-            mortality_tracker,
-            died,
-            empty_float,
-            empty_float,
+            total_populations,
             treatments,
-            zeros,
-            outside_dispersers,
+            empty_floats,
+            empty_floats,
+            spread_rate,
             quarantine,
             zeros,
-            movements,
-            Network<int>::null_network(),
-            suitable_cells);
+            Network<int>::null_network());
     }
     if (!outside_dispersers.empty()) {
         cout << "sei_deterministic_with_treatments: There are outside_dispersers ("

@@ -111,14 +111,13 @@ int test_minimal_parameters_one_host()
     TestModel::StandardMultiHostPool multi_host_pool(host_pools);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
-
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
-    unsigned quarantine_num_steps =
-        get_number_of_scheduled_actions(config.quarantine_schedule());
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     QuarantineEscapeAction<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
+        zeros, config.ew_res, config.ns_res, 0);
     model.environment().update_weather_coefficient(weather);
     model.run_step(
         step++,
@@ -126,6 +125,7 @@ int test_minimal_parameters_one_host()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -154,6 +154,7 @@ int test_minimal_parameters_one_host()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -297,14 +298,13 @@ int test_minimal_parameters_two_hosts()
     TestModel::StandardMultiHostPool multi_host_pool(host_pools);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
-
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
-    unsigned quarantine_num_steps =
-        get_number_of_scheduled_actions(config.quarantine_schedule());
     Raster<int> zeros(infected_1.rows(), infected_1.cols(), 0);
     QuarantineEscapeAction<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
+        zeros, config.ew_res, config.ns_res, 0);
 
     model.environment().update_weather_coefficient(weather);
     model.run_step(
@@ -313,6 +313,7 @@ int test_minimal_parameters_two_hosts()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -341,6 +342,7 @@ int test_minimal_parameters_two_hosts()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -495,14 +497,13 @@ int test_two_hosts_with_table_one_only()
     competency_table.add_host_competencies({1, 1}, 1);
 
     multi_host_pool.set_competency_table(competency_table);
-
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
-    unsigned quarantine_num_steps =
-        get_number_of_scheduled_actions(config.quarantine_schedule());
     Raster<int> zeros(infected_1.rows(), infected_1.cols(), 0);
     QuarantineEscapeAction<Raster<int>> quarantine(
-        zeros, config.ew_res, config.ns_res, quarantine_num_steps);
+        zeros, config.ew_res, config.ns_res, 0);
 
     model.environment().update_weather_coefficient(weather);
     model.run_step(
@@ -511,6 +512,7 @@ int test_two_hosts_with_table_one_only()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -539,6 +541,7 @@ int test_two_hosts_with_table_one_only()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -693,7 +696,8 @@ int test_two_hosts_with_table_other_than_one()
     competency_table.add_host_competencies({1, 1}, 0.8);
 
     multi_host_pool.set_competency_table(competency_table);
-
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
     unsigned quarantine_num_steps =
@@ -709,6 +713,7 @@ int test_two_hosts_with_table_other_than_one()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -737,6 +742,7 @@ int test_two_hosts_with_table_other_than_one()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -889,7 +895,8 @@ int test_two_hosts_susceptibilities_one()
     pest_host_use_table.add_host_info(1, 0, 0);
     pest_host_use_table.add_host_info(1, 0, 0);
     multi_host_pool.set_pest_host_use_table(pest_host_use_table);
-
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
     unsigned quarantine_num_steps =
@@ -905,6 +912,7 @@ int test_two_hosts_susceptibilities_one()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -933,6 +941,7 @@ int test_two_hosts_susceptibilities_one()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -1085,7 +1094,8 @@ int test_two_hosts_susceptibilities_other_than_one()
     pest_host_use_table.add_host_info(0.8, 0, 0);
     pest_host_use_table.add_host_info(0.4, 0, 0);
     multi_host_pool.set_pest_host_use_table(pest_host_use_table);
-
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
         multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
     unsigned quarantine_num_steps =
@@ -1101,6 +1111,7 @@ int test_two_hosts_susceptibilities_other_than_one()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,
@@ -1131,6 +1142,7 @@ int test_two_hosts_susceptibilities_other_than_one()
         pest_pool,
         dispersers,
         total_populations,
+        treatments,
         empty_floats,
         empty_floats,
         spread_rate,

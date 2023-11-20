@@ -1028,7 +1028,13 @@ public:
         return suitable_cells_;
     }
 
+    std::vector<HostPool*>& host_pools()
+    {
+        return host_pools_;
+    }
+
 private:
+    std::vector<HostPool*> host_pools_ = {this};  // non-owning
     /**
      * @brief Reset total host value using the individual pools.
      *

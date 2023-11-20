@@ -183,6 +183,11 @@ public:
             "Unknown value for pest_or_pathogen: " + pest_or_pathogen);
     }
 
+    std::vector<HostPool*>& host_pools()
+    {
+        return host_pools_;
+    }
+
 private:
     std::vector<HostPool*> host_pools_;  // non-owning
 };

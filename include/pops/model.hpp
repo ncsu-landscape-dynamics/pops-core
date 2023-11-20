@@ -220,7 +220,6 @@ public:
         IntegerRaster& died,
         const std::vector<FloatRaster>& temperatures,
         const std::vector<FloatRaster>& survival_rates,
-        Treatments<IntegerRaster, FloatRaster>& treatments,
         IntegerRaster& resistant,
         std::vector<std::tuple<int, int>>& outside_dispersers,  // out
         QuarantineEscapeAction<IntegerRaster>& quarantine,  // out
@@ -229,7 +228,6 @@ public:
         const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
-        UNUSED(treatments);
         UNUSED(movements);
 
         StandardSingleHostPool host_pool(
@@ -262,12 +260,15 @@ public:
             config_.ew_res,
             config_.ns_res,
             0);
+        Treatments<StandardSingleHostPool, Raster<double>> treatments(
+            config_.scheduler());
         run_step(
             step,
             multi_host_pool,
             pest_pool,
             dispersers,
             total_populations,
+            treatments,
             temperatures,
             survival_rates,
             spread_rate,
@@ -282,6 +283,7 @@ public:
         StandardPestPool pest_pool,
         IntegerRaster& dispersers,
         IntegerRaster& total_populations,
+        Treatments<StandardSingleHostPool, FloatRaster>& treatments,
         const std::vector<FloatRaster>& temperatures,
         const std::vector<FloatRaster>& survival_rates,
         SpreadRateAction<StandardMultiHostPool, RasterIndex>& spread_rate,
@@ -337,6 +339,12 @@ public:
             }
             spread_action.action(host_pool, pest_pool, generator_provider_);
             host_pool.step_forward(step);
+        }
+        // treatments
+        if (config_.use_treatments) {
+            for (auto& host : host_pool.host_pools()) {
+                treatments.manage(step, *host);
+            }
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
             // expectation is that mortality tracker is of length (1/mortality_rate
