@@ -231,8 +231,9 @@ public:
             return 0;
         double lambda =
             environment_.influence_reproductive_rate_at(row, col, reproductive_rate_);
-        if (competency_table_)
+        if (competency_table_) {
             lambda *= competency_table_->competency_at(row, col, this);
+        }
         int dispersers_from_cell = 0;
         if (dispersers_stochasticity_) {
             std::poisson_distribution<int> distribution(lambda);
