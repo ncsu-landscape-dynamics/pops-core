@@ -168,7 +168,6 @@ int test_soil_with_model()
         num_mortality_steps, Raster<int>(infected.rows(), infected.cols(), 0));
 
     std::vector<std::vector<int>> movements = {};
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     config.ew_res = 30;
     config.ns_res = 30;
 
@@ -199,7 +198,6 @@ int test_soil_with_model()
         died,
         empty_floats,
         empty_floats,
-        treatments,
         zeros,
         outside_dispersers,
         quarantine,
@@ -236,7 +234,6 @@ int test_soil_with_model()
         died,
         empty_floats,
         empty_floats,
-        treatments,
         zeros,
         outside_dispersers,
         quarantine,

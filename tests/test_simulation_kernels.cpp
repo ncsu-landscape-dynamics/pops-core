@@ -401,7 +401,6 @@ int test_model_with_kernels_generic(
 
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
     QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, 0);
 
@@ -427,7 +426,6 @@ int test_model_with_kernels_generic(
             died,
             empty_float,
             empty_float,
-            treatments,
             zeros,
             outside_dispersers,
             quarantine,
