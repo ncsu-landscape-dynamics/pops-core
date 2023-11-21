@@ -30,19 +30,26 @@ public:
 
     PestHostUseTable(const Environment& environment) : environment_(environment) {}
 
-    void add_host_info(double susceptibility)
+    void
+    add_host_info(double susceptibility, double mortality_rate, int mortality_time_lag)
     {
         susceptibilities_.push_back(susceptibility);
+        mortality_rates_.push_back(mortality_rate);
+        mortality_time_lags_.push_back(mortality_time_lag);
     }
 
     double susceptibility(const HostPool* host) const
     {
+        // This is using index because the environment is part of competency table,
+        // otherwise a map which would use pointer to host would work here, too.
         auto host_index = environment_.host_index(host);
         return susceptibilities_.at(host_index);
     }
 
 private:
     std::vector<double> susceptibilities_;
+    std::vector<double> mortality_rates_;
+    std::vector<int> mortality_time_lags_;
     const Environment& environment_;
 };
 

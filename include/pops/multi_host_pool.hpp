@@ -98,6 +98,13 @@ public:
         }
     }
 
+    void apply_mortality_at(RasterIndex row, RasterIndex col)
+    {
+        for (auto& host_pool : host_pools_) {
+            host_pool->apply_mortality_at(row, col);
+        }
+    }
+
     void step_forward_mortality()
     {
         for (auto& host_pool : host_pools_) {

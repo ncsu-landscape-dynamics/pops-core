@@ -892,8 +892,8 @@ int test_two_hosts_susceptibilities_one()
 
     PestHostUseTable<TestModel::StandardSingleHostPool> pest_host_use_table(
         model.environment());
-    pest_host_use_table.add_host_info(1);
-    pest_host_use_table.add_host_info(1);
+    pest_host_use_table.add_host_info(1, 0, 0);
+    pest_host_use_table.add_host_info(1, 0, 0);
     multi_host_pool.set_pest_host_use_table(pest_host_use_table);
     Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
         config.scheduler());
@@ -1091,8 +1091,8 @@ int test_two_hosts_susceptibilities_other_than_one()
 
     PestHostUseTable<TestModel::StandardSingleHostPool> pest_host_use_table(
         model.environment());
-    pest_host_use_table.add_host_info(0.8);
-    pest_host_use_table.add_host_info(0.4);
+    pest_host_use_table.add_host_info(0.8, 0, 0);
+    pest_host_use_table.add_host_info(0.4, 0, 0);
     multi_host_pool.set_pest_host_use_table(pest_host_use_table);
     Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
         config.scheduler());
