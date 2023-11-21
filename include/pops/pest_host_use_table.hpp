@@ -20,6 +20,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "config.hpp"
+
 namespace pops {
 
 template<typename HostPool>
@@ -29,6 +31,15 @@ public:
     using Environment = typename HostPool::Environment;
 
     PestHostUseTable(const Environment& environment) : environment_(environment) {}
+    PestHostUseTable(const Config& config, const Environment& environment)
+        : environment_(environment)
+    {
+        for (const auto& row : config.pest_host_use_table_data()) {
+            susceptibilities_.push_back(row.susceptibility);
+            mortality_rates_.push_back(row.mortality_rate);
+            mortality_time_lags_.push_back(row.mortality_time_lag);
+        }
+    }
 
     void
     add_host_info(double susceptibility, double mortality_rate, int mortality_time_lag)
@@ -38,6 +49,7 @@ public:
         mortality_time_lags_.push_back(mortality_time_lag);
     }
 
+    // template <typename HostPool, typename Environment>
     double susceptibility(const HostPool* host) const
     {
         // This is using index because the environment is part of competency table,
@@ -46,12 +58,14 @@ public:
         return susceptibilities_.at(host_index);
     }
 
+    // template <typename HostPool, typename Environment>
     double mortality_rate(const HostPool* host) const
     {
         auto host_index = environment_.host_index(host);
         return mortality_rates_.at(host_index);
     }
 
+    // template <typename HostPool, typename Environment>
     double mortality_time_lag(const HostPool* host) const
     {
         auto host_index = environment_.host_index(host);

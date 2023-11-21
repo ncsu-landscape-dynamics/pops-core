@@ -118,6 +118,18 @@ std::map<std::string, Value> read_key_value_pairs(
 class Config
 {
 public:
+    struct PestHostUseTableDataRow
+    {
+        double susceptibility;
+        double mortality_rate;
+        double mortality_time_lag;
+    };
+    struct CompetencyTableDataRow
+    {
+        std::vector<bool> presence_absence;
+        double competency;
+    };
+
     // Seed
     int random_seed{0};
     bool multiple_random_seeds{false};
@@ -486,6 +498,46 @@ public:
         this->multiple_random_seeds = true;
     }
 
+    const std::vector<PestHostUseTableDataRow>& pest_host_use_table_data() const
+    {
+        return pest_host_use_table_data_;
+    }
+    const std::vector<CompetencyTableDataRow>& competency_table_data() const
+    {
+        return competency_table_data_;
+    }
+
+    void read_pest_host_use_table(const std::vector<std::vector<double>>& values)
+    {
+        for (const auto& row : values) {
+            if (row.size() < 3) {
+                throw std::invalid_argument(
+                    "3 values are required for each pest-host-use table row");
+            }
+            PestHostUseTableDataRow resulting_row;
+            resulting_row.susceptibility = row[0];
+            resulting_row.mortality_rate = row[1];
+            resulting_row.mortality_time_lag = row[2];
+            pest_host_use_table_data_.push_back(std::move(resulting_row));
+        }
+    }
+
+    void read_competency_table(const std::vector<std::vector<double>>& values)
+    {
+        for (const auto& row : values) {
+            if (row.size() < 2) {
+                throw std::invalid_argument(
+                    "At least 2 values are required for each competency table row");
+            }
+            CompetencyTableDataRow resulting_row;
+            for (auto it = row.begin(); it < std::prev(row.end()); ++it) {
+                resulting_row.presence_absence.push_back(bool(*it));
+            }
+            resulting_row.competency = row.back();
+            competency_table_data_.push_back(std::move(resulting_row));
+        }
+    }
+
 private:
     Date date_start_{"0-01-01"};
     Date date_end_{"0-01-02"};
@@ -507,6 +559,9 @@ private:
     std::vector<bool> spread_rate_schedule_;
     std::vector<bool> quarantine_schedule_;
     std::vector<unsigned> weather_table_;
+
+    std::vector<PestHostUseTableDataRow> pest_host_use_table_data_;
+    std::vector<CompetencyTableDataRow> competency_table_data_;
 };
 
 }  // namespace pops

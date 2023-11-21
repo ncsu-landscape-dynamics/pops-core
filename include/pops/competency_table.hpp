@@ -20,6 +20,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "config.hpp"
+
 namespace pops {
 
 template<typename HostPool, typename RasterIndex>
@@ -29,6 +31,13 @@ public:
     using Environment = typename HostPool::Environment;
 
     CompetencyTable(const Environment& environment) : environment_(environment) {}
+    CompetencyTable(const Config& config, const Environment& environment)
+        : environment_(environment)
+    {
+        for (const auto& row : config.competency_table_data()) {
+            competency_table_.emplace_back(row.presence_absence, row.competency);
+        }
+    }
 
     void
     add_host_competencies(const std::vector<bool>& presence_absence, double competency)
