@@ -49,7 +49,6 @@ public:
         mortality_time_lags_.push_back(mortality_time_lag);
     }
 
-    // template <typename HostPool, typename Environment>
     double susceptibility(const HostPool* host) const
     {
         // This is using index because the environment is part of competency table,
@@ -58,14 +57,12 @@ public:
         return susceptibilities_.at(host_index);
     }
 
-    // template <typename HostPool, typename Environment>
     double mortality_rate(const HostPool* host) const
     {
         auto host_index = environment_.host_index(host);
         return mortality_rates_.at(host_index);
     }
 
-    // template <typename HostPool, typename Environment>
     double mortality_time_lag(const HostPool* host) const
     {
         auto host_index = environment_.host_index(host);

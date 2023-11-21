@@ -522,6 +522,17 @@ public:
         }
     }
 
+    void create_pest_host_use_table_from_parameters(int num_of_hosts)
+    {
+        for (int i = 0; i < num_of_hosts; ++i) {
+            PestHostUseTableDataRow resulting_row;
+            resulting_row.susceptibility = 1;
+            resulting_row.mortality_rate = this->mortality_rate;
+            resulting_row.mortality_time_lag = this->mortality_time_lag;
+            pest_host_use_table_data_.push_back(std::move(resulting_row));
+        }
+    }
+
     void read_competency_table(const std::vector<std::vector<double>>& values)
     {
         for (const auto& row : values) {
