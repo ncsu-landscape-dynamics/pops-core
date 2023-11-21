@@ -365,12 +365,13 @@ public:
             if (ratio >= overpopulation_percentage_) {
                 int row;
                 int col;
-                std::tie(row, col) = dispersal_kernel_(generator, i, j);
+                std::tie(row, col) =
+                    dispersal_kernel_(generator.overpopulation(), i, j);
                 // for leaving_percentage == 0.5
                 // 2 infected -> 1 leaving
                 // 3 infected -> 1 leaving
                 int leaving = original_count * leaving_percentage_;
-                leaving = hosts.pests_from(i, j, leaving);
+                leaving = hosts.pests_from(i, j, leaving, generator.overpopulation());
                 if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                     pests.add_outside_dispersers_at(row, col, leaving);
                     continue;
@@ -391,7 +392,7 @@ public:
             // not enough S hosts to accommodate all of them. The decision is made in
             // the host pool. Here, we ignore the return value specifying the number of
             // accepted pests.
-            hosts.pests_to(move.row, move.col, move.count);
+            hosts.pests_to(move.row, move.col, move.count, generator.overpopulation());
         }
     }
 
