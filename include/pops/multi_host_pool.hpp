@@ -22,6 +22,7 @@
 
 #include "competency_table.hpp"
 #include "pest_host_use_table.hpp"
+#include "utils.hpp"
 
 namespace pops {
 
@@ -104,6 +105,15 @@ public:
         }
     }
 
+    int total_hosts_at(RasterIndex row, RasterIndex col) const
+    {
+        int sum = 0;
+        for (auto& host_pool : host_pools_) {
+            sum += host_pool->total_hosts_at(row, col);
+        }
+        return sum;
+    }
+
     /**
      * @brief Get number of infected hosts at a given cell
      *
@@ -146,7 +156,87 @@ public:
         return sum;
     }
 
-    template<typename Generator>
+    /**
+     * @brief Move pests from a cell (multi-host)
+     *
+     * This is a multi-host version of single host pests_from method.
+     * It randomly distributes the number to un-infect between multiple
+     * hosts.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param count Number of pests requested to move from the cell
+     * @param generator Random number generator
+     *
+     * @return Number of pests actually moved from the cell
+     *
+     * @note For consitency with the previous implementation, this does not modify
+     * mortality cohorts nor touches the exposed cohorts.
+     */
+    int pests_from(RasterIndex row, RasterIndex col, int count, Generator& generator)
+    {
+        std::vector<int> infected;
+        int index = 0;
+        for (auto& host_pool : host_pools_) {
+            infected.insert(infected.end(), host_pool->infected_at(row, col), index);
+            index++;
+        }
+
+        index = 0;
+        int collect_count = 0;
+        std::vector<int> draw = draw_n_from_v(infected, count, generator);
+        for (auto& host_pool : host_pools_) {
+            count = std::count(draw.begin(), draw.end(), index);
+            collect_count += host_pool->pests_from(row, col, count, generator);
+            index++;
+        }
+
+        return collect_count;
+    }
+    /**
+     * @brief Move pests to a cell (multi-host)
+     *
+     * This is a multi-host version of single host pests_to method.
+     * It randomly distributes the number to infect between multiple
+     * hosts.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param count Number of pests requested to move to the cell
+     * @param generator Random number generator
+     *
+     * @return Number of accepted pests
+     *
+     * @note For consistency with the previous implementation, this does not make hosts
+     * exposed in the SEI model. Instead, the hosts are infected right away. This may
+     * become a feature in the future.
+     *
+     * @note For consistency with the previous implementation, this does not modify the
+     * mortality cohorts. This wil need to be fixed in the future.
+     *
+     * @note This may be merged with add_disperser_at() in the future.
+     */
+    int pests_to(RasterIndex row, RasterIndex col, int count, Generator& generator)
+    {
+        std::vector<int> susceptible;
+        int index = 0;
+        for (auto& host_pool : host_pools_) {
+            susceptible.insert(
+                susceptible.end(), host_pool->susceptible_at(row, col), index);
+            index++;
+        }
+        index = 0;
+        int collect_count = 0;
+        std::vector<int> draw = draw_n_from_v(susceptible, count, generator);
+        for (auto& host_pool : host_pools_) {
+            count = std::count(draw.begin(), draw.end(), index);
+            collect_count += host_pool->pests_to(row, col, count, generator);
+            index++;
+        }
+
+        return collect_count;
+    }
+
     int disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
     {
         std::vector<HostPool*> hosts;

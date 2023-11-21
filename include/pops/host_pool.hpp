@@ -298,8 +298,9 @@ public:
      * @note For consitency with the previous implementation, this does not modify
      * mortality cohorts nor touches the exposed cohorts.
      */
-    int pests_from(RasterIndex row, RasterIndex col, int count)
+    int pests_from(RasterIndex row, RasterIndex col, int count, Generator& generator)
     {
+        UNUSED(generator);
         susceptible_(row, col) += count;
         infected_(row, col) -= count;
         return count;
@@ -331,8 +332,9 @@ public:
      *
      * @note This may be merged with add_disperser_at() in the future.
      */
-    int pests_to(RasterIndex row, RasterIndex col, int count)
+    int pests_to(RasterIndex row, RasterIndex col, int count, Generator& generator)
     {
+        UNUSED(generator);
         // The target cell can accept all.
         if (susceptible_(row, col) >= count) {
             susceptible_(row, col) -= count;

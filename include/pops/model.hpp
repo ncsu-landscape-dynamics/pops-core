@@ -319,7 +319,8 @@ public:
         // actual spread
         if (config_.spread_schedule()[step]) {
             auto dispersal_kernel = kernel_factory_(config_, dispersers, network);
-
+            auto overpopulation_kernel =
+                create_overpopulation_movement_kernel(dispersers, network);
             SpreadAction<
                 StandardMultiHostPool,
                 StandardPestPool,
@@ -339,6 +340,22 @@ public:
             }
             spread_action.action(host_pool, pest_pool, generator_provider_);
             host_pool.step_forward(step);
+            if (config_.use_overpopulation_movements) {
+                MoveOverpopulatedPests<
+                    StandardMultiHostPool,
+                    StandardPestPool,
+                    IntegerRaster,
+                    FloatRaster,
+                    RasterIndex,
+                    decltype(overpopulation_kernel)>
+                    move_pest{
+                        overpopulation_kernel,
+                        config_.overpopulation_percentage,
+                        config_.leaving_percentage,
+                        config_.rows,
+                        config_.cols};
+                move_pest.action(host_pool, pest_pool, generator_provider_);
+            }
         }
         // treatments
         if (config_.use_treatments) {
