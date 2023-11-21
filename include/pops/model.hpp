@@ -228,8 +228,6 @@ public:
         const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
-        UNUSED(movements);
-
         StandardSingleHostPool host_pool(
             model_type_from_string(config_.model_type),
             susceptible,
@@ -274,6 +272,7 @@ public:
             spread_rate,
             quarantine,
             quarantine_areas,
+            movements,
             network);
     }
 
@@ -289,6 +288,7 @@ public:
         SpreadRateAction<StandardMultiHostPool, RasterIndex>& spread_rate,
         QuarantineEscapeAction<IntegerRaster>& quarantine,
         const IntegerRaster& quarantine_areas,
+        const std::vector<std::vector<int>> movements,
         const Network<RasterIndex>& network)
     {
         // Soil step is the same as simulation step.
@@ -355,6 +355,20 @@ public:
                         config_.rows,
                         config_.cols};
                 move_pest.action(host_pool, pest_pool, generator_provider_);
+            }
+            if (config_.use_movements) {
+                HostMovement<
+                    StandardMultiHostPool,
+                    IntegerRaster,
+                    FloatRaster,
+                    RasterIndex>
+                    host_movement{
+                        static_cast<unsigned>(
+                            step),  // Step is int, but indexing happens with unsigned.
+                        last_index,
+                        movements,
+                        config_.movement_schedule};
+                last_index = host_movement.action(host_pool, generator_provider_);
             }
         }
         // treatments
