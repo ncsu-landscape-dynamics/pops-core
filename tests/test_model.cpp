@@ -74,6 +74,9 @@ int test_with_reduced_stochasticity()
     config.use_mortality = false;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
+    config.use_treatments = false;
+    config.ew_res = 1;
+    config.ns_res = 1;
     config.create_schedules();
 
     unsigned num_mortality_steps = 1;
@@ -90,9 +93,7 @@ int test_with_reduced_stochasticity()
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
-    config.use_treatments = false;
-    config.ew_res = 1;
-    config.ns_res = 1;
+
     unsigned quarantine_num_steps =
         get_number_of_scheduled_actions(config.quarantine_schedule());
     QuarantineEscapeAction<Raster<int>> quarantine(
@@ -217,6 +218,9 @@ int test_deterministic()
     config.use_mortality = false;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
+    config.use_treatments = false;
+    config.ew_res = 30;
+    config.ns_res = 30;
     config.create_schedules();
 
     config.dispersal_stochasticity = false;
@@ -229,10 +233,6 @@ int test_deterministic()
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_floats;
-    Raster<double> empty_float;
-    config.use_treatments = false;
-    config.ew_res = 30;
-    config.ns_res = 30;
     QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, 0);
 
@@ -359,6 +359,9 @@ int test_deterministic_exponential()
     config.use_mortality = false;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
+    config.use_treatments = false;
+    config.ew_res = 30;
+    config.ns_res = 30;
     config.create_schedules();
 
     config.dispersal_stochasticity = false;
@@ -371,9 +374,6 @@ int test_deterministic_exponential()
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_floats;
-    config.use_treatments = false;
-    config.ew_res = 30;
-    config.ns_res = 30;
     QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, 0);
 
@@ -496,6 +496,9 @@ int test_model_sei_deterministic()
     config.use_mortality = false;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
+    config.use_treatments = false;
+    config.ew_res = 30;
+    config.ns_res = 30;
     config.create_schedules();
 
     config.dispersal_stochasticity = false;
@@ -514,9 +517,6 @@ int test_model_sei_deterministic()
     std::vector<Raster<int>> exposed(
         exposed_size, Raster<int>(infected.rows(), infected.cols(), 0));
     std::vector<Raster<double>> empty_float;
-    config.use_treatments = false;
-    config.ew_res = 30;
-    config.ns_res = 30;
     QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, 0);
 
@@ -629,6 +629,8 @@ int test_model_sei_deterministic_with_treatments()
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
     config.use_treatments = true;
+    config.ew_res = 30;
+    config.ns_res = 30;
     config.create_schedules();
 
     config.dispersal_stochasticity = false;
@@ -685,9 +687,7 @@ int test_model_sei_deterministic_with_treatments()
     Raster<double> pesticide_treatment = {{0, 0, 0}, {0, 0.5, 0}, {0, 0, 0}};
     treatments.add_treatment(
         pesticide_treatment, Date(2020, 1, 1), 365, TreatmentApplication::Ratio);
-    config.use_treatments = true;
-    config.ew_res = 30;
-    config.ns_res = 30;
+
     QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, 0);
 
