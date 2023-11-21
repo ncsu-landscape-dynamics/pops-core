@@ -272,6 +272,33 @@ public:
         throw std::invalid_argument(
             "Unknown value for pest_or_pathogen: " + pest_or_pathogen);
     }
+    /**
+     * @brief Move hosts from a cell to a cell (multi-host)
+     *
+     * Currenty just works for first host.
+     *
+     * @param row_from Row index of the source cell
+     * @param col_from Column index of the source cell
+     * @param row_to Row index of the target cell
+     * @param col_to Column index of the target cell
+     * @param count Number of pests to move
+     * @param generator Random number generator for distribution of host among pools
+     *
+     * @return Number of pests actually moved between cells
+     *
+     * @note Mortality is not supported.
+     */
+    int move_hosts_from_to(
+        RasterIndex row_from,
+        RasterIndex col_from,
+        RasterIndex row_to,
+        RasterIndex col_to,
+        int count,
+        Generator& generator)
+    {
+        return host_pools_[0]->move_hosts_from_to(
+            row_from, col_from, row_to, col_to, count, generator);
+    }
 
     std::vector<HostPool*>& host_pools()
     {

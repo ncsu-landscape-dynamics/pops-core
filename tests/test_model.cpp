@@ -649,6 +649,7 @@ int test_model_sei_deterministic_with_treatments()
     std::vector<Raster<int>> exposed(
         exposed_size, Raster<int>(infected.rows(), infected.cols(), 0));
     std::vector<Raster<double>> empty_floats;
+    std::vector<std::vector<int>> movements;
 
     TestModel::StandardSingleHostPool host_pool(
         model_type_from_string(config.model_type),
@@ -721,6 +722,7 @@ int test_model_sei_deterministic_with_treatments()
             spread_rate,
             quarantine,
             zeros,
+            movements,
             Network<int>::null_network());
     }
     if (!outside_dispersers.empty()) {

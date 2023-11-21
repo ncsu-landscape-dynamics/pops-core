@@ -79,8 +79,8 @@ int test_minimal_parameters_one_host()
     std::vector<Raster<int>> mortality_tracker(
         num_mortality_steps, Raster<int>(infected.rows(), infected.cols(), 0));
 
-    // std::vector<std::vector<int>> movements = {};
-    // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    std::vector<std::vector<int>> movements = {};
+
     config.ew_res = 30;
     config.ns_res = 30;
     config.rows = infected.rows();
@@ -131,6 +131,7 @@ int test_minimal_parameters_one_host()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{8, 0, 0}, {0, 8, 0}, {0, 0, 7}};
     if (dispersers != expected_dispersers) {
@@ -160,6 +161,7 @@ int test_minimal_parameters_one_host()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_infected = infected;
     if (infected != expected_infected) {
@@ -246,8 +248,8 @@ int test_minimal_parameters_two_hosts()
     std::vector<Raster<int>> mortality_tracker_2(
         num_mortality_steps, Raster<int>(infected_2.rows(), infected_2.cols(), 0));
 
-    // std::vector<std::vector<int>> movements = {};
-    // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    std::vector<std::vector<int>> movements = {};
+
     config.ew_res = 30;
     config.ns_res = 30;
     config.rows = infected_1.rows();
@@ -319,6 +321,7 @@ int test_minimal_parameters_two_hosts()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
     if (dispersers != expected_dispersers) {
@@ -348,6 +351,7 @@ int test_minimal_parameters_two_hosts()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_infected = infected_1;
     if (infected_1 != expected_infected) {
@@ -434,8 +438,8 @@ int test_two_hosts_with_table_one_only()
     std::vector<Raster<int>> mortality_tracker_2(
         num_mortality_steps, Raster<int>(infected_2.rows(), infected_2.cols(), 0));
 
-    // std::vector<std::vector<int>> movements = {};
-    // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    std::vector<std::vector<int>> movements = {};
+
     config.ew_res = 30;
     config.ns_res = 30;
     config.rows = infected_1.rows();
@@ -518,6 +522,7 @@ int test_two_hosts_with_table_one_only()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
     if (dispersers != expected_dispersers) {
@@ -547,6 +552,7 @@ int test_two_hosts_with_table_one_only()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_infected = infected_1;
     if (infected_1 != expected_infected) {
@@ -633,8 +639,8 @@ int test_two_hosts_with_table_other_than_one()
     std::vector<Raster<int>> mortality_tracker_2(
         num_mortality_steps, Raster<int>(infected_2.rows(), infected_2.cols(), 0));
 
-    // std::vector<std::vector<int>> movements = {};
-    // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    std::vector<std::vector<int>> movements = {};
+
     config.ew_res = 30;
     config.ns_res = 30;
     config.rows = infected_1.rows();
@@ -719,6 +725,7 @@ int test_two_hosts_with_table_other_than_one()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{14, 0, 0}, {0, 3, 0}, {0, 11, 3}};
     if (dispersers != expected_dispersers) {
@@ -748,6 +755,7 @@ int test_two_hosts_with_table_other_than_one()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_infected = infected_1;
     if (infected_1 != expected_infected) {
@@ -834,8 +842,8 @@ int test_two_hosts_susceptibilities_one()
     std::vector<Raster<int>> mortality_tracker_2(
         num_mortality_steps, Raster<int>(infected_2.rows(), infected_2.cols(), 0));
 
-    // std::vector<std::vector<int>> movements = {};
-    // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    std::vector<std::vector<int>> movements = {};
+
     config.ew_res = 30;
     config.ns_res = 30;
     config.rows = infected_1.rows();
@@ -918,6 +926,7 @@ int test_two_hosts_susceptibilities_one()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
     if (dispersers != expected_dispersers) {
@@ -947,6 +956,7 @@ int test_two_hosts_susceptibilities_one()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_infected = infected_1;
     if (infected_1 != expected_infected) {
@@ -1033,8 +1043,8 @@ int test_two_hosts_susceptibilities_other_than_one()
     std::vector<Raster<int>> mortality_tracker_2(
         num_mortality_steps, Raster<int>(infected_2.rows(), infected_2.cols(), 0));
 
-    // std::vector<std::vector<int>> movements = {};
-    // Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    std::vector<std::vector<int>> movements = {};
+
     config.ew_res = 30;
     config.ns_res = 30;
     config.rows = infected_1.rows();
@@ -1117,6 +1127,7 @@ int test_two_hosts_susceptibilities_other_than_one()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     // First step has the same results as with susceptibility == 1 because
     // number of generated dispersers is influenced by the infected in second step.
@@ -1148,6 +1159,7 @@ int test_two_hosts_susceptibilities_other_than_one()
         spread_rate,
         quarantine,
         zeros,
+        movements,
         Network<int>::null_network());
     Raster<int> expected_infected = infected_1;
     if (infected_1 != expected_infected) {
