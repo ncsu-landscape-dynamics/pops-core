@@ -46,6 +46,18 @@ public:
         return susceptibilities_.at(host_index);
     }
 
+    double mortality_rate(const HostPool* host) const
+    {
+        auto host_index = environment_.host_index(host);
+        return mortality_rates_.at(host_index);
+    }
+
+    double mortality_time_lag(const HostPool* host) const
+    {
+        auto host_index = environment_.host_index(host);
+        return mortality_time_lags_.at(host_index);
+    }
+
 private:
     std::vector<double> susceptibilities_;
     std::vector<double> mortality_rates_;

@@ -488,13 +488,19 @@ class Mortality
 {
 public:
     /**
+     * @brief Create object which will let host decide its mortality parameters.
+     */
+    Mortality() : action_mortality_(false) {}
+    /**
      * @brief Create object with fixed mortality rate and time lag.
      *
      * @param mortality_rate Percent of infected hosts that die each time period
      * @param mortality_time_lag Time lag prior to mortality beginning
      */
     Mortality(double mortality_rate, int mortality_time_lag)
-        : mortality_rate_(mortality_rate), mortality_time_lag_(mortality_time_lag)
+        : mortality_rate_(mortality_rate),
+          mortality_time_lag_(mortality_time_lag),
+          action_mortality_(true)
     {}
     /**
      * Perform the action by applying mortality and moving the mortality tracker
@@ -503,8 +509,13 @@ public:
     void action(Hosts& hosts)
     {
         for (auto indices : hosts.suitable_cells()) {
-            hosts.apply_mortality_at(
-                indices[0], indices[1], mortality_rate_, mortality_time_lag_);
+            if (action_mortality_) {
+                hosts.apply_mortality_at(
+                    indices[0], indices[1], mortality_rate_, mortality_time_lag_);
+            }
+            else {
+                hosts.apply_mortality_at(indices[0], indices[1]);
+            }
         }
         hosts.step_forward_mortality();
     }
@@ -512,6 +523,7 @@ public:
 private:
     const double mortality_rate_ = 0;
     const int mortality_time_lag_ = 0;
+    const double action_mortality_ = false;
 };
 
 }  // namespace pops

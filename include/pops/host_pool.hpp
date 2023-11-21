@@ -794,8 +794,8 @@ public:
         this->apply_mortality_at(
             row,
             col,
-            pest_host_use_table_->mortality_rate(),
-            pest_host_use_table_->mortality_time_lag());
+            pest_host_use_table_->mortality_rate(this),
+            pest_host_use_table_->mortality_time_lag(this));
     }
 
     /**
