@@ -119,6 +119,7 @@ int test_minimal_parameters_one_host()
     QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, 0);
     model.environment().update_weather_coefficient(weather);
+    Raster<int> expected_infected = infected;
     model.run_step(
         step++,
         multi_host_pool,
@@ -133,6 +134,14 @@ int test_minimal_parameters_one_host()
         zeros,
         movements,
         Network<int>::null_network());
+    expected_infected += Raster<int>({{0, 7, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected != expected_infected) {
+        std::cerr << "test_minimal_parameters_one_host (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected << "  !=\n"
+                  << expected_infected << "\n";
+        ++ret;
+    }
     Raster<int> expected_dispersers = {{8, 0, 0}, {0, 8, 0}, {0, 0, 7}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_minimal_parameters_one_host (step " << step
@@ -163,7 +172,7 @@ int test_minimal_parameters_one_host()
         zeros,
         movements,
         Network<int>::null_network());
-    Raster<int> expected_infected = infected;
+    expected_infected += Raster<int>({{0, 7, 2}, {0, 0, 0}, {0, 0, 0}});
     if (infected != expected_infected) {
         std::cerr << "test_minimal_parameters_one_host (step " << step
                   << ") infected (actual, expected):\n"
@@ -309,6 +318,9 @@ int test_minimal_parameters_two_hosts()
         zeros, config.ew_res, config.ns_res, 0);
 
     model.environment().update_weather_coefficient(weather);
+
+    Raster<int> expected_infected_1 = infected_1;
+    Raster<int> expected_infected_2 = infected_2;
     model.run_step(
         step++,
         multi_host_pool,
@@ -323,6 +335,22 @@ int test_minimal_parameters_two_hosts()
         zeros,
         movements,
         Network<int>::null_network());
+    expected_infected_1 += Raster<int>({{0, 7, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_1 != expected_infected_1) {
+        std::cerr << "test_minimal_parameters_two_hosts (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_1 << "  !=\n"
+                  << expected_infected_1 << "\n";
+        ++ret;
+    }
+    expected_infected_2 += Raster<int>({{0, 6, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_2 != expected_infected_2) {
+        std::cerr << "test_minimal_parameters_two_hosts (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_2 << "  !=\n"
+                  << expected_infected_2 << "\n";
+        ++ret;
+    }
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
@@ -353,12 +381,20 @@ int test_minimal_parameters_two_hosts()
         zeros,
         movements,
         Network<int>::null_network());
-    Raster<int> expected_infected = infected_1;
-    if (infected_1 != expected_infected) {
+    expected_infected_1 += Raster<int>({{0, 5, 6}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_1 != expected_infected_1) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << ") infected (actual, expected):\n"
                   << infected_1 << "  !=\n"
-                  << expected_infected << "\n";
+                  << expected_infected_1 << "\n";
+        ++ret;
+    }
+    expected_infected_2 += Raster<int>({{0, 5, 4}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_2 != expected_infected_2) {
+        std::cerr << "test_minimal_parameters_two_hosts (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_2 << "  !=\n"
+                  << expected_infected_2 << "\n";
         ++ret;
     }
     expected_dispersers = {{21, 29, 0}, {0, 5, 0}, {0, 26, 4}};
@@ -510,6 +546,9 @@ int test_two_hosts_with_table_one_only()
         zeros, config.ew_res, config.ns_res, 0);
 
     model.environment().update_weather_coefficient(weather);
+
+    Raster<int> expected_infected_1 = infected_1;
+    Raster<int> expected_infected_2 = infected_2;
     model.run_step(
         step++,
         multi_host_pool,
@@ -524,6 +563,22 @@ int test_two_hosts_with_table_one_only()
         zeros,
         movements,
         Network<int>::null_network());
+    expected_infected_1 += Raster<int>({{0, 7, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_1 != expected_infected_1) {
+        std::cerr << "test_two_hosts_with_table_one_only (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_1 << "  !=\n"
+                  << expected_infected_1 << "\n";
+        ++ret;
+    }
+    expected_infected_2 += Raster<int>({{0, 6, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_2 != expected_infected_2) {
+        std::cerr << "test_two_hosts_with_table_one_only (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_2 << "  !=\n"
+                  << expected_infected_2 << "\n";
+        ++ret;
+    }
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_two_hosts_with_table_one_only (step " << step
@@ -554,12 +609,20 @@ int test_two_hosts_with_table_one_only()
         zeros,
         movements,
         Network<int>::null_network());
-    Raster<int> expected_infected = infected_1;
-    if (infected_1 != expected_infected) {
+    expected_infected_1 += Raster<int>({{0, 5, 6}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_with_table_one_only (step " << step
                   << ") infected (actual, expected):\n"
                   << infected_1 << "  !=\n"
-                  << expected_infected << "\n";
+                  << expected_infected_1 << "\n";
+        ++ret;
+    }
+    expected_infected_2 += Raster<int>({{0, 5, 4}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_2 != expected_infected_2) {
+        std::cerr << "test_two_hosts_with_table_one_only (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_2 << "  !=\n"
+                  << expected_infected_2 << "\n";
         ++ret;
     }
     expected_dispersers = {{21, 29, 0}, {0, 5, 0}, {0, 26, 4}};
@@ -713,6 +776,9 @@ int test_two_hosts_with_table_other_than_one()
         zeros, config.ew_res, config.ns_res, quarantine_num_steps);
 
     model.environment().update_weather_coefficient(weather);
+
+    Raster<int> expected_infected_1 = infected_1;
+    Raster<int> expected_infected_2 = infected_2;
     model.run_step(
         step++,
         multi_host_pool,
@@ -727,6 +793,22 @@ int test_two_hosts_with_table_other_than_one()
         zeros,
         movements,
         Network<int>::null_network());
+    expected_infected_1 += Raster<int>({{0, 8, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_1 != expected_infected_1) {
+        std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
+                  << ") infected 1 (actual, expected):\n"
+                  << infected_1 << "  !=\n"
+                  << expected_infected_1 << "\n";
+        ++ret;
+    }
+    expected_infected_2 += Raster<int>({{0, 5, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_2 != expected_infected_2) {
+        std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
+                  << ") infected 2 (actual, expected):\n"
+                  << infected_2 << "  !=\n"
+                  << expected_infected_2 << "\n";
+        ++ret;
+    }
     Raster<int> expected_dispersers = {{14, 0, 0}, {0, 3, 0}, {0, 11, 3}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
@@ -757,6 +839,22 @@ int test_two_hosts_with_table_other_than_one()
         zeros,
         movements,
         Network<int>::null_network());
+    expected_infected_1 += Raster<int>({{0, 5, 6}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_1 != expected_infected_1) {
+        std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
+                  << ") infected 1 (actual, expected):\n"
+                  << infected_1 << "  !=\n"
+                  << expected_infected_1 << "\n";
+        ++ret;
+    }
+    expected_infected_2 += Raster<int>({{0, 4, 4}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_2 != expected_infected_2) {
+        std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
+                  << ") infected 2 (actual, expected):\n"
+                  << infected_2 << "  !=\n"
+                  << expected_infected_2 << "\n";
+        ++ret;
+    }
     Raster<int> expected_infected = infected_1;
     if (infected_1 != expected_infected) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
@@ -914,6 +1012,9 @@ int test_two_hosts_susceptibilities_one()
         zeros, config.ew_res, config.ns_res, quarantine_num_steps);
 
     model.environment().update_weather_coefficient(weather);
+
+    Raster<int> expected_infected_1 = infected_1;
+    Raster<int> expected_infected_2 = infected_2;
     model.run_step(
         step++,
         multi_host_pool,
@@ -928,6 +1029,22 @@ int test_two_hosts_susceptibilities_one()
         zeros,
         movements,
         Network<int>::null_network());
+    expected_infected_1 += Raster<int>({{0, 7, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_1 != expected_infected_1) {
+        std::cerr << "test_two_hosts_susceptibilities_one (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_1 << "  !=\n"
+                  << expected_infected_1 << "\n";
+        ++ret;
+    }
+    expected_infected_2 += Raster<int>({{0, 6, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_2 != expected_infected_2) {
+        std::cerr << "test_two_hosts_susceptibilities_one (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_2 << "  !=\n"
+                  << expected_infected_2 << "\n";
+        ++ret;
+    }
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
@@ -958,12 +1075,20 @@ int test_two_hosts_susceptibilities_one()
         zeros,
         movements,
         Network<int>::null_network());
-    Raster<int> expected_infected = infected_1;
-    if (infected_1 != expected_infected) {
+    expected_infected_1 += Raster<int>({{0, 5, 6}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
                   << ") infected (actual, expected):\n"
                   << infected_1 << "  !=\n"
-                  << expected_infected << "\n";
+                  << expected_infected_1 << "\n";
+        ++ret;
+    }
+    expected_infected_2 += Raster<int>({{0, 5, 4}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_2 != expected_infected_2) {
+        std::cerr << "test_two_hosts_susceptibilities_one (step " << step
+                  << ") infected (actual, expected):\n"
+                  << infected_2 << "  !=\n"
+                  << expected_infected_2 << "\n";
         ++ret;
     }
     expected_dispersers = {{21, 29, 0}, {0, 5, 0}, {0, 26, 4}};
@@ -1115,6 +1240,9 @@ int test_two_hosts_susceptibilities_other_than_one()
         zeros, config.ew_res, config.ns_res, quarantine_num_steps);
 
     model.environment().update_weather_coefficient(weather);
+
+    Raster<int> expected_infected_1 = infected_1;
+    Raster<int> expected_infected_2 = infected_2;
     model.run_step(
         step++,
         multi_host_pool,
@@ -1129,6 +1257,22 @@ int test_two_hosts_susceptibilities_other_than_one()
         zeros,
         movements,
         Network<int>::null_network());
+    expected_infected_1 += Raster<int>({{0, 6, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_1 != expected_infected_1) {
+        std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
+                  << ") infected 1 (actual, expected):\n"
+                  << infected_1 << "  !=\n"
+                  << expected_infected_1 << "\n";
+        ++ret;
+    }
+    expected_infected_2 += Raster<int>({{0, 4, 0}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_2 != expected_infected_2) {
+        std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
+                  << ") infected 2 (actual, expected):\n"
+                  << infected_2 << "  !=\n"
+                  << expected_infected_2 << "\n";
+        ++ret;
+    }
     // First step has the same results as with susceptibility == 1 because
     // number of generated dispersers is influenced by the infected in second step.
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
@@ -1161,12 +1305,20 @@ int test_two_hosts_susceptibilities_other_than_one()
         zeros,
         movements,
         Network<int>::null_network());
-    Raster<int> expected_infected = infected_1;
-    if (infected_1 != expected_infected) {
+    expected_infected_1 += Raster<int>({{0, 8, 3}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
-                  << ") infected (actual, expected):\n"
+                  << ") infected 1 (actual, expected):\n"
                   << infected_1 << "  !=\n"
-                  << expected_infected << "\n";
+                  << expected_infected_1 << "\n";
+        ++ret;
+    }
+    expected_infected_2 += Raster<int>({{0, 3, 3}, {0, 0, 0}, {0, 0, 0}});
+    if (infected_2 != expected_infected_2) {
+        std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
+                  << ") infected 2 (actual, expected):\n"
+                  << infected_2 << "  !=\n"
+                  << expected_infected_2 << "\n";
         ++ret;
     }
     expected_dispersers = {{21, 23, 0}, {0, 7, 0}, {0, 25, 3}};
