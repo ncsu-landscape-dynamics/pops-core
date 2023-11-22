@@ -108,7 +108,7 @@ int test_minimal_parameters_one_host()
         config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {&host_pool};
-    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
     Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
@@ -297,7 +297,7 @@ int test_minimal_parameters_two_hosts()
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
-    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
     Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
@@ -487,7 +487,7 @@ int test_two_hosts_with_table_one_only()
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
-    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
@@ -688,7 +688,7 @@ int test_two_hosts_with_table_other_than_one()
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
-    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
@@ -891,7 +891,7 @@ int test_two_hosts_susceptibilities_one()
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
-    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
@@ -1092,7 +1092,7 @@ int test_two_hosts_susceptibilities_other_than_one()
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
-    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 

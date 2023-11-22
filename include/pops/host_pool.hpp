@@ -173,18 +173,31 @@ public:
      */
     int disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
     {
+        if (susceptible_(row, col) <= 0)
+            return 0;
+        double probability_of_establishment = establishment_probability_at(row, col);
+        bool establish = can_disperser_establish(
+            probability_of_establishment,
+            establishment_stochasticity_,
+            deterministic_establishment_probability_,
+            generator);
+        if (establish)
+            return add_disperser_at(row, col);
+        return 0;
+    }
+
+    static bool can_disperser_establish(
+        double probability_of_establishment,
+        bool establishment_stochasticity,
+        double deterministic_establishment_probability,
+        Generator& generator)
+    {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
-        if (susceptible_(row, col) > 0) {
-            double probability_of_establishment =
-                establishment_probability_at(row, col);
-            double establishment_tester = 1 - deterministic_establishment_probability_;
-            if (establishment_stochasticity_)
-                establishment_tester = distribution_uniform(generator);
-            if (establishment_tester < probability_of_establishment) {
-                add_disperser_at(row, col);
-                return true;
-            }
-        }
+        double establishment_tester = 1 - deterministic_establishment_probability;
+        if (establishment_stochasticity)
+            establishment_tester = distribution_uniform(generator);
+        if (establishment_tester < probability_of_establishment)
+            return true;
         return false;
     }
 
@@ -199,12 +212,16 @@ public:
      * @param row Row number of the target cell
      * @param col Column number of the target cell
      *
+     * @return 1 if disperser was added, 0 if there was not available host.
+     *
      * @throw std::runtime_error if model type is unsupported (i.e., not SI or SEI)
      *
      * @note This may be merged with pests_to() in the future.
      */
-    void add_disperser_at(RasterIndex row, RasterIndex col)
+    int add_disperser_at(RasterIndex row, RasterIndex col)
     {
+        if (susceptible_(row, col) <= 0)
+            return 0;
         susceptible_(row, col) -= 1;
         if (model_type_ == ModelType::SusceptibleInfected) {
             infected_(row, col) += 1;
@@ -218,6 +235,7 @@ public:
             throw std::runtime_error(
                 "Unknown ModelType value in HostPool::add_disperser_at()");
         }
+        return 1;
     }
 
     /**

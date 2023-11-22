@@ -21,6 +21,7 @@
 #include <random>
 
 #include "competency_table.hpp"
+#include "config.hpp"
 #include "pest_host_use_table.hpp"
 #include "utils.hpp"
 
@@ -40,7 +41,9 @@ public:
      */
     using Generator = typename GeneratorProvider::Generator;
 
-    MultiHostPool(const std::vector<HostPool*>& host_pools) : host_pools_(host_pools) {}
+    MultiHostPool(const std::vector<HostPool*>& host_pools, const Config& config)
+        : host_pools_(host_pools), config_(config)
+    {}
 
     void set_pest_host_use_table(const PestHostUseTable<HostPool>& table)
     {
@@ -138,13 +141,16 @@ public:
         return infected;
     }
 
-    bool do_establishment_test(double value)
+    bool do_establishment_test(double value, Generator& generator)
     {
-        UNUSED(value);
-        return true;
+        return HostPool::can_disperser_establish(
+            value,
+            config_.establishment_stochasticity,
+            config_.establishment_probability,
+            generator);
     }
 
-    HostPool* pick_host_by_probability(
+    static HostPool* pick_host_by_probability(
         std::vector<HostPool*>& hosts,
         const std::vector<double>& probabilities,
         Generator& generator)
@@ -246,31 +252,37 @@ public:
 
     int disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
     {
-        std::vector<HostPool*> hosts;
         std::vector<double> probabilities;
         double total_s_score = 0;
         for (auto& host_pool : host_pools_) {
-            double s_for_item =
-                host_pool->establishment_probability_at(row, col)  // accounts for W, N
-                * host_pool->susceptibility();
-            hosts.push_back(host_pool);
+            // The probability accounts for weather and, importantly, number of
+            // susceptible hosts, so host pool without available hosts in a given cell
+            // is less likely to be selected over a host pool with available hosts
+            // (however, it can happen in case zeros are not exactly zeros in the
+            // discrete distribution used later and code checks can't tell, so we need
+            // to account for that case later anyway).
+            double s_for_item = host_pool->establishment_probability_at(row, col)
+                                * host_pool->susceptibility();
             probabilities.push_back(s_for_item);
             total_s_score += s_for_item;  // we should make sure this is <=1
         }
-        std::string pest_or_pathogen = "pathogen";
-        if (pest_or_pathogen == "pest") {
-            if (do_establishment_test(total_s_score)) {  // this is now only in host
-                auto host = pick_host_by_probability(hosts, probabilities, generator);
-                host->add_disperser_at(row, col);  // simply increases the counts
-                return 1;
-            }
+        auto host = pick_host_by_probability(host_pools_, probabilities, generator);
+        if (config_.arrival_behavior() == "land") {
+            // The operations are ordered so that for single host, this gives an
+            // identical results to the infect behavior (influenced by usage of random
+            // numbers and presence of susceptible hosts).
+            if (host->susceptible_at(row, col) <= 0)
+                return 0;
+            bool establish = do_establishment_test(total_s_score, generator);
+            if (establish)
+                return host->add_disperser_at(row, col);  // simply increases the counts
+            return 0;
         }
-        else if (pest_or_pathogen == "pathogen") {
-            auto host = pick_host_by_probability(hosts, probabilities, generator);
+        else if (config_.arrival_behavior() == "infect") {
             return host->disperser_to(row, col, generator);  // with establishment test
         }
         throw std::invalid_argument(
-            "Unknown value for pest_or_pathogen: " + pest_or_pathogen);
+            "Unknown value for arrival_behavior: " + config_.arrival_behavior());
     }
     /**
      * @brief Move hosts from a cell to a cell (multi-host)
@@ -307,6 +319,7 @@ public:
 
 private:
     std::vector<HostPool*> host_pools_;  // non-owning
+    const Config& config_;
 };
 
 }  // namespace pops

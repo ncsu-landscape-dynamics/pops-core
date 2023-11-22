@@ -673,7 +673,7 @@ int test_model_sei_deterministic_with_treatments()
         config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {&host_pool};
-    TestModel::StandardMultiHostPool multi_host_pool(host_pools);
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(

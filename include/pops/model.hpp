@@ -248,7 +248,7 @@ public:
             config_.cols,
             suitable_cells);
         std::vector<StandardSingleHostPool*> host_pools = {&host_pool};
-        StandardMultiHostPool multi_host_pool(host_pools);
+        StandardMultiHostPool multi_host_pool(host_pools, config_);
         StandardPestPool pest_pool{
             dispersers, established_dispersers, outside_dispersers};
         SpreadRateAction<StandardMultiHostPool, RasterIndex> spread_rate(

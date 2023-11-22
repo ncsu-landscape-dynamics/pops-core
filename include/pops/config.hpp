@@ -450,6 +450,20 @@ public:
         season_end_month_ = std::stoi(end);
     }
 
+    void set_arrival_behavior(std::string value)
+    {
+        if (value != "infect" && value != "land") {
+            throw std::invalid_argument(
+                "arrival behavior can be 'infect' or 'land' but not: " + value);
+        }
+        arrival_behavior_ = value;
+    }
+
+    const std::string& arrival_behavior() const
+    {
+        return arrival_behavior_;
+    }
+
     /**
      * Read seeds from text.
      *
@@ -561,6 +575,8 @@ private:
 
     Scheduler scheduler_{date_start_, date_end_, step_unit_, step_num_units_};
     bool schedules_created_{false};
+
+    std::string arrival_behavior_{"infect"};
 
     std::vector<bool> spread_schedule_;
     std::vector<bool> output_schedule_;
