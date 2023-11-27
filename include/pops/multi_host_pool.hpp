@@ -347,8 +347,7 @@ public:
             // (however, it can happen in case zeros are not exactly zeros in the
             // discrete distribution used later and code checks can't tell, so we need
             // to account for that case later anyway).
-            double s_for_item = host_pool->establishment_probability_at(row, col)
-                                * host_pool->susceptibility();
+            double s_for_item = host_pool->establishment_probability_at(row, col);
             // The resulting s can be 0-1. While the probabilities are used as weights
             // for picking the host, so their absolute range does not matter, the total
             // is used as probablity in a stochastic test. The stochastic challenge may
