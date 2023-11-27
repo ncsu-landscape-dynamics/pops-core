@@ -263,8 +263,21 @@ public:
             // to account for that case later anyway).
             double s_for_item = host_pool->establishment_probability_at(row, col)
                                 * host_pool->susceptibility();
+            // The resulting s can be 0-1. While the probabilities are used as weights
+            // for picking the host, so their absolute range does not matter, the total
+            // is used as probablity in a stochastic test. The stochastic challenge may
+            // be against 0.5 + 0.7 = 1.2 which which is fine as long as we are fine
+            // with probabilities 0.5 and 0.7 from two host translating to 100%
+            // probability.
             probabilities.push_back(s_for_item);
-            total_s_score += s_for_item;  // we should make sure this is <=1
+            total_s_score += s_for_item;
+        }
+        if (total_s_score <= 0) {
+            // While the score should always be >= 0, it may be == 0 if no hosts are
+            // present. No hosts present cause all probabilities to be zero which is not
+            // permissible for the host picking later and it is enough information for
+            // us to know there won't be any establishment.
+            return 0;
         }
         auto host = pick_host_by_probability(host_pools_, probabilities, generator);
         if (config_.arrival_behavior() == "land") {
