@@ -278,8 +278,8 @@ public:
 
     void run_step(
         int step,
-        StandardMultiHostPool host_pool,
-        StandardPestPool pest_pool,
+        StandardMultiHostPool& host_pool,
+        StandardPestPool& pest_pool,
         IntegerRaster& dispersers,
         IntegerRaster& total_populations,
         Treatments<StandardSingleHostPool, FloatRaster>& treatments,
