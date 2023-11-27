@@ -310,6 +310,7 @@ public:
      * @param row Row index of the cell
      * @param col Column index of the cell
      * @param count Number of pests requested to move from the cell
+     * @param generator Random number generator (for compatibility with multi-host API)
      *
      * @return Number of pests actually moved from the cell
      *
@@ -337,8 +338,9 @@ public:
      *
      * @param row Row index of the cell
      * @param col Column index of the cell
-     *
      * @param count Number of pests requested to move to the cell
+     * @param generator Random number generator (for compatibility with multi-host API)
+     *
      * @return Number of accepted pests
      *
      * @note For consistency with the previous implementation, this does not make hosts
@@ -595,6 +597,12 @@ public:
         susceptible_(row, col) += count;
     }
 
+    /**
+     * @brief Make all infected hosts susceptible at the given cell
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param generator Random number generator to provide stochasticity for mortality
+     */
     void remove_all_infected_at(RasterIndex row, RasterIndex col, Generator& generator)
     {
         auto count = this->infected_at(row, col);
@@ -804,6 +812,16 @@ public:
         }
     }
 
+    /**
+     * @brief Apply mortality at a given cell
+     *
+     * Uses pest-host-use table for mortality parameters.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @see apply_mortality_at(RasterIndex, RasterIndex, double, int)
+     */
     void apply_mortality_at(RasterIndex row, RasterIndex col)
     {
         if (!pest_host_use_table_) {

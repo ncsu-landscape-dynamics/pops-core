@@ -27,6 +27,13 @@
 
 namespace pops {
 
+/**
+ * Host pool for multiple hosts
+ *
+ * Keeps the same interface as (single) HostPool given that HostPool has methods to
+ * behave in a mutli-host way if needed. This allows most external operations such as
+ * actions to work without distinguishing single- and multi-host pools.
+ */
 template<
     typename HostPool,
     typename IntegerRaster,
@@ -41,10 +48,23 @@ public:
      */
     using Generator = typename GeneratorProvider::Generator;
 
+    /**
+     * @brief Create MultiHostPool object with given host pools and configuration
+     *
+     * @param host_pools List of host pools to use
+     * @param config Configuration to use
+     */
     MultiHostPool(const std::vector<HostPool*>& host_pools, const Config& config)
         : host_pools_(host_pools), config_(config)
     {}
 
+    /**
+     * @brief Set pest-host-use table for all hosts
+     *
+     * The existing object will be used (not copy is performed).
+     *
+     * @param table Reference to the table object
+     */
     void set_pest_host_use_table(const PestHostUseTable<HostPool>& table)
     {
         for (auto& host_pool : host_pools_) {
@@ -52,6 +72,13 @@ public:
         }
     }
 
+    /**
+     * @brief Set competency table for all hosts
+     *
+     * The existing object will be used (not copy is performed).
+     *
+     * @param table Reference to the table object
+     */
     void set_competency_table(const CompetencyTable<HostPool, RasterIndex>& table)
     {
         for (auto& host_pool : host_pools_) {
@@ -59,18 +86,42 @@ public:
         }
     }
 
+    /**
+     * @brief Get suitable cells spatial index
+     *
+     * Always uses the index only from the first single-host pool
+     * assuming that the indices are the same.
+     * Assumes that at least one single-host pool was added.
+     *
+     * @return Const reference to the index
+     */
     const std::vector<std::vector<int>>& suitable_cells() const
     {
-        // TODO: if host_pools_ is empty
-        return host_pools_[0]->suitable_cells();
+        return host_pools_.at(0)->suitable_cells();
     }
 
+    /**
+     * @brief Check whether the cell is outside of the raster extent
+     *
+     * Always uses the only the first single-host pool for the check
+     * assuming that the extents are the same.
+     * Assumes that at least one single-host pool was added.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @return true if outside of the raster, false if inside
+     */
     bool is_outside(RasterIndex row, RasterIndex col)
     {
-        // TODO: if host_pools_ is empty
-        return host_pools_[0]->is_outside(row, col);
+        return host_pools_.at(0)->is_outside(row, col);
     }
 
+    /**
+     * @brief Step all hosts forward
+     * @param step Step in the simulation (>=0)
+     *
+     * @see HostPool::step_forward()
+     */
     void step_forward(unsigned step)
     {
         for (auto& host_pool : host_pools_) {
@@ -78,6 +129,9 @@ public:
         }
     }
 
+    /**
+     * @copydoc HostPool::remove_all_infected_at()
+     */
     void remove_all_infected_at(RasterIndex row, RasterIndex col, Generator& generator)
     {
         for (auto& host_pool : host_pools_) {
@@ -85,6 +139,9 @@ public:
         }
     }
 
+    /**
+     * @copydoc HostPool::remove_infection_by_ratio_at()
+     */
     void remove_infection_by_ratio_at(
         RasterIndex row, RasterIndex col, double ratio, Generator& generator)
     {
@@ -93,6 +150,9 @@ public:
         }
     }
 
+    /**
+     * @copydoc HostPool::apply_mortality_at(RasterIndex, RasterIndex, double, int)
+     */
     void apply_mortality_at(
         RasterIndex row, RasterIndex col, double mortality_rate, int mortality_time_lag)
     {
@@ -101,6 +161,9 @@ public:
         }
     }
 
+    /**
+     * @copydoc HostPool::apply_mortality_at(RasterIndex, RasterIndex)
+     */
     void apply_mortality_at(RasterIndex row, RasterIndex col)
     {
         for (auto& host_pool : host_pools_) {
@@ -108,6 +171,9 @@ public:
         }
     }
 
+    /**
+     * @copydoc HostPool::step_forward_mortality()
+     */
     void step_forward_mortality()
     {
         for (auto& host_pool : host_pools_) {
@@ -115,6 +181,14 @@ public:
         }
     }
 
+    /**
+     * @brief Total number of all hosts over all host pools
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @return Number of hosts
+     */
     int total_hosts_at(RasterIndex row, RasterIndex col) const
     {
         int sum = 0;
@@ -125,7 +199,7 @@ public:
     }
 
     /**
-     * @brief Get number of infected hosts at a given cell
+     * @brief Get number of infected hosts over all host pools at a given cell
      *
      * @param row Row index of the cell
      * @param col Column index of the cell
@@ -141,25 +215,9 @@ public:
         return infected;
     }
 
-    bool do_establishment_test(double value, Generator& generator)
-    {
-        return HostPool::can_disperser_establish(
-            value,
-            config_.establishment_stochasticity,
-            config_.establishment_probability,
-            generator);
-    }
-
-    static HostPool* pick_host_by_probability(
-        std::vector<HostPool*>& hosts,
-        const std::vector<double>& probabilities,
-        Generator& generator)
-    {
-        std::discrete_distribution<int> distribution{
-            probabilities.begin(), probabilities.end()};
-        return hosts.at(distribution(generator));
-    }
-
+    /**
+     * @copydoc HostPool::dispersers_from()
+     */
     int dispersers_from(RasterIndex row, RasterIndex col, Generator& generator) const
     {
         int sum{0};
@@ -170,7 +228,7 @@ public:
     }
 
     /**
-     * @brief Move pests from a cell (multi-host)
+     * @brief Move pests from a cell
      *
      * This is a multi-host version of single host pests_from method.
      * It randomly distributes the number to un-infect between multiple
@@ -207,7 +265,7 @@ public:
         return collect_count;
     }
     /**
-     * @brief Move pests to a cell (multi-host)
+     * @brief Move pests to a cell
      *
      * This is a multi-host version of single host pests_to method.
      * It randomly distributes the number to infect between multiple
@@ -250,6 +308,34 @@ public:
         return collect_count;
     }
 
+    /**
+     * @brief Move a disperser to a cell with establishment test
+     *
+     * Config::arrival_behavior() is used to determine if the dispersers should be
+     * landing in a cell (`"land"`) or infecting a specific host directly (`"infect"`).
+     * Landing performs the establishment test on a combined probability from all hosts
+     * in a cell and then uses one host to add the  new disperser to. Infecting picks a
+     * host and lets the host accept or reject the disperser based on its own
+     * establishment test.
+     *
+     * Uses static function HostPool::can_disperser_establish() from HostPool class to
+     * do the test for multiple hosts for landing, so any host pool class needs to
+     * implement that besides its disperser methods. It assumes that the configuration
+     * for multi-host is applicable for the combined establishment probability of
+     * individual hosts.
+     *
+     * For one single host pool only and host pool which implements its `disperser_to()`
+     * using `can_disperser_establish()` and `add_disperser_at()`, this gives identical
+     * results for both landing and infecting arrival behavior.
+     *
+     * @see HostPool::can_disperser_establish()
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param generator Random number generator
+     *
+     * @return 1 if established, 0 otherwise
+     */
     int disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
     {
         std::vector<double> probabilities;
@@ -286,7 +372,11 @@ public:
             // numbers and presence of susceptible hosts).
             if (host->susceptible_at(row, col) <= 0)
                 return 0;
-            bool establish = do_establishment_test(total_s_score, generator);
+            bool establish = HostPool::can_disperser_establish(
+                total_s_score,
+                config_.establishment_stochasticity,
+                config_.establishment_probability,
+                generator);
             if (establish)
                 return host->add_disperser_at(row, col);  // simply increases the counts
             return 0;
@@ -325,13 +415,45 @@ public:
             row_from, col_from, row_to, col_to, count, generator);
     }
 
-    std::vector<HostPool*>& host_pools()
+    /**
+     * @brief Get list of host pools
+     * @return Reference to host pools
+     */
+    const std::vector<HostPool*>& host_pools()
     {
         return host_pools_;
     }
 
 private:
-    std::vector<HostPool*> host_pools_;  // non-owning
+    /**
+     * @brief Pick a host given a probability for each host
+     *
+     * The probabilities are used as weights so they don't need to be 0-1 nor they need
+     * to add up to 1. However, their sum needs to be >0.
+     *
+     * @param hosts List of pointers to host pools
+     * @param probabilities Probability values for each host pool
+     * @param generator Random number generator
+     *
+     * @return Pointer to selected host pool
+     */
+    static HostPool* pick_host_by_probability(
+        std::vector<HostPool*>& hosts,
+        const std::vector<double>& probabilities,
+        Generator& generator)
+    {
+        std::discrete_distribution<int> distribution{
+            probabilities.begin(), probabilities.end()};
+        return hosts.at(distribution(generator));
+    }
+
+    /**
+     * List of non-owning pointers to individual host pools.
+     */
+    std::vector<HostPool*> host_pools_;
+    /**
+     * Reference to configuration
+     */
     const Config& config_;
 };
 
