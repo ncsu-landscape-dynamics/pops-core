@@ -163,19 +163,16 @@ public:
      * total number of hosts because movement does not support non-host
      * individuals.
      *
-     * No treatment can be applied when movement is active because host movement does
-     * not support resistant hosts.
-     *
      * *dispersers* is for internal use and for tracking dispersers creation.
      * The input values are ignored and the output is not the current existing
      * dispersers, but only the number of dispersers generated (and subsequently
      * used) in this step. There are no dispersers in between simulation steps.
      *
-     * @param step Step number in the simulation.
+     * @param step Step number in the simulation
      * @param[in,out] infected Infected hosts
      * @param[in,out] susceptible Susceptible hosts
      * @param[in,out] total_hosts All host individuals in the area. Is equal to
-     * infected + exposed + susceptible in the cell.
+     * infected + exposed + susceptible in the cell
      * @param[in,out] total_populations All host and non-host individuals in the area
      * @param[out] dispersers Dispersing individuals (used internally)
      * @param[out] established_dispersers Dispersers originating from a given cell which
@@ -190,8 +187,6 @@ public:
      * @param[in] temperatures Vector of temperatures used to evaluate lethal
      * temperature
      * @param[in] survival_rates Pest survival rates
-     * @param[in,out] treatments Treatments to be applied (also tracks use of
-     * treatments)
      * @param[in,out] resistant Resistant hosts (host temporarily removed from
      * susceptible hosts)
      * @param[in,out] outside_dispersers Dispersers escaping the rasters (adds to the
@@ -276,6 +271,25 @@ public:
             network);
     }
 
+    /**
+     * @brief Run one step of the simulation.
+     *
+     * @param step Step number in the simulation
+     * @param host_pool Host pool
+     * @param pest_pool Pest pool
+     * @param[out] dispersers Dispersing individuals (used directly for kernels)
+     * @param[in,out] total_populations All host and non-host individuals in the area
+     * @param[in,out] treatments Treatments to be applied (also tracks use of
+     * treatments)
+     * @param[in] temperatures Vector of temperatures used to evaluate lethal
+     * temperature
+     * @param[in] survival_rates Pest survival rates
+     * @param spread_rate Spread rate action
+     * @param[in,out] quarantine Quarantine escape tracker
+     * @param[in] quarantine_areas Quarantine areas
+     * @param[in] movements Table of host movements
+     * @param network Network (initialized or Network::null_network() if unused)
+     */
     void run_step(
         int step,
         StandardMultiHostPool& host_pool,
