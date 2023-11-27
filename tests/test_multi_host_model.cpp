@@ -381,23 +381,23 @@ int test_minimal_parameters_two_hosts()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 5, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 7, 6}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
-                  << ") infected (actual, expected):\n"
+                  << ") infected 1 (actual, expected):\n"
                   << infected_1 << "  !=\n"
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 5, 4}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 8, 6}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
-                  << ") infected (actual, expected):\n"
+                  << ") infected 2 (actual, expected):\n"
                   << infected_2 << "  !=\n"
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    expected_dispersers = {{21, 29, 0}, {0, 5, 0}, {0, 26, 4}};
+    expected_dispersers = {{31, 30, 0}, {0, 10, 0}, {0, 19, 4}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -412,6 +412,10 @@ int test_minimal_parameters_two_hosts()
                   << outside_dispersers.size()
                   << " != " << expected_outside_dispersers_size << "\n";
         ++ret;
+    }
+    if (ret) {
+        std::cerr << "Next random number would be: "
+                  << model.random_number_generator()() << "\n";
     }
     return ret;
 }
@@ -609,7 +613,7 @@ int test_two_hosts_with_table_one_only()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 5, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 7, 6}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_with_table_one_only (step " << step
                   << ") infected (actual, expected):\n"
@@ -617,7 +621,7 @@ int test_two_hosts_with_table_one_only()
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 5, 4}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 8, 6}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_two_hosts_with_table_one_only (step " << step
                   << ") infected (actual, expected):\n"
@@ -625,7 +629,7 @@ int test_two_hosts_with_table_one_only()
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    expected_dispersers = {{21, 29, 0}, {0, 5, 0}, {0, 26, 4}};
+    expected_dispersers = {{31, 30, 0}, {0, 10, 0}, {0, 19, 4}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_two_hosts_with_table_one_only (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -839,7 +843,7 @@ int test_two_hosts_with_table_other_than_one()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 5, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 1, 6}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
                   << ") infected 1 (actual, expected):\n"
@@ -847,7 +851,7 @@ int test_two_hosts_with_table_other_than_one()
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 4, 4}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 2, 5}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
                   << ") infected 2 (actual, expected):\n"
@@ -855,15 +859,7 @@ int test_two_hosts_with_table_other_than_one()
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    Raster<int> expected_infected = infected_1;
-    if (infected_1 != expected_infected) {
-        std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
-                  << ") infected (actual, expected):\n"
-                  << infected_1 << "  !=\n"
-                  << expected_infected << "\n";
-        ++ret;
-    }
-    expected_dispersers = {{19, 23, 0}, {0, 3, 0}, {0, 13, 2}};
+    expected_dispersers = {{7, 29, 0}, {0, 4, 0}, {0, 10, 2}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -1075,7 +1071,7 @@ int test_two_hosts_susceptibilities_one()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 5, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 7, 6}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
                   << ") infected (actual, expected):\n"
@@ -1083,7 +1079,7 @@ int test_two_hosts_susceptibilities_one()
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 5, 4}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 8, 6}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
                   << ") infected (actual, expected):\n"
@@ -1091,7 +1087,7 @@ int test_two_hosts_susceptibilities_one()
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    expected_dispersers = {{21, 29, 0}, {0, 5, 0}, {0, 26, 4}};
+    expected_dispersers = {{31, 30, 0}, {0, 10, 0}, {0, 19, 4}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -1305,7 +1301,7 @@ int test_two_hosts_susceptibilities_other_than_one()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 8, 3}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 10, 3}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
                   << ") infected 1 (actual, expected):\n"
@@ -1321,7 +1317,7 @@ int test_two_hosts_susceptibilities_other_than_one()
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    expected_dispersers = {{21, 23, 0}, {0, 7, 0}, {0, 25, 3}};
+    expected_dispersers = {{31, 23, 0}, {0, 13, 0}, {0, 13, 9}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -1329,7 +1325,7 @@ int test_two_hosts_susceptibilities_other_than_one()
                   << expected_dispersers << "\n";
         ++ret;
     }
-    expected_outside_dispersers_size = 8;
+    expected_outside_dispersers_size = 14;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
         std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
                   << "): outside_dispersers.size (actual, expected): "
