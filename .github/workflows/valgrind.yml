@@ -26,15 +26,28 @@ jobs:
         echo "$(pwd)/build/tests/" >> $GITHUB_PATH
     - name: Memcheck
       run: |
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_competency_table
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_date
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_deterministic
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_distributions
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_environment
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_generator_provider
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_model
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_mortality
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_movements
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_multi_host_model
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_network
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_network_helpers
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_network_kernel
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_overpopulation_movements
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_quarantine
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_random
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_raster
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_scheduling
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_simulation
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_simulation_kernels
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_soils
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_spread_rate
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_statistics
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_survival_rate
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_treatments
