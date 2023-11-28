@@ -149,7 +149,7 @@ public:
      * @return Const pointer to the environment
      * @throw std::logic_error when environment is not set
      */
-    const Environment<IntegerRaster, FloatRaster, RasterIndex, Generator>*
+    Environment<IntegerRaster, FloatRaster, RasterIndex, Generator>*
     environment(bool allow_empty = false)
     {
         static Environment<IntegerRaster, FloatRaster, RasterIndex, Generator> empty;

@@ -531,9 +531,6 @@ int test_two_hosts_with_table_one_only()
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
-    model.environment().add_host(&host_pool_1);
-    model.environment().add_host(&host_pool_2);
-
     CompetencyTable<TestModel::StandardSingleHostPool, Raster<double>::IndexType>
         competency_table(model.environment());
     competency_table.add_host_competencies({0, 1}, 1);
@@ -758,9 +755,6 @@ int test_two_hosts_with_table_other_than_one()
     TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
-
-    model.environment().add_host(&host_pool_1);
-    model.environment().add_host(&host_pool_2);
 
     CompetencyTable<TestModel::StandardSingleHostPool, Raster<double>::IndexType>
         competency_table(model.environment());
@@ -989,9 +983,6 @@ int test_two_hosts_susceptibilities_one()
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
-    model.environment().add_host(&host_pool_1);
-    model.environment().add_host(&host_pool_2);
-
     PestHostUseTable<TestModel::StandardSingleHostPool> pest_host_use_table(
         model.environment());
     pest_host_use_table.add_host_info(1, 0, 0);
@@ -1216,9 +1207,6 @@ int test_two_hosts_susceptibilities_other_than_one()
     TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
-
-    model.environment().add_host(&host_pool_1);
-    model.environment().add_host(&host_pool_2);
 
     PestHostUseTable<TestModel::StandardSingleHostPool> pest_host_use_table(
         model.environment());

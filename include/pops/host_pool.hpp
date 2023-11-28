@@ -84,6 +84,9 @@ public:
      * host infection over time. Expectation is that mortality tracker is of
      * length (1/mortality_rate + mortality_time_lag).
      *
+     * Host is added to the environment by the constructor. Afterwards, the environment
+     * is not modified.
+     *
      * @param model_type Type of the model (SI or SEI)
      * @param susceptible Raster of susceptible hosts
      * @param exposed Raster of exposed or infected hosts
@@ -114,7 +117,7 @@ public:
         std::vector<IntegerRaster>& mortality_tracker_vector,
         IntegerRaster& died,
         IntegerRaster& total_hosts,
-        const Environment& environment,
+        Environment& environment,
         bool dispersers_stochasticity,
         double reproductive_rate,
         bool establishment_stochasticity,
@@ -140,7 +143,9 @@ public:
           rows_(rows),
           cols_(cols),
           suitable_cells_(suitable_cells)
-    {}
+    {
+        environment.add_host(this);
+    }
 
     /**
      * @brief Set pest-host-use table
