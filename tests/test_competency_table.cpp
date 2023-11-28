@@ -34,6 +34,7 @@ public:
         Raster<double>,
         Raster<double>::IndexType,
         RandomNumberGeneratorProvider<std::default_random_engine>>;
+    using RasterIndex = Raster<double>::IndexType;
 
     Raster<int> hosts;
 
@@ -67,8 +68,7 @@ int test_competency_table_small_example()
     int ret = 0;
     MockupHostPool::Environment environment;
 
-    CompetencyTable<MockupHostPool, Raster<double>::IndexType> competency_table(
-        environment);
+    CompetencyTable<MockupHostPool> competency_table(environment);
 
     MockupHostPool host_pool_1;
     MockupHostPool host_pool_2;

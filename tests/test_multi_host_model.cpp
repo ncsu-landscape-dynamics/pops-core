@@ -527,8 +527,8 @@ int test_two_hosts_with_table_one_only()
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
-    CompetencyTable<TestModel::StandardSingleHostPool, Raster<double>::IndexType>
-        competency_table(model.environment());
+    CompetencyTable<TestModel::StandardSingleHostPool> competency_table(
+        model.environment());
     competency_table.add_host_competencies({0, 1}, 1);
     competency_table.add_host_competencies({1, 0}, 1);
     competency_table.add_host_competencies({1, 1}, 1);
@@ -750,8 +750,8 @@ int test_two_hosts_with_table_other_than_one()
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
-    CompetencyTable<TestModel::StandardSingleHostPool, Raster<double>::IndexType>
-        competency_table(model.environment());
+    CompetencyTable<TestModel::StandardSingleHostPool> competency_table(
+        model.environment());
     competency_table.add_host_competencies({0, 1}, 0.4);
     competency_table.add_host_competencies({1, 0}, 0.6);
     competency_table.add_host_competencies({1, 1}, 0.8);

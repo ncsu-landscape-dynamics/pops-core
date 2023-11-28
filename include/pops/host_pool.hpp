@@ -175,8 +175,7 @@ public:
      *
      * @param competency_table Reference to the table
      */
-    void
-    set_competency_table(const CompetencyTable<HostPool, RasterIndex>& competency_table)
+    void set_competency_table(const CompetencyTable<HostPool>& competency_table)
     {
         this->competency_table_ = &competency_table;
     }
@@ -1161,7 +1160,7 @@ private:
     /** Pest-host-use table */
     const PestHostUseTable<HostPool>* pest_host_use_table_{nullptr};
     /** Competency table */
-    const CompetencyTable<HostPool, RasterIndex>* competency_table_{nullptr};
+    const CompetencyTable<HostPool>* competency_table_{nullptr};
 
     RasterIndex rows_{0};
     RasterIndex cols_{0};

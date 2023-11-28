@@ -28,10 +28,11 @@ namespace pops {
  * Competency table holding combinations of host presences and absences and the
  * corresponding competency score.
  */
-template<typename HostPool, typename RasterIndex>
+template<typename HostPool>
 class CompetencyTable
 {
 public:
+    using RasterIndex = typename HostPool::RasterIndex;
     using Environment = typename HostPool::Environment;
 
     /**
