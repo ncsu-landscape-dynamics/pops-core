@@ -714,7 +714,6 @@ int test_model_sei_deterministic_with_treatments()
             step,
             multi_host_pool,
             pest_pool,
-            dispersers,
             total_populations,
             treatments,
             empty_floats,
