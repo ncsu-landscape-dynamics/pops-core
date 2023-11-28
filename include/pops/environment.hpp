@@ -240,6 +240,17 @@ public:
     }
 
     /**
+     * @brief Remove all hosts from the environment.
+     *
+     * This function is useful for reusing an environment object in different contexts,
+     * especially in tests, but it does not have an epidemiological meaning.
+     */
+    void remove_hosts()
+    {
+        hosts_.clear();
+    }
+
+    /**
      * @copydoc EnvironmentInterface::host_index()
      */
     size_t host_index(const HostPoolInterface<RasterIndex>* host) const override
