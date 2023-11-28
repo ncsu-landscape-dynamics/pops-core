@@ -126,17 +126,20 @@ protected:
     }
 
 public:
+    /** Type for single-host pool */
     using StandardSingleHostPool = HostPool<
         IntegerRaster,
         FloatRaster,
         RasterIndex,
         RandomNumberGeneratorProvider<Generator>>;
+    /** Type for multi-host pool */
     using StandardMultiHostPool = MultiHostPool<
         StandardSingleHostPool,
         IntegerRaster,
         FloatRaster,
         RasterIndex,
         RandomNumberGeneratorProvider<Generator>>;
+    /** Type for pest pool */
     using StandardPestPool = PestPool<IntegerRaster, FloatRaster, RasterIndex>;
 
     Model(
