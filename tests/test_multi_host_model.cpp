@@ -64,7 +64,7 @@ int test_minimal_parameters_one_host()
     std::vector<std::vector<int>> suitable_cells =
         find_suitable_cells<Raster<int>::IndexType, Raster<int>>(total_hosts);
 
-    Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> dispersers(infected.rows(), infected.cols(), 0);
     Raster<int> established_dispersers(infected.rows(), infected.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
@@ -236,7 +236,7 @@ int test_minimal_parameters_two_hosts()
         find_suitable_cells<Raster<int>::IndexType, Raster<int>>(
             {&total_hosts_1, &total_hosts_2});
 
-    Raster<int> dispersers(infected_1.rows(), infected_1.cols());
+    Raster<int> dispersers(infected_1.rows(), infected_1.cols(), 0);
     Raster<int> established_dispersers(infected_1.rows(), infected_1.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
@@ -455,7 +455,7 @@ int test_two_hosts_with_table_one_only()
         find_suitable_cells<Raster<int>::IndexType, Raster<int>>(
             {&total_hosts_1, &total_hosts_2});
 
-    Raster<int> dispersers(infected_1.rows(), infected_1.cols());
+    Raster<int> dispersers(infected_1.rows(), infected_1.cols(), 0);
     Raster<int> established_dispersers(infected_1.rows(), infected_1.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
@@ -678,7 +678,7 @@ int test_two_hosts_with_table_other_than_one()
         find_suitable_cells<Raster<int>::IndexType, Raster<int>>(
             {&total_hosts_1, &total_hosts_2});
 
-    Raster<int> dispersers(infected_1.rows(), infected_1.cols());
+    Raster<int> dispersers(infected_1.rows(), infected_1.cols(), 0);
     Raster<int> established_dispersers(infected_1.rows(), infected_1.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
@@ -903,7 +903,7 @@ int test_two_hosts_susceptibilities_one()
         find_suitable_cells<Raster<int>::IndexType, Raster<int>>(
             {&total_hosts_1, &total_hosts_2});
 
-    Raster<int> dispersers(infected_1.rows(), infected_1.cols());
+    Raster<int> dispersers(infected_1.rows(), infected_1.cols(), 0);
     Raster<int> established_dispersers(infected_1.rows(), infected_1.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
@@ -1126,7 +1126,7 @@ int test_two_hosts_susceptibilities_other_than_one()
         find_suitable_cells<Raster<int>::IndexType, Raster<int>>(
             {&total_hosts_1, &total_hosts_2});
 
-    Raster<int> dispersers(infected_1.rows(), infected_1.cols());
+    Raster<int> dispersers(infected_1.rows(), infected_1.cols(), 0);
     Raster<int> established_dispersers(infected_1.rows(), infected_1.cols());
     std::vector<std::tuple<int, int>> outside_dispersers;
 
