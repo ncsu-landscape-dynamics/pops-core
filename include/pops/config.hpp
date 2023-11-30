@@ -27,6 +27,7 @@
 #include "scheduling.hpp"
 #include "utils.hpp"
 
+#include <cmath>
 #include <vector>
 #include <iostream>
 #include <regex>
@@ -625,13 +626,29 @@ public:
      * ```
      *
      * @param values Table data
+     *
+     * @throw std::invalid_argument when rows have different sizes
+     * @throw std::invalid_argument when row size is less then 2
      */
     void read_competency_table(const std::vector<std::vector<double>>& values)
     {
+        size_t first_row_size{0};
+        bool first_row{true};
         for (const auto& row : values) {
+            if (!first_row && row.size() != first_row_size) {
+                throw std::invalid_argument(
+                    "All competency table rows must be the same size ("
+                    + std::to_string(row.size())
+                    + " != " + std::to_string(first_row_size) + ")");
+            }
+            else {
+                first_row_size = row.size();
+                first_row = false;
+            }
             if (row.size() < 2) {
                 throw std::invalid_argument(
-                    "At least 2 values are required for each competency table row");
+                    "At least 2 values are required for each competency table row (not "
+                    + std::to_string(row.size()) + ")");
             }
             CompetencyTableDataRow resulting_row;
             for (auto it = row.begin(); it < std::prev(row.end()); ++it) {
@@ -640,6 +657,26 @@ public:
             resulting_row.competency = row.back();
             competency_table_data_.push_back(std::move(resulting_row));
         }
+    }
+
+    /**
+     * @brief Test if the competency table is complete
+     *
+     * Complete comptenecy table has 2^N rows where N is number of hosts, i.e., number
+     * of columns used for the host presence-absence information.
+     *
+     * @return true if complete, false otherwise
+     */
+    bool competency_table_is_complete() const
+    {
+        size_t num_of_rows{competency_table_data().size()};
+        if (num_of_rows == 0)
+            return false;
+        // Number of presence-absence records is assumed to be number of hosts.
+        size_t presence_size{competency_table_data().at(0).presence_absence.size()};
+        if (num_of_rows == std::pow(2, presence_size))
+            return true;
+        return false;
     }
 
 private:
