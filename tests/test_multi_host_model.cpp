@@ -25,7 +25,7 @@
 #include <pops/model.hpp>
 #include <pops/spread_rate.hpp>
 #include <pops/competency_table.hpp>
-#include <pops/pest_host_use_table.hpp>
+#include <pops/pest_host_table.hpp>
 
 using namespace pops;
 
@@ -975,11 +975,11 @@ int test_two_hosts_susceptibilities_one()
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
-    PestHostUseTable<TestModel::StandardSingleHostPool> pest_host_use_table(
+    PestHostTable<TestModel::StandardSingleHostPool> pest_host_table(
         model.environment());
-    pest_host_use_table.add_host_info(1, 0, 0);
-    pest_host_use_table.add_host_info(1, 0, 0);
-    multi_host_pool.set_pest_host_use_table(pest_host_use_table);
+    pest_host_table.add_host_info(1, 0, 0);
+    pest_host_table.add_host_info(1, 0, 0);
+    multi_host_pool.set_pest_host_table(pest_host_table);
     Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
         config.scheduler());
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
@@ -1198,11 +1198,11 @@ int test_two_hosts_susceptibilities_other_than_one()
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
 
-    PestHostUseTable<TestModel::StandardSingleHostPool> pest_host_use_table(
+    PestHostTable<TestModel::StandardSingleHostPool> pest_host_table(
         model.environment());
-    pest_host_use_table.add_host_info(0.8, 0, 0);
-    pest_host_use_table.add_host_info(0.4, 0, 0);
-    multi_host_pool.set_pest_host_use_table(pest_host_use_table);
+    pest_host_table.add_host_info(0.8, 0, 0);
+    pest_host_table.add_host_info(0.4, 0, 0);
+    multi_host_pool.set_pest_host_table(pest_host_table);
     Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
         config.scheduler());
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
