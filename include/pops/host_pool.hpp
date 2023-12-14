@@ -37,7 +37,7 @@ namespace pops {
  * @tparam RasterIndex Type for indexing the rasters
  * @tparam GeneratorProvider Provider of random number generators
  *
- * GeneratorProvider needs to provide Generator memeber which is the type of the
+ * GeneratorProvider needs to provide Generator member which is the type of the
  * underlying random number generators.
  */
 template<
@@ -216,7 +216,7 @@ public:
     /**
      * @brief Test whether a disperser can establish
      *
-     * This static (object-idependent) function to test disperser establishement allows
+     * This static (object-independent) function to test disperser establishment allows
      * code reuse between a single host and a multi-host case.
      *
      * @param probability_of_establishment Probability of establishment
@@ -347,7 +347,7 @@ public:
      *
      * @return Number of pests actually moved from the cell
      *
-     * @note For consitency with the previous implementation, this does not modify
+     * @note For consistency with the previous implementation, this does not modify
      * mortality cohorts nor touches the exposed cohorts.
      */
     int pests_from(RasterIndex row, RasterIndex col, int count, Generator& generator)
@@ -503,7 +503,7 @@ public:
 
         // Returned total hosts actually moved is based only on the total host and no
         // other checks are performed. This assumes that the counts are correct in the
-        // object (precodition).
+        // object (precondition).
         return total_hosts_moved;
     }
 
@@ -520,7 +520,7 @@ public:
      * @param mortality Number of infected hosts in each mortality cohort.
      *
      * @note Counts are doubles, so that handling of floating point values is managed
-     * here in the same way as in the original threatment code.
+     * here in the same way as in the original treatment code.
      *
      * @note This does not remove resistant just like the original implementation in
      * treatments.
@@ -761,7 +761,7 @@ public:
         // fail.
         if (false && infected != mortality_total) {
             throw std::invalid_argument(
-                "Total of mortality values differs from formely infected, now resistant "
+                "Total of mortality values differs from formerly infected, now resistant "
                 "count ("
                 + std::to_string(mortality_total) + " != " + std::to_string(infected)
                 + " for cell (" + std::to_string(row) + ", " + std::to_string(col)
@@ -1101,7 +1101,7 @@ public:
     }
 
     /**
-     * @brief Get list with this host pools
+     * @brief Get list which contains this host pool
      *
      * This is for compatibility with multi-host pool. In case of this host pool, it
      * returns one item which is a pointer to this host pool.
