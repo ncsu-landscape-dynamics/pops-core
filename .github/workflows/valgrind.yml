@@ -26,6 +26,7 @@ jobs:
         echo "$(pwd)/build/tests/" >> $GITHUB_PATH
     - name: Memcheck
       run: |
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_competency_table
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_date
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_deterministic
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_distributions
@@ -34,6 +35,7 @@ jobs:
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_model
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_mortality
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_movements
+        valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_multi_host_model
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_network
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_network_helpers
         valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 test_network_kernel

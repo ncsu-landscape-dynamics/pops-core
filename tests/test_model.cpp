@@ -23,6 +23,7 @@
 #include <vector>
 
 #include <pops/model.hpp>
+#include <pops/spread_rate.hpp>
 
 using namespace pops;
 using std::cout;
@@ -63,9 +64,7 @@ int test_with_reduced_stochasticity()
     config.use_quarantine = true;
     config.quarantine_frequency = "year";
     config.quarantine_frequency_n = 1;
-    config.use_spreadrates = true;
-    config.spreadrate_frequency = "year";
-    config.spreadrate_frequency_n = 1;
+    config.use_spreadrates = false;
     config.natural_scale = 0.9;
     config.anthro_scale = 0.9;
     config.set_date_start(2020, 1, 1);
@@ -75,6 +74,9 @@ int test_with_reduced_stochasticity()
     config.use_mortality = false;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
+    config.use_treatments = false;
+    config.ew_res = 1;
+    config.ns_res = 1;
     config.create_schedules();
 
     unsigned num_mortality_steps = 1;
@@ -91,17 +93,10 @@ int test_with_reduced_stochasticity()
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
-    config.use_treatments = false;
-    config.ew_res = 1;
-    config.ns_res = 1;
-    unsigned rate_num_steps =
-        get_number_of_scheduled_actions(config.spread_rate_schedule());
+
     unsigned quarantine_num_steps =
         get_number_of_scheduled_actions(config.quarantine_schedule());
-    SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(
+    QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, quarantine_num_steps);
 
     auto expected_dispersers = config.reproductive_rate * infected;
@@ -126,10 +121,8 @@ int test_with_reduced_stochasticity()
         died,
         empty_float,
         empty_float,
-        treatments,
         zeros,
         outside_dispersers,
-        spread_rate,
         quarantine,
         zeros,
         movements,
@@ -216,9 +209,7 @@ int test_deterministic()
     config.use_lethal_temperature = false;
     config.use_survival_rate = false;
     config.use_quarantine = false;
-    config.use_spreadrates = true;
-    config.spreadrate_frequency = "year";
-    config.spreadrate_frequency_n = 1;
+    config.use_spreadrates = false;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -227,6 +218,9 @@ int test_deterministic()
     config.use_mortality = false;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
+    config.use_treatments = false;
+    config.ew_res = 30;
+    config.ns_res = 30;
     config.create_schedules();
 
     config.dispersal_stochasticity = false;
@@ -239,16 +233,8 @@ int test_deterministic()
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_floats;
-    Raster<double> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
-    config.use_treatments = false;
-    config.ew_res = 30;
-    config.ns_res = 30;
-    unsigned rate_num_steps =
-        get_number_of_scheduled_actions(config.spread_rate_schedule());
-    SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     auto expected_dispersers = config.reproductive_rate * infected;
     auto expected_established_dispersers = config.reproductive_rate * infected;
@@ -279,10 +265,8 @@ int test_deterministic()
         died,
         empty_floats,
         empty_floats,
-        treatments,
         zeros,
         outside_dispersers,
-        spread_rate,
         quarantine,
         zeros,
         movements,
@@ -366,9 +350,7 @@ int test_deterministic_exponential()
     config.use_lethal_temperature = false;
     config.use_survival_rate = false;
     config.use_quarantine = false;
-    config.use_spreadrates = true;
-    config.spreadrate_frequency = "year";
-    config.spreadrate_frequency_n = 1;
+    config.use_spreadrates = false;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -377,6 +359,9 @@ int test_deterministic_exponential()
     config.use_mortality = false;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
+    config.use_treatments = false;
+    config.ew_res = 30;
+    config.ns_res = 30;
     config.create_schedules();
 
     config.dispersal_stochasticity = false;
@@ -389,15 +374,8 @@ int test_deterministic_exponential()
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_floats;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
-    config.use_treatments = false;
-    config.ew_res = 30;
-    config.ns_res = 30;
-    unsigned rate_num_steps =
-        get_number_of_scheduled_actions(config.spread_rate_schedule());
-    SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     auto expected_dispersers = config.reproductive_rate * infected;
     auto expected_established_dispersers = config.reproductive_rate * infected;
@@ -428,10 +406,8 @@ int test_deterministic_exponential()
         died,
         empty_floats,
         empty_floats,
-        treatments,
         zeros,
         outside_dispersers,
-        spread_rate,
         quarantine,
         zeros,
         movements,
@@ -511,9 +487,7 @@ int test_model_sei_deterministic()
     config.use_lethal_temperature = false;
     config.use_survival_rate = false;
     config.use_quarantine = false;
-    config.use_spreadrates = true;
-    config.spreadrate_frequency = "year";
-    config.spreadrate_frequency_n = 1;
+    config.use_spreadrates = false;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2020, 12, 31);
@@ -522,6 +496,9 @@ int test_model_sei_deterministic()
     config.use_mortality = false;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
+    config.use_treatments = false;
+    config.ew_res = 30;
+    config.ns_res = 30;
     config.create_schedules();
 
     config.dispersal_stochasticity = false;
@@ -540,15 +517,8 @@ int test_model_sei_deterministic()
     std::vector<Raster<int>> exposed(
         exposed_size, Raster<int>(infected.rows(), infected.cols(), 0));
     std::vector<Raster<double>> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
-    config.use_treatments = false;
-    config.ew_res = 30;
-    config.ns_res = 30;
-    unsigned rate_num_steps =
-        get_number_of_scheduled_actions(config.spread_rate_schedule());
-    SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     // There should be still the original number of infected when dispersers are
     // created.
@@ -573,10 +543,8 @@ int test_model_sei_deterministic()
             died,
             empty_float,
             empty_float,
-            treatments,
             zeros,
             outside_dispersers,
-            spread_rate,
             quarantine,
             zeros,
             movements,
@@ -651,9 +619,7 @@ int test_model_sei_deterministic_with_treatments()
     config.use_lethal_temperature = false;
     config.use_survival_rate = false;
     config.use_quarantine = false;
-    config.use_spreadrates = true;
-    config.spreadrate_frequency = "year";
-    config.spreadrate_frequency_n = 1;
+    config.use_spreadrates = false;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2020, 12, 31);
@@ -662,11 +628,15 @@ int test_model_sei_deterministic_with_treatments()
     config.use_mortality = false;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
+    config.use_treatments = true;
+    config.ew_res = 30;
+    config.ns_res = 30;
     config.create_schedules();
 
     config.dispersal_stochasticity = false;
 
-    std::vector<std::vector<int>> movements;
+    using TestModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
+    TestModel model{config};
 
     unsigned num_mortality_steps = 1;
     std::vector<Raster<int>> mortality_tracker(
@@ -674,27 +644,52 @@ int test_model_sei_deterministic_with_treatments()
 
     Raster<int> died(infected.rows(), infected.cols(), 0);
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
+    Raster<int> resistant(infected.rows(), infected.cols(), 0);
     int exposed_size = 0;
     if (config.latency_period_steps)
         exposed_size = config.latency_period_steps + 1;
     std::vector<Raster<int>> exposed(
         exposed_size, Raster<int>(infected.rows(), infected.cols(), 0));
-    std::vector<Raster<double>> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
+    std::vector<Raster<double>> empty_floats;
+    std::vector<std::vector<int>> movements;
+
+    TestModel::StandardSingleHostPool host_pool(
+        model_type_from_string(config.model_type),
+        susceptible,
+        exposed,
+        config.latency_period_steps,
+        infected,
+        total_exposed,
+        resistant,
+        mortality_tracker,
+        died,
+        total_hosts,
+        model.environment(),
+        config.generate_stochasticity,
+        config.reproductive_rate,
+        config.establishment_stochasticity,
+        config.establishment_probability,
+        config.rows,
+        config.cols,
+        suitable_cells);
+    std::vector<TestModel::StandardSingleHostPool*> host_pools = {&host_pool};
+    TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
+    TestModel::StandardPestPool pest_pool{
+        dispersers, established_dispersers, outside_dispersers};
+    SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
+        multi_host_pool, config.rows, config.cols, config.ew_res, config.ns_res, 0);
+
+    Treatments<TestModel::StandardSingleHostPool, Raster<double>> treatments(
+        config.scheduler());
     Raster<double> simple_treatment = {{1, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     treatments.add_treatment(
         simple_treatment, Date(2020, 1, 1), 0, TreatmentApplication::AllInfectedInCell);
     Raster<double> pesticide_treatment = {{0, 0, 0}, {0, 0.5, 0}, {0, 0, 0}};
     treatments.add_treatment(
         pesticide_treatment, Date(2020, 1, 1), 365, TreatmentApplication::Ratio);
-    config.use_treatments = true;
-    config.ew_res = 30;
-    config.ns_res = 30;
-    unsigned rate_num_steps =
-        get_number_of_scheduled_actions(config.spread_rate_schedule());
-    SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     // One E to I transition should happen.
     auto expected_infected = config.reproductive_rate * infected + infected;
@@ -714,31 +709,20 @@ int test_model_sei_deterministic_with_treatments()
     // Valus is based on the result which is considered correct.
     Raster<int> expected_dispersers = {{0, 0, 0}, {0, 5, 0}, {0, 0, 2}};
 
-    Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     for (unsigned int step = 0; step < config.scheduler().get_num_steps(); ++step) {
         model.run_step(
             step,
-            infected,
-            susceptible,
+            multi_host_pool,
+            pest_pool,
             total_populations,
-            total_hosts,
-            dispersers,
-            established_dispersers,
-            total_exposed,
-            exposed,
-            mortality_tracker,
-            died,
-            empty_float,
-            empty_float,
             treatments,
-            zeros,
-            outside_dispersers,
+            empty_floats,
+            empty_floats,
             spread_rate,
             quarantine,
             zeros,
             movements,
-            Network<int>::null_network(),
-            suitable_cells);
+            Network<int>::null_network());
     }
     if (!outside_dispersers.empty()) {
         cout << "sei_deterministic_with_treatments: There are outside_dispersers ("

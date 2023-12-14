@@ -31,6 +31,7 @@
 #include "host_pool.hpp"
 #include "pest_pool.hpp"
 #include "actions.hpp"
+#include "multi_host_pool.hpp"
 #include "switch_kernel.hpp"
 #include "kernel.hpp"
 #include "scheduling.hpp"
@@ -125,6 +126,22 @@ protected:
     }
 
 public:
+    /** Type for single-host pool */
+    using StandardSingleHostPool = HostPool<
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>;
+    /** Type for multi-host pool */
+    using StandardMultiHostPool = MultiHostPool<
+        StandardSingleHostPool,
+        IntegerRaster,
+        FloatRaster,
+        RasterIndex,
+        RandomNumberGeneratorProvider<Generator>>;
+    /** Type for pest pool */
+    using StandardPestPool = PestPool<IntegerRaster, FloatRaster, RasterIndex>;
+
     Model(
         const Config& config,
         KernelFactory& kernel_factory =
@@ -149,19 +166,16 @@ public:
      * total number of hosts because movement does not support non-host
      * individuals.
      *
-     * No treatment can be applied when movement is active because host movement does
-     * not support resistant hosts.
-     *
      * *dispersers* is for internal use and for tracking dispersers creation.
      * The input values are ignored and the output is not the current existing
      * dispersers, but only the number of dispersers generated (and subsequently
      * used) in this step. There are no dispersers in between simulation steps.
      *
-     * @param step Step number in the simulation.
+     * @param step Step number in the simulation
      * @param[in,out] infected Infected hosts
      * @param[in,out] susceptible Susceptible hosts
      * @param[in,out] total_hosts All host individuals in the area. Is equal to
-     * infected + exposed + susceptible in the cell.
+     * infected + exposed + susceptible in the cell
      * @param[in,out] total_populations All host and non-host individuals in the area
      * @param[out] dispersers Dispersing individuals (used internally)
      * @param[out] established_dispersers Dispersers originating from a given cell which
@@ -176,13 +190,10 @@ public:
      * @param[in] temperatures Vector of temperatures used to evaluate lethal
      * temperature
      * @param[in] survival_rates Pest survival rates
-     * @param[in,out] treatments Treatments to be applied (also tracks use of
-     * treatments)
      * @param[in,out] resistant Resistant hosts (host temporarily removed from
      * susceptible hosts)
      * @param[in,out] outside_dispersers Dispersers escaping the rasters (adds to the
      * vector)
-     * @param[in,out] spread_rate Spread rate tracker
      * @param[in,out] quarantine Quarantine escape tracker
      * @param[in] quarantine_areas Quarantine areas
      * @param[in] movements Table of host movements
@@ -207,22 +218,15 @@ public:
         IntegerRaster& died,
         const std::vector<FloatRaster>& temperatures,
         const std::vector<FloatRaster>& survival_rates,
-        Treatments<IntegerRaster, FloatRaster>& treatments,
         IntegerRaster& resistant,
         std::vector<std::tuple<int, int>>& outside_dispersers,  // out
-        SpreadRate<IntegerRaster>& spread_rate,  // out
-        QuarantineEscape<IntegerRaster>& quarantine,  // out
+        QuarantineEscapeAction<IntegerRaster>& quarantine,  // out
         const IntegerRaster& quarantine_areas,
         const std::vector<std::vector<int>> movements,
         const Network<RasterIndex>& network,
         std::vector<std::vector<int>>& suitable_cells)
     {
-        using StandardHostPool = HostPool<
-            IntegerRaster,
-            FloatRaster,
-            RasterIndex,
-            RandomNumberGeneratorProvider<Generator>>;
-        StandardHostPool host_pool(
+        StandardSingleHostPool host_pool(
             model_type_from_string(config_.model_type),
             susceptible,
             exposed,
@@ -241,20 +245,76 @@ public:
             config_.rows,
             config_.cols,
             suitable_cells);
-        using StandardPestPool = PestPool<IntegerRaster, FloatRaster, RasterIndex>;
+        std::vector<StandardSingleHostPool*> host_pools = {&host_pool};
+        StandardMultiHostPool multi_host_pool(host_pools, config_);
         StandardPestPool pest_pool{
             dispersers, established_dispersers, outside_dispersers};
+        SpreadRateAction<StandardMultiHostPool, RasterIndex> spread_rate(
+            multi_host_pool,
+            config_.rows,
+            config_.cols,
+            config_.ew_res,
+            config_.ns_res,
+            0);
+        Treatments<StandardSingleHostPool, Raster<double>> treatments(
+            config_.scheduler());
+        run_step(
+            step,
+            multi_host_pool,
+            pest_pool,
+            total_populations,
+            treatments,
+            temperatures,
+            survival_rates,
+            spread_rate,
+            quarantine,
+            quarantine_areas,
+            movements,
+            network);
+    }
+
+    /**
+     * @brief Run one step of the simulation.
+     *
+     * @param step Step number in the simulation
+     * @param host_pool Host pool
+     * @param pest_pool Pest pool
+     * @param[in,out] total_populations All host and non-host individuals in the area
+     * @param[in,out] treatments Treatments to be applied (also tracks use of
+     * treatments)
+     * @param[in] temperatures Vector of temperatures used to evaluate lethal
+     * temperature
+     * @param[in] survival_rates Pest survival rates
+     * @param spread_rate Spread rate action
+     * @param[in,out] quarantine Quarantine escape tracker
+     * @param[in] quarantine_areas Quarantine areas
+     * @param[in] movements Table of host movements
+     * @param network Network (initialized or Network::null_network() if unused)
+     */
+    void run_step(
+        int step,
+        StandardMultiHostPool& host_pool,
+        StandardPestPool& pest_pool,
+        IntegerRaster& total_populations,
+        Treatments<StandardSingleHostPool, FloatRaster>& treatments,
+        const std::vector<FloatRaster>& temperatures,
+        const std::vector<FloatRaster>& survival_rates,
+        SpreadRateAction<StandardMultiHostPool, RasterIndex>& spread_rate,
+        QuarantineEscapeAction<IntegerRaster>& quarantine,
+        const IntegerRaster& quarantine_areas,
+        const std::vector<std::vector<int>> movements,
+        const Network<RasterIndex>& network)
+    {
         // Soil step is the same as simulation step.
         if (soil_pool_)
             soil_pool_->next_step(step);
-
         // removal of dispersers due to lethal temperatures
         if (config_.use_lethal_temperature && config_.lethal_schedule()[step]) {
             int lethal_step =
                 simulation_step_to_action_step(config_.lethal_schedule(), step);
             this->environment().update_temperature(temperatures[lethal_step]);
             RemoveByTemperature<
-                StandardHostPool,
+                StandardMultiHostPool,
                 IntegerRaster,
                 FloatRaster,
                 RasterIndex,
@@ -266,18 +326,18 @@ public:
         if (config_.use_survival_rate && config_.survival_rate_schedule()[step]) {
             int survival_step =
                 simulation_step_to_action_step(config_.survival_rate_schedule(), step);
-            SurvivalRateAction<StandardHostPool, IntegerRaster, FloatRaster> survival(
-                survival_rates[survival_step]);
+            SurvivalRateAction<StandardMultiHostPool, IntegerRaster, FloatRaster>
+                survival(survival_rates[survival_step]);
             survival.action(host_pool, generator_provider_);
         }
         // actual spread
         if (config_.spread_schedule()[step]) {
-            auto dispersal_kernel = kernel_factory_(config_, dispersers, network);
+            auto dispersal_kernel =
+                kernel_factory_(config_, pest_pool.dispersers(), network);
             auto overpopulation_kernel =
-                create_overpopulation_movement_kernel(dispersers, network);
-
+                create_overpopulation_movement_kernel(pest_pool.dispersers(), network);
             SpreadAction<
-                StandardHostPool,
+                StandardMultiHostPool,
                 StandardPestPool,
                 IntegerRaster,
                 FloatRaster,
@@ -297,7 +357,7 @@ public:
             host_pool.step_forward(step);
             if (config_.use_overpopulation_movements) {
                 MoveOverpopulatedPests<
-                    StandardHostPool,
+                    StandardMultiHostPool,
                     StandardPestPool,
                     IntegerRaster,
                     FloatRaster,
@@ -312,7 +372,11 @@ public:
                 move_pest.action(host_pool, pest_pool, generator_provider_);
             }
             if (config_.use_movements) {
-                HostMovement<StandardHostPool, IntegerRaster, FloatRaster, RasterIndex>
+                HostMovement<
+                    StandardMultiHostPool,
+                    IntegerRaster,
+                    FloatRaster,
+                    RasterIndex>
                     host_movement{
                         static_cast<unsigned>(
                             step),  // Step is int, but indexing happens with unsigned.
@@ -324,36 +388,28 @@ public:
         }
         // treatments
         if (config_.use_treatments) {
-            treatments.manage(
-                step,
-                infected,
-                exposed,
-                susceptible,
-                resistant,
-                mortality_tracker,
-                total_hosts,
-                suitable_cells);
+            for (auto& host : host_pool.host_pools()) {
+                treatments.manage(step, *host);
+            }
         }
         if (config_.use_mortality && config_.mortality_schedule()[step]) {
             // expectation is that mortality tracker is of length (1/mortality_rate
             // + mortality_time_lag).
             // TODO: died.zero(); should be done by the caller if needed, document!
-            Mortality<StandardHostPool, IntegerRaster, FloatRaster> mortality(
-                config_.mortality_rate, config_.mortality_time_lag);
+            Mortality<StandardMultiHostPool, IntegerRaster, FloatRaster> mortality;
             mortality.action(host_pool);
         }
         // compute spread rate
         if (config_.use_spreadrates && config_.spread_rate_schedule()[step]) {
             unsigned rates_step =
                 simulation_step_to_action_step(config_.spread_rate_schedule(), step);
-            spread_rate.compute_step_spread_rate(infected, rates_step, suitable_cells);
+            spread_rate.action(host_pool, rates_step);
         }
         // compute quarantine escape
         if (config_.use_quarantine && config_.quarantine_schedule()[step]) {
             unsigned action_step =
                 simulation_step_to_action_step(config_.quarantine_schedule(), step);
-            quarantine.infection_escape_quarantine(
-                infected, quarantine_areas, action_step, suitable_cells);
+            quarantine.action(host_pool, quarantine_areas, action_step);
         }
     }
 

@@ -250,9 +250,7 @@ int test_simulation_with_kernels_generic(
     config.use_lethal_temperature = false;
     config.use_survival_rate = false;
     config.use_quarantine = false;
-    config.use_spreadrates = true;
-    config.spreadrate_frequency = "year";
-    config.spreadrate_frequency_n = 1;
+    config.use_spreadrates = false;
 
     config.set_date_start(2020, 1, 1);
     config.set_date_end(2021, 12, 31);
@@ -358,9 +356,7 @@ int test_model_with_kernels_generic(
     config.use_lethal_temperature = false;
     config.use_survival_rate = false;
     config.use_quarantine = false;
-    config.use_spreadrates = true;
-    config.spreadrate_frequency = "year";
-    config.spreadrate_frequency_n = 1;
+    config.use_spreadrates = false;
 
     Date date{2020, 1, 1};
     config.set_date_start(date);
@@ -405,12 +401,8 @@ int test_model_with_kernels_generic(
 
     std::vector<Raster<int>> empty_integer;
     std::vector<Raster<double>> empty_float;
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
-    unsigned rate_num_steps =
-        get_number_of_scheduled_actions(config.spread_rate_schedule());
-    SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, rate_num_steps, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
 
     Model<
         Raster<int>,
@@ -434,10 +426,8 @@ int test_model_with_kernels_generic(
             died,
             empty_float,
             empty_float,
-            treatments,
             zeros,
             outside_dispersers,
-            spread_rate,
             quarantine,
             zeros,
             movements,

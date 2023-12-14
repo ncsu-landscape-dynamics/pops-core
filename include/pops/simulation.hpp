@@ -33,7 +33,12 @@
 
 namespace pops {
 
-/*! The main class to control the spread simulation.
+/*! A class to control the spread simulation.
+ *
+ * \deprecated
+ * The class is deprecated in favor of individual action classes and a higher-level
+ * Model. The class corresponding to the original Simulation class before too much code
+ * accumulated in Simulation is SpreadAction. The class is now used only in tests.
  *
  * The Simulation class handles the mechanics of the model, but the
  * timing of the events or steps should be handled outside of this
@@ -149,7 +154,7 @@ public:
      * @return Const pointer to the environment
      * @throw std::logic_error when environment is not set
      */
-    const Environment<IntegerRaster, FloatRaster, RasterIndex, Generator>*
+    Environment<IntegerRaster, FloatRaster, RasterIndex, Generator>*
     environment(bool allow_empty = false)
     {
         static Environment<IntegerRaster, FloatRaster, RasterIndex, Generator> empty;
@@ -211,6 +216,7 @@ public:
             GeneratorProvider>
             remove(*environment(false), lethal_temperature);
         remove.action(hosts, generator);
+        this->environment(true)->remove_hosts();
     }
 
     /** Removes percentage of exposed and infected
@@ -258,6 +264,7 @@ public:
         SurvivalRateAction<StandardHostPool, IntegerRaster, FloatRaster> survival(
             survival_rate);
         survival.action(hosts, generator);
+        this->environment(true)->remove_hosts();
     }
 
     /** kills infected hosts based on mortality rate and timing. In the last year
@@ -310,6 +317,7 @@ public:
         Mortality<StandardHostPool, IntegerRaster, FloatRaster> mortality(
             mortality_rate, mortality_time_lag);
         mortality.action(hosts);
+        this->environment(true)->remove_hosts();
     }
 
     /** Moves hosts from one location to another
@@ -374,7 +382,9 @@ public:
             0,
             0,
             suitable_cells};
-        return host_movement.action(hosts, generator);
+        auto ret = host_movement.action(hosts, generator);
+        this->environment(true)->remove_hosts();
+        return ret;
     }
 
     /** Generates dispersers based on infected
@@ -434,6 +444,7 @@ public:
             spread_action{unused_kernel};
         spread_action.activate_soils(soil_pool_, to_soil_percentage_);
         spread_action.generate(host_pool, pests, generator);
+        this->environment(!weather)->remove_hosts();
     }
 
     /** Creates dispersal locations for the dispersing individuals
@@ -540,6 +551,7 @@ public:
             spread_action{dispersal_kernel};
         spread_action.activate_soils(soil_pool_, to_soil_percentage_);
         spread_action.disperse(host_pool, pests, generator);
+        this->environment(!weather)->remove_hosts();
     }
 
     // For backwards compatibility for tests (without exposed and mortality)
@@ -697,6 +709,7 @@ public:
                 rows_,
                 cols_};
         move_pest.action(hosts, pests, generator);
+        this->environment(true)->remove_hosts();
     }
 
     /** Disperse, expose, and infect based on dispersers
@@ -779,6 +792,7 @@ public:
             cols_,
             suitable_cells};
         host_pool.step_forward(step);
+        this->environment(!weather)->remove_hosts();
     }
 
     template<typename DispersalKernel>

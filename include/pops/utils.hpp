@@ -362,7 +362,7 @@ std::string quarantine_enum_to_string(Direction type)
 }
 
 /**
- * Create a list of suitable cells in from a host raster.
+ * Create a list of suitable cells from a host raster.
  *
  * Suitable cell is defined as cell with value higher than zero, i.e., there is at least
  * one host.
@@ -390,4 +390,28 @@ std::vector<std::vector<RasterIndex>> find_suitable_cells(const RasterType& rast
     return cells;
 }
 
+/**
+ * Create a list of suitable cells from a list of host rasters.
+ *
+ * @see find_suitable_cells(const RasterType&)
+ */
+template<typename RasterIndex, typename RasterType>
+std::vector<std::vector<RasterIndex>>
+find_suitable_cells(const std::vector<const RasterType*>& rasters)
+{
+    std::vector<std::vector<RasterIndex>> cells;
+    // The assumption is that the raster is sparse (otherwise we would not be doing
+    // this), so we have no number for the reserve method.
+    for (RasterIndex row = 0; row < rasters[0]->rows(); ++row) {
+        for (RasterIndex col = 0; col < rasters[0]->cols(); ++col) {
+            for (const auto& raster : rasters) {
+                if (raster->operator()(row, col) > 0) {
+                    cells.push_back({row, col});
+                    break;
+                }
+            }
+        }
+    }
+    return cells;
+}
 #endif  // POPS_UTILS_HPP

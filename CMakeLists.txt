@@ -57,6 +57,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/actions.hpp
         include/pops/environment.hpp
         include/pops/environment_interface.hpp
+        include/pops/competency_table.hpp
         include/pops/config.hpp
         include/pops/host_pool.hpp
         include/pops/host_pool_interface.hpp
@@ -95,6 +96,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         include/pops/network_kernel.hpp
         include/pops/normal_distribution_with_uniform_fallback.hpp
         include/pops/normal_kernel.hpp
+        include/pops/multi_host_pool.hpp
+        include/pops/pest_host_table.hpp
         include/pops/soils.hpp
         include/pops/weibull_kernel.hpp
     )

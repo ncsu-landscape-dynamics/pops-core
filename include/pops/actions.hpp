@@ -83,9 +83,9 @@ public:
         for (auto indices : host_pool.suitable_cells()) {
             int i = indices[0];
             int j = indices[1];
-            if (host_pool.infected_at(i, j) > 0) {
-                int dispersers_from_cell =
-                    host_pool.dispersers_from(i, j, generator.disperser_generation());
+            int dispersers_from_cell =
+                host_pool.dispersers_from(i, j, generator.disperser_generation());
+            if (dispersers_from_cell > 0) {
                 if (soil_pool_) {
                     // From all the generated dispersers, some go to the soil in the
                     // same cell and don't participate in the kernel-driven dispersal.
@@ -225,19 +225,8 @@ public:
             int i = indices[0];
             int j = indices[1];
             if (survival_rate_(i, j) < 1) {
-                // remove percentage of infestation/infection in the infected class
-                auto infected = hosts.infected_at(i, j);
-                int removed_infected =
-                    infected - std::lround(infected * survival_rate_(i, j));
-                hosts.remove_infected_at(
-                    i, j, removed_infected, generator.survival_rate());
-                // remove the same percentage for total exposed and remove randomly from
-                // each cohort
-                auto exposed = hosts.exposed_at(i, j);
-                int total_removed_exposed =
-                    exposed - std::lround(exposed * survival_rate_(i, j));
-                hosts.remove_exposed_at(
-                    i, j, total_removed_exposed, generator.survival_rate());
+                hosts.remove_infection_by_ratio_at(
+                    i, j, survival_rate_(i, j), generator.survival_rate());
             }
         }
     }
@@ -281,9 +270,8 @@ public:
             int i = indices[0];
             int j = indices[1];
             if (environment_.temperature_at(i, j) < lethal_temperature_) {
-                auto count = hosts.infected_at(i, j);
-                hosts.remove_infected_at(i, j, count, generator.lethal_temperature());
                 // now this includes also mortality, but it does not include exposed
+                hosts.remove_all_infected_at(i, j, generator.lethal_temperature());
             }
         }
     }
@@ -377,12 +365,13 @@ public:
             if (ratio >= overpopulation_percentage_) {
                 int row;
                 int col;
-                std::tie(row, col) = dispersal_kernel_(generator, i, j);
+                std::tie(row, col) =
+                    dispersal_kernel_(generator.overpopulation(), i, j);
                 // for leaving_percentage == 0.5
                 // 2 infected -> 1 leaving
                 // 3 infected -> 1 leaving
                 int leaving = original_count * leaving_percentage_;
-                leaving = hosts.pests_from(i, j, leaving);
+                leaving = hosts.pests_from(i, j, leaving, generator.overpopulation());
                 if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                     pests.add_outside_dispersers_at(row, col, leaving);
                     continue;
@@ -403,7 +392,7 @@ public:
             // not enough S hosts to accommodate all of them. The decision is made in
             // the host pool. Here, we ignore the return value specifying the number of
             // accepted pests.
-            hosts.pests_to(move.row, move.col, move.count);
+            hosts.pests_to(move.row, move.col, move.count, generator.overpopulation());
         }
     }
 
@@ -500,13 +489,19 @@ class Mortality
 {
 public:
     /**
+     * @brief Create object which will let host decide its mortality parameters.
+     */
+    Mortality() : action_mortality_(false) {}
+    /**
      * @brief Create object with fixed mortality rate and time lag.
      *
      * @param mortality_rate Percent of infected hosts that die each time period
      * @param mortality_time_lag Time lag prior to mortality beginning
      */
     Mortality(double mortality_rate, int mortality_time_lag)
-        : mortality_rate_(mortality_rate), mortality_time_lag_(mortality_time_lag)
+        : mortality_rate_(mortality_rate),
+          mortality_time_lag_(mortality_time_lag),
+          action_mortality_(true)
     {}
     /**
      * Perform the action by applying mortality and moving the mortality tracker
@@ -515,8 +510,13 @@ public:
     void action(Hosts& hosts)
     {
         for (auto indices : hosts.suitable_cells()) {
-            hosts.apply_mortality_at(
-                indices[0], indices[1], mortality_rate_, mortality_time_lag_);
+            if (action_mortality_) {
+                hosts.apply_mortality_at(
+                    indices[0], indices[1], mortality_rate_, mortality_time_lag_);
+            }
+            else {
+                hosts.apply_mortality_at(indices[0], indices[1]);
+            }
         }
         hosts.step_forward_mortality();
     }
@@ -524,6 +524,7 @@ public:
 private:
     const double mortality_rate_ = 0;
     const int mortality_time_lag_ = 0;
+    const double action_mortality_ = false;
 };
 
 }  // namespace pops

@@ -124,16 +124,15 @@ int test_model()
     config.overpopulation_percentage = 0.5;
     config.leaving_percentage = 0.75;
     config.leaving_scale_coefficient = 1;
+    config.use_spreadrates = false;
     config.create_schedules();
     // More reference data
     auto leaving = infected(0, 0) * config.leaving_percentage;
     // Objects
     std::vector<std::vector<int>> suitable_cells =
         find_suitable_cells<int>(total_hosts);
-    Treatments<Raster<int>, Raster<double>> treatments(config.scheduler());
-    SpreadRate<Raster<int>> spread_rate(
-        infected, config.ew_res, config.ns_res, 0, suitable_cells);
-    QuarantineEscape<Raster<int>> quarantine(zeros, config.ew_res, config.ns_res, 0);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
     std::vector<std::vector<int>> movements;
     Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
     // Run
@@ -151,10 +150,8 @@ int test_model()
         zeros,
         empty_floats,
         empty_floats,
-        treatments,
         zeros,
         outside_dispersers,
-        spread_rate,
         quarantine,
         zeros,
         movements,

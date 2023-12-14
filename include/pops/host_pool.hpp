@@ -24,6 +24,8 @@
 #include "host_pool_interface.hpp"
 #include "model_type.hpp"
 #include "environment_interface.hpp"
+#include "competency_table.hpp"
+#include "pest_host_table.hpp"
 
 namespace pops {
 
@@ -35,7 +37,7 @@ namespace pops {
  * @tparam RasterIndex Type for indexing the rasters
  * @tparam GeneratorProvider Provider of random number generators
  *
- * GeneratorProvider needs to provide Generator memeber which is the type of the
+ * GeneratorProvider needs to provide Generator member which is the type of the
  * underlying random number generators.
  */
 template<
@@ -82,6 +84,9 @@ public:
      * host infection over time. Expectation is that mortality tracker is of
      * length (1/mortality_rate + mortality_time_lag).
      *
+     * Host is added to the environment by the constructor. Afterwards, the environment
+     * is not modified.
+     *
      * @param model_type Type of the model (SI or SEI)
      * @param susceptible Raster of susceptible hosts
      * @param exposed Raster of exposed or infected hosts
@@ -112,7 +117,7 @@ public:
         std::vector<IntegerRaster>& mortality_tracker_vector,
         IntegerRaster& died,
         IntegerRaster& total_hosts,
-        const Environment& environment,
+        Environment& environment,
         bool dispersers_stochasticity,
         double reproductive_rate,
         bool establishment_stochasticity,
@@ -138,7 +143,42 @@ public:
           rows_(rows),
           cols_(cols),
           suitable_cells_(suitable_cells)
-    {}
+    {
+        environment.add_host(this);
+    }
+
+    /**
+     * @brief Set pest-host table
+     *
+     * If set, apply_mortality_at(RasterIndex, RasterIndex) can be used instead of the
+     * version which takes mortality parameters directly. Susceptibility is used
+     * automatically if the table is set.
+     *
+     * Pointer to the existing object is stored and used. So, the table can be modified,
+     * but the table object needs to exists during the lifetime of this object.
+     *
+     * @param table Reference to the table
+     */
+    void set_pest_host_table(const PestHostTable<HostPool>& table)
+    {
+        this->pest_host_table_ = &table;
+    }
+
+    /**
+     * @brief Set competency table
+     *
+     * Competency is used automatically if the table is set. No competency is considered
+     * if the table is not set.
+     *
+     * Pointer to the existing object is stored and used. So, the table can be modified,
+     * but the table object needs to exists during the lifetime of this object.
+     *
+     * @param table Reference to the table
+     */
+    void set_competency_table(const CompetencyTable<HostPool>& table)
+    {
+        this->competency_table_ = &table;
+    }
 
     /**
      * @brief Move disperser to a cell in the host pool
@@ -160,18 +200,44 @@ public:
      */
     int disperser_to(RasterIndex row, RasterIndex col, Generator& generator)
     {
+        if (susceptible_(row, col) <= 0)
+            return 0;
+        double probability_of_establishment = suitability_at(row, col);
+        bool establish = can_disperser_establish(
+            probability_of_establishment,
+            establishment_stochasticity_,
+            deterministic_establishment_probability_,
+            generator);
+        if (establish)
+            return add_disperser_at(row, col);
+        return 0;
+    }
+
+    /**
+     * @brief Test whether a disperser can establish
+     *
+     * This static (object-independent) function to test disperser establishment allows
+     * code reuse between a single host and a multi-host case.
+     *
+     * @param probability_of_establishment Probability of establishment
+     * @param establishment_stochasticity true if establishment stochasticity is enabled
+     * @param deterministic_establishment_probability Establishment probability for
+     * deterministic establishment
+     * @param generator Random number generator (used with enabled stochasticity)
+     * @return true if disperser can establish, false otherwise
+     */
+    static bool can_disperser_establish(
+        double probability_of_establishment,
+        bool establishment_stochasticity,
+        double deterministic_establishment_probability,
+        Generator& generator)
+    {
         std::uniform_real_distribution<double> distribution_uniform(0.0, 1.0);
-        if (susceptible_(row, col) > 0) {
-            double probability_of_establishment =
-                establishment_probability_at(row, col);
-            double establishment_tester = 1 - deterministic_establishment_probability_;
-            if (establishment_stochasticity_)
-                establishment_tester = distribution_uniform(generator);
-            if (establishment_tester < probability_of_establishment) {
-                add_disperser_at(row, col);
-                return true;
-            }
-        }
+        double establishment_tester = 1 - deterministic_establishment_probability;
+        if (establishment_stochasticity)
+            establishment_tester = distribution_uniform(generator);
+        if (establishment_tester < probability_of_establishment)
+            return true;
         return false;
     }
 
@@ -186,12 +252,16 @@ public:
      * @param row Row number of the target cell
      * @param col Column number of the target cell
      *
+     * @return 1 if disperser was added, 0 if there was not available host.
+     *
      * @throw std::runtime_error if model type is unsupported (i.e., not SI or SEI)
      *
      * @note This may be merged with pests_to() in the future.
      */
-    void add_disperser_at(RasterIndex row, RasterIndex col)
+    int add_disperser_at(RasterIndex row, RasterIndex col)
     {
+        if (susceptible_(row, col) <= 0)
+            return 0;
         susceptible_(row, col) -= 1;
         if (model_type_ == ModelType::SusceptibleInfected) {
             infected_(row, col) += 1;
@@ -205,6 +275,7 @@ public:
             throw std::runtime_error(
                 "Unknown ModelType value in HostPool::add_disperser_at()");
         }
+        return 1;
     }
 
     /**
@@ -224,6 +295,9 @@ public:
             return 0;
         double lambda =
             environment_.influence_reproductive_rate_at(row, col, reproductive_rate_);
+        if (competency_table_) {
+            lambda *= competency_table_->competency_at(row, col, this);
+        }
         int dispersers_from_cell = 0;
         if (dispersers_stochasticity_) {
             std::poisson_distribution<int> distribution(lambda);
@@ -238,20 +312,21 @@ public:
     }
 
     /**
-     * @brief Get establishment probability for a cell
+     * @brief Get suitability score for a cell
      *
      * @param row Row index of the cell
      * @param col Column index of the cell
      *
-     * @return Establishment probability
+     * @return suitability score
      */
-    double establishment_probability_at(RasterIndex row, RasterIndex col) const
+    double suitability_at(RasterIndex row, RasterIndex col) const
     {
-        double probability_of_establishment =
-            (double)(susceptible_(row, col))
-            / environment_.total_population_at(row, col);
-        return environment_.influence_probability_of_establishment_at(
-            row, col, probability_of_establishment);
+        double suitability = (double)(susceptible_(row, col))
+                             / environment_.total_population_at(row, col);
+        if (pest_host_table_) {
+            suitability *= pest_host_table_->susceptibility(this);
+        }
+        return environment_.influence_suitability_at(row, col, suitability);
     }
 
     /**
@@ -268,14 +343,16 @@ public:
      * @param row Row index of the cell
      * @param col Column index of the cell
      * @param count Number of pests requested to move from the cell
+     * @param generator Random number generator (for compatibility with multi-host API)
      *
      * @return Number of pests actually moved from the cell
      *
-     * @note For consitency with the previous implementation, this does not modify
+     * @note For consistency with the previous implementation, this does not modify
      * mortality cohorts nor touches the exposed cohorts.
      */
-    int pests_from(RasterIndex row, RasterIndex col, int count)
+    int pests_from(RasterIndex row, RasterIndex col, int count, Generator& generator)
     {
+        UNUSED(generator);
         susceptible_(row, col) += count;
         infected_(row, col) -= count;
         return count;
@@ -294,8 +371,9 @@ public:
      *
      * @param row Row index of the cell
      * @param col Column index of the cell
-     *
      * @param count Number of pests requested to move to the cell
+     * @param generator Random number generator (for compatibility with multi-host API)
+     *
      * @return Number of accepted pests
      *
      * @note For consistency with the previous implementation, this does not make hosts
@@ -307,8 +385,9 @@ public:
      *
      * @note This may be merged with add_disperser_at() in the future.
      */
-    int pests_to(RasterIndex row, RasterIndex col, int count)
+    int pests_to(RasterIndex row, RasterIndex col, int count, Generator& generator)
     {
+        UNUSED(generator);
         // The target cell can accept all.
         if (susceptible_(row, col) >= count) {
             susceptible_(row, col) -= count;
@@ -424,7 +503,7 @@ public:
 
         // Returned total hosts actually moved is based only on the total host and no
         // other checks are performed. This assumes that the counts are correct in the
-        // object (precodition).
+        // object (precondition).
         return total_hosts_moved;
     }
 
@@ -441,7 +520,7 @@ public:
      * @param mortality Number of infected hosts in each mortality cohort.
      *
      * @note Counts are doubles, so that handling of floating point values is managed
-     * here in the same way as in the original threatment code.
+     * here in the same way as in the original treatment code.
      *
      * @note This does not remove resistant just like the original implementation in
      * treatments.
@@ -552,6 +631,40 @@ public:
     }
 
     /**
+     * @brief Make all infected hosts susceptible at the given cell
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param generator Random number generator to provide stochasticity for mortality
+     */
+    void remove_all_infected_at(RasterIndex row, RasterIndex col, Generator& generator)
+    {
+        auto count = this->infected_at(row, col);
+        this->remove_infected_at(row, col, count, generator);
+    }
+
+    /**
+     * @brief Remove percentage of infestation/infection (I->S)
+     *
+     * Besides removing percentage of infected, it removes the same percentage for total
+     * exposed and remove individuals randomly from each cohort.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param ratio Ratio of removed infection
+     * @param generator Random number generator to provide stochasticity for mortality
+     */
+    void remove_infection_by_ratio_at(
+        RasterIndex row, RasterIndex col, double ratio, Generator& generator)
+    {
+        auto infected = this->infected_at(row, col);
+        int removed_infected = infected - std::lround(infected * ratio);
+        this->remove_infected_at(row, col, removed_infected, generator);
+        auto exposed = this->exposed_at(row, col);
+        int total_removed_exposed = exposed - std::lround(exposed * ratio);
+        this->remove_exposed_at(row, col, total_removed_exposed, generator);
+    }
+
+    /**
      * @brief Remove exposed hosts and make the hosts susceptible
      *
      * Distribution of removed hosts among exposed groups is stochastic.
@@ -648,7 +761,7 @@ public:
         // fail.
         if (false && infected != mortality_total) {
             throw std::invalid_argument(
-                "Total of mortality values differs from formely infected, now resistant "
+                "Total of mortality values differs from formerly infected, now resistant "
                 "count ("
                 + std::to_string(mortality_total) + " != " + std::to_string(infected)
                 + " for cell (" + std::to_string(row) + ", " + std::to_string(col)
@@ -731,6 +844,30 @@ public:
                 }
             }
         }
+    }
+
+    /**
+     * @brief Apply mortality at a given cell
+     *
+     * Uses pest-host table for mortality parameters.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     *
+     * @see apply_mortality_at(RasterIndex, RasterIndex, double, int)
+     */
+    void apply_mortality_at(RasterIndex row, RasterIndex col)
+    {
+        if (!pest_host_table_) {
+            throw std::invalid_argument(
+                "Set pest-host table before calling apply_mortality_at "
+                "or provide parameters in the function call");
+        }
+        this->apply_mortality_at(
+            row,
+            col,
+            pest_host_table_->mortality_rate(this),
+            pest_host_table_->mortality_time_lag(this));
     }
 
     /**
@@ -963,7 +1100,21 @@ public:
         return suitable_cells_;
     }
 
+    /**
+     * @brief Get list which contains this host pool
+     *
+     * This is for compatibility with multi-host pool. In case of this host pool, it
+     * returns one item which is a pointer to this host pool.
+     *
+     * @return Read-write reference to a vector of size 1.
+     */
+    std::vector<HostPool*>& host_pools()
+    {
+        return host_pools_;
+    }
+
 private:
+    std::vector<HostPool*> host_pools_ = {this};  // non-owning
     /**
      * @brief Reset total host value using the individual pools.
      *
@@ -1003,6 +1154,11 @@ private:
     double reproductive_rate_{0};
     bool establishment_stochasticity_{true};
     double deterministic_establishment_probability_{0};
+
+    /** pest-host table */
+    const PestHostTable<HostPool>* pest_host_table_{nullptr};
+    /** Competency table */
+    const CompetencyTable<HostPool>* competency_table_{nullptr};
 
     RasterIndex rows_{0};
     RasterIndex cols_{0};

@@ -33,6 +33,35 @@
 
 using namespace pops;
 
+/**
+ * Class pretending to be host pool only with methods
+ * needed by SpreadRateAction and a method for setting infected raster.
+ */
+class SpreadRateHostPool
+{
+public:
+    SpreadRateHostPool(
+        Raster<int> infected, std::vector<std::vector<int>>& suitable_cells)
+        : infected_(infected), suitable_cells_(suitable_cells)
+    {}
+    void set_infected(Raster<int> infected)
+    {
+        infected_ = infected;
+    }
+    int infected_at(int row, int col) const
+    {
+        return infected_(row, col);
+    }
+    const std::vector<std::vector<int>>& suitable_cells() const
+    {
+        return suitable_cells_;
+    }
+
+private:
+    Raster<int> infected_;
+    std::vector<std::vector<int>>& suitable_cells_;
+};
+
 int test_spread_rate()
 {
     int err = 0;
@@ -64,15 +93,21 @@ int test_spread_rate()
         {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}};
 
-    const std::vector<std::vector<int>> suitable_cells = {
+    std::vector<std::vector<int>> suitable_cells = {
         {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
         {1, 4}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {2, 4}, {3, 0}, {3, 1}, {3, 2},
         {3, 3}, {3, 4}, {4, 0}, {4, 1}, {4, 2}, {4, 3}, {4, 4}};
 
-    SpreadRate<Raster<int>> spread_rate(infected, 10, 10, 3, suitable_cells);
-    spread_rate.compute_step_spread_rate(infected1, 0, suitable_cells);
-    spread_rate.compute_step_spread_rate(infected2, 1, suitable_cells);
-    spread_rate.compute_step_spread_rate(infected3, 2, suitable_cells);
+    SpreadRateHostPool host_pool(infected, suitable_cells);
+    SpreadRateAction<SpreadRateHostPool, int> spread_rate(
+        host_pool, infected.rows(), infected.cols(), 10, 10, 3);
+    host_pool.set_infected(infected1);
+    spread_rate.action(host_pool, 0);
+    host_pool.set_infected(infected2);
+    spread_rate.action(host_pool, 1);
+    host_pool.set_infected(infected3);
+    spread_rate.action(host_pool, 2);
+
     double n, s, e, w;
     std::tie(n, s, e, w) = spread_rate.step_rate(0);
     if (!(n == 0 && s == 0 && e == 10 && w == 10)) {
