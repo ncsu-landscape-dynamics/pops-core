@@ -202,7 +202,7 @@ public:
     {
         if (susceptible_(row, col) <= 0)
             return 0;
-        double probability_of_establishment = establishment_probability_at(row, col);
+        double probability_of_establishment = suitability_at(row, col);
         bool establish = can_disperser_establish(
             probability_of_establishment,
             establishment_stochasticity_,
@@ -312,23 +312,21 @@ public:
     }
 
     /**
-     * @brief Get establishment probability for a cell
+     * @brief Get suitability score for a cell
      *
      * @param row Row index of the cell
      * @param col Column index of the cell
      *
-     * @return Establishment probability
+     * @return suitability score
      */
-    double establishment_probability_at(RasterIndex row, RasterIndex col) const
+    double suitability_at(RasterIndex row, RasterIndex col) const
     {
-        double probability_of_establishment =
-            (double)(susceptible_(row, col))
-            / environment_.total_population_at(row, col);
+        double suitability = (double)(susceptible_(row, col))
+                             / environment_.total_population_at(row, col);
         if (pest_host_table_) {
-            probability_of_establishment *= pest_host_table_->susceptibility(this);
+            suitability *= pest_host_table_->susceptibility(this);
         }
-        return environment_.influence_probability_of_establishment_at(
-            row, col, probability_of_establishment);
+        return environment_.influence_suitability_at(row, col, suitability);
     }
 
     /**

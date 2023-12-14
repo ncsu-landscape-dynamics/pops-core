@@ -229,7 +229,9 @@ int test_minimal_parameters_two_hosts()
     Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
     Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
     Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
-    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
+    Raster<int> total_populations = {{2, 0, 1}, {0, 2, 3}, {2, 10, 5}};
+    total_populations += total_hosts_1;
+    total_populations += total_hosts_2;
     Raster<int> susceptible_1 = total_hosts_1 - infected_1;
     Raster<int> susceptible_2 = total_hosts_2 - infected_2;
     std::vector<std::vector<int>> suitable_cells =
@@ -332,18 +334,18 @@ int test_minimal_parameters_two_hosts()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 7, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 4, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
-                  << ") infected (actual, expected):\n"
+                  << ") infected 1 (actual, expected):\n"
                   << infected_1 << "  !=\n"
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 6, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 5, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
-                  << ") infected (actual, expected):\n"
+                  << ") infected 2 (actual, expected):\n"
                   << infected_2 << "  !=\n"
                   << expected_infected_2 << "\n";
         ++ret;
@@ -377,7 +379,7 @@ int test_minimal_parameters_two_hosts()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 7, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 5, 3}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << ") infected 1 (actual, expected):\n"
@@ -385,7 +387,7 @@ int test_minimal_parameters_two_hosts()
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 8, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 7, 3}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << ") infected 2 (actual, expected):\n"
@@ -393,7 +395,7 @@ int test_minimal_parameters_two_hosts()
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    expected_dispersers = {{31, 30, 0}, {0, 10, 0}, {0, 19, 4}};
+    expected_dispersers = {{31, 20, 0}, {0, 13, 0}, {0, 13, 6}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -401,7 +403,7 @@ int test_minimal_parameters_two_hosts()
                   << expected_dispersers << "\n";
         ++ret;
     }
-    expected_outside_dispersers_size = 9;
+    expected_outside_dispersers_size = 11;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
         std::cerr << "test_minimal_parameters_two_hosts (step " << step
                   << "): outside_dispersers.size (actual, expected): "
@@ -448,7 +450,9 @@ int test_two_hosts_with_partial_competency_table_one_only()
     Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
     Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
     Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
-    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
+    Raster<int> total_populations = {{2, 0, 1}, {0, 2, 3}, {2, 2, 5}};
+    total_populations += total_hosts_1;
+    total_populations += total_hosts_2;
     Raster<int> susceptible_1 = total_hosts_1 - infected_1;
     Raster<int> susceptible_2 = total_hosts_2 - infected_2;
     std::vector<std::vector<int>> suitable_cells =
@@ -558,34 +562,34 @@ int test_two_hosts_with_partial_competency_table_one_only()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 7, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 4, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") infected (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_partial_competency_table_one_only (step "
+                  << step << ") infected (actual, expected):\n"
                   << infected_1 << "  !=\n"
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 6, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 5, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") infected (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_partial_competency_table_one_only (step "
+                  << step << ") infected (actual, expected):\n"
                   << infected_2 << "  !=\n"
                   << expected_infected_2 << "\n";
         ++ret;
     }
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
     if (dispersers != expected_dispersers) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") dispersers (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_partial_competency_table_one_only (step "
+                  << step << ") dispersers (actual, expected):\n"
                   << dispersers << "  !=\n"
                   << expected_dispersers << "\n";
         ++ret;
     }
     size_t expected_outside_dispersers_size = 5;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << "): outside_dispersers.size (actual, expected): "
+        std::cerr << "test_two_hosts_with_partial_competency_table_one_only (step "
+                  << step << "): outside_dispersers.size (actual, expected): "
                   << outside_dispersers.size()
                   << " != " << expected_outside_dispersers_size << "\n";
         ++ret;
@@ -603,34 +607,34 @@ int test_two_hosts_with_partial_competency_table_one_only()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 7, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 5, 3}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") infected (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_partial_competency_table_one_only (step "
+                  << step << ") infected (actual, expected):\n"
                   << infected_1 << "  !=\n"
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 8, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 7, 3}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") infected (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_partial_competency_table_one_only (step "
+                  << step << ") infected (actual, expected):\n"
                   << infected_2 << "  !=\n"
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    expected_dispersers = {{31, 30, 0}, {0, 10, 0}, {0, 19, 4}};
+    expected_dispersers = {{31, 20, 0}, {0, 13, 0}, {0, 13, 6}};
     if (dispersers != expected_dispersers) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") dispersers (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_partial_competency_table_one_only (step "
+                  << step << ") dispersers (actual, expected):\n"
                   << dispersers << "  !=\n"
                   << expected_dispersers << "\n";
         ++ret;
     }
-    expected_outside_dispersers_size = 9;
+    expected_outside_dispersers_size = 11;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << "): outside_dispersers.size (actual, expected): "
+        std::cerr << "test_two_hosts_with_partial_competency_table_one_only (step "
+                  << step << "): outside_dispersers.size (actual, expected): "
                   << outside_dispersers.size()
                   << " != " << expected_outside_dispersers_size << "\n";
         ++ret;
@@ -670,7 +674,9 @@ int test_two_hosts_with_complete_competency_table_one_only()
     Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
     Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
     Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
-    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
+    Raster<int> total_populations = {{2, 0, 1}, {0, 2, 3}, {2, 2, 5}};
+    total_populations += total_hosts_1;
+    total_populations += total_hosts_2;
     Raster<int> susceptible_1 = total_hosts_1 - infected_1;
     Raster<int> susceptible_2 = total_hosts_2 - infected_2;
     std::vector<std::vector<int>> suitable_cells =
@@ -785,34 +791,34 @@ int test_two_hosts_with_complete_competency_table_one_only()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 7, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 4, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") infected (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_complete_competency_table_one_only (step "
+                  << step << ") infected (actual, expected):\n"
                   << infected_1 << "  !=\n"
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 6, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 5, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") infected (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_complete_competency_table_one_only (step "
+                  << step << ") infected (actual, expected):\n"
                   << infected_2 << "  !=\n"
                   << expected_infected_2 << "\n";
         ++ret;
     }
     Raster<int> expected_dispersers = {{16, 0, 0}, {0, 10, 0}, {0, 22, 5}};
     if (dispersers != expected_dispersers) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") dispersers (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_complete_competency_table_one_only (step "
+                  << step << ") dispersers (actual, expected):\n"
                   << dispersers << "  !=\n"
                   << expected_dispersers << "\n";
         ++ret;
     }
     size_t expected_outside_dispersers_size = 5;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << "): outside_dispersers.size (actual, expected): "
+        std::cerr << "test_two_hosts_with_complete_competency_table_one_only (step "
+                  << step << "): outside_dispersers.size (actual, expected): "
                   << outside_dispersers.size()
                   << " != " << expected_outside_dispersers_size << "\n";
         ++ret;
@@ -830,34 +836,34 @@ int test_two_hosts_with_complete_competency_table_one_only()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 7, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 5, 3}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") infected (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_complete_competency_table_one_only (step "
+                  << step << ") infected (actual, expected):\n"
                   << infected_1 << "  !=\n"
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 8, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 7, 3}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") infected (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_complete_competency_table_one_only (step "
+                  << step << ") infected (actual, expected):\n"
                   << infected_2 << "  !=\n"
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    expected_dispersers = {{31, 30, 0}, {0, 10, 0}, {0, 19, 4}};
+    expected_dispersers = {{31, 20, 0}, {0, 13, 0}, {0, 13, 6}};
     if (dispersers != expected_dispersers) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << ") dispersers (actual, expected):\n"
+        std::cerr << "test_two_hosts_with_complete_competency_table_one_only (step "
+                  << step << ") dispersers (actual, expected):\n"
                   << dispersers << "  !=\n"
                   << expected_dispersers << "\n";
         ++ret;
     }
-    expected_outside_dispersers_size = 9;
+    expected_outside_dispersers_size = 11;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
-        std::cerr << "test_two_hosts_with_table_one_only (step " << step
-                  << "): outside_dispersers.size (actual, expected): "
+        std::cerr << "test_two_hosts_with_complete_competency_table_one_only (step "
+                  << step << "): outside_dispersers.size (actual, expected): "
                   << outside_dispersers.size()
                   << " != " << expected_outside_dispersers_size << "\n";
         ++ret;
@@ -897,7 +903,9 @@ int test_two_hosts_with_table_other_than_one()
     Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
     Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
     Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
-    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
+    Raster<int> total_populations = {{2, 0, 1}, {0, 2, 3}, {2, 2, 5}};
+    total_populations += total_hosts_1;
+    total_populations += total_hosts_2;
     Raster<int> susceptible_1 = total_hosts_1 - infected_1;
     Raster<int> susceptible_2 = total_hosts_2 - infected_2;
     std::vector<std::vector<int>> suitable_cells =
@@ -1010,7 +1018,7 @@ int test_two_hosts_with_table_other_than_one()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 8, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 4, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
                   << ") infected 1 (actual, expected):\n"
@@ -1018,7 +1026,7 @@ int test_two_hosts_with_table_other_than_one()
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 5, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 4, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
                   << ") infected 2 (actual, expected):\n"
@@ -1055,7 +1063,7 @@ int test_two_hosts_with_table_other_than_one()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 1, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 1, 5}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
                   << ") infected 1 (actual, expected):\n"
@@ -1063,7 +1071,7 @@ int test_two_hosts_with_table_other_than_one()
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 2, 5}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 1, 3}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
                   << ") infected 2 (actual, expected):\n"
@@ -1071,7 +1079,7 @@ int test_two_hosts_with_table_other_than_one()
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    expected_dispersers = {{7, 29, 0}, {0, 4, 0}, {0, 10, 2}};
+    expected_dispersers = {{7, 18, 0}, {0, 3, 0}, {0, 16, 3}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -1079,7 +1087,7 @@ int test_two_hosts_with_table_other_than_one()
                   << expected_dispersers << "\n";
         ++ret;
     }
-    expected_outside_dispersers_size = 5;
+    expected_outside_dispersers_size = 6;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
         std::cerr << "test_two_hosts_with_table_other_than_one (step " << step
                   << "): outside_dispersers.size (actual, expected): "
@@ -1122,7 +1130,9 @@ int test_two_hosts_susceptibilities_one()
     Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
     Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
     Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
-    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
+    Raster<int> total_populations = {{2, 0, 1}, {0, 2, 3}, {2, 2, 5}};
+    total_populations += total_hosts_1;
+    total_populations += total_hosts_2;
     Raster<int> susceptible_1 = total_hosts_1 - infected_1;
     Raster<int> susceptible_2 = total_hosts_2 - infected_2;
     std::vector<std::vector<int>> suitable_cells =
@@ -1233,7 +1243,7 @@ int test_two_hosts_susceptibilities_one()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 7, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 4, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
                   << ") infected (actual, expected):\n"
@@ -1241,7 +1251,7 @@ int test_two_hosts_susceptibilities_one()
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 6, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 5, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
                   << ") infected (actual, expected):\n"
@@ -1278,7 +1288,7 @@ int test_two_hosts_susceptibilities_one()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 7, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 5, 3}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
                   << ") infected (actual, expected):\n"
@@ -1286,7 +1296,7 @@ int test_two_hosts_susceptibilities_one()
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 8, 6}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 7, 3}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
                   << ") infected (actual, expected):\n"
@@ -1294,7 +1304,7 @@ int test_two_hosts_susceptibilities_one()
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    expected_dispersers = {{31, 30, 0}, {0, 10, 0}, {0, 19, 4}};
+    expected_dispersers = {{31, 20, 0}, {0, 13, 0}, {0, 13, 6}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -1302,7 +1312,7 @@ int test_two_hosts_susceptibilities_one()
                   << expected_dispersers << "\n";
         ++ret;
     }
-    expected_outside_dispersers_size = 9;
+    expected_outside_dispersers_size = 11;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
         std::cerr << "test_two_hosts_susceptibilities_one (step " << step
                   << "): outside_dispersers.size (actual, expected): "
@@ -1345,7 +1355,9 @@ int test_two_hosts_susceptibilities_other_than_one()
     Raster<int> total_hosts_2 = {{10, 20, 9}, {14, 15, 0}, {0, 0, 0}};
     Raster<int> infected_1 = {{5, 0, 0}, {0, 0, 0}, {0, 10, 2}};
     Raster<int> infected_2 = {{5, 0, 0}, {0, 5, 0}, {0, 0, 0}};
-    Raster<int> total_populations = {{20, 20, 20}, {20, 20, 20}, {20, 20, 20}};
+    Raster<int> total_populations = {{2, 0, 1}, {0, 2, 3}, {2, 2, 5}};
+    total_populations += total_hosts_1;
+    total_populations += total_hosts_2;
     Raster<int> susceptible_1 = total_hosts_1 - infected_1;
     Raster<int> susceptible_2 = total_hosts_2 - infected_2;
     std::vector<std::vector<int>> suitable_cells =
@@ -1456,7 +1468,7 @@ int test_two_hosts_susceptibilities_other_than_one()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 6, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 4, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
                   << ") infected 1 (actual, expected):\n"
@@ -1464,7 +1476,7 @@ int test_two_hosts_susceptibilities_other_than_one()
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 4, 0}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 3, 0}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
                   << ") infected 2 (actual, expected):\n"
@@ -1503,7 +1515,7 @@ int test_two_hosts_susceptibilities_other_than_one()
         zeros,
         movements,
         Network<int>::null_network());
-    expected_infected_1 += Raster<int>({{0, 10, 3}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_1 += Raster<int>({{0, 4, 1}, {0, 0, 0}, {0, 0, 0}});
     if (infected_1 != expected_infected_1) {
         std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
                   << ") infected 1 (actual, expected):\n"
@@ -1511,7 +1523,7 @@ int test_two_hosts_susceptibilities_other_than_one()
                   << expected_infected_1 << "\n";
         ++ret;
     }
-    expected_infected_2 += Raster<int>({{0, 3, 3}, {0, 0, 0}, {0, 0, 0}});
+    expected_infected_2 += Raster<int>({{0, 2, 2}, {0, 0, 0}, {0, 0, 0}});
     if (infected_2 != expected_infected_2) {
         std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
                   << ") infected 2 (actual, expected):\n"
@@ -1519,7 +1531,7 @@ int test_two_hosts_susceptibilities_other_than_one()
                   << expected_infected_2 << "\n";
         ++ret;
     }
-    expected_dispersers = {{31, 23, 0}, {0, 13, 0}, {0, 13, 9}};
+    expected_dispersers = {{31, 15, 0}, {0, 13, 0}, {0, 17, 1}};
     if (dispersers != expected_dispersers) {
         std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
                   << ") dispersers (actual, expected):\n"
@@ -1527,7 +1539,7 @@ int test_two_hosts_susceptibilities_other_than_one()
                   << expected_dispersers << "\n";
         ++ret;
     }
-    expected_outside_dispersers_size = 14;
+    expected_outside_dispersers_size = 6;
     if (outside_dispersers.size() != expected_outside_dispersers_size) {
         std::cerr << "test_two_hosts_susceptibilities_other_than_one (step " << step
                   << "): outside_dispersers.size (actual, expected): "
@@ -1549,7 +1561,9 @@ int main()
     ret += test_two_hosts_with_table_other_than_one();
     ret += test_two_hosts_susceptibilities_one();
     ret += test_two_hosts_susceptibilities_other_than_one();
-    std::cout << "Test of multi host model: number of errors: " << ret << std::endl;
+    if (ret) {
+        std::cerr << "Test of multi host model: number of errors: " << ret << std::endl;
+    }
 
     return ret;
 }
