@@ -313,7 +313,7 @@ public:
      *
      * Config::arrival_behavior() is used to determine if the dispersers should be
      * landing in a cell (`"land"`) or infecting a specific host directly (`"infect"`).
-     * Landing performs the establishment test on a combined probability from all hosts
+     * Landing performs the establishment test on a combined suitability from all hosts
      * in a cell and then uses one host to add the  new disperser to. Infecting picks a
      * host and lets the host accept or reject the disperser based on its own
      * establishment test.
@@ -321,8 +321,7 @@ public:
      * Uses static function HostPool::can_disperser_establish() from HostPool class to
      * do the test for multiple hosts for landing, so any host pool class needs to
      * implement that besides its disperser methods. It assumes that the configuration
-     * for multi-host is applicable for the combined establishment probability of
-     * individual hosts.
+     * for multi-host is applicable for the combined suitability of individual hosts.
      *
      * For one single host pool only and host pool which implements its `disperser_to()`
      * using `can_disperser_establish()` and `add_disperser_at()`, this gives identical
@@ -437,7 +436,7 @@ private:
      * generator.
      *
      * @param hosts List of pointers to host pools
-     * @param probabilities Weight values for each host pool
+     * @param weights Weight values for each host pool
      * @param generator Random number generator
      *
      * @return Pointer to selected host pool
