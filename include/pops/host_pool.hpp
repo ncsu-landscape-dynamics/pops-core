@@ -805,6 +805,9 @@ public:
      * individuals is multiplied by the mortality rate to calculate the number of hosts
      * that die that time step.
      *
+     * If mortality rate is zero (<=0), no mortality is applied and mortality tracker
+     * vector stays as is, i.e., no hosts die.
+     *
      * To be used together with step_forward_mortality().
      *
      * @param row Row index of the cell
@@ -815,6 +818,8 @@ public:
     void apply_mortality_at(
         RasterIndex row, RasterIndex col, double mortality_rate, int mortality_time_lag)
     {
+        if (mortality_rate <= 0)
+            return;
         int max_index = mortality_tracker_vector_.size() - mortality_time_lag - 1;
         for (int index = 0; index <= max_index; index++) {
             int mortality_in_index = 0;
