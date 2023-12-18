@@ -569,7 +569,9 @@ public:
         for (const auto& row : values) {
             if (row.size() < 3) {
                 throw std::invalid_argument(
-                    "3 values are required for each pest-host table row");
+                    "3 values are required for each pest-host table row "
+                    "(but row size is "
+                    + std::to_string(row.size()) + ")");
             }
             PestHostTableDataRow resulting_row;
             resulting_row.susceptibility = row[0];
