@@ -326,7 +326,17 @@ public:
         if (pest_host_table_) {
             suitability *= pest_host_table_->susceptibility(this);
         }
-        return environment_.influence_suitability_at(row, col, suitability);
+        suitability = environment_.influence_suitability_at(row, col, suitability);
+        if (suitability < 0 || suitability > 1) {
+            throw std::invalid_argument(
+                "Suitability should be >=0 and <=1, not " + std::to_string(suitability)
+                + " (susceptible: " + std::to_string(susceptible_(row, col))
+                + ", total population: "
+                + std::to_string(environment_.total_population_at(row, col))
+                + ", susceptibility: "
+                + std::to_string(pest_host_table_->susceptibility(this)) + ")");
+        }
+        return suitability;
     }
 
     /**
