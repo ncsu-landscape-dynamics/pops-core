@@ -90,7 +90,7 @@ public:
                     // From all the generated dispersers, some go to the soil in the
                     // same cell and don't participate in the kernel-driven dispersal.
                     auto dispersers_to_soil =
-                        std::round(to_soil_percentage_ * dispersers_from_cell);
+                        std::lround(to_soil_percentage_ * dispersers_from_cell);
                     soil_pool_->dispersers_to(dispersers_to_soil, i, j, generator);
                     dispersers_from_cell -= dispersers_to_soil;
                 }
@@ -510,7 +510,7 @@ public:
     void action(Hosts& hosts)
     {
         for (auto indices : hosts.suitable_cells()) {
-            if (action_mortality_) {
+            if (static_cast<bool>(action_mortality_)) {
                 hosts.apply_mortality_at(
                     indices[0], indices[1], mortality_rate_, mortality_time_lag_);
             }
