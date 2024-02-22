@@ -94,12 +94,10 @@ public:
                     soil_pool_->dispersers_to(dispersers_to_soil, i, j, generator);
                     dispersers_from_cell -= dispersers_to_soil;
                 }
-                pests.set_dispersers_at(i, j, dispersers_from_cell);
-                pests.set_established_dispersers_at(i, j, dispersers_from_cell);
+                pests.set_dispersers_at(i, j, dispersers_from_cell, 0);
             }
             else {
-                pests.set_dispersers_at(i, j, 0);
-                pests.set_established_dispersers_at(i, j, 0);
+                pests.set_dispersers_at(i, j, 0, 0);
             }
         }
     }
@@ -123,17 +121,15 @@ public:
             if (pests.dispersers_at(i, j) > 0) {
                 for (int k = 0; k < pests.dispersers_at(i, j); k++) {
                     std::tie(row, col) = dispersal_kernel_(generator, i, j);
-                    // if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
                     if (host_pool.is_outside(row, col)) {
                         pests.add_outside_disperser_at(row, col);
-                        pests.remove_established_dispersers_at(i, j, 1);
                         continue;
                     }
                     // Put a disperser to the host pool.
                     auto dispersed =
                         host_pool.disperser_to(row, col, generator.establishment());
-                    if (!dispersed) {
-                        pests.remove_established_dispersers_at(i, j, 1);
+                    if (dispersed) {
+                        pests.add_established_dispersers_at(i, j, 1);
                     }
                 }
             }
