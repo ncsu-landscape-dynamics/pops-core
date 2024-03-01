@@ -539,10 +539,10 @@ public:
     void completely_remove_hosts_at(
         RasterIndex row,
         RasterIndex col,
-        double susceptible,
-        std::vector<double> exposed,
-        double infected,
-        const std::vector<double>& mortality)
+        int susceptible,
+        std::vector<int> exposed,
+        int infected,
+        const std::vector<int>& mortality)
     {
         if (susceptible > 0)
             susceptible_(row, col) = susceptible_(row, col) - susceptible;
