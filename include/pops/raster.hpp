@@ -560,12 +560,13 @@ public:
         return out;
     }
 
-    friend inline Raster pow(Raster image, double value)
+    friend inline Raster pow(const Raster& image, double value)
     {
         image.for_each([value](Number& a) { a = std::pow(a, value); });
         return image;
     }
-    friend inline Raster sqrt(Raster image)
+
+    friend inline Raster sqrt(const Raster& image)
     {
         image.for_each([](Number& a) { a = std::sqrt(a); });
         return image;
