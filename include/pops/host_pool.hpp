@@ -306,7 +306,8 @@ public:
             }
         }
         else {
-            dispersers_from_cell = lambda * infected_at(row, col);
+            dispersers_from_cell =
+                static_cast<int>(std::floor(lambda * infected_at(row, col)));
         }
         return dispersers_from_cell;
     }
@@ -830,8 +831,8 @@ public:
                     mortality_in_index = mortality_tracker_vector_[index](row, col);
                 }
                 else {
-                    mortality_in_index =
-                        mortality_rate * mortality_tracker_vector_[index](row, col);
+                    mortality_in_index = static_cast<int>(std::floor(
+                        mortality_rate * mortality_tracker_vector_[index](row, col)));
                 }
                 mortality_tracker_vector_[index](row, col) -= mortality_in_index;
                 died_(row, col) += mortality_in_index;
