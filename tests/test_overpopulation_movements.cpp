@@ -127,7 +127,8 @@ int test_model()
     config.use_spreadrates = false;
     config.create_schedules();
     // More reference data
-    auto leaving = infected(0, 0) * config.leaving_percentage;
+    int leaving =
+        static_cast<int>(std::ceil(infected(0, 0) * config.leaving_percentage));
     // Objects
     std::vector<std::vector<int>> suitable_cells =
         find_suitable_cells<int>(total_hosts);
