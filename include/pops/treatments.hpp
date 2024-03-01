@@ -136,7 +136,7 @@ public:
             return count * this->map_(i, j);
         }
         else if (application == TreatmentApplication::AllInfectedInCell) {
-            return this->map_(i, j) ? count : 0;
+            return static_cast<bool>(this->map_(i, j)) ? count : 0;
         }
         throw std::runtime_error(
             "BaseTreatment::get_treated: unknown TreatmentApplication");

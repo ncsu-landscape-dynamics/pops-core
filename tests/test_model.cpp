@@ -698,7 +698,8 @@ int test_model_sei_deterministic_with_treatments()
     // Remove infected
     for (int row = 0; row < expected_infected.rows(); ++row)
         for (int col = 0; col < expected_infected.rows(); ++col)
-            expected_infected(row, col) *= !simple_treatment(row, col);
+            expected_infected(row, col) *=
+                !static_cast<bool>(simple_treatment(row, col));
     // Reduced number of infected
     // (assuming 1 infection (E to I) step completed, i.e. 1 initial state + 1 step)
     for (int row = 0; row < expected_infected.rows(); ++row)
