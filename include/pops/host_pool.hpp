@@ -26,6 +26,7 @@
 #include "environment_interface.hpp"
 #include "competency_table.hpp"
 #include "pest_host_table.hpp"
+#include "utils.hpp"
 
 namespace pops {
 
@@ -487,18 +488,9 @@ public:
         // Since suitable cells originally comes from the total hosts, check first total
         // hosts and proceed only if there was no host.
         if (total_hosts_(row_to, col_to) == 0) {
-            bool found = false;
-            for (auto indices : suitable_cells_) {
-                int i = indices[0];
-                int j = indices[1];
-                if ((i == row_to) && (j == col_to)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                std::vector<int> added_index = {row_to, col_to};
-                suitable_cells_.push_back(added_index);
+            std::vector<int> new_index = {row_to, col_to};
+            if (!container_contains(suitable_cells_, new_index)) {
+                suitable_cells_.push_back(new_index);
             }
         }
 
