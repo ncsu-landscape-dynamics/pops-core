@@ -10,7 +10,7 @@ function(add_pops_test NAME)
     # Enable compiler warnings
     target_compile_options(${NAME} PRIVATE
          $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-              -Wall -Wextra -pedantic -Wfloat-conversion>
+              -Wall -Wextra -pedantic -Wfloat-conversion -Werror>
          $<$<CXX_COMPILER_ID:MSVC>:
               /W4>)
      if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
