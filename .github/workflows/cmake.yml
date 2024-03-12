@@ -26,7 +26,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: sudo apt-get install doxygen graphviz
+      run: sudo apt-get install doxygen graphviz clang-tidy
     - name: Configure
       run: |
         mkdir build && cd build && \
