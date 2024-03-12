@@ -126,10 +126,22 @@ static int test_multiply_in_place_operator()
     }
 }
 
+static void test_pow()
+{
+    Raster<double> a = {{4, 5}, {2, 3}};
+    Raster<double> b = {{16, 25}, {4, 9}};
+    auto c = pow(a, 2);
+    std::cout << "pow function: ";
+    if (b == c)
+        std::cout << "OK" << std::endl;
+    else
+        std::cout << "\n" << a << "!=\n" << b << std::endl;
+}
+
 static void test_sqrt()
 {
-    Raster<int> a = {{16, 25}, {4, 9}};
-    Raster<int> b = {{4, 5}, {2, 3}};
+    Raster<double> a = {{16, 25}, {4, 9}};
+    Raster<double> b = {{4, 5}, {2, 3}};
     auto c = sqrt(a);
     std::cout << "sqrt function: ";
     if (b == c)
@@ -469,6 +481,7 @@ int main()
     test_plus_operator();
     test_multiply_in_place_operator();
 
+    test_pow();
     test_sqrt();
 
     // all doubles, no problem
