@@ -59,8 +59,7 @@ int test_application_ratio()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
-    std::vector<Raster<int>> mortality_tracker(
-        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker(1, infected);
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
@@ -114,8 +113,7 @@ int test_application_all_inf()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
-    std::vector<Raster<int>> mortality_tracker(
-        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker(1, infected);
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
@@ -171,8 +169,7 @@ int test_application_ratio_pesticide()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
-    std::vector<Raster<int>> mortality_tracker(
-        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker(1, infected);
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
@@ -253,8 +250,7 @@ int test_application_all_inf_pesticide()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
-    std::vector<Raster<int>> mortality_tracker(
-        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker(1, infected);
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
@@ -340,8 +336,7 @@ int test_combination()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
-    std::vector<Raster<int>> mortality_tracker(
-        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker(1, infected);
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
 
@@ -437,8 +432,7 @@ int test_pesticide_temporal_overlap()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
-    std::vector<Raster<int>> mortality_tracker(
-        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker(1, infected);
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     StandardSingleHostPool host_pool(
@@ -543,8 +537,7 @@ int test_steering()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
-    std::vector<Raster<int>> mortality_tracker(
-        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker(1, infected);
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     StandardSingleHostPool host_pool(
@@ -596,6 +589,7 @@ int test_steering()
     susceptible = {{10, 6}, {20, 42}};
     resistant = {{0, 0}, {0, 0}};
     infected = {{1, 4}, {16, 40}};
+    mortality_tracker = {infected};
     n = scheduler.schedule_action_date(Date(2020, 1, 1));
     treatments.manage(n, host_pool);
     n = scheduler.schedule_action_date(Date(2020, 5, 3));
@@ -643,8 +637,7 @@ int test_clear()
     Raster<int> zeros(infected.rows(), infected.cols(), 0);
     auto total_hosts = infected + susceptible + resistant;
     std::vector<Raster<int>> exposed;
-    std::vector<Raster<int>> mortality_tracker(
-        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    std::vector<Raster<int>> mortality_tracker(1, infected);
 
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     StandardSingleHostPool host_pool(
