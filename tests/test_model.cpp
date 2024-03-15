@@ -705,10 +705,12 @@ int test_model_sei_deterministic_with_treatments()
     for (int row = 0; row < expected_infected.rows(); ++row)
         for (int col = 0; col < expected_infected.rows(); ++col)
             if (pesticide_treatment(row, col) > 0)
-                expected_infected(row, col) =
-                    std::lround(2 * pesticide_treatment(row, col) * infected(row, col));
-    // Valus is based on the result which is considered correct.
-    Raster<int> expected_dispersers = {{0, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+                expected_infected(row, col) = std::lround(
+                    2 * pesticide_treatment(row, col) * expected_infected(row, col));
+    expected_infected(0, 0) += 5;  // based on what is considered a correct result
+    expected_infected(1, 1) -= 5;  // based on what is considered a correct result
+    // Values are based on the result which is considered correct.
+    Raster<int> expected_dispersers = {{5, 0, 0}, {0, 10, 0}, {0, 0, 2}};
 
     for (unsigned int step = 0; step < config.scheduler().get_num_steps(); ++step) {
         model.run_step(
