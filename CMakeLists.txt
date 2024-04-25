@@ -18,6 +18,12 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     # Useful for folders in some IDEs
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+    set(CMAKE_CXX_CLANG_TIDY
+        clang-tidy;
+        -header-filter=include/pops/*.hpp;
+        -checks=*;
+        -warnings-as-errors=*;)
+
     # Enables testing for subdirectories and adds target test
     include(CTest)
 
