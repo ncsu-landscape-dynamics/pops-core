@@ -883,12 +883,6 @@ protected:
                     std::string("Node ID must be greater than zero (node 1, node 2): ")
                     + node_1_text + ", " + node_2_text + ", line: " + line);
             }
-            if (node_1_id == node_2_id) {
-                throw std::runtime_error(
-                    std::string(
-                        "Edge cannot begin and end with the same node (node 1, node 2): ")
-                    + node_1_text + ", " + node_2_text + ", line: " + line);
-            }
             Segment segment;
 
             if (has_probability) {
