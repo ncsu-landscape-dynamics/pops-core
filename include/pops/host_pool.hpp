@@ -573,7 +573,7 @@ public:
                     + std::to_string(mortality[i]) + " > "
                     + std::to_string(mortality_tracker_vector_[i](row, col))
                     + ") for cell (" + std::to_string(row) + ", " + std::to_string(col)
-                    + "))");
+                    + ")");
             }
             mortality_tracker_vector_[i](row, col) =
                 mortality_tracker_vector_[i](row, col) - mortality[i];
