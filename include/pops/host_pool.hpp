@@ -564,7 +564,7 @@ public:
                 + std::to_string(row) + ", " + std::to_string(col) + ")");
         }
 
-        double mortality_total = 0;
+        int mortality_total = 0;
         for (size_t i = 0; i < mortality.size(); ++i) {
             if (mortality_tracker_vector_[i](row, col) < mortality[i]) {
                 throw std::invalid_argument(
@@ -582,15 +582,15 @@ public:
         // and once we don't need to keep the exact same double to int results for
         // tests. First condition always fails the tests. The second one may potentially
         // fail.
-        if (false && infected != mortality_total) {
+        if (infected != mortality_total) {
             throw std::invalid_argument(
                 "Total of removed mortality values differs from removed infected "
                 "count ("
                 + std::to_string(mortality_total) + " != " + std::to_string(infected)
-                + " for cell (" + std::to_string(row) + ", " + std::to_string(col)
+                + ") for cell (" + std::to_string(row) + ", " + std::to_string(col)
                 + ")");
         }
-        if (false && infected_(row, col) < mortality_total) {
+        if (infected_(row, col) < mortality_total) {
             throw std::invalid_argument(
                 "Total of removed mortality values is higher than current number "
                 "of infected hosts for cell ("
