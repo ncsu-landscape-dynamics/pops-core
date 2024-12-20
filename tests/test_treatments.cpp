@@ -146,14 +146,16 @@ int test_application_ratio_without_mortality()
         for (int col = 0; col < infected.cols(); ++col) {
             auto mortality_groups = host_pool.mortality_by_group_at(row, col);
             if (mortality_groups.size() != 1) {
-                std::cerr << "Expected a single mortality group from host pool but got " <<
-                     mortality_groups.size() << "\n";
+                std::cerr << "Expected a single mortality group from host pool but got "
+                          << mortality_groups.size() << "\n";
                 num_errors++;
             }
             if (mortality_groups[0] != host_pool.infected_at(row, col)) {
-                std::cerr << "Host pool does not work as expected: " <<
-                         "The single mortality group is diferent from total infected (" <<
-                    mortality_groups[0] << " != " << host_pool.infected_at(row, col) << ")\n";
+                std::cerr
+                    << "Host pool does not work as expected: "
+                    << "The single mortality group is diferent from total infected ("
+                    << mortality_groups[0] << " != " << host_pool.infected_at(row, col)
+                    << ")\n";
                 num_errors++;
             }
         }

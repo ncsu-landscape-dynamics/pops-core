@@ -142,8 +142,8 @@ int test_model_with_network()
         if (original_infected(coords.first, coords.second)
             != infected(coords.first, coords.second)) {
             std::cerr << "Infected at: " << coords.first << ", " << coords.second
-                      << " is different but should be the same"
-                      << " (is " << original_infected(coords.first, coords.second)
+                      << " is different but should be the same" << " (is "
+                      << original_infected(coords.first, coords.second)
                       << " but should be " << infected(coords.first, coords.second)
                       << ").\n";
             ret += 1;

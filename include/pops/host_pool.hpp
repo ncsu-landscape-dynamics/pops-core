@@ -598,12 +598,12 @@ public:
             throw std::invalid_argument(
                 "Total of removed mortality values is higher than current number "
                 "of infected hosts ("
-                   + std::to_string(mortality_total) + " > " + std::to_string(infected)
-                + ") for cell (" + std::to_string(row) + ", " + std::to_string(col) + ")");
+                + std::to_string(mortality_total) + " > " + std::to_string(infected)
+                + ") for cell (" + std::to_string(row) + ", " + std::to_string(col)
+                + ")");
         }
         infected_(row, col) -= infected;
         reset_total_host(row, col);
-
     }
 
     /**
