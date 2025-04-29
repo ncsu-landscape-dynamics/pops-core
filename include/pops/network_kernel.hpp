@@ -1,7 +1,7 @@
 /*
  * PoPS model - network dispersal kernel
  *
- * Copyright (C) 2020-2021 by the authors.
+ * Copyright (C) 2020-2025 by the authors.
  *
  * Authors: Vaclav Petras (wenzeslaus gmail com)
  *
@@ -17,7 +17,7 @@
 #define POPS_NETWORK_KERNEL_HPP
 
 #include "kernel_types.hpp"
-#include "network.hpp"
+#include "multi_network.hpp"
 
 namespace pops {
 
@@ -28,7 +28,7 @@ namespace pops {
  * needs to be called first to see if the kernel can be used with the given row and
  * column.
  */
-template<typename RasterIndex>
+template<typename NetworkType>
 class NetworkDispersalKernel
 {
 public:
@@ -48,7 +48,7 @@ public:
      * @param jump End always on a node (snaps result to the closest node)
      */
     NetworkDispersalKernel(
-        const Network<RasterIndex>& network,
+        const NetworkType& network,
         double min_distance,
         double max_distance,
         bool jump = false)
@@ -65,7 +65,7 @@ public:
      *
      * @param network Existing network
      */
-    NetworkDispersalKernel(const Network<RasterIndex>& network)
+    NetworkDispersalKernel(const NetworkType& network)
         : network_(network), teleport_{true}
     {}
 
@@ -77,13 +77,7 @@ public:
     template<typename Generator>
     std::tuple<int, int> operator()(Generator& generator, int row, int col)
     {
-        if (teleport_) {
-            return network_.teleport(row, col, generator);
-        }
-        double distance = distance_distribution_(generator);
-        std::tie(row, col) = network_.walk(row, col, distance, generator);
-
-        return std::make_tuple(row, col);
+        return network_.move(row, col, generator);
     }
 
     /**
@@ -107,7 +101,7 @@ public:
 
 protected:
     /** Reference to the network */
-    const Network<RasterIndex>& network_;
+    const NetworkType& network_;
     /** Travel distance (cost) distribution */
     std::uniform_real_distribution<double> distance_distribution_;
     /** Step through network instead of traveling between nodes */

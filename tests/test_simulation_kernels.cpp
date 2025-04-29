@@ -110,11 +110,11 @@ public:
  * @param network Network (initialized or not)
  * @return Created kernel
  */
-template<typename IntegerRaster, typename RasterIndex>
-SwitchDispersalKernel<IntegerRaster, RasterIndex> create_static_natural_kernel(
+template<typename IntegerRaster, typename NetworkType>
+SwitchDispersalKernel<IntegerRaster, NetworkType> create_static_natural_kernel(
     const Config& config,
     const IntegerRaster& dispersers,
-    const Network<RasterIndex>& network)
+    const NetworkType& network)
 {
     auto natural_kernel = kernel_type_from_string(config.natural_kernel_type);
     UniformDispersalKernel uniform_kernel(config.rows, config.cols);
@@ -136,9 +136,9 @@ SwitchDispersalKernel<IntegerRaster, RasterIndex> create_static_natural_kernel(
         config.ns_res,
         config.natural_scale,
         config.shape);
-    NetworkDispersalKernel<RasterIndex> network_kernel(
+    NetworkDispersalKernel<NetworkType> network_kernel(
         network, config.network_min_distance, config.network_max_distance);
-    SwitchDispersalKernel<IntegerRaster, RasterIndex> selectable_kernel(
+    SwitchDispersalKernel<IntegerRaster, NetworkType> selectable_kernel(
         natural_kernel,
         radial_kernel,
         deterministic_kernel,
@@ -158,11 +158,11 @@ SwitchDispersalKernel<IntegerRaster, RasterIndex> create_static_natural_kernel(
  * @param network Network (initialized or not)
  * @return Created kernel
  */
-template<typename IntegerRaster, typename RasterIndex>
-SwitchDispersalKernel<IntegerRaster, RasterIndex> create_static_anthro_kernel(
+template<typename IntegerRaster, typename NetworkType>
+SwitchDispersalKernel<IntegerRaster, NetworkType> create_static_anthro_kernel(
     const Config& config,
     const IntegerRaster& dispersers,
-    const Network<RasterIndex>& network)
+    const NetworkType& network)
 {
     auto anthro_kernel = kernel_type_from_string(config.anthro_kernel_type);
     UniformDispersalKernel uniform_kernel(config.rows, config.cols);
@@ -184,9 +184,9 @@ SwitchDispersalKernel<IntegerRaster, RasterIndex> create_static_anthro_kernel(
         config.ns_res,
         config.anthro_scale,
         config.shape);
-    NetworkDispersalKernel<RasterIndex> network_kernel(
+    NetworkDispersalKernel<NetworkType> network_kernel(
         network, config.network_min_distance, config.network_max_distance);
-    SwitchDispersalKernel<IntegerRaster, RasterIndex> selectable_kernel(
+    SwitchDispersalKernel<IntegerRaster, NetworkType> selectable_kernel(
         anthro_kernel,
         radial_kernel,
         deterministic_kernel,
@@ -197,18 +197,18 @@ SwitchDispersalKernel<IntegerRaster, RasterIndex> create_static_anthro_kernel(
     return selectable_kernel;
 }
 
-template<typename IntegerRaster, typename RasterIndex>
+template<typename IntegerRaster, typename NetworkType>
 using StaticDispersalKernel = StaticNaturalAnthropogenicDispersalKernel<
-    SwitchDispersalKernel<IntegerRaster, RasterIndex>,
-    SwitchDispersalKernel<IntegerRaster, RasterIndex>>;
+    SwitchDispersalKernel<IntegerRaster, NetworkType>,
+    SwitchDispersalKernel<IntegerRaster, NetworkType>>;
 
-template<typename IntegerRaster, typename RasterIndex>
-StaticDispersalKernel<IntegerRaster, RasterIndex> create_static_kernel(
+template<typename IntegerRaster, typename NetworkType>
+StaticDispersalKernel<IntegerRaster, NetworkType> create_static_kernel(
     const Config& config,
     const IntegerRaster& dispersers,
-    const Network<RasterIndex>& network)
+    const NetworkType& network)
 {
-    return StaticDispersalKernel<IntegerRaster, RasterIndex>(
+    return StaticDispersalKernel<IntegerRaster, NetworkType>(
         create_static_natural_kernel(config, dispersers, network),
         create_static_anthro_kernel(config, dispersers, network),
         config.use_anthropogenic_kernel,
@@ -408,6 +408,7 @@ int test_model_with_kernels_generic(
         Raster<int>,
         Raster<double>,
         Raster<double>::IndexType,
+        Network<Raster<double>::IndexType>,
         std::default_random_engine,
         KernelFactory>
         model(config, kernel_factory);
@@ -441,11 +442,11 @@ using SimpleDDKernel = StaticNaturalAnthropogenicDispersalKernel<
     DeterministicNeighborDispersalKernel,
     DeterministicNeighborDispersalKernel>;
 
-template<typename IntegerRaster, typename RasterIndex>
+template<typename IntegerRaster, typename NetworkType>
 SimpleDDKernel create_simple_static_kernel(
     const Config& config,
     const IntegerRaster& dispersers,
-    const Network<RasterIndex>& network)
+    const NetworkType& network)
 {
     UNUSED(config);
     UNUSED(dispersers);
@@ -454,11 +455,11 @@ SimpleDDKernel create_simple_static_kernel(
     return SimpleDDKernel(kernel, kernel, false, 1);
 }
 
-template<typename IntegerRaster, typename RasterIndex>
+template<typename IntegerRaster, typename NetworkType>
 RadialDispersalKernel<IntegerRaster> create_radial_kernel(
     const Config& config,
     const IntegerRaster& dispersers,
-    const Network<RasterIndex>& network)
+    const NetworkType& network)
 {
     UNUSED(dispersers);
     UNUSED(network);
@@ -476,11 +477,11 @@ template<typename IntegerRaster>
 using DoubleRadialKernel = StaticNaturalAnthropogenicDispersalKernel<
     RadialDispersalKernel<IntegerRaster>,
     RadialDispersalKernel<IntegerRaster>>;
-template<typename IntegerRaster, typename RasterIndex>
+template<typename IntegerRaster, typename NetworkType>
 DoubleRadialKernel<IntegerRaster> create_double_radial_kernel(
     const Config& config,
     const IntegerRaster& dispersers,
-    const Network<RasterIndex>& network)
+    const NetworkType& network)
 {
     return DoubleRadialKernel<IntegerRaster>(
         create_radial_kernel(config, dispersers, network),
@@ -502,23 +503,23 @@ int test_simulation_with_kernels(
     int ret = 0;
     if (command == "trivial") {
         ret += test_simulation_with_kernels_generic(
-            create_simple_static_kernel<Raster<int>, int>, steps, kernel_type);
+            create_simple_static_kernel<Raster<int>, Network<int>>, steps, kernel_type);
     }
     else if (command == "radial") {
         ret += test_simulation_with_kernels_generic(
-            create_radial_kernel<Raster<int>, int>, steps, kernel_type);
+            create_radial_kernel<Raster<int>, Network<int>>, steps, kernel_type);
     }
     else if (command == "double") {
         ret += test_simulation_with_kernels_generic(
-            create_double_radial_kernel<Raster<int>, int>, steps, kernel_type);
+            create_double_radial_kernel<Raster<int>, Network<int>>, steps, kernel_type);
     }
     else if (command == "static") {
         ret += test_simulation_with_kernels_generic(
-            create_static_kernel<Raster<int>, int>, steps, kernel_type);
+            create_static_kernel<Raster<int>, Network<int>>, steps, kernel_type);
     }
     else if (command == "dynamic") {
         ret += test_simulation_with_kernels_generic(
-            create_dynamic_kernel<std::default_random_engine, Raster<int>, int>,
+            create_dynamic_kernel<std::default_random_engine, Raster<int>>,
             steps,
             kernel_type);
     }
@@ -535,23 +536,23 @@ int test_model_with_kernels(
     int ret = 0;
     if (command == "trivial") {
         ret += test_model_with_kernels_generic(
-            create_simple_static_kernel<Raster<int>, int>, steps, kernel_type);
+            create_simple_static_kernel<Raster<int>, Network<int>>, steps, kernel_type);
     }
     else if (command == "radial") {
         ret += test_model_with_kernels_generic(
-            create_radial_kernel<Raster<int>, int>, steps, kernel_type);
+            create_radial_kernel<Raster<int>, Network<int>>, steps, kernel_type);
     }
     else if (command == "double") {
         ret += test_model_with_kernels_generic(
-            create_double_radial_kernel<Raster<int>, int>, steps, kernel_type);
+            create_double_radial_kernel<Raster<int>, Network<int>>, steps, kernel_type);
     }
     else if (command == "static") {
         ret += test_model_with_kernels_generic(
-            create_static_kernel<Raster<int>, int>, steps, kernel_type);
+            create_static_kernel<Raster<int>, Network<int>>, steps, kernel_type);
     }
     else if (command == "dynamic") {
         ret += test_model_with_kernels_generic(
-            create_dynamic_kernel<std::default_random_engine, Raster<int>, int>,
+            create_dynamic_kernel<std::default_random_engine, Raster<int>>,
             steps,
             kernel_type);
     }

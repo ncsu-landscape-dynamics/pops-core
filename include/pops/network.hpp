@@ -1,7 +1,7 @@
 /*
  * PoPS model - network dispersal kernel
  *
- * Copyright (C) 2020-2022 by the authors.
+ * Copyright (C) 2020-2025 by the authors.
  *
  * Authors: Vaclav Petras (wenzeslaus gmail com)
  *
@@ -191,14 +191,24 @@ public:
      * @param ew_res East-west resolution of the raster grid
      * @param ns_res North-south resolution of the raster grid
      */
-    Network(BBox<double> bbox, double ew_res, double ns_res)
+    Network(BBox<double> bbox, double ew_res, double ns_res, std::string default_movement = "walk", double min_distance=0,
+            double max_distance=0)
         : bbox_(bbox),
           ew_res_(ew_res),
           ns_res_(ns_res),
           max_row_(0),
           max_col_(0),
+          min_distance_(min_distance),
+          max_distance_(max_distance),
           distance_per_cell_((ew_res + ns_res) / 2)
     {
+        if (default_movement == "teleport") {
+            teleport_ = true;
+        }
+        else {
+            jump_ = default_movement == "jump" ? true : false;
+             // TODO: Check max_distance > min_distance to have a reasonable (and surely valid) distribution.
+        }
         std::tie(max_row_, max_col_) = xy_to_row_col(bbox_.east, bbox_.south);
     }
 
@@ -448,6 +458,17 @@ public:
         throw std::invalid_argument("No node with a given id");
     }
 
+    template<typename Generator>
+    std::tuple<int, int> move(int row, int col, Generator& generator) const
+    {
+        if (teleport_) {
+            return this->teleport(row, col, generator);
+        }
+        /** Travel distance (cost) distribution */
+        std::uniform_real_distribution<double> distance_distribution(min_distance_, max_distance_);
+        double distance = distance_distribution(generator);
+        return this->walk(row, col, distance, generator, jump_);
+    }
     /**
      * Walk a given distance (cost) in the network from given row and column.
      *
@@ -1087,6 +1108,12 @@ protected:
     double ns_res_;  ///< North-south resolution of the grid
     RasterIndex max_row_;  ///< Maximum row index in the grid
     RasterIndex max_col_;  ///< Maximum column index in the grid
+    /** By default step through network instead of traveling between nodes */
+    bool teleport_{false};
+    /** By default snap to nodes when traveling between nodes */
+    bool jump_{false};
+    double min_distance_;  ///< Minimum distance for random move
+    double max_distance_;  ///< Maximum distance for random move
     double distance_per_cell_;  ///< Distance (cost) to walk through one cell
     /** Node IDs stored by row and column (multiple nodes per cell) */
     std::map<std::pair<RasterIndex, RasterIndex>, std::set<NodeId>> nodes_by_row_col_;

@@ -82,16 +82,16 @@ using DispersalKernel = NaturalAnthropogenicDispersalKernel<
     KernelInterface<Generator>,
     KernelInterface<Generator>>;
 
-template<typename Generator, typename IntegerRaster, typename RasterIndex>
+template<typename Generator, typename IntegerRaster, typename NetworkType=Network<typename IntegerRaster::IndexType>>
 DispersalKernel<Generator> create_dynamic_kernel(
     const Config& config,
     const IntegerRaster& dispersers,
-    const Network<RasterIndex>& network)
+    const NetworkType& network)
 {
     return DispersalKernel<Generator>(
-        create_natural_kernel<Generator, IntegerRaster, RasterIndex>(
+        create_natural_kernel<Generator, IntegerRaster, NetworkType>(
             config, dispersers),
-        create_anthro_kernel<Generator, IntegerRaster, RasterIndex>(
+        create_anthro_kernel<Generator, IntegerRaster, NetworkType>(
             config, dispersers, network),
         config.use_anthropogenic_kernel,
         config.percent_natural_dispersal);
