@@ -187,9 +187,16 @@ public:
     /**
      * @brief Construct empty network.
      *
+     * The *min_distance* and *max_distance* parameters are used as a range for uniform
+     * real distribution which determines the travel distance (cost) through the network
+     * for one trip if the network movement is walking (and not teleporting).
+     *
      * @param bbox Bounding box of the raster grid (in real world coordinates)
      * @param ew_res East-west resolution of the raster grid
      * @param ns_res North-south resolution of the raster grid
+     * @param default_movement End always on a node (snaps result to the closest node)
+     * @param min_distance Minimum travel distance (cost)
+     * @param max_distance Maximum travel distance (cost)
      */
     Network(BBox<double> bbox, double ew_res, double ns_res, std::string default_movement = "walk", double min_distance=0,
             double max_distance=0)

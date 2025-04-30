@@ -60,7 +60,6 @@ int test_model_with_network()
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     // Reference data (to be modified later)
     auto original_infected = infected;
-    auto expected_susceptible = susceptible;
     // Simulation data
     Raster<int> dispersers(infected.rows(), infected.cols());
     Raster<int> established_dispersers(infected.rows(), infected.cols());
@@ -161,34 +160,9 @@ int test_model_with_network()
 }
 
 /**
- *
- * Cell center coordinates for bbox 0,100 in both directions and 3x3 raster:
- *
- * ```
- * 100   16.7 50.0 83.3 (x)
- * ----  ---- ---- ----
- * 83.3 | __ | __ | __ |
- * 50.0 | __ | __ | __ |
- * 16.7 |    |    |    |
- * ---   ---- ---- ----
- * 0   0                100
- * (y)
- * ```
- *
- * Nodes (n) and segments (s):
- *
- * ```
- *       5   15   25 (x)
- * --- ---- ---- ----
- * 25 | __ | n  | n  |  0
- * 15 | __ | s  | n  |  1
- *  5 | n  | s  |    |  2
- * --- ---- ---- ----
- *  (y)   0    1    2
- * ```
- *
+ * Same as the test for single network, but using a multi network object.
  */
-int test_model_with_multiple_networks()
+int test_model_with_multinetwork()
 {
     // Data
     Raster<int> infected = {{0, 50, 0}, {0, 0, 50}, {0, 0, 0}};
@@ -198,7 +172,6 @@ int test_model_with_multiple_networks()
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     // Reference data (to be modified later)
     auto original_infected = infected;
-    auto expected_susceptible = susceptible;
     // Simulation data
     Raster<int> dispersers(infected.rows(), infected.cols());
     Raster<int> established_dispersers(infected.rows(), infected.cols());
@@ -232,9 +205,9 @@ int test_model_with_multiple_networks()
     config.set_date_end(2001, 3, 3);
     config.create_schedules();
 
-    config.bbox.north = 30;
+    config.bbox.north = 100;
     config.bbox.south = 0;
-    config.bbox.east = 30;
+    config.bbox.east = 100;
     config.bbox.west = 0;
 
     MultiNetwork<Raster<double>::IndexType> network{config.bbox, config.ew_res, config.ns_res, config.network_movement_types, config.network_min_distances, config.network_max_distances};
@@ -280,6 +253,7 @@ int test_model_with_multiple_networks()
     for (const auto& coords : should_be_same) {
         if (original_infected(coords.first, coords.second)
             != infected(coords.first, coords.second)) {
+            std::cerr << "Trivial MultiNetwork test:" << "\n";
             std::cerr << "Infected at: " << coords.first << ", " << coords.second
                       << " is different but should be the same"
                       << " (is " << original_infected(coords.first, coords.second)
@@ -289,10 +263,153 @@ int test_model_with_multiple_networks()
         }
     }
     if (sum(original_infected) >= sum(infected)) {
+        std::cerr << "Trivial MultiNetwork test:" << "\n";
         std::cerr << "New infected not higher than original.\n";
         ret += 1;
     }
     if (ret) {
+        std::cerr << "Trivial MultiNetwork test:" << "\n";
+        std::cerr << "Unexpected (new) infected: \n" << infected << "\n";
+        std::cerr << "Original (starting) infected: \n" << original_infected << "\n";
+    }
+    return ret;
+}
+
+/**
+ *
+ * Cell center coordinates for bbox 0,30 in both directions and 3x3 raster:
+ *
+ *
+ */
+int test_model_with_multiple_networks()
+{
+    // Data
+    Raster<int> infected = {{10, 0, 0}, {0, 0, 10}, {10, 0, 0}};
+    Raster<int> susceptible = {{100, 100, 100}, {100, 100, 100}, {100, 100, 100}};
+    auto total_hosts = infected + susceptible;
+    Raster<int> total_populations = {{100, 100, 100}, {100, 100, 100}, {100, 100, 100}};
+    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
+    // Reference data (to be modified later)
+    auto original_infected = infected;
+    auto expected_susceptible = susceptible;
+    // Simulation data
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+    // Empty data
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+    std::vector<Raster<double>> empty_floats;
+    std::vector<Raster<int>> empty_ints(
+        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    // Config
+    Config config;
+    config.random_seed = 0;
+    config.model_type = "SI";
+    config.reproductive_rate = 100;
+    config.natural_kernel_type = "cauchy";
+    config.natural_scale = 0.1;
+    config.anthro_kernel_type = "network";
+    config.network_movement_types = {"jump", "jump", "walk"};
+    config.network_min_distances = {10, 10, 10};
+    config.network_max_distances = {20, 20, 10};
+    config.use_anthropogenic_kernel = true;
+    config.percent_natural_dispersal = 0;
+    config.use_spreadrates = false;
+    config.anthro_scale = config.natural_scale;  // Unused, but we need to set it.
+    config.rows = 3;
+    config.cols = 3;
+    config.ew_res = 10;
+    config.ns_res = 10;
+
+    config.set_date_start(2001, 3, 1);
+    config.set_date_end(2001, 3, 3);
+    config.create_schedules();
+
+    config.bbox.north = 30;
+    config.bbox.south = 0;
+    config.bbox.east = 30;
+    config.bbox.west = 0;
+
+    /*
+     * Nodes (n):
+     *
+     * ```
+     *       5   15   25 (x)
+     * --- ---- ---- ----
+     * 25 | n1 |    | n2 |  0
+     * 15 |    | n5 | n6 |  1
+     *  5 | n3 | n4 |    |  2
+     * --- ---- ---- ----
+     *  (y)   0    1    2
+     * ```
+     *
+     * There are no cells which get infected without a node,
+     * so there is really only the network spread.
+     */
+    MultiNetwork<Raster<double>::IndexType> network{config.bbox, config.ew_res, config.ns_res, config.network_movement_types, config.network_min_distances, config.network_max_distances};
+    std::stringstream network_stream;
+    network_stream.str("1,2,5;25;15;25;25;25\n");
+    network.load(0, network_stream);
+    network_stream.clear();
+    network_stream.str("3,4,5;5;25;5\n");
+    network.load(1, network_stream);
+    network_stream.clear();
+    network_stream.str("5,6,15;15;25;15\n");
+    network.load(2, network_stream);
+
+    // Objects
+    std::vector<std::vector<int>> suitable_cells =
+        find_suitable_cells<int>(total_hosts);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
+    std::vector<std::vector<int>> movements;
+    Model<Raster<int>, Raster<double>, Raster<double>::IndexType, MultiNetwork<Raster<double>::IndexType>> model(config);
+    // Run
+    for (unsigned step = 0; step < config.scheduler().get_num_steps(); ++step) {
+        model.run_step(
+            step,
+            infected,
+            susceptible,
+            total_populations,
+            total_hosts,
+            dispersers,
+            established_dispersers,
+            total_exposed,
+            empty_ints,
+            empty_ints,
+            zeros,
+            empty_floats,
+            empty_floats,
+            zeros,
+            outside_dispersers,
+            quarantine,
+            zeros,
+            movements,
+            network,
+            suitable_cells);
+    }
+
+    int ret = 0;
+    std::vector<std::pair<int, int>> should_be_same{{0, 1}, {1, 0}, {2, 1}};
+    for (const auto& coords : should_be_same) {
+        if (original_infected(coords.first, coords.second)
+            != infected(coords.first, coords.second)) {
+            std::cerr << "Test with multiple networks:" << "\n";
+            std::cerr << "Infected at: " << coords.first << ", " << coords.second
+                      << " is different but should be the same"
+                      << " (is " << original_infected(coords.first, coords.second)
+                      << " but should be " << infected(coords.first, coords.second)
+                      << ").\n";
+            ret += 1;
+        }
+    }
+    if (sum(original_infected) >= sum(infected)) {
+        std::cerr << "Test with multiple networks:" << "\n";
+        std::cerr << "New infected not higher than original.\n";
+        ret += 1;
+    }
+    if (ret) {
+        std::cerr << "Test with multiple networks:" << "\n";
         std::cerr << "Unexpected (new) infected: \n" << infected << "\n";
         std::cerr << "Original (starting) infected: \n" << original_infected << "\n";
     }
@@ -304,6 +421,7 @@ int run_tests()
     int ret = 0;
 
     ret += test_model_with_network();
+    ret += test_model_with_multinetwork();
     ret += test_model_with_multiple_networks();
 
     if (ret)

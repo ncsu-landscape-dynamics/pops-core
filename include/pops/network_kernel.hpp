@@ -38,35 +38,11 @@ public:
      * The kernel assumes that the *network* is already initialized. It does not modify
      * the network.
      *
-     * The *min_distance* and *max_distance* parameters are used as a range for uniform
-     * real distribution which determines the travel distance (cost) through the network
-     * for one trip if the network movement is walking (and not teleporting).
-     *
      * @param network Existing network
-     * @param min_distance Minimum travel distance (cost)
-     * @param max_distance Maximum travel distance (cost)
-     * @param jump End always on a node (snaps result to the closest node)
      */
     NetworkDispersalKernel(
-        const NetworkType& network,
-        double min_distance,
-        double max_distance,
-        bool jump = false)
-        : network_(network),
-          distance_distribution_(min_distance, max_distance),
-          jump_(jump)
-    {}
-
-    /**
-     * @brief Create kernel which teleports from one node to another.
-     *
-     * The kernel assumes that the *network* is already initialized. It does not modify
-     * the network.
-     *
-     * @param network Existing network
-     */
-    NetworkDispersalKernel(const NetworkType& network)
-        : network_(network), teleport_{true}
+        const NetworkType& network)
+        : network_(network)
     {}
 
     /*! \copybrief RadialDispersalKernel::operator()()
@@ -102,12 +78,6 @@ public:
 protected:
     /** Reference to the network */
     const NetworkType& network_;
-    /** Travel distance (cost) distribution */
-    std::uniform_real_distribution<double> distance_distribution_;
-    /** Step through network instead of traveling between nodes */
-    bool teleport_{false};
-    /** Snap to nodes when traveling between nodes */
-    bool jump_{false};
 };
 
 }  // namespace pops

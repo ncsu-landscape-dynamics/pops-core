@@ -26,12 +26,15 @@ class MultiNetwork {
 public:
     MultiNetwork(
         BBox<double> bbox, double ew_res, double ns_res,
-        std::vector<std::string> movements,
-        std::vector<double> min_distances,
-        std::vector<double> max_distances)
+        const std::vector<std::string>& movements,
+        const std::vector<double>& min_distances,
+        const std::vector<double>& max_distances)
     {
-        for (size_t i = 0; movements.size(); ++i) {
-            networks_.emplace_back(bbox, ew_res, ns_res, movements[i], min_distances[i], max_distances[i]);
+        if (movements.size() != min_distances.size() || min_distances.size() != max_distances.size())
+            throw std::invalid_argument(std::string("Size of movements (" + std::to_string(movements.size()) + "), min_distances (" + std::to_string(min_distances.size()) + "), and max_distances (" + std::to_string(max_distances.size()) + ") should be the same."));
+        for (size_t i = 0; i<movements.size(); ++i) {
+            Network<RasterIndex> network(bbox, ew_res, ns_res, movements[i], min_distances[i], max_distances[i]);
+            networks_.push_back(network);
         }
     }
     /**
@@ -44,7 +47,10 @@ public:
     template<typename InputStream>
     void load(size_t index, InputStream& stream, bool allow_empty = false)
     {
-        networks_.at(index).load(stream, allow_empty);
+        if (index >= networks_.size()) {
+            throw std::out_of_range("Loading to network which was not created (index is " + std::to_string(index) + ", but number of networks is " + std::to_string(networks_.size()) + ")");
+        }
+        networks_[index].load(stream, allow_empty);
     }
     template<typename Generator>
     std::tuple<int, int> move(int row, int col, Generator& generator) const

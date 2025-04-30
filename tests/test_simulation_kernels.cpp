@@ -136,8 +136,7 @@ SwitchDispersalKernel<IntegerRaster, NetworkType> create_static_natural_kernel(
         config.ns_res,
         config.natural_scale,
         config.shape);
-    NetworkDispersalKernel<NetworkType> network_kernel(
-        network, config.network_min_distance, config.network_max_distance);
+    NetworkDispersalKernel<NetworkType> network_kernel(network);
     SwitchDispersalKernel<IntegerRaster, NetworkType> selectable_kernel(
         natural_kernel,
         radial_kernel,
@@ -184,8 +183,7 @@ SwitchDispersalKernel<IntegerRaster, NetworkType> create_static_anthro_kernel(
         config.ns_res,
         config.anthro_scale,
         config.shape);
-    NetworkDispersalKernel<NetworkType> network_kernel(
-        network, config.network_min_distance, config.network_max_distance);
+    NetworkDispersalKernel<NetworkType> network_kernel(network);
     SwitchDispersalKernel<IntegerRaster, NetworkType> selectable_kernel(
         anthro_kernel,
         radial_kernel,

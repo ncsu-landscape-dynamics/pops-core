@@ -61,11 +61,7 @@ std::unique_ptr<KernelInterface<Generator>> create_anthro_kernel(
     else if (anthro_kernel == DispersalKernelType::Network) {
         using Kernel =
             DynamicWrapperKernel<NetworkDispersalKernel<NetworkType>, Generator>;
-        if (config.network_movement == "teleport")
-            return std::unique_ptr<Kernel>(new Kernel(network));
-        bool jump = config.network_movement == "jump" ? true : false;
-        return std::unique_ptr<Kernel>(new Kernel(
-            network, config.network_min_distance, config.network_max_distance, jump));
+        return std::unique_ptr<Kernel>(new Kernel(network));
     }
     else if (!config.dispersal_stochasticity) {
         using Kernel = DynamicWrapperKernel<
