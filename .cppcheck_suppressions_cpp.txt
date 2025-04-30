@@ -2,7 +2,6 @@ constParameterReference
 constVariableReference
 missingIncludeSystem
 unusedFunction
-constParameter
 passedByValue
 noExplicitConstructor
 unreadVariable
@@ -20,4 +19,3 @@ unsignedLessThanZero
 variableScope
 uninitMemberVar
 knownConditionTrueFalse
-unusedStructMember
