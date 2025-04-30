@@ -464,7 +464,7 @@ public:
             std::vector<int> exposed_draw = draw_n_from_cohorts(
                 exposed_, exposed_moved, row_from, col_from, generator);
             int index = 0;
-            for (const auto& raster : exposed_) {
+            for (auto& raster : exposed_) {
                 raster(row_from, col_from) -= exposed_draw[index];
                 raster(row_to, col_to) += exposed_draw[index];
                 index += 1;
@@ -478,7 +478,7 @@ public:
                 col_from,
                 generator);
             int index = 0;
-            for (const auto& raster : mortality_tracker_vector_) {
+            for (auto& raster : mortality_tracker_vector_) {
                 raster(row_from, col_from) -= mortality_draw[index];
                 raster(row_to, col_to) += mortality_draw[index];
                 index += 1;
@@ -625,7 +625,7 @@ public:
             std::vector<int> mortality_draw = draw_n_from_cohorts(
                 mortality_tracker_vector_, count, row, col, generator);
             int index = 0;
-            for (const auto& raster : mortality_tracker_vector_) {
+            for (auto& raster : mortality_tracker_vector_) {
                 raster(row, col) -= mortality_draw[index];
                 index += 1;
             }

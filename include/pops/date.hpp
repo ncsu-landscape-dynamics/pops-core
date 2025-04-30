@@ -55,7 +55,7 @@ public:
     inline Date get_year_end() const;
     inline Date get_next_year_end() const;
     inline Date get_last_day_of_week() const;
-    inline Date get_last_day_of_month();
+    inline Date get_last_day_of_month() const;
     inline bool is_last_week_of_year() const;
     inline bool is_last_month_of_year() const;
     inline bool is_last_day_of_year() const;
@@ -113,7 +113,7 @@ std::ostream& operator<<(std::ostream& os, const Date& d)
     return os;
 }
 
-Date Date::get_year_end()
+Date Date::get_year_end() const
 {
     return Date(year_, 12, 31);
 }
@@ -451,7 +451,7 @@ int Date::weeks_from_date(Date start) const
  *
  * \return current date as a string
  */
-std::string Date::to_string()
+std::string Date::to_string() const
 {
     std::string date = std::to_string(year_) + "-";
     if (month_ < 10) {
