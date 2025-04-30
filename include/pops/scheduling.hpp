@@ -338,7 +338,7 @@ public:
      * @brief Prints schedule for debugging purposes.
      * @param schedule vector of bools to print along the steps
      */
-    void debug_schedule(std::vector<bool>& schedule) const
+    void debug_schedule(const std::vector<bool>& schedule) const
     {
         for (unsigned i = 0; i < num_steps; i++)
             std::cout << steps[i] << ": " << (schedule.at(i) ? "true" : "false")
