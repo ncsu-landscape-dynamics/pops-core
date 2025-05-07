@@ -198,8 +198,13 @@ public:
      * @param min_distance Minimum travel distance (cost)
      * @param max_distance Maximum travel distance (cost)
      */
-    Network(BBox<double> bbox, double ew_res, double ns_res, std::string default_movement = "walk", double min_distance=0,
-            double max_distance=0)
+    Network(
+        BBox<double> bbox,
+        double ew_res,
+        double ns_res,
+        std::string default_movement = "walk",
+        double min_distance = 0,
+        double max_distance = 0)
         : bbox_(bbox),
           ew_res_(ew_res),
           ns_res_(ns_res),
@@ -214,7 +219,8 @@ public:
         }
         else {
             jump_ = default_movement == "jump" ? true : false;
-             // TODO: Check max_distance > min_distance to have a reasonable (and surely valid) distribution.
+            // TODO: Check max_distance > min_distance to have a reasonable (and surely
+            // valid) distribution.
         }
         std::tie(max_row_, max_col_) = xy_to_row_col(bbox_.east, bbox_.south);
     }
@@ -472,7 +478,8 @@ public:
             return this->teleport(row, col, generator);
         }
         /** Travel distance (cost) distribution */
-        std::uniform_real_distribution<double> distance_distribution(min_distance_, max_distance_);
+        std::uniform_real_distribution<double> distance_distribution(
+            min_distance_, max_distance_);
         double distance = distance_distribution(generator);
         return this->walk(row, col, distance, generator, jump_);
     }

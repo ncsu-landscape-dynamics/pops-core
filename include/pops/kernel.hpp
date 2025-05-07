@@ -82,11 +82,12 @@ using DispersalKernel = NaturalAnthropogenicDispersalKernel<
     KernelInterface<Generator>,
     KernelInterface<Generator>>;
 
-template<typename Generator, typename IntegerRaster, typename NetworkType=Network<typename IntegerRaster::IndexType>>
+template<
+    typename Generator,
+    typename IntegerRaster,
+    typename NetworkType = Network<typename IntegerRaster::IndexType>>
 DispersalKernel<Generator> create_dynamic_kernel(
-    const Config& config,
-    const IntegerRaster& dispersers,
-    const NetworkType& network)
+    const Config& config, const IntegerRaster& dispersers, const NetworkType& network)
 {
     return DispersalKernel<Generator>(
         create_natural_kernel<Generator, IntegerRaster, NetworkType>(

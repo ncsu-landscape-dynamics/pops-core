@@ -112,9 +112,7 @@ public:
  */
 template<typename IntegerRaster, typename NetworkType>
 SwitchDispersalKernel<IntegerRaster, NetworkType> create_static_natural_kernel(
-    const Config& config,
-    const IntegerRaster& dispersers,
-    const NetworkType& network)
+    const Config& config, const IntegerRaster& dispersers, const NetworkType& network)
 {
     auto natural_kernel = kernel_type_from_string(config.natural_kernel_type);
     UniformDispersalKernel uniform_kernel(config.rows, config.cols);
@@ -159,9 +157,7 @@ SwitchDispersalKernel<IntegerRaster, NetworkType> create_static_natural_kernel(
  */
 template<typename IntegerRaster, typename NetworkType>
 SwitchDispersalKernel<IntegerRaster, NetworkType> create_static_anthro_kernel(
-    const Config& config,
-    const IntegerRaster& dispersers,
-    const NetworkType& network)
+    const Config& config, const IntegerRaster& dispersers, const NetworkType& network)
 {
     auto anthro_kernel = kernel_type_from_string(config.anthro_kernel_type);
     UniformDispersalKernel uniform_kernel(config.rows, config.cols);
@@ -202,9 +198,7 @@ using StaticDispersalKernel = StaticNaturalAnthropogenicDispersalKernel<
 
 template<typename IntegerRaster, typename NetworkType>
 StaticDispersalKernel<IntegerRaster, NetworkType> create_static_kernel(
-    const Config& config,
-    const IntegerRaster& dispersers,
-    const NetworkType& network)
+    const Config& config, const IntegerRaster& dispersers, const NetworkType& network)
 {
     return StaticDispersalKernel<IntegerRaster, NetworkType>(
         create_static_natural_kernel(config, dispersers, network),
@@ -442,9 +436,7 @@ using SimpleDDKernel = StaticNaturalAnthropogenicDispersalKernel<
 
 template<typename IntegerRaster, typename NetworkType>
 SimpleDDKernel create_simple_static_kernel(
-    const Config& config,
-    const IntegerRaster& dispersers,
-    const NetworkType& network)
+    const Config& config, const IntegerRaster& dispersers, const NetworkType& network)
 {
     UNUSED(config);
     UNUSED(dispersers);
@@ -455,9 +447,7 @@ SimpleDDKernel create_simple_static_kernel(
 
 template<typename IntegerRaster, typename NetworkType>
 RadialDispersalKernel<IntegerRaster> create_radial_kernel(
-    const Config& config,
-    const IntegerRaster& dispersers,
-    const NetworkType& network)
+    const Config& config, const IntegerRaster& dispersers, const NetworkType& network)
 {
     UNUSED(dispersers);
     UNUSED(network);
@@ -477,9 +467,7 @@ using DoubleRadialKernel = StaticNaturalAnthropogenicDispersalKernel<
     RadialDispersalKernel<IntegerRaster>>;
 template<typename IntegerRaster, typename NetworkType>
 DoubleRadialKernel<IntegerRaster> create_double_radial_kernel(
-    const Config& config,
-    const IntegerRaster& dispersers,
-    const NetworkType& network)
+    const Config& config, const IntegerRaster& dispersers, const NetworkType& network)
 {
     return DoubleRadialKernel<IntegerRaster>(
         create_radial_kernel(config, dispersers, network),

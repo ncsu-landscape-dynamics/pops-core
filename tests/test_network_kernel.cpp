@@ -141,8 +141,8 @@ int test_model_with_network()
         if (original_infected(coords.first, coords.second)
             != infected(coords.first, coords.second)) {
             std::cerr << "Infected at: " << coords.first << ", " << coords.second
-                      << " is different but should be the same"
-                      << " (is " << original_infected(coords.first, coords.second)
+                      << " is different but should be the same" << " (is "
+                      << original_infected(coords.first, coords.second)
                       << " but should be " << infected(coords.first, coords.second)
                       << ").\n";
             ret += 1;
@@ -210,10 +210,16 @@ int test_model_with_multinetwork()
     config.bbox.east = 100;
     config.bbox.west = 0;
 
-    MultiNetwork<Raster<double>::IndexType> network{config.bbox, config.ew_res, config.ns_res, config.network_movement_types, config.network_min_distances, config.network_max_distances};
+    MultiNetwork<Raster<double>::IndexType> network{
+        config.bbox,
+        config.ew_res,
+        config.ns_res,
+        config.network_movement_types,
+        config.network_min_distances,
+        config.network_max_distances};
     std::stringstream network_stream{
-                                     "1,2,16.7;16.7;50.0;16.7;50.0;50.0;50.0;83.3\n"
-                                     "4,3,83.3;50.0;83.3;83.3\n"};
+        "1,2,16.7;16.7;50.0;16.7;50.0;50.0;50.0;83.3\n"
+        "4,3,83.3;50.0;83.3;83.3\n"};
     network.load(0, network_stream);
 
     // Objects
@@ -222,7 +228,12 @@ int test_model_with_multinetwork()
     QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, 0);
     std::vector<std::vector<int>> movements;
-    Model<Raster<int>, Raster<double>, Raster<double>::IndexType, MultiNetwork<Raster<double>::IndexType>> model(config);
+    Model<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        MultiNetwork<Raster<double>::IndexType>>
+        model(config);
     // Run
     for (unsigned step = 0; step < config.scheduler().get_num_steps(); ++step) {
         model.run_step(
@@ -255,8 +266,8 @@ int test_model_with_multinetwork()
             != infected(coords.first, coords.second)) {
             std::cerr << "Trivial MultiNetwork test:" << "\n";
             std::cerr << "Infected at: " << coords.first << ", " << coords.second
-                      << " is different but should be the same"
-                      << " (is " << original_infected(coords.first, coords.second)
+                      << " is different but should be the same" << " (is "
+                      << original_infected(coords.first, coords.second)
                       << " but should be " << infected(coords.first, coords.second)
                       << ").\n";
             ret += 1;
@@ -346,7 +357,13 @@ int test_model_with_multiple_networks()
      * There are no cells which get infected without a node,
      * so there is really only the network spread.
      */
-    MultiNetwork<Raster<double>::IndexType> network{config.bbox, config.ew_res, config.ns_res, config.network_movement_types, config.network_min_distances, config.network_max_distances};
+    MultiNetwork<Raster<double>::IndexType> network{
+        config.bbox,
+        config.ew_res,
+        config.ns_res,
+        config.network_movement_types,
+        config.network_min_distances,
+        config.network_max_distances};
     std::stringstream network_stream;
     network_stream.str("1,2,5;25;15;25;25;25\n");
     network.load(0, network_stream);
@@ -363,7 +380,12 @@ int test_model_with_multiple_networks()
     QuarantineEscapeAction<Raster<int>> quarantine(
         zeros, config.ew_res, config.ns_res, 0);
     std::vector<std::vector<int>> movements;
-    Model<Raster<int>, Raster<double>, Raster<double>::IndexType, MultiNetwork<Raster<double>::IndexType>> model(config);
+    Model<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        MultiNetwork<Raster<double>::IndexType>>
+        model(config);
     // Run
     for (unsigned step = 0; step < config.scheduler().get_num_steps(); ++step) {
         model.run_step(
@@ -396,8 +418,8 @@ int test_model_with_multiple_networks()
             != infected(coords.first, coords.second)) {
             std::cerr << "Test with multiple networks:" << "\n";
             std::cerr << "Infected at: " << coords.first << ", " << coords.second
-                      << " is different but should be the same"
-                      << " (is " << original_infected(coords.first, coords.second)
+                      << " is different but should be the same" << " (is "
+                      << original_infected(coords.first, coords.second)
                       << " but should be " << infected(coords.first, coords.second)
                       << ").\n";
             ret += 1;

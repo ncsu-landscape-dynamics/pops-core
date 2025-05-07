@@ -43,9 +43,7 @@ namespace pops {
  */
 template<typename Generator, typename IntegerRaster, typename NetworkType>
 std::unique_ptr<KernelInterface<Generator>> create_anthro_kernel(
-    const Config& config,
-    const IntegerRaster& dispersers,
-    const NetworkType& network)
+    const Config& config, const IntegerRaster& dispersers, const NetworkType& network)
 {
     auto anthro_kernel = kernel_type_from_string(config.anthro_kernel_type);
     if (anthro_kernel == DispersalKernelType::Uniform) {

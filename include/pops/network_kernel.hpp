@@ -40,10 +40,7 @@ public:
      *
      * @param network Existing network
      */
-    NetworkDispersalKernel(
-        const NetworkType& network)
-        : network_(network)
-    {}
+    NetworkDispersalKernel(const NetworkType& network) : network_(network) {}
 
     /*! \copybrief RadialDispersalKernel::operator()()
      *
