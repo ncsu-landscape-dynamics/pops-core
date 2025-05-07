@@ -15,4 +15,4 @@ jobs:
         docker build -t doozyx/clang-format-lint-action "github.com/DoozyX/clang-format-lint-action"
     - name: Run clang-format lint
       run: |
-        docker run --rm --workdir /src -v $(pwd):/src doozyx/clang-format-lint-action --clang-format-executable /clang-format/clang-format10 -r --exclude .git include/*/*.hpp tests/*.cpp
+        docker run --rm --workdir /src -v $(pwd):/src doozyx/clang-format-lint-action --clang-format-executable /clang-format/clang-format18 -r --exclude .git include/*/*.hpp tests/*.cpp
