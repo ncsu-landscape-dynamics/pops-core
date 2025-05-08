@@ -395,9 +395,8 @@ int test_seed_config_vector_incomplete_list_recognized()
 {
     int ret = 0;
     Config config;
-    bool thrown = throws_exception<std::invalid_argument>([&config] {
-        config.read_seeds({1, 2, 3});
-    });
+    bool thrown = throws_exception<std::invalid_argument>(
+        [&config] { config.read_seeds({1, 2, 3}); });
     if (!thrown) {
         std::cerr << "test_seed_config_vector_incomplete_list_recognized: "
                      "An incomplete list of seeds wrongly accepted\n";
