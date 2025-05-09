@@ -181,8 +181,11 @@ public:
     double anthro_scale{0};
     std::string anthro_direction;
     std::string network_movement;  ///< walk, jump, teleport
+    std::vector<std::string> network_movement_types;  ///< walk, jump, teleport
     double network_min_distance{0};
     double network_max_distance{0};
+    std::vector<double> network_min_distances{0};
+    std::vector<double> network_max_distances{0};
     double anthro_kappa{0};
     double shape{1.0};
     // Treatments
