@@ -189,12 +189,12 @@ public:
      *
      * The *min_distance* and *max_distance* parameters are used as a range for uniform
      * real distribution which determines the travel distance (cost) through the network
-     * for one trip if the network movement is walking (and not teleporting).
+     * for one trip if the network movement is walking or jumping (and not teleporting).
      *
-     * @param bbox Bounding box of the raster grid (in real world coordinates)
+     * @param bbox Bounding box of the raster grid (in real-world coordinates)
      * @param ew_res East-west resolution of the raster grid
      * @param ns_res North-south resolution of the raster grid
-     * @param default_movement End always on a node (snaps result to the closest node)
+     * @param default_movement Travel mode (walk, jump, or teleport)
      * @param min_distance Minimum travel distance (cost)
      * @param max_distance Maximum travel distance (cost)
      */
@@ -471,6 +471,25 @@ public:
         throw std::invalid_argument("No node with a given id");
     }
 
+    /**
+     * @brief Move from cell to cell through the network
+     *
+     * Uses the default movement. For walking and jumping, it generates the distance
+     * from min and max distances.
+     *
+     * A uniform distribution is created for the distance every time this function is
+     * called which allows the function to be const.
+     * If you need some other distribution than uniform or the creation of a
+     * distribution is a concern, use the underlying walk() and teleport() methods
+     * directly.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param generator Random number generator
+     * @return Final row and column pair
+     *
+     * @see walk(), teleport()
+     */
     template<typename Generator>
     std::tuple<int, int> move(int row, int col, Generator& generator) const
     {

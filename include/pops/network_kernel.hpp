@@ -56,6 +56,8 @@ public:
     /**
      * @brief Test if cell is eligible to be used with the kernel.
      *
+     * Tests if node is present at a cell in the underlying network.
+     *
      * @param row Row to be used with the kernel
      * @param col Column to be used with the kernel
      * @return true if cell can be used, false otherwise

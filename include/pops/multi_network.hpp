@@ -21,10 +21,28 @@
 
 namespace pops {
 
+/**
+ * @brief The MultiNetwork class handles one or more networks.
+ *
+ * @see Network
+ */
 template<typename RasterIndex>
 class MultiNetwork
 {
 public:
+    /**
+     * @brief Create MultiNetwork with multiple (empty) networks
+     *
+     * If a network uses teleport, value of min and max distance is ignored
+     * by the individual underlying network.
+     *
+     * @param bbox Bounding box of the raster grid (in real-world coordinates)
+     * @param ew_res East-west resolution of the raster grid
+     * @param ns_res North-south resolution of the raster grid
+     * @param movements Travel mode for each network (walk, jump, or teleport)
+     * @param min_distances Minimum travel distance for each network
+     * @param max_distances Maximum travel distance for each network
+     */
     MultiNetwork(
         BBox<double> bbox,
         double ew_res,
@@ -47,9 +65,15 @@ public:
         }
     }
     /**
-     * @brief load
-     * @param stream
-     * @param allow_empty
+     * @brief Load one network from an input stream.
+     *
+     * The network is identified using an *index*. As for the network order,
+     * the indices are the same as indices of the lists provided in the
+     * constructor.
+     *
+     * @param index zero-based index of the network to load the data to
+     * @param stream Input stream containing text records for network
+     * @param allow_empty True if the loaded network can be empty
      *
      * @see Network::load()
      */
@@ -64,6 +88,19 @@ public:
         }
         networks_[index].load(stream, allow_empty);
     }
+    /**
+     * @brief Move from cell to cell through the network
+     *
+     * For each network, uses the movement type set in the construtor.
+     * For walking and jumping, also the min and max distances will be used.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param generator Random number generator
+     * @return Final row and column pair
+     *
+     * @see Network::move()
+     */
     template<typename Generator>
     std::tuple<int, int> move(int row, int col, Generator& generator) const
     {
@@ -71,6 +108,20 @@ public:
             pick_network(row, col, generator); /* needs to be eligible */
         return selected_network->move(row, col, generator);
     }
+    /**
+     * @brief Pick a random network from the contained networks
+     *
+     * Network is considered selectable only if it has a node at the given cell.
+     * Test beforehand using has_node_at() if a node exists.
+     *
+     * @param row Row index of the cell
+     * @param col Column index of the cell
+     * @param generator Random number generator
+     *
+     * @return
+     *
+     * @see has_node_at()
+     */
     template<typename Generator>
     const Network<RasterIndex>*
     pick_network(int row, int col, Generator& generator) const
