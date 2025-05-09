@@ -56,7 +56,7 @@ int test_model_with_network()
     Raster<int> infected = {{0, 50, 0}, {0, 0, 50}, {0, 0, 0}};
     Raster<int> susceptible = {{100, 100, 100}, {100, 0, 100}, {100, 0, 100}};
     auto total_hosts = infected + susceptible;
-    Raster<int> total_populations = {{100, 100, 100}, {100, 100, 100}, {100, 100, 100}};
+    Raster<int> total_populations{total_hosts};
     Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
     // Reference data (to be modified later)
     auto original_infected = infected;
@@ -77,16 +77,17 @@ int test_model_with_network()
     config.natural_kernel_type = "cauchy";
     config.natural_scale = 0.1;
     config.anthro_kernel_type = "network";
-    config.network_min_distance = 1;
-    config.network_max_distance = 9;
+    double resolution = 33.3;
+    config.network_min_distance = 0;
+    config.network_max_distance = 9 * resolution;
     config.use_anthropogenic_kernel = true;
     config.percent_natural_dispersal = 0;
     config.use_spreadrates = false;
     config.anthro_scale = config.natural_scale;  // Unused, but we need to set it.
     config.rows = 3;
     config.cols = 3;
-    config.ew_res = 33.3;
-    config.ns_res = 33.3;
+    config.ew_res = resolution;
+    config.ns_res = resolution;
 
     config.set_date_start(2001, 3, 1);
     config.set_date_end(2001, 3, 3);
@@ -152,9 +153,15 @@ int test_model_with_network()
         std::cerr << "New infected not higher than original.\n";
         ret += 1;
     }
+    Raster<int> expected_infected = {{0, 150, 100}, {0, 0, 150}, {100, 0, 0}};
+    if (expected_infected != infected) {
+        std::cerr << "New infected has unexpected values.\n";
+        ret += 1;
+    }
     if (ret) {
-        std::cerr << "Unexpected (new) infected: \n" << infected << "\n";
-        std::cerr << "Original (starting) infected: \n" << original_infected << "\n";
+        std::cerr << "New (unexpected) infected:\n" << infected << "\n";
+        std::cerr << "Original (starting) infected:\n" << original_infected << "\n";
+        std::cerr << "Expected infected:\n" << expected_infected << "\n";
     }
     return ret;
 }
