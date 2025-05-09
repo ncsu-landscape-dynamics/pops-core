@@ -98,7 +98,13 @@ int test_model_with_network()
     config.bbox.east = 100;
     config.bbox.west = 0;
 
-    Network<int> network{config.bbox, config.ew_res, config.ns_res};
+    Network<int> network{
+        config.bbox,
+        config.ew_res,
+        config.ns_res,
+        config.network_movement,
+        config.network_min_distance,
+        config.network_max_distance};
     std::stringstream network_stream{
         "1,2,16.7;16.7;50.0;16.7;50.0;50.0;50.0;83.3\n"
         "4,3,83.3;50.0;83.3;83.3\n"};
