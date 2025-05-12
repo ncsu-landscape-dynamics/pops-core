@@ -1128,9 +1128,7 @@ protected:
 
         // Pick nodes based on edge probabilities if they are available.
         if (!probabilities.empty()) {
-            std::discrete_distribution<int> dd{
-                probabilities.begin(), probabilities.end()};
-            return nodes.at(dd(generator));
+            return pick_weighted_random_item(nodes, probabilities, generator);
         }
         // Pick a connected node with equal edge probabilities.
         return pick_random_item(nodes, generator);

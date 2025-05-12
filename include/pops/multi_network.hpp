@@ -16,6 +16,7 @@
 #ifndef MULTI_NETWORK_HPP
 #define MULTI_NETWORK_HPP
 
+#include "config.hpp"
 #include "network.hpp"
 #include "utils.hpp"
 
@@ -42,6 +43,9 @@ public:
      * @param movements Travel mode for each network (walk, jump, or teleport)
      * @param min_distances Minimum travel distance for each network
      * @param max_distances Maximum travel distance for each network
+     * @param network_weights Weights for picking a network for a cell
+     *
+     * @see move()
      */
     MultiNetwork(
         BBox<double> bbox,
@@ -49,7 +53,9 @@ public:
         double ns_res,
         const std::vector<std::string>& movements,
         const std::vector<double>& min_distances,
-        const std::vector<double>& max_distances)
+        const std::vector<double>& max_distances,
+        const std::vector<double>& network_weights = std::vector<double>())
+        : network_weights_(network_weights)
     {
         if (movements.size() != min_distances.size()
             || min_distances.size() != max_distances.size())
@@ -58,12 +64,32 @@ public:
                 + "), min_distances (" + std::to_string(min_distances.size())
                 + "), and max_distances (" + std::to_string(max_distances.size())
                 + ") should be the same."));
+        if (!network_weights_.empty() && network_weights_.size() != movements.size()) {
+            throw std::invalid_argument(
+                std::string("Size of network_weights (")
+                + std::to_string(network_weights_.size())
+                + ") needs to be the same as movements ("
+                + std::to_string(movements.size()) + ") if network weights are set");
+        }
         for (size_t i = 0; i < movements.size(); ++i) {
             Network<RasterIndex> network(
                 bbox, ew_res, ns_res, movements[i], min_distances[i], max_distances[i]);
             networks_.push_back(network);
         }
     }
+    /**
+     * Constructor taking the configuration instead of individual parameters
+     */
+    MultiNetwork(Config config)
+        : MultiNetwork(
+              config.bbox,
+              config.ew_res,
+              config.ns_res,
+              config.network_movement_types,
+              config.network_min_distances,
+              config.network_max_distances,
+              config.network_weights)
+    {}
     /**
      * @brief Load one network from an input stream.
      *
@@ -94,6 +120,12 @@ public:
      * For each network, uses the movement type set in the construtor.
      * For walking and jumping, also the min and max distances will be used.
      *
+     * If there is more than one network available at a cell, i.e.,
+     * more than one network has a node at a given row and column, the network
+     * to be used for movement will be selected randomly with uniform probabilities. If
+     * the network weights were supplied in the constructor, the weights are considered
+     * during the selection.
+     *
      * @param row Row index of the cell
      * @param col Column index of the cell
      * @param generator Random number generator
@@ -118,7 +150,7 @@ public:
      * @param col Column index of the cell
      * @param generator Random number generator
      *
-     * @return
+     * @return Randomly selected network
      *
      * @see has_node_at()
      */
@@ -127,12 +159,27 @@ public:
     pick_network(int row, int col, Generator& generator) const
     {
         std::vector<const Network<RasterIndex>*> selectable_networks;
+        // We assume that when multiple networks are used, their nodes are
+        // generally the same (that is overlapping), so when there is one
+        // there are likely all, so we reserve the space.
         selectable_networks.reserve(networks_.size());
-        for (const auto& network : networks_) {
+        std::vector<double> weights;
+        weights.reserve(weights.size());
+        // Rewritte with zip after update to C++23.
+        for (size_t i = 0; i < networks_.size(); ++i) {
+            const auto& network = networks_[i];
             if (network.has_node_at(row, col)) {
                 selectable_networks.push_back(&network);
+                if (!network_weights_.empty()) {
+                    weights.push_back(network_weights_.at(i));
+                }
             }
         }
+        // Pick network based on edge weights if they are available.
+        if (!weights.empty()) {
+            return pick_weighted_random_item(selectable_networks, weights, generator);
+        }
+        // Otherwise, pick a network with equal weights.
         return pick_random_item(selectable_networks, generator);
     }
     /**
@@ -156,6 +203,7 @@ public:
 protected:
     /** Reference to the network */
     std::vector<Network<RasterIndex>> networks_;
+    std::vector<double> network_weights_;
     /** Travel distance (cost) distribution */
     std::uniform_real_distribution<double> distance_distribution_;
     /** Step through network instead of traveling between nodes */

@@ -184,8 +184,9 @@ public:
     std::vector<std::string> network_movement_types;  ///< walk, jump, teleport
     double network_min_distance{0};
     double network_max_distance{0};
-    std::vector<double> network_min_distances{0};
-    std::vector<double> network_max_distances{0};
+    std::vector<double> network_min_distances;
+    std::vector<double> network_max_distances;
+    std::vector<double> network_weights;
     double anthro_kappa{0};
     double shape{1.0};
     // Treatments
