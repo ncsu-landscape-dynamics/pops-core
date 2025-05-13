@@ -307,8 +307,7 @@ public:
             }
         }
         else {
-            dispersers_from_cell =
-                static_cast<int>(std::floor(lambda * infected_at(row, col)));
+            dispersers_from_cell = std::lround(lambda * infected_at(row, col));
         }
         return dispersers_from_cell;
     }
@@ -362,7 +361,8 @@ public:
      * @note For consistency with the previous implementation, this does not modify
      * mortality cohorts nor touches the exposed cohorts.
      */
-    int pests_from(RasterIndex row, RasterIndex col, int count, Generator& generator)
+    int
+    pests_from(RasterIndex row, RasterIndex col, int count, const Generator& generator)
     {
         UNUSED(generator);
         susceptible_(row, col) += count;
@@ -397,7 +397,8 @@ public:
      *
      * @note This may be merged with add_disperser_at() in the future.
      */
-    int pests_to(RasterIndex row, RasterIndex col, int count, Generator& generator)
+    int
+    pests_to(RasterIndex row, RasterIndex col, int count, const Generator& generator)
     {
         UNUSED(generator);
         // The target cell can accept all.
@@ -827,16 +828,16 @@ public:
             return;
         int max_index = mortality_tracker_vector_.size() - mortality_time_lag - 1;
         for (int index = 0; index <= max_index; index++) {
-            int mortality_in_index = 0;
             if (mortality_tracker_vector_[index](row, col) > 0) {
+                int mortality_in_index = 0;
                 // used to ensure that all infected hosts in the last year of
                 // tracking mortality
                 if (index == 0) {
                     mortality_in_index = mortality_tracker_vector_[index](row, col);
                 }
                 else {
-                    mortality_in_index = static_cast<int>(std::floor(
-                        mortality_rate * mortality_tracker_vector_[index](row, col)));
+                    mortality_in_index = std::lround(
+                        mortality_rate * mortality_tracker_vector_[index](row, col));
                 }
                 mortality_tracker_vector_[index](row, col) -= mortality_in_index;
                 died_(row, col) += mortality_in_index;

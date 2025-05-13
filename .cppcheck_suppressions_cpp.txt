@@ -1,6 +1,7 @@
+constParameterReference
+constVariableReference
 missingIncludeSystem
 unusedFunction
-constParameter
 passedByValue
 noExplicitConstructor
 unreadVariable
