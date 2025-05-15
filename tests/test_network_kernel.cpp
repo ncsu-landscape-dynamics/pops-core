@@ -1,4 +1,3 @@
-#include <fstream>
 #include <regex>
 #include <random>
 
@@ -7,6 +6,7 @@
 using namespace pops;
 
 #include <numeric>
+#include <memory>
 
 template<typename Number, typename Container>
 Number sum(const Container& container)
@@ -600,6 +600,95 @@ int test_model_with_weighted_networks()
     return ret;
 }
 
+template<typename NetworkType>
+int mock_model_run_step_function(const NetworkType& network)
+{
+    std::default_random_engine generator;
+    int row;
+    int col;
+    int start_row = 0;
+    int start_col = 2;
+    std::tie(row, col) = network.move(start_row, start_col, generator);
+    bool is_different = (row != start_row || col != start_col);
+    if (!is_different) {
+        std::cout << "No movement: row, col: " << row << ", " << col << "\n";
+    }
+    return int(!is_different);
+}
+
+int test_usage_example_single_network()
+{
+    std::cout << "test_usage_example_single_network" << "\n";
+    Config config;
+    config.ns_res = 10;
+    config.ew_res = 10;
+    std::unique_ptr<Network<int>> network{nullptr};
+    config.bbox.north = 30;
+    config.bbox.south = 0;
+    config.bbox.east = 30;
+    config.bbox.west = 0;
+    std::string network_movement = "walk";
+    config.network_movement = network_movement;
+    config.network_min_distance = 25;
+    config.network_max_distance = 30;
+    network.reset(new Network<int>(
+        config.bbox,
+        config.ew_res,
+        config.ns_res,
+        config.network_movement,
+        config.network_min_distance,
+        config.network_max_distance));
+    std::istringstream network_stream{"1,2,5;25;15;25;25;25\n"};
+    network->load(network_stream);
+    int ret =
+        mock_model_run_step_function(network ? *network : Network<int>::null_network());
+    return ret;
+}
+
+int test_usage_example_multiple_networks()
+{
+    Config config;
+    config.ns_res = 10;
+    config.ew_res = 10;
+    // In this usage pattern, network pointer initialization happens everytime
+    // even if we don't use a network.
+    std::unique_ptr<MultiNetwork<int>> network{nullptr};
+
+    // Initialize the config from whatever data structure we have
+    // (here hardcoded literals).
+    config.bbox.north = 30;
+    config.bbox.south = 0;
+    config.bbox.east = 30;
+    config.bbox.west = 0;
+    std::vector<double> network_min_distances = {25, 25};
+    std::vector<double> network_max_distances = {30, 30};
+    std::vector<std::string> network_movements = {"walk", "walk"};
+    if (network_min_distances.size() != network_min_distances.size()
+        || network_max_distances.size() != network_movements.size()) {
+        throw std::runtime_error(
+            "Inputs for multiple networks have inconsistent sizes");
+    }
+    for (size_t i = 0; i < network_movements.size(); ++i) {
+        config.network_min_distances.push_back(network_min_distances.at(i));
+        config.network_max_distances.push_back(network_max_distances.at(i));
+        config.network_movement_types.push_back(network_movements.at(i));
+    }
+    // At this point, we know, we are creating a network, so we use config to do that.
+    // We use config as a parameter, rather than the individual parameter because
+    // that's how other objects are used, although in this code, individual parameters
+    // would make a better sense.
+    network.reset(new MultiNetwork<int>(config));
+    // Here, our network data are string literals, but they could be filenames
+    // if we load from files instead of strings.
+    std::vector<std::string> network_inputs = {
+        "1,2,5;25;15;25;25;25\n", "1,3,5;25;5;15;5;5\n"};
+    network->load_from_strings(network_inputs);
+    // Now pass network to the Model
+    int ret = mock_model_run_step_function(
+        network ? *network : MultiNetwork<int>::null_network());
+    return ret;
+}
+
 int run_tests()
 {
     int ret = 0;
@@ -608,6 +697,8 @@ int run_tests()
     ret += test_model_with_multinetwork();
     ret += test_model_with_multiple_networks();
     ret += test_model_with_weighted_networks();
+    ret += test_usage_example_single_network();
+    ret += test_usage_example_multiple_networks();
 
     if (ret)
         std::cerr << "Number of errors in the network kernel test: " << ret << "\n";

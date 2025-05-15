@@ -16,6 +16,9 @@
 #ifndef MULTI_NETWORK_HPP
 #define MULTI_NETWORK_HPP
 
+#include <fstream>
+#include <sstream>
+
 #include "config.hpp"
 #include "network.hpp"
 #include "utils.hpp"
@@ -90,6 +93,71 @@ public:
               config.network_max_distances,
               config.network_weights)
     {}
+
+    /**
+     * @brief Create an empty network not meant for futher use.
+     *
+     * This is useful when a network object is needed to construct a kernel, but it will
+     * not be used in runtime.
+     *
+     * @return New Network object
+     */
+    static MultiNetwork null_network()
+    {
+        std::vector<std::string> empty_movements;
+        std::vector<double> empty_distances;
+        return MultiNetwork(
+            BBox<double>(), 0, 0, empty_movements, empty_distances, empty_distances);
+    }
+
+    /**
+     * @brief Load network data from files
+     *
+     * @param inputs Filenames (same size as number of networks)
+     * @param allow_empty True if the loaded network can be empty
+     * @see load()
+     */
+    void
+    load_from_files(const std::vector<std::string>& inputs, bool allow_empty = false)
+    {
+        if (inputs.size() != networks_.size()) {
+            throw std::invalid_argument(
+                std::string("Number of network input files (")
+                + std::to_string(inputs.size())
+                + ") is different than number of networks ("
+                + std::to_string(networks_.size()) + ")");
+        }
+        size_t i{0};
+        for (const auto& item : inputs) {
+            std::ifstream network_stream{item};
+            this->load(i++, network_stream, allow_empty);
+        }
+    }
+
+    /**
+     * @brief Load network data which are strings
+     *
+     * @param inputs Network data (same size as number of networks)
+     * @param allow_empty True if the loaded network can be empty
+     * @see load()
+     */
+    void
+    load_from_strings(const std::vector<std::string>& inputs, bool allow_empty = false)
+    {
+        if (inputs.size() != networks_.size()) {
+            throw std::invalid_argument(
+                std::string("Number of network input files (")
+                + std::to_string(inputs.size())
+                + ") is different than number of networks ("
+                + std::to_string(networks_.size()) + ")");
+        }
+        size_t i{0};
+        for (const auto& item : inputs) {
+            std::istringstream network_stream{item};
+            this->load(i++, network_stream, allow_empty);
+        }
+    }
+
     /**
      * @brief Load one network from an input stream.
      *
