@@ -169,7 +169,7 @@ public:
     int survival_rate_day{0};
     // SI/SEI
     std::string model_type;
-    int latency_period_steps;
+    int latency_period_steps{0};
     // Kernels
     std::string natural_kernel_type;
     double natural_scale{0};
@@ -194,7 +194,7 @@ public:
     // Mortality
     bool use_mortality{false};
     std::string mortality_frequency;
-    unsigned mortality_frequency_n;
+    unsigned mortality_frequency_n{0};
     /** Mortality rate if used without pest-host table
      *
      * @see read_pest_host_table()
@@ -205,17 +205,17 @@ public:
     // Quarantine
     bool use_quarantine{false};
     std::string quarantine_frequency;
-    unsigned quarantine_frequency_n;
+    unsigned quarantine_frequency_n{0};
     std::string quarantine_directions;
     // Movements
     bool use_movements{false};
     std::vector<unsigned> movement_schedule;
     double dispersal_percentage{0.99};
     std::string output_frequency;
-    unsigned output_frequency_n;
+    unsigned output_frequency_n{0};
     bool use_spreadrates{true};
     std::string spreadrate_frequency;
-    unsigned spreadrate_frequency_n;
+    unsigned spreadrate_frequency_n{0};
     bool use_overpopulation_movements{false};
     double overpopulation_percentage{0};
     double leaving_percentage{0};
