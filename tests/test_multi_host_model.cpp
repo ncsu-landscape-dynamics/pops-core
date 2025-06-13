@@ -89,10 +89,9 @@ int test_minimal_parameters_one_host()
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
 
     TestModel::StandardSingleHostPool host_pool(
-        model_type_from_string(config.model_type),
+        config,
         susceptible,
         empty_integers,
-        config.latency_period_steps,
         infected,
         total_exposed,
         empty_integer,
@@ -100,12 +99,6 @@ int test_minimal_parameters_one_host()
         died,
         total_hosts,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {&host_pool};
     TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
@@ -267,10 +260,9 @@ int test_minimal_parameters_two_hosts()
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
 
     TestModel::StandardSingleHostPool host_pool_1(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_1,
         empty_integers,
-        config.latency_period_steps,
         infected_1,
         total_exposed_1,
         empty_integer,
@@ -278,18 +270,11 @@ int test_minimal_parameters_two_hosts()
         died_1,
         total_hosts_1,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     TestModel::StandardSingleHostPool host_pool_2(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_2,
         empty_integers,
-        config.latency_period_steps,
         infected_2,
         total_exposed_2,
         empty_integer,
@@ -297,12 +282,6 @@ int test_minimal_parameters_two_hosts()
         died_2,
         total_hosts_2,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
@@ -488,10 +467,9 @@ int test_two_hosts_with_partial_competency_table_one_only()
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
 
     TestModel::StandardSingleHostPool host_pool_1(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_1,
         empty_integers,
-        config.latency_period_steps,
         infected_1,
         total_exposed_1,
         empty_integer,
@@ -499,18 +477,11 @@ int test_two_hosts_with_partial_competency_table_one_only()
         died_1,
         total_hosts_1,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     TestModel::StandardSingleHostPool host_pool_2(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_2,
         empty_integers,
-        config.latency_period_steps,
         infected_2,
         total_exposed_2,
         empty_integer,
@@ -518,12 +489,6 @@ int test_two_hosts_with_partial_competency_table_one_only()
         died_2,
         total_hosts_2,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
@@ -712,10 +677,9 @@ int test_two_hosts_with_complete_competency_table_one_only()
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
 
     TestModel::StandardSingleHostPool host_pool_1(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_1,
         empty_integers,
-        config.latency_period_steps,
         infected_1,
         total_exposed_1,
         empty_integer,
@@ -723,18 +687,11 @@ int test_two_hosts_with_complete_competency_table_one_only()
         died_1,
         total_hosts_1,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     TestModel::StandardSingleHostPool host_pool_2(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_2,
         empty_integers,
-        config.latency_period_steps,
         infected_2,
         total_exposed_2,
         empty_integer,
@@ -742,12 +699,6 @@ int test_two_hosts_with_complete_competency_table_one_only()
         died_2,
         total_hosts_2,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
@@ -941,10 +892,9 @@ int test_two_hosts_with_table_other_than_one()
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
 
     TestModel::StandardSingleHostPool host_pool_1(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_1,
         empty_integers,
-        config.latency_period_steps,
         infected_1,
         total_exposed_1,
         empty_integer,
@@ -952,18 +902,11 @@ int test_two_hosts_with_table_other_than_one()
         died_1,
         total_hosts_1,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     TestModel::StandardSingleHostPool host_pool_2(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_2,
         empty_integers,
-        config.latency_period_steps,
         infected_2,
         total_exposed_2,
         empty_integer,
@@ -971,12 +914,6 @@ int test_two_hosts_with_table_other_than_one()
         died_2,
         total_hosts_2,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
@@ -1168,10 +1105,9 @@ int test_two_hosts_susceptibilities_one()
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
 
     TestModel::StandardSingleHostPool host_pool_1(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_1,
         empty_integers,
-        config.latency_period_steps,
         infected_1,
         total_exposed_1,
         empty_integer,
@@ -1179,18 +1115,11 @@ int test_two_hosts_susceptibilities_one()
         died_1,
         total_hosts_1,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     TestModel::StandardSingleHostPool host_pool_2(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_2,
         empty_integers,
-        config.latency_period_steps,
         infected_2,
         total_exposed_2,
         empty_integer,
@@ -1198,12 +1127,6 @@ int test_two_hosts_susceptibilities_one()
         died_2,
         total_hosts_2,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
@@ -1393,10 +1316,9 @@ int test_two_hosts_susceptibilities_other_than_one()
     Raster<double> weather = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
 
     TestModel::StandardSingleHostPool host_pool_1(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_1,
         empty_integers,
-        config.latency_period_steps,
         infected_1,
         total_exposed_1,
         empty_integer,
@@ -1404,18 +1326,11 @@ int test_two_hosts_susceptibilities_other_than_one()
         died_1,
         total_hosts_1,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     TestModel::StandardSingleHostPool host_pool_2(
-        model_type_from_string(config.model_type),
+        config,
         susceptible_2,
         empty_integers,
-        config.latency_period_steps,
         infected_2,
         total_exposed_2,
         empty_integer,
@@ -1423,12 +1338,6 @@ int test_two_hosts_susceptibilities_other_than_one()
         died_2,
         total_hosts_2,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {
         &host_pool_1, &host_pool_2};
