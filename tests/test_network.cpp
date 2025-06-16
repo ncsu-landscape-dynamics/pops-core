@@ -650,14 +650,22 @@ RawConfig read_config(Stream& stream)
 {
     RawConfig config;
     std::string line;
+    long line_number{0};
     while (std::getline(stream, line)) {
+        ++line_number;
+        if (!line.size()) {
+            // We allow and ignore empty lines.
+            continue;
+        }
         std::regex delimeter(R"([\s]*:[\s]*)");
         std::smatch match;
         if (regex_search(line, match, delimeter)) {
             config.set(match.prefix(), match.suffix());
         }
         else {
-            throw std::runtime_error(std::string("Incorrect format at line: ") + line);
+            throw std::runtime_error(
+                std::string("Incorrect config format at line ")
+                + std::to_string(line_number) + ": " + line);
         }
     }
     return config;

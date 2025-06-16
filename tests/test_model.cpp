@@ -71,7 +71,7 @@ int test_with_reduced_stochasticity()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
-    config.use_mortality = false;
+    config.use_mortality = true;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
     config.use_treatments = false;
@@ -215,7 +215,7 @@ int test_deterministic()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
-    config.use_mortality = false;
+    config.use_mortality = true;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
     config.use_treatments = false;
@@ -356,7 +356,7 @@ int test_deterministic_exponential()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
-    config.use_mortality = false;
+    config.use_mortality = true;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
     config.use_treatments = false;
@@ -654,10 +654,9 @@ int test_model_sei_deterministic_with_treatments()
     std::vector<std::vector<int>> movements;
 
     TestModel::StandardSingleHostPool host_pool(
-        model_type_from_string(config.model_type),
+        config,
         susceptible,
         exposed,
-        config.latency_period_steps,
         infected,
         total_exposed,
         resistant,
@@ -665,12 +664,6 @@ int test_model_sei_deterministic_with_treatments()
         died,
         total_hosts,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {&host_pool};
     TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
