@@ -124,6 +124,7 @@ int test_application_ratio_without_mortality()
 
     StandardSingleHostPool host_pool(
         ModelType::SusceptibleInfected,
+        false,
         susceptible,
         exposed,
         0,

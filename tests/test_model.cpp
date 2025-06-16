@@ -625,7 +625,7 @@ int test_model_sei_deterministic_with_treatments()
     config.set_date_end(2020, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
-    config.use_mortality = false;
+    config.use_mortality = true;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
     config.use_treatments = true;
@@ -667,6 +667,13 @@ int test_model_sei_deterministic_with_treatments()
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {&host_pool};
     TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
+    PestHostTable<TestModel::StandardSingleHostPool> pest_host_table(
+        model.environment());
+    pest_host_table.add_host_info(
+        config.establishment_probability,  // using as host susceptibility
+        config.mortality_rate,
+        config.mortality_time_lag);
+    multi_host_pool.set_pest_host_table(pest_host_table);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
