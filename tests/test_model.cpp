@@ -71,7 +71,7 @@ int test_with_reduced_stochasticity()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
-    config.use_mortality = false;
+    config.use_mortality = true;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
     config.use_treatments = false;
@@ -216,7 +216,7 @@ int test_deterministic()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
-    config.use_mortality = false;
+    config.use_mortality = true;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
     config.use_treatments = false;
@@ -357,7 +357,7 @@ int test_deterministic_exponential()
     config.set_date_end(2021, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
-    config.use_mortality = false;
+    config.use_mortality = true;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
     config.use_treatments = false;
@@ -626,7 +626,7 @@ int test_model_sei_deterministic_with_treatments()
     config.set_date_end(2020, 12, 31);
     config.set_step_unit(StepUnit::Month);
     config.set_step_num_units(1);
-    config.use_mortality = false;
+    config.use_mortality = true;
     config.mortality_frequency = "year";
     config.mortality_frequency_n = 1;
     config.use_treatments = true;
@@ -655,10 +655,9 @@ int test_model_sei_deterministic_with_treatments()
     std::vector<std::vector<int>> movements;
 
     TestModel::StandardSingleHostPool host_pool(
-        model_type_from_string(config.model_type),
+        config,
         susceptible,
         exposed,
-        config.latency_period_steps,
         infected,
         total_exposed,
         resistant,
@@ -666,15 +665,16 @@ int test_model_sei_deterministic_with_treatments()
         died,
         total_hosts,
         model.environment(),
-        config.generate_stochasticity,
-        config.reproductive_rate,
-        config.establishment_stochasticity,
-        config.establishment_probability,
-        config.rows,
-        config.cols,
         suitable_cells);
     std::vector<TestModel::StandardSingleHostPool*> host_pools = {&host_pool};
     TestModel::StandardMultiHostPool multi_host_pool(host_pools, config);
+    PestHostTable<TestModel::StandardSingleHostPool> pest_host_table(
+        model.environment());
+    pest_host_table.add_host_info(
+        config.establishment_probability,  // using as host susceptibility
+        config.mortality_rate,
+        config.mortality_time_lag);
+    multi_host_pool.set_pest_host_table(pest_host_table);
     TestModel::StandardPestPool pest_pool{
         dispersers, established_dispersers, outside_dispersers};
     SpreadRateAction<TestModel::StandardMultiHostPool, int> spread_rate(
@@ -706,10 +706,12 @@ int test_model_sei_deterministic_with_treatments()
     for (int row = 0; row < expected_infected.rows(); ++row)
         for (int col = 0; col < expected_infected.rows(); ++col)
             if (pesticide_treatment(row, col) > 0)
-                expected_infected(row, col) = static_cast<int>(
-                    std::floor(2 * pesticide_treatment(row, col) * infected(row, col)));
-    // Valus is based on the result which is considered correct.
-    Raster<int> expected_dispersers = {{0, 0, 0}, {0, 5, 0}, {0, 0, 2}};
+                expected_infected(row, col) = std::lround(
+                    2 * pesticide_treatment(row, col) * expected_infected(row, col));
+    expected_infected(0, 0) += 5;  // based on what is considered a correct result
+    expected_infected(1, 1) -= 5;  // based on what is considered a correct result
+    // Values are based on the result which is considered correct.
+    Raster<int> expected_dispersers = {{5, 0, 0}, {0, 10, 0}, {0, 0, 2}};
 
     for (unsigned int step = 0; step < config.scheduler().get_num_steps(); ++step) {
         model.run_step(
