@@ -100,6 +100,85 @@ int test_application_ratio()
     return num_errors;
 }
 
+/**
+ * @brief Test treatment without active mortality
+ * @return Number of errors encountered
+ */
+int test_application_ratio_without_mortality()
+{
+    int num_errors = 0;
+    Scheduler scheduler(Date(2020, 1, 1), Date(2020, 12, 31), StepUnit::Month, 1);
+
+    TestEnvironment environment;
+
+    Raster<double> tr1 = {{1, 0.5}, {0.75, 0}};
+    Raster<int> susceptible = {{10, 6}, {20, 42}};
+    Raster<int> resistant = {{0, 0}, {0, 0}};
+    Raster<int> infected = {{1, 4}, {16, 40}};
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+    auto total_hosts = infected + susceptible + resistant;
+    std::vector<Raster<int>> exposed;
+    std::vector<Raster<int>> mortality_tracker;
+
+    std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+
+    StandardSingleHostPool host_pool(
+        ModelType::SusceptibleInfected,
+        false,
+        susceptible,
+        exposed,
+        0,
+        infected,
+        zeros,
+        resistant,
+        mortality_tracker,
+        zeros,
+        total_hosts,
+        environment,
+        false,
+        0,
+        false,
+        0,
+        infected.rows(),
+        infected.cols(),
+        suitable_cells);
+
+    // First, test that host pool works for the case without mortality.
+    for (int row = 0; row < infected.rows(); ++row) {
+        for (int col = 0; col < infected.cols(); ++col) {
+            auto mortality_groups = host_pool.mortality_by_group_at(row, col);
+            if (mortality_groups.size() != 1) {
+                std::cerr << "Expected a single mortality group from host pool but got "
+                          << mortality_groups.size() << "\n";
+                num_errors++;
+            }
+            if (mortality_groups[0] != host_pool.infected_at(row, col)) {
+                std::cerr
+                    << "Host pool does not work as expected: "
+                    << "The single mortality group is diferent from total infected ("
+                    << mortality_groups[0] << " != " << host_pool.infected_at(row, col)
+                    << ")\n";
+                num_errors++;
+            }
+        }
+    }
+
+    Treatments<StandardSingleHostPool, Raster<double>> treatments(scheduler);
+    treatments.add_treatment(tr1, Date(2020, 1, 1), 0, TreatmentApplication::Ratio);
+    treatments.manage(0, host_pool);
+
+    Raster<int> treated = {{0, 3}, {5, 42}};
+    Raster<int> inf_treated = {{0, 2}, {4, 40}};
+    auto th_treated = treated + inf_treated + resistant;
+    if (!(susceptible == treated && infected == inf_treated
+          && total_hosts == th_treated)) {
+        std::cerr << "Treatment with ratio app does not work without mortality\n";
+        std::cerr << susceptible << infected << total_hosts;
+        num_errors++;
+    }
+    return num_errors;
+}
+
 int test_application_all_inf()
 {
     int num_errors = 0;
@@ -730,6 +809,7 @@ int main()
     int num_errors = 0;
 
     num_errors += test_application_ratio();
+    num_errors += test_application_ratio_without_mortality();
     num_errors += test_application_all_inf();
     num_errors += test_application_ratio_pesticide();
     num_errors += test_application_all_inf_pesticide();
