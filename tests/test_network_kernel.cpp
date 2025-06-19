@@ -1,4 +1,3 @@
-#include <fstream>
 #include <regex>
 #include <random>
 
@@ -7,6 +6,7 @@
 using namespace pops;
 
 #include <numeric>
+#include <memory>
 
 template<typename Number, typename Container>
 Number sum(const Container& container)
@@ -98,7 +98,13 @@ int test_model_with_network()
     config.bbox.east = 100;
     config.bbox.west = 0;
 
-    Network<int> network{config.bbox, config.ew_res, config.ns_res};
+    Network<int> network{
+        config.bbox,
+        config.ew_res,
+        config.ns_res,
+        config.network_movement,
+        config.network_min_distance,
+        config.network_max_distance};
     std::stringstream network_stream{
         "1,2,16.7;16.7;50.0;16.7;50.0;50.0;50.0;83.3\n"
         "4,3,83.3;50.0;83.3;83.3\n"};
@@ -166,11 +172,533 @@ int test_model_with_network()
     return ret;
 }
 
+/**
+ * Same as the test for single network, but using a multi network object.
+ */
+int test_model_with_multinetwork()
+{
+    // Data
+    Raster<int> infected = {{0, 50, 0}, {0, 0, 50}, {0, 0, 0}};
+    Raster<int> susceptible = {{100, 100, 100}, {100, 0, 100}, {100, 0, 100}};
+    auto total_hosts = infected + susceptible;
+    Raster<int> total_populations{total_hosts};
+    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
+    // Reference data (to be modified later)
+    auto original_infected = infected;
+    // Simulation data
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+    // Empty data
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+    std::vector<Raster<double>> empty_floats;
+    std::vector<Raster<int>> empty_ints(
+        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    // Config
+    Config config;
+    config.random_seed = 0;
+    config.model_type = "SI";
+    config.reproductive_rate = 100;
+    config.natural_kernel_type = "cauchy";
+    config.natural_scale = 0.1;
+    config.anthro_kernel_type = "network";
+    config.network_movement_types = {"walk"};
+    double resolution = 33.3;
+    config.network_min_distances = {0};
+    config.network_max_distances = {9 * resolution};
+    config.use_anthropogenic_kernel = true;
+    config.percent_natural_dispersal = 0;
+    config.use_spreadrates = false;
+    config.anthro_scale = config.natural_scale;  // Unused, but we need to set it.
+    config.rows = 3;
+    config.cols = 3;
+    config.ew_res = resolution;
+    config.ns_res = resolution;
+
+    config.set_date_start(2001, 3, 1);
+    config.set_date_end(2001, 3, 3);
+    config.create_schedules();
+
+    config.bbox.north = 100;
+    config.bbox.south = 0;
+    config.bbox.east = 100;
+    config.bbox.west = 0;
+
+    MultiNetwork<Raster<double>::IndexType> network{config};
+    std::stringstream network_stream{
+        "1,2,16.7;16.7;50.0;16.7;50.0;50.0;50.0;83.3\n"
+        "4,3,83.3;50.0;83.3;83.3\n"};
+    network.load(0, network_stream);
+
+    // Objects
+    std::vector<std::vector<int>> suitable_cells =
+        find_suitable_cells<int>(total_hosts);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
+    std::vector<std::vector<int>> movements;
+    Model<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        MultiNetwork<Raster<double>::IndexType>>
+        model(config);
+    // Run
+    for (unsigned step = 0; step < config.scheduler().get_num_steps(); ++step) {
+        model.run_step(
+            step,
+            infected,
+            susceptible,
+            total_populations,
+            total_hosts,
+            dispersers,
+            established_dispersers,
+            total_exposed,
+            empty_ints,
+            empty_ints,
+            zeros,
+            empty_floats,
+            empty_floats,
+            zeros,
+            outside_dispersers,
+            quarantine,
+            zeros,
+            movements,
+            network,
+            suitable_cells);
+    }
+
+    int ret = 0;
+    std::vector<std::pair<int, int>> should_be_same{{0, 0}, {1, 0}, {2, 2}};
+    for (const auto& coords : should_be_same) {
+        if (original_infected(coords.first, coords.second)
+            != infected(coords.first, coords.second)) {
+            std::cerr << "Trivial MultiNetwork test:\n";
+            std::cerr << "Infected at: " << coords.first << ", " << coords.second
+                      << " is different but should be the same" << " (is "
+                      << original_infected(coords.first, coords.second)
+                      << " but should be " << infected(coords.first, coords.second)
+                      << ").\n";
+            ret += 1;
+        }
+    }
+    if (sum(original_infected) >= sum(infected)) {
+        std::cerr << "Trivial MultiNetwork test:\n";
+        std::cerr << "New infected not higher than original.\n";
+        ret += 1;
+    }
+    Raster<int> expected_infected = {{0, 150, 100}, {0, 0, 150}, {100, 0, 0}};
+    if (expected_infected != infected) {
+        std::cerr << "Trivial MultiNetwork test:\n";
+        std::cerr << "Infected cell values are not as expected.\n";
+        ret += 1;
+    }
+    if (ret) {
+        std::cerr << "Trivial MultiNetwork test:\n";
+        std::cerr << "New (unexpected) infected:\n" << infected << "\n";
+        std::cerr << "Original (starting) infected:\n" << original_infected << "\n";
+        std::cerr << "Expected infected:\n" << expected_infected << "\n";
+    }
+    return ret;
+}
+
+/**
+ * Test multiple networks
+ */
+int test_model_with_multiple_networks()
+{
+    // Data
+    Raster<int> infected = {{10, 0, 0}, {0, 0, 10}, {10, 0, 0}};
+    Raster<int> total_hosts = {{100, 100, 100}, {100, 100, 100}, {100, 100, 100}};
+    auto susceptible = total_hosts - infected;
+    Raster<int> total_populations{total_hosts};
+    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
+    // Reference data (to be modified later)
+    auto original_infected = infected;
+    // Simulation data
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+    // Empty data
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+    std::vector<Raster<double>> empty_floats;
+    std::vector<Raster<int>> empty_ints(
+        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    // Config
+    Config config;
+    config.random_seed = 0;
+    config.model_type = "SI";
+    config.reproductive_rate = 100;
+    config.natural_kernel_type = "cauchy";
+    config.natural_scale = 0.1;
+    config.anthro_kernel_type = "network";
+    config.network_movement_types = {"jump", "jump", "walk"};
+    config.network_min_distances = {10, 10, 10};
+    config.network_max_distances = {20, 20, 10};
+    config.use_anthropogenic_kernel = true;
+    config.percent_natural_dispersal = 0;
+    config.use_spreadrates = false;
+    config.anthro_scale = config.natural_scale;  // Unused, but we need to set it.
+    config.rows = 3;
+    config.cols = 3;
+    config.ew_res = 10;
+    config.ns_res = 10;
+
+    config.set_date_start(2001, 3, 1);
+    config.set_date_end(2001, 3, 3);
+    config.create_schedules();
+
+    config.bbox.north = 30;
+    config.bbox.south = 0;
+    config.bbox.east = 30;
+    config.bbox.west = 0;
+
+    /*
+     * Nodes (n):
+     *
+     * ```
+     *       5   15   25 (x)
+     * --- ---- ---- ----
+     * 25 | n1 |    | n2 |  0
+     * 15 |    | n5 | n6 |  1
+     *  5 | n3 | n4 |    |  2
+     * --- ---- ---- ----
+     *  (y)   0    1    2
+     * ```
+     *
+     * There are no cells which get infected without a node,
+     * so there is really only the network spread.
+     */
+    MultiNetwork<Raster<double>::IndexType> network{config};
+    std::stringstream network_stream;
+    network_stream.str("1,2,5;25;15;25;25;25\n");
+    network.load(0, network_stream);
+    network_stream.clear();
+    network_stream.str("3,4,5;5;25;5\n");
+    network.load(1, network_stream);
+    network_stream.clear();
+    network_stream.str("5,6,15;15;25;15\n");
+    network.load(2, network_stream);
+
+    // Objects
+    std::vector<std::vector<int>> suitable_cells =
+        find_suitable_cells<int>(total_hosts);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
+    std::vector<std::vector<int>> movements;
+    Model<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        MultiNetwork<Raster<double>::IndexType>>
+        model(config);
+    // Run
+    for (unsigned step = 0; step < config.scheduler().get_num_steps(); ++step) {
+        model.run_step(
+            step,
+            infected,
+            susceptible,
+            total_populations,
+            total_hosts,
+            dispersers,
+            established_dispersers,
+            total_exposed,
+            empty_ints,
+            empty_ints,
+            zeros,
+            empty_floats,
+            empty_floats,
+            zeros,
+            outside_dispersers,
+            quarantine,
+            zeros,
+            movements,
+            network,
+            suitable_cells);
+    }
+
+    int ret = 0;
+    std::vector<std::pair<int, int>> should_be_same{{0, 1}, {1, 0}, {2, 1}};
+    for (const auto& coords : should_be_same) {
+        if (original_infected(coords.first, coords.second)
+            != infected(coords.first, coords.second)) {
+            std::cerr << "Test with multiple networks:\n";
+            std::cerr << "Infected at: " << coords.first << ", " << coords.second
+                      << " is different but should be the same" << " (is "
+                      << original_infected(coords.first, coords.second)
+                      << " but should be " << infected(coords.first, coords.second)
+                      << ").\n";
+            ret += 1;
+        }
+    }
+    if (sum(original_infected) >= sum(infected)) {
+        std::cerr << "Test with multiple networks:\n";
+        std::cerr << "New infected not higher than original.\n";
+        ret += 1;
+    }
+    Raster<int> expected_infected = {{100, 0, 100}, {0, 100, 100}, {100, 0, 100}};
+    if (expected_infected != infected) {
+        std::cerr << "Test with multiple networks:\n";
+        std::cerr << "Infected cell values are not as expected.\n";
+        ret += 1;
+    }
+    if (ret) {
+        std::cerr << "Test with multiple networks:\n";
+        std::cerr << "New (unexpected) infected: \n" << infected << "\n";
+        std::cerr << "Original (starting) infected: \n" << original_infected << "\n";
+        std::cerr << "Expected infected: \n" << expected_infected << "\n";
+    }
+    return ret;
+}
+
+/**
+ * Test selection between multiple networks
+ */
+int test_model_with_weighted_networks()
+{
+    // Data
+    Raster<int> infected = {{10, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    Raster<int> total_hosts = {{100, 100, 100}, {100, 100, 100}, {100, 100, 100}};
+    auto susceptible = total_hosts - infected;
+    Raster<int> total_populations{total_hosts};
+    Raster<int> total_exposed(infected.rows(), infected.cols(), 0);
+    // Reference data (to be modified later)
+    auto original_infected = infected;
+    // Simulation data
+    Raster<int> dispersers(infected.rows(), infected.cols());
+    Raster<int> established_dispersers(infected.rows(), infected.cols());
+    std::vector<std::tuple<int, int>> outside_dispersers;
+    // Empty data
+    Raster<int> zeros(infected.rows(), infected.cols(), 0);
+    std::vector<Raster<double>> empty_floats;
+    std::vector<Raster<int>> empty_ints(
+        1, Raster<int>(infected.rows(), infected.cols(), 0));
+    // Config
+    Config config;
+    config.random_seed = 0;
+    config.model_type = "SI";
+    config.reproductive_rate = 100;
+    config.natural_kernel_type = "cauchy";
+    config.natural_scale = 0.1;
+    config.anthro_kernel_type = "network";
+    // We jump, not walk, so that we do not spread to cells without network nodes.
+    config.network_movement_types = {"jump", "jump", "jump"};
+    config.network_min_distances = {10, 10, 10};
+    config.network_max_distances = {20, 20, 20};
+    config.network_weights = {1, 0, 1};
+    config.use_anthropogenic_kernel = true;
+    config.percent_natural_dispersal = 0;
+    config.use_spreadrates = false;
+    config.anthro_scale = config.natural_scale;  // Unused, but we need to set it.
+    config.rows = 3;
+    config.cols = 3;
+    config.ew_res = 10;
+    config.ns_res = 10;
+
+    config.set_date_start(2001, 3, 1);
+    config.set_date_end(2001, 3, 3);
+    config.create_schedules();
+
+    config.bbox.north = 30;
+    config.bbox.south = 0;
+    config.bbox.east = 30;
+    config.bbox.west = 0;
+
+    /*
+     * Nodes (n):
+     *
+     * ```
+     *       5   15   25 (x)
+     * --- ---- ---- ----
+     * 25 | n1 |    | n2 |  0
+     * 15 |    |    |    |  1
+     *  5 | n3 |    | n4 |  2
+     * --- ---- ---- ----
+     *  (y)   0    1    2
+     * ```
+     *
+     * There are no cells which get infected without a node,
+     * so there is really only the network spread.
+     */
+    MultiNetwork<Raster<double>::IndexType> network{config};
+    std::stringstream network_stream;
+    network_stream.str("1,2,5;25;15;25;25;25\n");
+    network.load(0, network_stream);
+    network_stream.clear();
+    network_stream.str("1,3,5;25;5;15;5;5\n");
+    network.load(1, network_stream);
+    network_stream.clear();
+    network_stream.str("1,4,5;25;15;15;25;5\n");
+    network.load(2, network_stream);
+
+    // Objects
+    std::vector<std::vector<int>> suitable_cells =
+        find_suitable_cells<int>(total_hosts);
+    QuarantineEscapeAction<Raster<int>> quarantine(
+        zeros, config.ew_res, config.ns_res, 0);
+    std::vector<std::vector<int>> movements;
+    Model<
+        Raster<int>,
+        Raster<double>,
+        Raster<double>::IndexType,
+        MultiNetwork<Raster<double>::IndexType>>
+        model(config);
+    // Run
+    for (unsigned step = 0; step < config.scheduler().get_num_steps(); ++step) {
+        model.run_step(
+            step,
+            infected,
+            susceptible,
+            total_populations,
+            total_hosts,
+            dispersers,
+            established_dispersers,
+            total_exposed,
+            empty_ints,
+            empty_ints,
+            zeros,
+            empty_floats,
+            empty_floats,
+            zeros,
+            outside_dispersers,
+            quarantine,
+            zeros,
+            movements,
+            network,
+            suitable_cells);
+    }
+
+    int ret = 0;
+    std::vector<std::pair<int, int>> should_be_higher_than_base{{0, 2}, {2, 2}};
+    // Node which we should not touch.
+    std::pair<int, int> base_coords{2, 0};
+    for (const auto& coords : should_be_higher_than_base) {
+        if (infected(coords.first, coords.second)
+            <= infected(base_coords.first, base_coords.second)) {
+            std::cerr << "Infected at: " << coords.first << ", " << coords.second
+                      << " should higher than base node at " << base_coords.first
+                      << ", " << base_coords.second << " (is "
+                      << infected(coords.first, coords.second) << " but base is "
+                      << infected(base_coords.first, base_coords.second) << ").\n";
+            ret += 1;
+        }
+    }
+    if (sum(original_infected) >= sum(infected)) {
+        std::cerr << "New infected not higher than original.\n";
+        ret += 1;
+    }
+    Raster<int> expected_infected = {{100, 0, 100}, {0, 0, 0}, {0, 0, 100}};
+    if (expected_infected != infected) {
+        std::cerr << "Infected cell values are not as expected.\n";
+        ret += 1;
+    }
+    if (ret) {
+        std::cerr << "Test with weighted networks:\n";
+        std::cerr << "New (unexpected) infected: \n" << infected << "\n";
+        std::cerr << "Original (starting) infected: \n" << original_infected << "\n";
+        std::cerr << "Expected infected: \n" << expected_infected << "\n";
+    }
+    return ret;
+}
+
+template<typename NetworkType>
+int mock_model_run_step_function(const NetworkType& network)
+{
+    std::default_random_engine generator;
+    int row;
+    int col;
+    int start_row = 0;
+    int start_col = 2;
+    std::tie(row, col) = network.move(start_row, start_col, generator);
+    bool is_different = (row != start_row || col != start_col);
+    if (!is_different) {
+        std::cout << "No movement: row, col: " << row << ", " << col << "\n";
+    }
+    return int(!is_different);
+}
+
+int test_usage_example_single_network()
+{
+    std::cout << "test_usage_example_single_network" << "\n";
+    Config config;
+    config.ns_res = 10;
+    config.ew_res = 10;
+    std::unique_ptr<Network<int>> network{nullptr};
+    config.bbox.north = 30;
+    config.bbox.south = 0;
+    config.bbox.east = 30;
+    config.bbox.west = 0;
+    std::string network_movement = "walk";
+    config.network_movement = network_movement;
+    config.network_min_distance = 25;
+    config.network_max_distance = 30;
+    network.reset(new Network<int>(
+        config.bbox,
+        config.ew_res,
+        config.ns_res,
+        config.network_movement,
+        config.network_min_distance,
+        config.network_max_distance));
+    std::istringstream network_stream{"1,2,5;25;15;25;25;25\n"};
+    network->load(network_stream);
+    int ret =
+        mock_model_run_step_function(network ? *network : Network<int>::null_network());
+    return ret;
+}
+
+int test_usage_example_multiple_networks()
+{
+    Config config;
+    config.ns_res = 10;
+    config.ew_res = 10;
+    // In this usage pattern, network pointer initialization happens everytime
+    // even if we don't use a network.
+    std::unique_ptr<MultiNetwork<int>> network{nullptr};
+
+    // Initialize the config from whatever data structure we have
+    // (here hardcoded literals).
+    config.bbox.north = 30;
+    config.bbox.south = 0;
+    config.bbox.east = 30;
+    config.bbox.west = 0;
+    std::vector<double> network_min_distances = {25, 25};
+    std::vector<double> network_max_distances = {30, 30};
+    std::vector<std::string> network_movements = {"walk", "walk"};
+    if (network_min_distances.size() != network_min_distances.size()
+        || network_max_distances.size() != network_movements.size()) {
+        throw std::runtime_error(
+            "Inputs for multiple networks have inconsistent sizes");
+    }
+    for (size_t i = 0; i < network_movements.size(); ++i) {
+        config.network_min_distances.push_back(network_min_distances.at(i));
+        config.network_max_distances.push_back(network_max_distances.at(i));
+        config.network_movement_types.push_back(network_movements.at(i));
+    }
+    // At this point, we know, we are creating a network, so we use config to do that.
+    // We use config as a parameter, rather than the individual parameter because
+    // that's how other objects are used, although in this code, individual parameters
+    // would make a better sense.
+    network.reset(new MultiNetwork<int>(config));
+    // Here, our network data are string literals, but they could be filenames
+    // if we load from files instead of strings.
+    std::vector<std::string> network_inputs = {
+        "1,2,5;25;15;25;25;25\n", "1,3,5;25;5;15;5;5\n"};
+    network->load_from_strings(network_inputs);
+    // Now pass network to the Model
+    int ret = mock_model_run_step_function(
+        network ? *network : MultiNetwork<int>::null_network());
+    return ret;
+}
+
 int run_tests()
 {
     int ret = 0;
 
     ret += test_model_with_network();
+    ret += test_model_with_multinetwork();
+    ret += test_model_with_multiple_networks();
+    ret += test_model_with_weighted_networks();
+    ret += test_usage_example_single_network();
+    ret += test_usage_example_multiple_networks();
 
     if (ret)
         std::cerr << "Number of errors in the network kernel test: " << ret << "\n";
