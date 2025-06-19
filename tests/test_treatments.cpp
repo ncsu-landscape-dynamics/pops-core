@@ -65,6 +65,7 @@ int test_application_ratio()
 
     StandardSingleHostPool host_pool(
         ModelType::SusceptibleInfected,
+        bool(mortality_tracker.size()),
         susceptible,
         exposed,
         0,
@@ -119,6 +120,7 @@ int test_application_all_inf()
 
     StandardSingleHostPool host_pool(
         ModelType::SusceptibleInfected,
+        bool(mortality_tracker.size()),
         susceptible,
         exposed,
         0,
@@ -175,6 +177,7 @@ int test_application_ratio_pesticide()
 
     StandardSingleHostPool host_pool(
         ModelType::SusceptibleInfected,
+        bool(mortality_tracker.size()),
         susceptible,
         exposed,
         0,
@@ -256,6 +259,7 @@ int test_application_all_inf_pesticide()
 
     StandardSingleHostPool host_pool(
         ModelType::SusceptibleInfected,
+        bool(mortality_tracker.size()),
         susceptible,
         exposed,
         0,
@@ -342,6 +346,7 @@ int test_combination()
 
     StandardSingleHostPool host_pool(
         ModelType::SusceptibleInfected,
+        bool(mortality_tracker.size()),
         susceptible,
         exposed,
         0,
@@ -437,6 +442,7 @@ int test_pesticide_temporal_overlap()
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     StandardSingleHostPool host_pool(
         ModelType::SusceptibleInfected,
+        bool(mortality_tracker.size()),
         susceptible,
         exposed,
         0,
@@ -542,6 +548,7 @@ int test_steering()
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     StandardSingleHostPool host_pool(
         ModelType::SusceptibleInfected,
+        bool(mortality_tracker.size()),
         susceptible,
         exposed,
         0,
@@ -642,6 +649,7 @@ int test_clear()
     std::vector<std::vector<int>> suitable_cells = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
     StandardSingleHostPool host_pool(
         ModelType::SusceptibleInfected,
+        bool(mortality_tracker.size()),
         susceptible,
         exposed,
         0,

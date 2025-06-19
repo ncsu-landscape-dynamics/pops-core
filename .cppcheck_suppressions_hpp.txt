@@ -1,3 +1,5 @@
+constParameterReference
+constVariableReference
 missingIncludeSystem
 unusedFunction
 passedByValue
@@ -9,3 +11,4 @@ shadowArgument
 unsignedLessThanZero
 variableScope
 uninitMemberVar
+unusedStructMember
