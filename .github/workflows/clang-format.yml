@@ -10,9 +10,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Get clang-format-lint-action as image
-      run: |
-        docker build -t doozyx/clang-format-lint-action "github.com/DoozyX/clang-format-lint-action"
     - name: Run clang-format lint
-      run: |
-        docker run --rm --workdir /src -v $(pwd):/src doozyx/clang-format-lint-action --clang-format-executable /clang-format/clang-format19 -r --exclude .git include/*/*.hpp tests/*.cpp
+      uses: DoozyX/clang-format-lint-action@v0.20
+      with:
+        source: 'include tests'
+        extensions: 'hpp,cpp'
+        exclude: './.git'
+        clangFormatVersion: 19
