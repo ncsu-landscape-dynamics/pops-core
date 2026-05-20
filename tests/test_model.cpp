@@ -748,7 +748,7 @@ int test_model_sei_deterministic_with_treatments()
 }
 
 /**
- * Test the model with with mortality
+ * Test the model with mortality
  */
 int test_deterministic_with_mortality()
 {
