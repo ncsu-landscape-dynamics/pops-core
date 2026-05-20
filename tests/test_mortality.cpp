@@ -26,7 +26,6 @@
 
 #include <pops/raster.hpp>
 #include <pops/simulation.hpp>
-#include <pops/neighbor_kernel.hpp>
 
 #include <map>
 #include <iostream>
