@@ -37,6 +37,40 @@ The unreleased section contains upcoming changes.
 At release time, its content moves to a new release version section
 and it remains empty until a new change is added.
 
+### Added
+
+- Add survival rate to move percentage of exposed or infected hosts to susceptible hosts. #175 (Anna Petrasova)
+- Allow snapping to the closest node in the network (walk, but then snap). #166 (Vaclav Petras)
+- Add teleporting to the closest node in the network (pick node by probability). #168 (Vaclav Petras)
+- Distinguish three network movement types in configuration: walk, jump, and teleport. #181 (Vaclav Petras)
+- Add soil pool with aging. #182 (Vaclav Petras)
+- Add probabilistic weather. #190 (Vaclav Petras, Anna Petrasova)
+- Add option to specify only certain combination of N, S, E, W directions for quarantine. #196 (Anna Petrasova)
+- Allow separate seeds and random number generators for different parts of the model. #192 (Vaclav Petras)
+- Add multi-host pool. #205 (Vaclav Petras)
+
+### Changed
+
+- Use faster lookup for network segments. #170 (Vaclav Petras)
+- Change deterministic (disabled by default) to dispersal stochasticity (enabled by default). #183 (Chris Jones)
+- Use host pool and action objects to manage data and operations in the Model class and use the Simulation class only for tests. #184, #203 (Vaclav Petras)
+- Disable the infected-to-dead transition when mortality rate is 0 to fixes unstable behavior when computing mortality with rate 0. #210 (Vaclav Petras)
+- Add more checks and details in error messages. #209, #219 (Vaclav Petras)
+- Replace automatic adding of established dispersers and then conditional removal by simple conditional adding for code clarity. #212 (Vaclav Petras)
+- Add to suitable cells only when needed to minimize growing the index. (#213) (Vaclav Petras)
+- Round numbers when converting to integers, provide overloads, or require an explicit cast. #214, #215, #217, #216, #223, #222, #221, #224, #225 (Vaclav Petras)
+- Allow network edge to begin and end at the same node for round trips. #220 (Vaclav Petras)
+- Explicitly disable mortality in host pool through configuration to allow the unused mortality tracker data to be of arbitrary size. #231 (Vaclav Petras)
+- Thanks to the design centered around the host pool (#184) and careful floating point number rounding, the counts of individual hosts are now more precise.
+
+### Fixed
+
+- Node ID checks for networks now throw an exception instead of being silent. #169 (Vaclav Petras)
+- Fix code issues, misspellings, and typos. Use Cppcheck to improve code quality. #176, #177, #191, #197, #202, #227 (Vaclav Petras)
+- Fix establishment dispersers being increased when disperser falls outside of the area. Use destination weather when establishing dispersers. #185 (Chris Jones)
+- Use += and negative 1 instead of -= for raster operations to accommodate operators available in Rcpp. #187 (Chris Jones)
+- Remove spatial index from computation of quarantine areas bounding boxes. #189 (Anna Petrasova)
+
 ## [2.0.0] - 2021-12-02
 
 ### Added

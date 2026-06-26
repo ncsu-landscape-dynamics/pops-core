@@ -12,7 +12,7 @@ subset enforced by Black and for C++ specific items by mix of LLVM and Qt.
 
 #### Formatting
 
-Formatting is managed by *clang-format* tool. You need to have version 10
+Formatting is managed by *clang-format* tool. You need to have version 19
 to produce results consistent with the current formatting.
 
 Run the formatting on all the files in the top directory:
@@ -21,13 +21,13 @@ Run the formatting on all the files in the top directory:
 clang-format -i include/*/*.hpp tests/*.cpp
 ```
 
-If you have other versions of *clang-format* than 10, use:
+If you have other versions of *clang-format* than 19, use:
 
 ```sh
-clang-format-10 -i include/*/*.hpp tests/*.cpp
+clang-format-19 -i include/*/*.hpp tests/*.cpp
 ```
 
-If it is hard for your to get clang-format or the version 10 directly,
+If it is hard for your to get clang-format or the version 19 directly,
 build a Docker image using:
 
 ```sh
@@ -37,7 +37,7 @@ docker build -t doozyx/clang-format-lint-action "github.com/DoozyX/clang-format-
 Then run the formatting using a Docker container in the top directory:
 
 ```sh
-docker run --rm --workdir /src -v $(pwd):/src --entrypoint /clang-format/clang-format10 doozyx/clang-format-lint-action -i include/*/*.hpp tests/*.cpp
+docker run --rm --workdir /src -v $(pwd):/src --entrypoint /clang-format/clang-format19 doozyx/clang-format-lint-action -i include/*/*.hpp tests/*.cpp
 ```
 
 #### Classes, variables, functions, and templates
