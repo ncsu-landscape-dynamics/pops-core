@@ -106,7 +106,8 @@ int test_with_reduced_stochasticity()
 
     int step = 0;
 
-    Model<Raster<int>, Raster<double>, Raster<double>::IndexType> model(config);
+    using SimpleModel = Model<Raster<int>, Raster<double>, Raster<double>::IndexType>;
+    SimpleModel model(config);
     model.run_step(
         step++,
         infected,
@@ -126,7 +127,7 @@ int test_with_reduced_stochasticity()
         quarantine,
         zeros,
         movements,
-        Network<int>::null_network(),
+        SimpleModel::StandardNetwork::null_network(),
         suitable_cells);
 
     int ret = 0;
